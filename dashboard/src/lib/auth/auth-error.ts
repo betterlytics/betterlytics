@@ -20,3 +20,8 @@ export function classifyAuthError(error: AuthClientError): AuthErrorKind {
   if (error.status === 429) return 'rateLimited';
   return 'other';
 }
+
+// better-auth rejects a password over maxPasswordLength before comparing it, so that is a wrong password too
+export function isWrongPasswordError(error: AuthClientError): boolean {
+  return error.code === 'INVALID_PASSWORD' || error.code === 'PASSWORD_TOO_LONG';
+}

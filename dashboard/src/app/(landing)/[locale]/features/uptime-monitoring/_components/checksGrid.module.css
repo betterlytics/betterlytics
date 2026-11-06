@@ -8,44 +8,6 @@
 }
 
 @layer components {
-  .cell {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .stage {
-    display: grid;
-    place-items: center;
-    height: 204px;
-    border-bottom: 1px solid var(--color-rule-08);
-  }
-  .comp {
-    position: relative;
-    width: 300px;
-    height: 140px;
-  }
-
-  .card {
-    position: absolute;
-    border-radius: 10px;
-    background-color: var(--color-canvas);
-    background-image: linear-gradient(180deg, --alpha(var(--color-fg) / 5%), --alpha(var(--color-fg) / 1.5%));
-    border: 1px solid var(--color-rule-10);
-    box-shadow:
-      0 1px 0 rgb(255 255 255 / 0.04) inset,
-      0 14px 30px rgb(0 0 0 / 0.45);
-    opacity: 0;
-    translate: 0 10px;
-    transition:
-      opacity 0.5s var(--ease-out-expo),
-      translate 0.6s var(--ease-out-expo);
-  }
-  [data-in] .card {
-    opacity: 1;
-    translate: 0;
-  }
-
   .badge {
     position: absolute;
     display: grid;
@@ -303,10 +265,6 @@
   }
   /* the stage's 10px hatch in the shield's blue, ringed around the shield (86px left of centre) */
   .litStage::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
     background: repeating-linear-gradient(315deg, --alpha(var(--color-volt-lift) / 8%) 0 1px, transparent 0 50%) 0
       0 / 10px 10px;
     -webkit-mask-image: radial-gradient(
@@ -323,12 +281,8 @@
       rgb(0 0 0 / 0.4) 74%,
       transparent 96%
     );
-    opacity: 0;
     transition: opacity 0.9s var(--ease-out-expo) 0.35s;
     pointer-events: none;
-  }
-  .litStage[data-in]::before {
-    opacity: 1;
   }
   .shield {
     position: absolute;
@@ -735,14 +689,7 @@
     }
   }
 
-  .copy {
-    padding: 34px 32px 44px;
-    @variant max-sm {
-      padding-inline: var(--pad);
-    }
-  }
   @media (prefers-reduced-motion: reduce) {
-    .card,
     .badge,
     .slider > i > i,
     .reqWire,

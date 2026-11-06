@@ -1,5 +1,119 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v152ChangelogEntryIt: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.2',
+    releasedAt: '2026-10-28',
+    title: 'Traffico AI e rilevamento dei rage click',
+    summary:
+      'Le visite provenienti da assistenti AI come ChatGPT e Claude hanno ora una categoria di traffico dedicata, e il session replay può rilevare i rage click per aiutarti a individuare i visitatori frustrati. Questa versione porta anche suggerimenti più intelligenti nei filtri, un nuovo strumento MCP per le metriche delle sessioni, avvisi SSL più chiari e una serie di correzioni legate al fuso orario.',
+  },
+  sections: [
+    {
+      id: 'v152-new-features',
+      title: 'Nuove funzionalità',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Le visite provenienti da assistenti AI come ChatGPT, Claude, Gemini, Perplexity e Copilot sono state spostate in una categoria AI dedicata.',
+            'Il session replay ora rileva i rage click (clic di frustrazione), che si verificano quando un visitatore clicca ripetutamente sullo stesso punto in rapida successione.',
+            'Ora puoi mostrare o nascondere le annotazioni sul grafico della Panoramica.',
+            "Le pagine di stato possono ora usare un'intestazione trasparente che si fonde con la pagina.",
+            'Un nuovo strumento MCP permette al tuo assistente AI di analizzare frequenza di rimbalzo, durata della visita, pagine per sessione e pagine di ingresso e di uscita, suddivise per dispositivo, area geografica, sito di riferimento o campagna.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'I suggerimenti dei filtri ora mostrano fino a 200 valori, a partire da quelli più comuni.',
+            'I session replay non salvano più la query string né il frammento # degli URL delle pagine.',
+            "Il session replay ora registra in modo più affidabile quando i visitatori passano rapidamente da una pagina all'altra.",
+            'Il player del session replay ha un aspetto rinnovato, con un nuovo cursore e animazioni dei clic.',
+            'Quando un monitor va in errore per un problema con il certificato SSL, i relativi avvisi e incidenti ora indicano con precisione di quale problema si tratta.',
+            "Dopo l'accesso ora torni direttamente alla pagina che stavi cercando di aprire.",
+            'Vari miglioramenti di usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'I grafici ora seguono in modo più coerente il fuso orario selezionato.',
+            'I filtri ora trattano % e _ come caratteri normali. In precedenza questi simboli potevano fungere da caratteri wildcard nascosti e trovare corrispondenze che andavano oltre il testo digitato. Usa * come carattere wildcard.',
+            'Con la cattura degli errori della console attivata, gli errori registrati con console.error ora mostrano il messaggio effettivo e lo stack trace invece di {}.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v152ChangelogModalIt: ChangelogEntryData = {
+  metadata: v152ChangelogEntryIt.metadata,
+  sections: [
+    {
+      id: 'v152-modal-new-features',
+      title: 'Nuove funzionalità',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Le visite provenienti da assistenti AI hanno ora una categoria AI dedicata.',
+            'Il session replay ora rileva i rage click (clic di frustrazione).',
+            'Mostra o nascondi le annotazioni sul grafico della Panoramica.',
+            "Le pagine di stato possono usare un'intestazione trasparente.",
+            'Un nuovo strumento MCP fornisce metriche delle sessioni come frequenza di rimbalzo e durata della visita.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-modal-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'I suggerimenti dei filtri mostrano prima i valori più comuni.',
+            'I session replay non salvano più le query string né i frammenti degli URL.',
+            'Il session replay registra in modo più affidabile durante la navigazione rapida tra le pagine.',
+            'Il player del session replay ha un aspetto rinnovato.',
+            'Gli avvisi SSL ora indicano con precisione il problema del certificato.',
+            "Dopo l'accesso torni direttamente alla pagina che stavi cercando di aprire.",
+            'Vari miglioramenti di usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-modal-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'I grafici seguono in modo più coerente il fuso orario selezionato.',
+            'I filtri trattano % e _ come caratteri normali.',
+            'Gli errori della console catturati ora mostrano il messaggio effettivo e lo stack trace.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v151ChangelogEntryIt: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.1',
@@ -688,9 +802,10 @@ const v144ChangelogEntryIt: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalIt = v151ChangelogModalIt;
+export const latestChangelogModalIt = v152ChangelogModalIt;
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  v152ChangelogEntryIt,
   v151ChangelogEntryIt,
   v150ChangelogEntryIt,
   v149ChangelogEntryIt,

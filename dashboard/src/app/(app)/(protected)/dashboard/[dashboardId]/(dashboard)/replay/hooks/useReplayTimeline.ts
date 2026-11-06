@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { eventWithTime } from '@rrweb/types';
 import { buildTimelineMarkers, type TimelineMarker } from '../ReplayTimeline';
+import { keyForMarker } from '../utils/marker-keys';
 
 function normalizeEvents(events: eventWithTime[]): eventWithTime[] {
   return [...events].sort((a, z) => a.timestamp - z.timestamp);
@@ -56,13 +57,14 @@ export function useReplayTimeline(): UseReplayTimelineReturn {
 
     // Merge and deduplicate markers
     setTimelineMarkers((prev) => {
-      const dedupedByTime = new Map<number, TimelineMarker>();
+      const deduped = new Map<string, TimelineMarker>();
       [...prev, ...markers].forEach((marker) => {
-        if (!dedupedByTime.has(marker.timestamp)) {
-          dedupedByTime.set(marker.timestamp, marker);
+        const dedupKey = `${keyForMarker(marker)}:${marker.timestamp}`;
+        if (!deduped.has(dedupKey)) {
+          deduped.set(dedupKey, marker);
         }
       });
-      return Array.from(dedupedByTime.values()).sort((a, b) => a.timestamp - b.timestamp);
+      return Array.from(deduped.values()).sort((a, b) => a.timestamp - b.timestamp);
     });
 
     // Recalculate duration from all events

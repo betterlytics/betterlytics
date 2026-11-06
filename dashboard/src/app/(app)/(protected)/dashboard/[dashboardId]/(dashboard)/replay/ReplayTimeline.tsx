@@ -16,6 +16,7 @@ import {
   PlayCircle,
   Expand,
   AlertTriangle,
+  Angry,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
@@ -132,6 +133,16 @@ export function buildTimelineMarkers(
 
       if (event.type === EventType.Custom) {
         const customLabel = event.data?.tag || 'Custom event';
+        if (customLabel === 'rage_click') {
+          // The event is emitted when the burst ends; place it where the burst started
+          const payload = event.data?.payload as { timestamp?: unknown } | undefined;
+          const burstStart = typeof payload?.timestamp === 'number' ? payload.timestamp : event.timestamp;
+          return {
+            key: 'Custom event',
+            timestamp: Math.max(Math.min(burstStart, event.timestamp) - baseTimestamp, 0),
+            label: customLabel,
+          } satisfies TimelineMarkerDescriptor;
+        }
         return {
           key: 'Custom event',
           timestamp: timeFromStart,
@@ -171,6 +182,8 @@ function iconForKey(key: MarkerKey | string, theme: 'light' | 'dark'): React.Rea
       return <Lock className={ICON_BASE_CLASS} style={{ color }} />;
     case 'client_error':
       return <AlertTriangle className={ICON_BASE_CLASS} style={{ color }} />;
+    case 'rage_click':
+      return <Angry className={ICON_BASE_CLASS} style={{ color }} />;
     default:
       return <Tag className={ICON_BASE_CLASS} style={{ color }} />;
   }
@@ -198,6 +211,8 @@ function labelForKey(key: MarkerKey | string, t: any) {
       return t('blacklist');
     case 'client_error':
       return t('clientError');
+    case 'rage_click':
+      return t('rageClick');
     default:
       return key;
   }

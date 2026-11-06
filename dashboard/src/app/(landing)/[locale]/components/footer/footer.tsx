@@ -102,6 +102,16 @@ export function LandingFooter() {
               </AppLink>
             </li>
             <li>
+              <AppLink className={LINK} href='/features/session-replay'>
+                {t('product.replay')}
+              </AppLink>
+            </li>
+            <li>
+              <AppLink className={LINK} href='/features/error-tracking'>
+                {t('product.errors')}
+              </AppLink>
+            </li>
+            <li>
               <AppLink className={LINK} href='/pricing'>
                 {t('product.pricing')}
               </AppLink>

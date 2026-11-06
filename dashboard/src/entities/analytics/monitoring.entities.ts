@@ -124,15 +124,12 @@ export const MonitorIncidentSegmentSchema = z.object({
   durationMs: z.number().nullable(),
 });
 
-export const UptimeStatsSchema = z.object({
-  uptimeSeconds: z.number(),
-  totalSeconds: z.number(),
-});
-
+// upRatio is upSeconds / monitoredSeconds, or null when nothing in the bucket was monitored
 export const MonitorUptimeBucketSchema = z.object({
   bucket: z.string(), // ISO timestamp string
   upRatio: z.number().min(0).max(1).nullable(),
-  totalSeconds: z.number().nullable(),
+  monitoredSeconds: z.number(),
+  upSeconds: z.number(),
 });
 
 export const MonitorLatencyStatsSchema = z.object({
@@ -192,7 +189,14 @@ export const MonitorTlsResultSchema = z.object({
 export const MonitorDailyUptimeSchema = z.object({
   date: z.string(), // Calendar day in the requested zone, YYYY-MM-DD
   upRatio: z.number().min(0).max(1).nullable(),
-  totalSeconds: z.number().nullable(),
+  monitoredSeconds: z.number(),
+  upSeconds: z.number(),
+});
+
+export const MonitorDeletionImpactPageSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  willBeEmpty: z.boolean(),
 });
 
 export type MonitorStatus = z.infer<typeof MonitorStatusSchema>;
@@ -204,6 +208,7 @@ export type StatusCodeValue = z.infer<typeof StatusCodeValueSchema>;
 export type MonitorCheck = z.infer<typeof MonitorCheckSchema>;
 export type MonitorCheckCreate = z.infer<typeof MonitorCheckCreateSchema>;
 export type MonitorCheckUpdate = z.infer<typeof MonitorCheckUpdateSchema>;
+export type MonitorDeletionImpactPage = z.infer<typeof MonitorDeletionImpactPageSchema>;
 
 // This is the primary type used in list views
 export type MonitorWithStatus = MonitorCheck & {
@@ -211,6 +216,7 @@ export type MonitorWithStatus = MonitorCheck & {
   effectiveIntervalSeconds: number | null;
   backoffLevel: number | null;
   uptimeBuckets: MonitorUptimeBucket[];
+  uptimePercent: number | null;
   tls: MonitorTlsResult | null;
   operationalState: MonitorOperationalState;
   currentStateSince: string | null;
@@ -228,12 +234,11 @@ export type MonitorRangeSummary = {
   backoffLevel: number | null;
   uptimePercent: number | null;
   uptimeSeconds: number;
-  totalSeconds: number;
+  monitoredSeconds: number;
   latency: MonitorLatencyStats;
   tls: MonitorTlsResult | null;
 };
 
-export type UptimeStats = z.infer<typeof UptimeStatsSchema>;
 export type MonitorUptimeBucket = z.infer<typeof MonitorUptimeBucketSchema>;
 export type MonitorLatencyStats = z.infer<typeof MonitorLatencyStatsSchema>;
 export type MonitorLatencyPoint = z.infer<typeof MonitorLatencyPointSchema>;

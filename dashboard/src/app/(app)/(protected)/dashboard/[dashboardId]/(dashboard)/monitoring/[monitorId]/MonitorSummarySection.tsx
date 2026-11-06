@@ -2,7 +2,7 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { computeDowntimeFromUptimeHours, formatPercentage } from '@/utils/formatters';
+import { computeDowntimeFromUptimeHours, formatUptime } from '@/utils/formatters';
 import { formatCompactFromMilliseconds, formatLocalDateTime, formatElapsedTime } from '@/utils/dateFormatters';
 import { computeDaysUntil } from '@/utils/dateHelpers';
 import { presentLatencyStatus, presentMonitorStatus, presentUptimeTone, presentSslStatus } from '../styles';
@@ -264,7 +264,7 @@ function Last24hCard({
   const t = useTranslations('monitoringDetailPage.summary.last24h');
   const tDowntime = useTranslations('monitoringDetailPage.downtime');
   const formattedPercent =
-    uptimePercent != null ? formatPercentage(uptimePercent, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2, trimHundred: true }) : '— %';
+    uptimePercent != null ? formatUptime(uptimePercent, locale) : '— %';
   const downtimeMeta =
     uptimePercent != null && uptimeHours != null
       ? computeDowntimeFromUptimeHours(uptimePercent, uptimeHours)
@@ -338,11 +338,12 @@ function SslCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslCardProps) {
 
   const displayValue = isExpired ? tSsl('expired') : sslTimeRemaining ? String(sslTimeRemaining.value) : '—';
 
-  const unitLabel = sslTimeRemaining
-    ? sslTimeRemaining.unit === 'hours'
-      ? t('hoursLeft', { count: sslTimeRemaining.value })
-      : t('daysLeft', { count: sslTimeRemaining.value })
-    : null;
+  const unitLabel =
+    sslTimeRemaining && !isExpired
+      ? sslTimeRemaining.unit === 'hours'
+        ? t('hoursLeft', { count: sslTimeRemaining.value })
+        : t('daysLeft', { count: sslTimeRemaining.value })
+      : null;
 
   return (
     <SummaryCard
@@ -372,9 +373,9 @@ function SslCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslCardProps) {
         >
           {displayValue}
         </p>
-        {!isDisabled && unitLabel && (
+        {!isDisabled && (unitLabel || (isExpired && expiresLabel)) && (
           <div className='flex flex-col gap-0.5 text-xs leading-tight sm:text-sm'>
-            <p className='text-foreground font-semibold capitalize'>{unitLabel}</p>
+            {unitLabel && <p className='text-foreground font-semibold capitalize'>{unitLabel}</p>}
             {expiresLabel && (
               <p className='text-muted-foreground font-medium'>{t('expires', { date: expiresLabel })}</p>
             )}

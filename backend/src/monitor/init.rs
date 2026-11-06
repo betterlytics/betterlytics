@@ -12,12 +12,18 @@ use crate::notifications::NotificationEngine;
 use crate::postgres::PostgresPool;
 
 use super::alert::new_alert_history_writer;
+use super::backoff_store::load_backoff_seeds;
 use super::probe::DEFAULT_PROBE_TIMEOUT_MS;
 use super::{
-    new_monitor_writer, DomainRateLimiter, HttpRunner, HttpRuntimeConfig, IncidentOrchestrator,
-    IncidentOrchestratorConfig, MonitorCache, MonitorCacheConfig, MonitorCheckDataSource,
-    MonitorProbe, MonitorRepository, TlsRunner, TlsRuntimeConfig,
+    new_monitor_writer, BackoffSeeds, DomainRateLimiter, HttpRunner, HttpRuntimeConfig,
+    IncidentOrchestrator, IncidentOrchestratorConfig, MonitorCache, MonitorCacheConfig,
+    MonitorCheckDataSource, MonitorProbe, MonitorRepository, TlsRunner, TlsRuntimeConfig,
 };
+
+const BACKOFF_SEED_TIMEOUT: Duration = Duration::from_secs(10);
+/// Only bounds the cost of the startup lookup. A backed-off check writes a result at least
+/// every 24h, so this still covers about two days of downtime at the deepest level.
+const BACKOFF_SEED_LOOKBACK: Duration = Duration::from_secs(3 * 86_400);
 
 pub async fn spawn_monitoring(
     config: Arc<Config>,
@@ -171,6 +177,10 @@ async fn run_monitoring_init_loop(
         let tls_rate_limiter = Arc::new(DomainRateLimiter::new(20, Duration::from_hours(1)));
         info!("Domain rate limiter initialized");
 
+        let backoff_seeds =
+            restore_backoff_seeds(&clickhouse, &config.monitor_clickhouse_table, &monitor_cache)
+                .await;
+
         let http_runner = HttpRunner::new(
             Arc::clone(&monitor_cache),
             probe,
@@ -179,7 +189,8 @@ async fn run_monitoring_init_loop(
             Arc::clone(&incident_orchestrator),
             http_rate_limiter,
             HttpRuntimeConfig::default(),
-        );
+        )
+        .with_backoff_seeds(backoff_seeds);
 
         let tls_runner = TlsRunner::new(
             tls_cache,
@@ -196,5 +207,39 @@ async fn run_monitoring_init_loop(
 
         info!("uptime monitoring started");
         break;
+    }
+}
+
+/// Restored levels are an optimisation, so a failed or slow lookup starts every monitor
+/// at level 0 rather than holding up startup.
+async fn restore_backoff_seeds(
+    clickhouse: &ClickHouseClient,
+    table: &str,
+    cache: &MonitorCache,
+) -> BackoffSeeds {
+    let check_ids: Vec<String> = cache.snapshot().iter().map(|c| c.id.clone()).collect();
+    let lookup = load_backoff_seeds(clickhouse, table, &check_ids, BACKOFF_SEED_LOOKBACK);
+
+    match tokio::time::timeout(BACKOFF_SEED_TIMEOUT, lookup).await {
+        Ok(Ok(seeds)) => {
+            let backed_off = seeds.values().filter(|s| s.backoff_level > 0).count();
+            info!(
+                results = seeds.len(),
+                backed_off = backed_off,
+                "Loaded monitor backoff state from latest results"
+            );
+            seeds
+        }
+        Ok(Err(err)) => {
+            warn!(error = ?err, "Failed to load monitor backoff state; starting all monitors at level 0");
+            BackoffSeeds::new()
+        }
+        Err(_) => {
+            warn!(
+                timeout_secs = BACKOFF_SEED_TIMEOUT.as_secs(),
+                "Timed out loading monitor backoff state; starting all monitors at level 0"
+            );
+            BackoffSeeds::new()
+        }
     }
 }

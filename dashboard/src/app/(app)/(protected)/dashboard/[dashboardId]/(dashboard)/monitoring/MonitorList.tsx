@@ -12,14 +12,14 @@ import { computeDaysUntil } from '@/utils/dateHelpers';
 import { formatElapsedTime } from '@/utils/dateFormatters';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { type MonitorWithStatus } from '@/entities/analytics/monitoring.entities';
-import { weightedUptimePercent } from '@/entities/analytics/monitoring.helpers';
 import {
   presentMonitorStatus,
   presentUptimeTone,
   presentSslStatus as presentSslStatusPresentation,
   SslPresentation,
 } from './styles';
-import { formatPercentage } from '@/utils/formatters';
+import { isExpiredReason } from './styles/ssl';
+import { formatUptime } from '@/utils/formatters';
 import { LiveIndicator } from '@/components/live-indicator';
 import { PillBar } from './components/PillBar';
 import { MonitorStatusBadge } from './components/MonitorStatusBadge';
@@ -64,16 +64,15 @@ export function MonitorList({ monitors }: MonitorListProps) {
         const sslBadgeLabel = tSsl(sslPresentation.badgeLabelKey);
         const sslTimeRemaining = formatSslTimeRemaining(monitor.tls?.tlsNotAfter);
         const sslTooltipLabel =
-          sslTimeRemaining != null
+          sslTimeRemaining != null && !isExpiredReason(monitor.tls?.reasonCode, daysLeft)
             ? tMonitoringLabels(sslTimeRemaining.unit === 'hours' ? 'hoursLeftFull' : 'daysLeftFull', {
                 count: sslTimeRemaining.value,
               })
             : null;
 
         const hasData = Boolean(monitor.uptimeBuckets && monitor.uptimeBuckets.length > 0);
-        const uptimePercent = hasData ? weightedUptimePercent(monitor.uptimeBuckets ?? []) : null;
-        const percentLabel =
-          uptimePercent != null ? formatPercentage(uptimePercent, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2, trimHundred: true }) : '— %';
+        const uptimePercent = monitor.uptimePercent;
+        const percentLabel = uptimePercent != null ? formatUptime(uptimePercent, locale) : '— %';
         const { theme } = presentUptimeTone(uptimePercent ?? null);
 
         const isBackedOff = (monitor.backoffLevel ?? 0) > 0 && (monitor.effectiveIntervalSeconds ?? 0) > 0;

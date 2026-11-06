@@ -1,7 +1,9 @@
-/** A leading `+` marks an added line; `logo` is in public/framework-logos; no `name` shows `landing.network.packageTab`. */
-type Snippet = { id: string; name?: string; file?: string; logo?: string; code: string };
+import type { ReactNode } from 'react';
 
-const SRC = 'https://betterlytics.io/analytics.js';
+/** A leading `+` marks an added line; `logo` is in public/framework-logos; no `name` shows `landing.network.packageTab`. */
+export type Snippet = { id: string; name?: string; file?: string; logo?: string; glyph?: ReactNode; code: string };
+
+export const SRC = 'https://betterlytics.io/analytics.js';
 
 export const SNIPPETS: readonly Snippet[] = [
   {

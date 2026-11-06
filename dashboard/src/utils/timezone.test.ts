@@ -22,9 +22,12 @@ describe('normalizeTimezone', () => {
     expect(normalizeTimezone(tz)).toBe(expected);
   });
 
-  it.each([undefined, null, '', 'Etc/Unknown', 'Foo/Bar'])('rejects %s', (tz) => {
-    expect(normalizeTimezone(tz)).toBeNull();
-  });
+  it.each([undefined, null, '', 'Etc/Unknown', 'Foo/Bar', '__proto__', 'constructor', 'toString'])(
+    'rejects %s',
+    (tz) => {
+      expect(normalizeTimezone(tz)).toBeNull();
+    },
+  );
 });
 
 describe('resolveTimezone', () => {

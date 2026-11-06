@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { UptimeTotals } from '@/entities/analytics/monitoring.helpers';
 import { StatusPageAccentColorSchema, StatusPageThemeSchema } from './statusPage.entities';
 import { StatusPageIncidentImpactSchema, StatusPageIncidentStatusSchema } from './statusPageIncident.entities';
 
@@ -92,4 +93,6 @@ export type StatusPagePreviewPayload = {
   detectedStatuses: PublicMonitorStatus[];
   /** Affected monitor check ids per incident (same order as `data.incidents`); editor-only, for live rename remap. */
   incidentMonitorCheckIds: string[][];
+  /** Up and monitored seconds per monitor (same order as `monitorCheckIds`); editor-only, to re-pool the headline. */
+  monitorUptimeTotals: UptimeTotals[];
 };

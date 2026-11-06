@@ -13,11 +13,19 @@ export const filtersRouter = createRouter({
         column: FilterColumnSchema,
         search: z.string().trim().max(128).optional(),
         limit: z.number().int().min(1).max(5000).optional().default(200),
+        // Start of the selected period when `query` was widened to find more values
+        rankFrom: z.date().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
       const { main } = ctx;
-      const rows = await getDistinctValuesForFilterColumn(main, input.column, input.search, input.limit);
+      const rows = await getDistinctValuesForFilterColumn(
+        main,
+        input.column,
+        input.search,
+        input.limit,
+        input.rankFrom,
+      );
       return input.column === 'device_type' ? toFormatted(rows, capitalizeFirstLetter) : rows;
     }),
   getPropertyKeys: analyticsProcedure

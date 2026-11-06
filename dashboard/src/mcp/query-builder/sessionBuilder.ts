@@ -1,9 +1,8 @@
 import { safeSql, SQL, type SQLTaggedExpression } from '@/lib/safe-sql';
 import { BASessionQuery, type SessionsTableSelectableColumn } from '@/lib/ba-session-query';
-import { getResolvedRanges } from '@/lib/ba-timerange';
-import { matchAnyValueFilterSql } from '@/lib/filter-sql';
+import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
+import { filterValueToLikePattern, matchAnyValueFilterSql } from '@/lib/filter-sql';
 import type { QueryFilter } from '@/entities/analytics/filter.entities';
-import { toDateTimeString } from '@/utils/dateFormatters';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { getSessionMetricByKey, SESSION_METRIC_KEYS } from '@/mcp/registry/sessionMetrics';
 import {
@@ -43,24 +42,7 @@ function identifierSql(name: string) {
  */
 export function buildSessionsQuery(input: McpQuerySessionsInput, siteId: string): BuildResult {
   const timezone = input.timezone;
-  const customStart = new Date(input.startDate!);
-  const customEnd = new Date(input.endDate!);
-
-  const ranges = getResolvedRanges(
-    input.timeRange,
-    'off',
-    timezone,
-    customStart,
-    customEnd,
-    input.granularity ?? 'day',
-    undefined,
-    undefined,
-    0,
-    false,
-  );
-
-  const startDateTime = toDateTimeString(ranges.main.start);
-  const endDateTime = toDateTimeString(ranges.main.end);
+  const { startDateTime, endDateTime, granularity } = resolveTimeRange(input);
   const isTimeSeries = Boolean(input.granularity);
 
   const metrics = [...new Set(input.metrics)].map((key) => {
@@ -131,7 +113,7 @@ export function buildSessionsQuery(input: McpQuerySessionsInput, siteId: string)
   if (isTimeSeries) {
     return buildTimeSeriesQuery({
       sessions,
-      granularity: ranges.granularity,
+      granularity,
       timezone,
       startDateTime,
       endDateTime,
@@ -200,7 +182,7 @@ function buildTimeSeriesQuery(opts: {
 /** Entry and exit page filters, with the same pattern and `*` semantics as the other filters. */
 function buildPageFilter(filter: McpSessionPageFilter, index: number) {
   const column = identifierSql(filter.column);
-  const patterns = filter.values.map((value) => value.replaceAll('*', '%'));
+  const patterns = filter.values.map(filterValueToLikePattern);
   const values = SQL.StringArray({ [`mcp_page_filter_${index}`]: patterns });
 
   return (

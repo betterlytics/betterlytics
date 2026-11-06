@@ -1289,6 +1289,8 @@
       "product": {
         "features": "Features",
         "uptime": "Uptime monitoring",
+        "replay": "Session replay",
+        "errors": "Error tracking",
         "pricing": "Pricing"
       },
       "company": {
@@ -1411,6 +1413,21 @@
           "incident": "1 ongoing incident · Checkout · down since 10:12",
           "commits": "a41f2c9 10:09 Move Stripe keys to env vars",
           "answer": "Checkout has returned 503s since 10:12, three minutes after a41f2c9 moved the Stripe keys to env vars. Want me to revert it?"
+        },
+        "debugAlt": "A terminal session: told that choosing a plan does nothing, an agent lists errors on /pricing through the Betterlytics MCP server, reads the TypeError's stack trace and session trail, opens pricing.js at line 142 and offers a fix. Then, asked which errors to fix first, it sorts this week's errors by sessions hit and picks that TypeError.",
+        "debug": {
+          "question": "people say choosing a plan does nothing, can you look?",
+          "say": "I'll check errors on /pricing first.",
+          "errors": "1,206 TypeErrors in 318 sessions",
+          "trace": "selectPlan (pricing.js:142) after plan_selected",
+          "code": "142  setPlan(selected.plan)",
+          "answer": "Clicks before the plans load find selected still null. Want me to disable the buttons until they load?"
+        },
+        "triage": {
+          "question": "which errors should I fix first?",
+          "say": "I'll rank this week's errors.",
+          "groups": "TypeError 318 sessions · ChunkLoadError 41 · RangeError 6",
+          "answer": "Start with the TypeError reading 'plan'. It hit 318 sessions, more than six times the other two combined."
         }
       }
     },
@@ -1437,6 +1454,10 @@
         "vitals": {
           "title": "Core Web Vitals",
           "body": "LCP, INP and CLS measured in your visitors' real browsers."
+        },
+        "uptime": {
+          "title": "Uptime monitoring",
+          "body": "Checks as often as every minute, alerts where your team talks, and a status page."
         }
       }
     },
@@ -1681,11 +1702,11 @@
           },
           "free": {
             "q": "Is uptime monitoring free?",
-            "a": "The free plan includes one monitor per site, checked every five minutes, and one status page. The Professional plan unlocks more advanced configuration: one-minute checks, custom headers, accepted status codes and keyword checks, more monitors and status pages, and your own domain. Self-hosted, there are no limits."
+            "a": "The free plan includes one monitor per site, checked every five minutes, and one status page. The Professional plan unlocks more advanced configuration: one-minute checks, custom headers, accepted status codes and keyword checks, more monitors and status pages, and your own domain."
           },
           "internal": {
             "q": "Can I monitor internal services?",
-            "a": "On Betterlytics Cloud, monitors reach public addresses on ports 80 and 443. If you self-host, they can also reach services on your private network, on any port."
+            "a": "Monitors reach public addresses on ports 80 and 443, so a service needs to be reachable from the internet."
           },
           "dedicated": {
             "q": "When is a dedicated monitoring tool the better fit?",
@@ -1698,6 +1719,438 @@
         "lede": "Paste a URL, choose how often to check and where alerts go. The free plan includes a monitor and a status page.",
         "primary": "Start monitoring free",
         "secondary": "Read the monitoring docs"
+      }
+    },
+    "replay": {
+      "seo": {
+        "title": "Privacy-first session replay, masked by default | Betterlytics",
+        "description": "Watch session recordings of real visits, with every word and input masked in the browser. Jump from a JavaScript error to its replay. Free on every plan."
+      },
+      "hero": {
+        "eyebrow": "Session replay",
+        "title": "See where visitors get stuck, and what stopped them",
+        "lede": "Replay real visits click by click, with rage clicks flagged and every word and input masked before it leaves the browser. Free on every plan, next to your traffic and errors.",
+        "primary": "Start recording free",
+        "secondary": "Read the docs"
+      },
+      "cursor": {
+        "input": "Input captured",
+        "drag": "Drag captured",
+        "click": "Click captured",
+        "rage": "Rage click captured",
+        "selection": "Selection captured",
+        "pageview": "Pageview captured",
+        "paused": "Capture paused"
+      },
+      "specs": {
+        "errors": {
+          "unit": "click",
+          "label": "From error to replay",
+          "body": "Errors in recorded sessions link to their replay, so you go from stack trace to replay in one click."
+        },
+        "history": {
+          "unit": "days",
+          "label": "Replay history",
+          "body": "Recordings stay in your dashboard for 60 days."
+        },
+        "cookies": {
+          "unit": "cookies",
+          "label": "No cookies, no IPs",
+          "body": "Replays set no cookies and save no IP address with a recording."
+        },
+        "thesis": {
+          "unit": "%",
+          "label": "Masked in the browser",
+          "body": "Every line of text and every input turns to asterisks before the recording leaves the page."
+        }
+      },
+      "story": {
+        "title": "From a failed checkout to *the reason*",
+        "lede": "What happens when the Pay button breaks at 10:03.",
+        "stepsLabel": "Replay timeline",
+        "steps": {
+          "record": {
+            "time": "10:02",
+            "title": "The visit is recorded",
+            "body": "The visit is picked for recording and saved as they browse."
+          },
+          "error": {
+            "time": "10:03",
+            "title": "Pay throws an error",
+            "body": "A JavaScript error stops the payment. Error tracking logs it with the page, the browser and the code that failed."
+          },
+          "ready": {
+            "time": "10:05",
+            "title": "The replay lands",
+            "body": "When they leave, the session lands in your replay list, flagged with its error and a rage click."
+          },
+          "jump": {
+            "time": "10:20",
+            "title": "You jump to the moment",
+            "body": "From the error, open the replay and jump straight to the moment it happened."
+          },
+          "why": {
+            "time": "10:21",
+            "title": "And see why",
+            "body": "The visitor kept clicking Pay with the postcode left empty, and it's flagged as a rage click. The text is masked, yet you can still see what was left blank."
+          }
+        },
+        "scenes": {
+          "recording": "Recording",
+          "newError": "New error",
+          "occurrences": "{count, plural, one {# session} other {# sessions}}",
+          "sessions": "Sessions",
+          "justNow": "Just now",
+          "minutesAgo": "{count} min ago",
+          "timeline": "Timeline",
+          "input": "Input",
+          "click": "Click",
+          "clientError": "Client error",
+          "rageClick": "Rage click",
+          "emptyField": "Postcode: empty",
+          "start": "Start:",
+          "skip": "Skip inactivity"
+        }
+      },
+      "privacy": {
+        "title": "Masked *before* it leaves the browser",
+        "lede": "You see where visitors clicked, scrolled and typed. Their privacy stays intact: what they read and typed never leaves their device.",
+        "points": {
+          "text": "Every character of text and every input value becomes an asterisk, so the layout keeps its shape",
+          "media": "Images and iframes are replaced by empty boxes of the same size",
+          "consent": "Can wait for consent before recording anything, wherever the law asks for it",
+          "exclude": "Leave out whole pages or sections of your site, or single elements you mark as private",
+          "storage": "No cookies, and no IP address saved with a replay"
+        },
+        "docs": "How masking works",
+        "try": "Drag to compare",
+        "visitor": "What your visitor sees",
+        "you": "What you see in the replay",
+        "slider": "Compare the visitor's view with the masked replay",
+        "alt": "A coffee shop checkout shown twice. In the visitor's view the name, email and address are readable; in the replay every word is asterisks and the product photo is an empty box."
+      },
+      "controls": {
+        "title": "Record the sessions *worth* watching",
+        "lede": "Decide how much to record and where. Everything else stays out of your visitors' way.",
+        "art": {
+          "sample": "Sample",
+          "recorded": "Recorded",
+          "error": "TypeError",
+          "leadUp": "1–2 min",
+          "off": "Off",
+          "on": "On",
+          "skipped": "Skipped",
+          "pageview": "Pageview"
+        },
+        "items": {
+          "sample": {
+            "title": "Pick your sample",
+            "body": "Record a small share of visits or every single one. Each visit is recorded in full or not at all."
+          },
+          "errors": {
+            "title": "Keep the lead-up to errors",
+            "body": "With error capture on, visits outside the sample still save the minute or two before a JavaScript error."
+          },
+          "paths": {
+            "title": "Leave pages out",
+            "body": "Turn recording off for any page or whole section, like your admin area or account pages. Nothing is recorded there, and the player blurs that part of the visit."
+          },
+          "light": {
+            "title": "Light on your site",
+            "body": "The recorder is a separate file that loads only when it's needed, and uploads in small compressed batches in the background, so your pages stay fast."
+          },
+          "spa": {
+            "title": "Made for single-page apps",
+            "body": "Route changes in single-page apps built with React, Vue or Next.js show up as page views on the timeline, just like full page loads."
+          },
+          "bots": {
+            "title": "People only",
+            "body": "Headless browsers and test runners like Playwright and Cypress are never recorded, so your replays only show real people."
+          }
+        }
+      },
+      "setup": {
+        "title": "Turn it on with *two* lines",
+        "lede": "No new script and no new vendor. Replay runs on the Betterlytics script you already have.",
+        "snippetLabel": "Setup examples",
+        "consentTab": "Consent",
+        "steps": {
+          "enable": {
+            "title": "Turn it on",
+            "body": "Add one attribute to your script tag, or one option in the npm package."
+          },
+          "consent": {
+            "title": "Handle consent",
+            "body": "Where the law requires consent, as in the EU, one line connects recording to your consent banner."
+          },
+          "tune": {
+            "title": "Tune it",
+            "body": "Set the sample, leave out private paths, and keep replays of sessions that hit an error."
+          }
+        },
+        "cta": "Read the setup guide"
+      },
+      "related": {
+        "lede": "Session replay is one part of Betterlytics. Everything below shares the dashboard, the login and the bill."
+      },
+      "faq": {
+        "title": "Frequently asked questions",
+        "items": {
+          "what": {
+            "q": "What is session replay?",
+            "a": "Session replay, also called session recording, saves how a page changed and what the visitor did on it, then rebuilds the visit in your dashboard so you can watch it like a video. No video is captured, and Betterlytics masks the text before anything is sent."
+          },
+          "free": {
+            "q": "Is session replay free?",
+            "a": "Yes. Session replay is included on <link>every plan</link>, including the free one, and recordings don't count toward your monthly events."
+          },
+          "consent": {
+            "q": "Do I need consent for session replay?",
+            "a": "It depends on where your visitors are. In the EU, the GDPR and the ePrivacy Directive can require consent before you record a visit. Replays don't start until your site gives the go-ahead. That can come from the consent banner you already have, or from a script setting when you don't need consent."
+          },
+          "masked": {
+            "q": "What gets masked?",
+            "a": "All text on the page and every input value, including passwords, emails and search fields, is replaced with asterisks in the visitor's browser. Images and iframes are left out. You can block more with the rr-block class, or turn recording off for whole paths."
+          },
+          "slow": {
+            "q": "Will session replay slow down my site?",
+            "a": "Not in a way your visitors will notice. The recorder loads without blocking your page, and only on visits that are recorded or when error capture is on. It samples mouse movement and scrolling instead of tracking every pixel, and sends compressed data in small batches in the background."
+          },
+          "sample": {
+            "q": "How many visits are recorded?",
+            "a": "5% by default. Set data-replay-sample to anything from 0 to 100. Recordings under 15 seconds aren't kept, and a recording stops after 10 minutes without activity or 20 minutes in total."
+          },
+          "find": {
+            "q": "How do I find the session I'm looking for?",
+            "a": "The replay list shows each session's start page, duration, country, browser, device, error count and rage clicks, and you can hide short sessions. From an error, Watch replay opens the latest session that hit it."
+          },
+          "rage": {
+            "q": "Does it detect rage clicks?",
+            "a": "Yes. When a visitor clicks the same spot again and again, Betterlytics flags it as a rage click. You see it on the replay's timeline and as a count in the replay list, so frustrated visitors are easy to find."
+          },
+          "history": {
+            "q": "How long are replays kept?",
+            "a": "60 days. After that they're deleted for good."
+          },
+          "mobile": {
+            "q": "Does it work in mobile apps?",
+            "a": "It records websites and web apps, in desktop and mobile browsers. Native iOS and Android apps aren't supported. On touch screens, taps and scrolls are recorded, but there's no cursor to follow."
+          },
+          "dedicated": {
+            "q": "When is a dedicated replay tool the better fit?",
+            "a": "Betterlytics shows what visitors did, with every word masked. If you need heatmaps, console and network logs, readable text, or search by user and event, a dedicated tool will serve you better. Our <link>PostHog comparison</link> shows the differences feature by feature."
+          }
+        }
+      },
+      "cta": {
+        "title": "Watch your first replay today",
+        "lede": "Turn it on in the script you already have and, where needed, connect your consent banner. Session replay is free on every plan.",
+        "primary": "Start recording free",
+        "secondary": "Read the replay docs"
+      }
+    },
+    "errors": {
+      "seo": {
+        "title": "JavaScript error tracking with session context | Betterlytics",
+        "description": "Catch uncaught errors and failed promises in your visitors' browsers, grouped by stack trace, with the pages and events around each one. Free on every plan."
+      },
+      "hero": {
+        "eyebrow": "Error tracking",
+        "title": "Catch the errors your visitors hit, and see what led to them",
+        "lede": "Know which bugs hit the most visitors, where in your code they break, and what each visitor did next. Free on every plan, next to your traffic and replays.",
+        "primary": "Start tracking errors free",
+        "secondary": "Read the docs"
+      },
+      "specs": {
+        "leadUp": {
+          "unit": "min",
+          "label": "Replay lead-up",
+          "body": "Keep up to two minutes before an error as a replay, even for visits you don't normally record."
+        },
+        "extensions": {
+          "unit": "extension errors",
+          "label": "Only your own bugs",
+          "body": "Errors from visitors' browser extensions are skipped, and bots are dropped before anything is stored."
+        },
+        "script": {
+          "unit": "script",
+          "label": "One script for everything",
+          "body": "Analytics, errors and session replay load from one script tag. Already on Betterlytics? Add one attribute."
+        },
+        "thesis": {
+          "unit": "cookies",
+          "label": "No cookies, no IPs",
+          "body": "Errors are stored without cookies, IP addresses or query strings, so your visitors' privacy stays intact."
+        }
+      },
+      "report": {
+        "title": "From “it doesn’t work” to *line 142*",
+        "lede": "Most visitors who hit a bug leave without telling you. Betterlytics shows the line that threw, the browser it happened in, and how often.",
+        "guess": "Guessing from bug reports",
+        "fix": "Fixing from the stack trace",
+        "alt": "On the left, vague reports about the pricing page keep streaming past: the same can't-upgrade email three times, a report that choosing a plan does nothing, a support chat, a blurry screenshot, a guess at the browser, a note saying it works on my machine, a P1 ticket saying upgrades have failed since Monday and a support inbox with 14 unread. On the right, the same bug as one error group: a TypeError thrown in selectPlan at line 142 of pricing.js and called from onClick in plan-card.js, in Chrome on macOS in Denmark, on /pricing, 1,206 times.",
+        "notes": {
+          "upgrade": "Can't upgrade??",
+          "pricing": "anyone else seeing pricing do nothing?",
+          "dead": "Choose plan does nothing",
+          "screenshot": "screenshot.png",
+          "phone": "same here, but on my phone",
+          "sticky": "Works on my machine",
+          "again": "Re: Re: still broken",
+          "chrome": "I'm on Chrome, I think?",
+          "ticket": "Upgrades failing since Monday",
+          "inbox": "Support inbox",
+          "unread": "{count} unread"
+        },
+        "inApp": "in app",
+        "occurrences": "occurrences"
+      },
+      "trail": {
+        "title": "See what they did *before and after*",
+        "lede": "A stack trace shows where the code broke. The visit around it shows what set it off and what the visitor did next.",
+        "alt": "A session trail of eight events. Before the error, the visitor landed on the home page, opened /pricing and picked a plan. The TypeError came one second later, thrown in selectPlan at line 142 of pricing.js in Chrome 129 on macOS, on a desktop in Denmark. After it, they reloaded /pricing, picked a plan again, hit the same error and left for /contact instead of upgrading.",
+        "label": "Session trail",
+        "count": "{count} events in this session",
+        "before": {
+          "label": "What led up to it",
+          "body": "Landed on the home page, opened pricing and picked a plan."
+        },
+        "thrown": {
+          "label": "Where it broke",
+          "body": "Thrown in selectPlan on line 142 of pricing.js, with the browser, OS and country it happened in.",
+          "stacktrace": "Stack trace",
+          "mechanism": "Uncaught",
+          "inApp": "in app",
+          "more": "Show {count} more frames",
+          "desktop": "Desktop"
+        },
+        "after": {
+          "label": "What it did to the visit",
+          "body": "Reloaded, hit it again, then left for /contact instead of upgrading."
+        }
+      },
+      "triage": {
+        "title": "Work the list *together*",
+        "body": "Statuses are shared with your team, so everyone works from the same list and nobody chases a bug that's already fixed.",
+        "cta": "Read the dashboard guide",
+        "items": {
+          "status": {
+            "title": "Resolve, ignore, unresolve",
+            "body": "Resolve what's fixed and ignore what doesn't matter, so the list only shows the bugs that still need work."
+          },
+          "history": {
+            "title": "See who it hits",
+            "body": "Spot whether an error is growing or fading, and which browsers and devices it hits most."
+          },
+          "filter": {
+            "title": "Filter like your analytics",
+            "body": "Filter errors by page, browser, OS, country and more, just like your analytics, to see if a bug only hits some visitors."
+          },
+          "occurrences": {
+            "title": "Step through occurrences",
+            "body": "Flip through every occurrence with its own visit and device, and spot the pattern, like a bug that only shows up on iOS."
+          }
+        },
+        "art": {
+          "selected": "<count></count> selected",
+          "resolve": "Resolve",
+          "ignore": "Ignore",
+          "occurrenceOf": "Occurrence <number></number> of {total}",
+          "mobile": "Mobile",
+          "history": "Occurrence history",
+          "days": "{count} days",
+          "desktop": "Desktop",
+          "pageIs": "Page is <value>/pricing</value>",
+          "browserIs": "Browser is <value>Safari</value>",
+          "addFilter": "Add filter"
+        }
+      },
+      "agent": {
+        "title": "Hand the bug *to your agent*",
+        "lede": "Your coding agent can look up errors through the built-in MCP server and work on the fix right next to your code.",
+        "lead": "From complaint to fix in one question",
+        "body": "Ask Claude Code, Cursor or any MCP client about a complaint. It looks up the matching error, reads the stack trace and session trail, and opens the file the stack points to.",
+        "cta": "Set up MCP"
+      },
+      "setup": {
+        "title": "Start catching with *one* attribute",
+        "lede": "Pick what to catch and copy the snippet. It runs in the same script as your analytics.",
+        "lead": "Choose what to catch",
+        "always": "Always on",
+        "options": {
+          "errors": {
+            "title": "Uncaught errors and rejections",
+            "body": "Anything your code throws without catching, and promises that reject with no handler."
+          },
+          "console": {
+            "title": "console.error calls",
+            "body": "Also send what your app logs as an error. Leave it off if your logs can hold personal data."
+          },
+          "replay": {
+            "title": "Replay the lead-up",
+            "body": "Keep up to two minutes before each error as a replay."
+          }
+        },
+        "snippetLabel": "Error tracking setup",
+        "cta": "Read the setup guide"
+      },
+      "related": {
+        "lede": "Error tracking is one part of Betterlytics. Everything below shares the script, the login and the bill."
+      },
+      "faq": {
+        "title": "Frequently asked questions",
+        "items": {
+          "what": {
+            "q": "What is error tracking?",
+            "a": "Error tracking, also called error monitoring, records the JavaScript errors your visitors run into, then groups repeats of the same bug so you can see which ones happen most. Betterlytics catches them with the same script that tracks your pageviews, and keeps the session each one happened in."
+          },
+          "free": {
+            "q": "Is error tracking free?",
+            "a": "Yes. It's on every plan, including the free one. Each error counts as one event toward your monthly limit, like a pageview."
+          },
+          "captured": {
+            "q": "Which errors are captured?",
+            "a": "Uncaught exceptions and unhandled promise rejections, each with its stack trace and the page it happened on. You can also capture console.error calls. A failed request is only captured when your code leaves its error unhandled. Failed image and script loads are left out, because ad blockers and flaky connections would flood your list with them."
+          },
+          "server": {
+            "q": "Does it catch server-side errors?",
+            "a": "No. It covers frontend errors, the JavaScript that runs in your visitors' browsers. Errors in your server code, API routes or background jobs aren't captured."
+          },
+          "filtered": {
+            "q": "Are errors from browser extensions and bots filtered out?",
+            "a": "Yes. The script skips errors whose stack trace points into a browser extension, so a visitor's ad blocker or password manager doesn't show up as your bug. Errors from bots, headless browsers and test tools like Playwright are dropped before they're stored, the same as their pageviews."
+          },
+          "frameworks": {
+            "q": "Does it work with React, Next.js and Vue?",
+            "a": "Yes. The script catches errors on any site, whatever framework it runs. Errors a framework catches itself, such as in a React error boundary or Vue's error handler, are usually logged with console.error instead of thrown, so turn on console.error capture to see those too."
+          },
+          "grouped": {
+            "q": "How are errors grouped?",
+            "a": "Every occurrence of the same bug lands in one group with a running count, so each bug shows up once in your list instead of every time a visitor hits it. Errors of the same type, thrown from the same place in your code, count as one bug even when their messages differ."
+          },
+          "sourcemaps": {
+            "q": "Do you support source maps?",
+            "a": "No. Stack traces show the code as the browser ran it, so frames from a minified bundle point into the minified file."
+          },
+          "privacy": {
+            "q": "Does error tracking collect personal data?",
+            "a": "It uses no cookies, like the rest of Betterlytics. Messages are kept as your code wrote them, so keep personal data out of them, and leave console capture off if your logs can contain it."
+          },
+          "quota": {
+            "q": "Can a broken loop use up my events?",
+            "a": "Each page sends at most 10 errors of the same type every 10 seconds, so a loop that throws on every frame stays small. Ignoring a group hides it from the list, but new occurrences still count as events until you fix the cause."
+          },
+          "replay": {
+            "q": "How does it work with session replay?",
+            "a": "If a visit with an error was recorded, the error links to its replay, with a red marker at each error on the timeline. You can also keep up to two minutes before every error as a replay, even for visits session replay wouldn't otherwise record."
+          }
+        }
+      },
+      "cta": {
+        "title": "Catch your first error today",
+        "lede": "Add the Betterlytics script, or one attribute if you already have it, and errors start showing up in your dashboard. Free on every plan.",
+        "primary": "Start tracking errors free",
+        "secondary": "Read the error docs"
       }
     }
   },
@@ -1929,7 +2382,8 @@
         "observability": "Observability"
       },
       "collapseNav": "Collapse nav",
-      "errorTracking": "Error Tracking"
+      "errorTracking": "Error Tracking",
+      "monitorsDown": "Monitors down"
     },
     "settings": {
       "sidebar": {
@@ -2066,9 +2520,7 @@
       "tls_hostname_mismatch": "SSL certificate hostname mismatch",
       "tls_untrusted_ca": "SSL certificate issued by untrusted CA",
       "tls_not_yet_valid": "SSL certificate not yet valid",
-      "tls_revoked": "SSL certificate has been revoked",
       "tls_self_signed": "SSL certificate is self-signed",
-      "tls_connection_failed": "SSL connection failed",
       "http_4xx": "Server returned a client error",
       "http_5xx": "Server returned a server error",
       "http_other": "Unexpected HTTP status code",
@@ -2184,7 +2636,13 @@
       "settings": "Settings",
       "deleteConfirmTitle": "Delete monitor?",
       "deleteConfirmDescription": "This will permanently delete the monitor and all its data.",
-      "deleteError": "Failed to delete monitor"
+      "deleteError": "Failed to delete monitor",
+      "deleteImpactLoading": "Checking affected status pages...",
+      "deleteImpactError": "We could not check which status pages use this monitor.",
+      "deleteImpactUnknownWarning": "Deleting this monitor will remove it from any status pages that use it. Published pages may be left public with no components and normally show “Status unavailable”. Open incidents may still raise their status.",
+      "deleteImpactRetry": "Retry",
+      "deleteImpactAffectedPages": "This monitor will be removed from these status pages:",
+      "deleteImpactEmptyWarning": "This published page will stay public with no components and normally show “Status unavailable”. Open incidents may still raise its status."
     }
   },
   "monitoringDetailPage": {
@@ -2308,13 +2766,7 @@
       "discard": "Discard"
     },
     "delete": {
-      "trigger": "Delete monitor",
-      "title": "Delete this monitor?",
-      "description": "This action cannot be undone. All monitoring data and incident history will be permanently deleted.",
-      "cancel": "Cancel",
-      "confirm": "Delete monitor",
-      "deleting": "Deleting...",
-      "error": "Failed to delete monitor"
+      "trigger": "Delete monitor"
     },
     "sections": {
       "timing": "Timing",
@@ -2360,6 +2812,8 @@
       "title": "Alerts",
       "enabled": "On",
       "enableAlerts": "Enable alerts",
+      "emailRecipients": "Email alerts go to {recipients}",
+      "noEmailRecipient": "No email recipient",
       "description": "Get notified when your monitor goes down, recovers, or when SSL certificates are expiring.",
       "onDown": "Alert on down",
       "onDownDescription": "Send an alert when the monitor goes down",
@@ -2411,7 +2865,12 @@
     "pagination": {
       "pageOf": "Page {currentPage} of {totalPages}",
       "showing": "Showing {startItem}-{endItem} of {totalItems} items",
-      "perPage": "per page"
+      "perPage": "per page",
+      "navigation": "Pagination",
+      "firstPage": "First page",
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "lastPage": "Last page"
     },
     "annotations": {
       "dialogs": {
@@ -2672,16 +3131,15 @@
     },
     "campaign": {
       "title": "Campaigns",
-      "pagination": {
-        "pageOf": "Page {currentPage} of {totalPages}",
-        "showing": "Showing {startItem}-{endItem} of {totalItems} campaigns",
-        "perPage": "per page"
-      },
       "emptyState": {
         "title": "No campaigns captured yet",
         "description": "Campaigns will appear here once URLs with utm_campaign tags are captured. Start tagging your links to view performance metrics.",
         "docsHint": "Need help getting campaigns to show up?",
         "docsLinkLabel": "Read the campaign tracking guide"
+      },
+      "periodEmptyState": {
+        "title": "No campaign traffic in this period",
+        "description": "Try a wider date range to see earlier campaigns."
       },
       "loading": "Loading campaigns...",
       "campaignRow": {
@@ -2812,6 +3270,8 @@
         "apply": "Apply",
         "selectValue": "Select a value",
         "noValuesForCurrentPeriod": "No values found for current time period",
+        "valuesTruncated": "Showing {shown, number} of {total, number} values. Type to search the rest.",
+        "valuesTruncatedAtLimit": "Showing {shown, number} of {total, number}+ values. Type to search the rest.",
         "savedFilters": "Saved Filters",
         "noSavedFilters": "No saved filters yet",
         "saveFilters": "Save",
@@ -2926,7 +3386,7 @@
       "table": {
         "path": "Path",
         "filterByPath": "Filter by {path}",
-        "visitors": "Visitors",
+        "sessions": "Sessions",
         "pageviews": "Pageviews",
         "sessionPageviews": "Session Pageviews",
         "bounceRate": "Bounce Rate",
@@ -3077,7 +3537,8 @@
           "title": "No session replays available",
           "description": "Try expanding your time range or adjusting filters."
         },
-        "sessionErrorsTooltip": "{count, plural, one {This session captured {count} client-side error} other {This session captured {count} client-side errors}}"
+        "sessionErrorsTooltip": "{count, plural, one {This session captured {count} client-side error} other {This session captured {count} client-side errors}}",
+        "sessionRageClicksTooltip": "{count, plural, one {This session has {count} rage click} other {This session has {count} rage clicks}}"
       },
       "playerTopbar": {
         "startLabel": "Start:",
@@ -3102,7 +3563,8 @@
         "blacklist": "Blacklisted",
         "viewportResize": "Viewport Resize",
         "mediaInteraction": "Media Interaction",
-        "clientError": "Client Error"
+        "clientError": "Client Error",
+        "rageClick": "Rage click"
       },
       "player": {
         "skipInactive": "Skip inactivity",
@@ -3366,6 +3828,7 @@
           "passwordPromptTitle": "Confirm your password",
           "passwordPromptDescription": "Enter your account password to continue.",
           "passwordLabel": "Password",
+          "incorrectPassword": "Incorrect password",
           "backupCodesTitle": "Backup codes",
           "backupCodesDescription": "Store these one-time codes somewhere safe. They let you sign in if you lose your authenticator.",
           "copyCodes": "Copy",

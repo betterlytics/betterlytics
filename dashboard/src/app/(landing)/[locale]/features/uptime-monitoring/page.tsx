@@ -1,72 +1,8 @@
-import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-import { NextIntlClientProvider } from 'next-intl';
-import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
-import { JsonLd } from '@/components/JsonLd';
-import type { SupportedLanguages } from '@/constants/i18n';
-import { getPathname } from '@/i18n/navigation';
-import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
-import { env } from '@/lib/env';
-import { generateSEO } from '@/lib/seo';
-import { landingClientMessages } from '@/landing/lib/clientMessages';
+import { featurePage } from '@/landing/components/feature/featurePage';
 import { UptimePage } from './uptimePage';
 
-type Props = { params: Promise<{ locale: SupportedLanguages }> };
-
-const PATH = '/features/uptime-monitoring';
+const page = featurePage('uptime', '/features/uptime-monitoring', UptimePage);
 
 export const revalidate = 86400;
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { locale } = await params;
-  setRequestLocale(locale);
-  const t = await getTranslations('landing.uptime');
-  return generateSEO(
-    {
-      title: t('seo.title'),
-      description: t('seo.description'),
-      path: PATH,
-      socialTitle: t('hero.title'),
-      socialDescription: t('hero.lede'),
-      structuredDataType: 'webpage',
-    },
-    { locale },
-  );
-}
-
-export default async function UptimeMonitoringPage({ params }: Props) {
-  const { locale } = await params;
-  setRequestLocale(locale);
-  if (!isClientFeatureEnabled('isCloud')) {
-    redirect('/dashboards');
-  }
-  const [messages, t, tFeature] = await Promise.all([
-    getMessages(),
-    getTranslations('landing.uptime'),
-    getTranslations('landing.feature'),
-  ]);
-  const breadcrumbs = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: tFeature('features'),
-        item: `${env.PUBLIC_BASE_URL}${getPathname({ href: '/features', locale })}`,
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: t('hero.eyebrow'),
-        item: `${env.PUBLIC_BASE_URL}${getPathname({ href: PATH, locale })}`,
-      },
-    ],
-  };
-  return (
-    <NextIntlClientProvider messages={landingClientMessages(messages, { uptime: messages.landing.uptime })}>
-      <JsonLd data={breadcrumbs} />
-      <UptimePage />
-    </NextIntlClientProvider>
-  );
-}
+export const generateMetadata = page.generateMetadata;
+export default page.Page;

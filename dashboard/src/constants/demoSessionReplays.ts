@@ -19,6 +19,7 @@ export const DEMO_SESSION_REPLAYS: DemoSessionReplay[] = [
     os: 'Windows',
     country_code: 'NL',
     error_count: 0,
+    rage_click_count: 0,
   },
   {
     session_id: '13515586274288279664',
@@ -33,6 +34,7 @@ export const DEMO_SESSION_REPLAYS: DemoSessionReplay[] = [
     os: 'Windows',
     country_code: 'SE',
     error_count: 0,
+    rage_click_count: 0,
   },
   {
     session_id: '18267387105860719827',
@@ -47,5 +49,6 @@ export const DEMO_SESSION_REPLAYS: DemoSessionReplay[] = [
     os: 'macOS',
     country_code: 'DE',
     error_count: 0,
+    rage_click_count: 0,
   },
 ];

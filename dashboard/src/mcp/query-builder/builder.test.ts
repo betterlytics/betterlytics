@@ -179,4 +179,25 @@ describe('buildQuery', () => {
     expect(result.taggedSql).toContain('uniq(visitor_id)');
     expect(result.taggedParams.site_id).toBe(siteId);
   });
+
+  it.each([
+    ['America/Los_Angeles', '2026-09-20 07:00:00', '2026-09-23 06:59:59'],
+    ['Asia/Tokyo', '2026-09-19 15:00:00', '2026-09-22 14:59:59'],
+    ['UTC', '2026-09-20 00:00:00', '2026-09-22 23:59:59'],
+  ])('reads custom dates as whole days in %s', (timezone, startDateTime, endDateTime) => {
+    const input: McpQueryInput = {
+      metrics: ['visitors'],
+      timeRange: 'custom',
+      startDate: '2026-09-20',
+      endDate: '2026-09-22',
+      timezone,
+      order: 'desc',
+      limit: 100,
+    };
+
+    const result = buildQuery(input, siteId);
+
+    expect(result.taggedParams.start_date).toBe(startDateTime);
+    expect(result.taggedParams.end_date).toBe(endDateTime);
+  });
 });

@@ -11,16 +11,17 @@ type SectionProps = {
   title?: string;
   lede?: string;
   balanced?: boolean;
+  labelledBy?: string;
   className?: string;
   children: ReactNode;
 };
 
-export function Section({ id, title, lede, balanced = true, className, children }: SectionProps) {
+export function Section({ id, title, lede, balanced = true, labelledBy, className, children }: SectionProps) {
   const titleId = `${id}-title`;
   return (
     <section
       id={id}
-      aria-labelledby={title ? titleId : undefined}
+      aria-labelledby={title ? titleId : labelledBy}
       className={cn('relative px-(--inset) pt-[34px] pb-[78px] max-lg:pb-12', title && 'max-sm:pt-12', className)}
     >
       <div className='relative z-1'>

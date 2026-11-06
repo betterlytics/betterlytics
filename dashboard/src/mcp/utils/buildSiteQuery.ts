@@ -4,14 +4,13 @@ import type { ResolvedTimeRange } from '@/mcp/utils/resolveTimeRange';
 type BuildSiteQueryInput = {
   siteId: string;
   timeRange: ResolvedTimeRange;
-  timezone?: string;
+  timezone: string;
   granularity?: BASiteQuery['granularity'];
   queryFilters?: BASiteQuery['queryFilters'];
   userJourney?: BASiteQuery['userJourney'];
 };
 
 const DEFAULT_GRANULARITY: BASiteQuery['granularity'] = 'day';
-const DEFAULT_TIMEZONE = 'UTC';
 
 // BASiteQuery requires userJourney, but only the user_journeys tool reads it. Every other
 // tool gets this filler, so the dummy values live here instead of in each tool.
@@ -33,7 +32,7 @@ export function buildSiteQuery({
     endDateTime: timeRange.endDateTime,
     granularity: granularity ?? DEFAULT_GRANULARITY,
     queryFilters: queryFilters ?? [],
-    timezone: timezone ?? DEFAULT_TIMEZONE,
+    timezone,
     userJourney: userJourney ?? { ...DEFAULT_USER_JOURNEY },
   };
 }

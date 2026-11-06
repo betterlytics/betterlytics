@@ -48,6 +48,8 @@ import {
 import { MCPIcon } from '@/components/icons';
 
 const UPTIME = '/features/uptime-monitoring';
+const REPLAY = '/features/session-replay';
+const ERRORS = '/features/error-tracking';
 
 const CATEGORIES = [
   {
@@ -71,8 +73,8 @@ const CATEGORIES = [
   {
     id: 'advancedAnalytics',
     features: [
-      { id: 'sessionReplay', icon: Video },
-      { id: 'errorTracking', icon: Bug },
+      { id: 'sessionReplay', icon: Video, href: REPLAY },
+      { id: 'errorTracking', icon: Bug, href: ERRORS },
       { id: 'userJourneys', icon: GitBranch },
       { id: 'funnels', icon: TrendingUp },
       { id: 'annotations', icon: StickyNote },

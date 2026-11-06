@@ -2,13 +2,17 @@
 
 import { Button } from '@/components/ui/button';
 import { useSidebar } from '@/components/ui/sidebar';
-import { cn } from '@/lib/utils';
 import { MenuIcon } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 
-export default function BAMobileSidebarTrigger() {
-  const { toggleSidebar, isMobile, openMobile, setOpenMobile } = useSidebar();
+type BAMobileSidebarTriggerProps = {
+  /** Shown on the button's corner while the menu is closed, e.g. an alert dot from a sidebar item. */
+  indicator?: ReactNode;
+};
+
+export default function BAMobileSidebarTrigger({ indicator }: BAMobileSidebarTriggerProps) {
+  const { toggleSidebar, openMobile, setOpenMobile } = useSidebar();
 
   const pathname = usePathname();
   useEffect(() => {
@@ -17,8 +21,9 @@ export default function BAMobileSidebarTrigger() {
 
   return (
     <div className='bg-background fixed bottom-10 left-6 z-49 h-fit w-fit rounded-md'>
-      <Button variant='outline' hidden={openMobile} className={cn(!isMobile && 'hidden')} onClick={toggleSidebar}>
+      <Button variant='outline' hidden={openMobile} className='relative md:hidden' onClick={toggleSidebar}>
         <MenuIcon />
+        {indicator && <span className='absolute -top-1 -right-1 flex'>{indicator}</span>}
       </Button>
     </div>
   );

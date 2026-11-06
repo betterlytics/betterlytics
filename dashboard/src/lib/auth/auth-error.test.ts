@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { classifyAuthError } from '@/lib/auth/auth-error';
+import { classifyAuthError, isWrongPasswordError } from '@/lib/auth/auth-error';
 
 describe('classifyAuthError', () => {
   it('treats a 403 INVALID_ORIGIN as an origin mismatch', () => {
@@ -32,5 +32,21 @@ describe('classifyAuthError', () => {
 
   it('requires the 403 status alongside the INVALID_ORIGIN code', () => {
     expect(classifyAuthError({ status: 400, code: 'INVALID_ORIGIN' })).toBe('other');
+  });
+});
+
+describe('isWrongPasswordError', () => {
+  it('treats INVALID_PASSWORD as a wrong password', () => {
+    expect(isWrongPasswordError({ status: 400, code: 'INVALID_PASSWORD' })).toBe(true);
+  });
+
+  it("treats a password over better-auth's length limit as a wrong password", () => {
+    expect(isWrongPasswordError({ status: 400, code: 'PASSWORD_TOO_LONG' })).toBe(true);
+  });
+
+  it('leaves other errors to the form', () => {
+    expect(isWrongPasswordError({ status: 400, code: 'WEAK_PASSWORD' })).toBe(false);
+    expect(isWrongPasswordError({ status: 401, code: 'INVALID_EMAIL_OR_PASSWORD' })).toBe(false);
+    expect(isWrongPasswordError({ status: 500 })).toBe(false);
   });
 });

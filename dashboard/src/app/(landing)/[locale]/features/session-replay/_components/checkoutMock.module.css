@@ -1,0 +1,213 @@
+@reference '../../../landing.css';
+
+@layer components {
+  /* light, so it reads as the customer's site, not our dashboard */
+  .page {
+    --ink: #22201e;
+    --soft: #7b736e;
+    --line: #d9d2ca;
+    --field: #fbfaf8;
+    container-type: inline-size;
+    position: relative;
+    height: 100%;
+    padding: 18px 22px 22px;
+    background: #efebe6;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 11px;
+    line-height: 1.35;
+    overflow: hidden;
+  }
+
+  .siteNav {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+    color: var(--soft);
+    white-space: nowrap;
+  }
+  .siteNav b {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-right: auto;
+    font-size: 12.5px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .siteNav b i {
+    width: 12px;
+    height: 12px;
+    border-radius: 50% 50% 50% 2px;
+    background: #6b3f24;
+  }
+  .siteNav em {
+    padding: 3px 9px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    font-style: normal;
+    color: var(--ink);
+  }
+  @container (width < 420px) {
+    .siteNav span {
+      display: none;
+    }
+  }
+
+  .columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 22px;
+    @container (width < 420px) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .heading {
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 650;
+    letter-spacing: -0.015em;
+  }
+  .field {
+    position: relative;
+    display: grid;
+    gap: 4px;
+    margin-bottom: 9px;
+    color: var(--soft);
+    font-size: 10px;
+  }
+  .input {
+    display: block;
+    min-height: 28px;
+    padding: 6px 9px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: var(--field);
+    color: var(--ink);
+    font-size: 11.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+    transition:
+      border-color 0.4s var(--ease-out-expo),
+      box-shadow 0.4s var(--ease-out-expo);
+  }
+  .field[data-flag] .input {
+    border-color: var(--color-down);
+    box-shadow: 0 0 0 3px rgb(226 88 107 / 0.18);
+  }
+  .pair {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: 10px;
+  }
+  .pay {
+    position: relative;
+    display: block;
+    margin-top: 6px;
+    padding: 9px 0;
+    border-radius: 7px;
+    background: #2a2421;
+    color: #f5f1ec;
+    font-size: 11.5px;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .summary {
+    align-self: start;
+    padding: 14px;
+    border-radius: 9px;
+    border: 1px solid var(--line);
+    background: var(--field);
+    @container (width < 420px) {
+      display: none;
+    }
+  }
+  .product {
+    display: flex;
+    gap: 11px;
+    align-items: center;
+    padding-bottom: 12px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .photo {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 46px;
+    height: 54px;
+    border-radius: 7px;
+    background: linear-gradient(160deg, #e9dccd, #d9c4ac);
+  }
+  .photo[data-blocked] {
+    background: #e6e1db;
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+  .photo svg {
+    width: 30px;
+    height: 40px;
+  }
+  .bag {
+    fill: #6b3f24;
+  }
+  .fold {
+    stroke: #4d2c18;
+    stroke-width: 1.2;
+  }
+  .label {
+    fill: #efe4d6;
+  }
+  .bean {
+    fill: none;
+    stroke: #6b3f24;
+    stroke-width: 1.3;
+    stroke-linecap: round;
+  }
+  .productText {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+  }
+  .productText b {
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .productText span {
+    color: var(--soft);
+    font-size: 10px;
+  }
+  .totals {
+    display: grid;
+    gap: 8px;
+  }
+  .totals div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--soft);
+  }
+  .totals div:last-child {
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .totals i {
+    display: block;
+    width: 34px;
+    height: 6px;
+    border-radius: 3px;
+    background: #d3cbc2;
+  }
+  .totals div:last-child i {
+    width: 42px;
+    background: #b9afa5;
+  }
+}

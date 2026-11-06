@@ -77,7 +77,9 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
-    maxPasswordLength: 100,
+    // Well above the 100-character policy the before hook puts on new passwords: older flows stored longer ones
+    // (up to 128 characters, admin passwords from env with no cap), and 1.7 checks this on sign-in too
+    maxPasswordLength: 1024,
     password: {
       hash: (password) => hashPassword(password),
       verify: ({ hash, password }) => verifyPasswordHash(password, hash),

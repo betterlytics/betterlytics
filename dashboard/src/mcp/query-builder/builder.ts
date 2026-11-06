@@ -2,8 +2,7 @@ import { safeSql, SQL } from '@/lib/safe-sql';
 import { BAQuery } from '@/lib/ba-query';
 import { getMetricByKey } from '@/mcp/registry/metrics';
 import { getDimensionByKey, validateDimensionColumn } from '@/mcp/registry/dimensions';
-import { getResolvedRanges } from '@/lib/ba-timerange';
-import { toDateTimeString } from '@/utils/dateFormatters';
+import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
 import { McpQueryInput } from '@/mcp/entities/mcp.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 
@@ -14,25 +13,7 @@ type BuildResult = {
 
 export function buildQuery(input: McpQueryInput, siteId: string): BuildResult {
   const timezone = input.timezone;
-  const customStart = new Date(input.startDate!);
-  const customEnd = new Date(input.endDate!);
-
-  const ranges = getResolvedRanges(
-    input.timeRange,
-    'off',
-    timezone,
-    customStart,
-    customEnd,
-    input.granularity ?? 'day',
-    undefined,
-    undefined,
-    0,
-    false,
-  );
-
-  const startDateTime = toDateTimeString(ranges.main.start);
-  const endDateTime = toDateTimeString(ranges.main.end);
-  const granularity = ranges.granularity;
+  const { startDateTime, endDateTime, granularity } = resolveTimeRange(input);
 
   const metricExpressions = input.metrics.map((key) => {
     const metric = getMetricByKey(key);

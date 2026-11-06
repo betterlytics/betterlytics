@@ -23,9 +23,18 @@ describe('resolveTimeRange', () => {
     expect(result.endDateTime).toContain('2026-01-31');
   });
 
-  it('defaults timezone to UTC', () => {
-    const result = resolveTimeRange({ timeRange: '7d' });
-    expect(result).toHaveProperty('startDateTime');
-    expect(result).toHaveProperty('endDateTime');
+  it.each([
+    ['America/Los_Angeles', '2026-09-20 07:00:00', '2026-09-23 06:59:59'],
+    ['Asia/Tokyo', '2026-09-19 15:00:00', '2026-09-22 14:59:59'],
+    ['UTC', '2026-09-20 00:00:00', '2026-09-22 23:59:59'],
+  ])('resolves custom dates as whole days in %s', (timezone, startDateTime, endDateTime) => {
+    const result = resolveTimeRange({
+      timeRange: 'custom',
+      startDate: '2026-09-20',
+      endDate: '2026-09-22',
+      timezone,
+    });
+    expect(result.startDateTime).toBe(startDateTime);
+    expect(result.endDateTime).toBe(endDateTime);
   });
 });
