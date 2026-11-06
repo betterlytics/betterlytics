@@ -7,6 +7,9 @@ import { EmailButton, EmailLayout, Greeting, H1, H2, P, renderEmailTemplate, wit
 
 const CAMPAIGN = 'usage_alert';
 
+// The copy is English-only, so numbers must not follow the server's locale.
+const LOCALE = 'en';
+
 type SerializableDate = Date | string;
 
 export type UsageAlertQuota = 'events' | 'replays';
@@ -47,7 +50,7 @@ function getSubjectLine(percentage: number, planName: string, quota: UsageAlertQ
   const { limitName } = QUOTA_COPY[quota];
   if (quota === 'replays' && percentage >= 100) return `Usage alert: ${planName} plan ${limitName} reached`;
   if (percentage >= 100) return `Usage alert: ${planName} plan ${limitName} exceeded`;
-  return `Usage alert: ${formatPercentage(percentage)} of your ${planName} plan ${limitName} used`;
+  return `Usage alert: ${formatPercentage(percentage, LOCALE)} of your ${planName} plan ${limitName} used`;
 }
 
 type StatusCopy = { guidance: string; quotaWarning: string; ctaLabel: string; preview: string };
@@ -136,8 +139,9 @@ export function UsageAlertEmail(data: UsageAlertEmailData) {
           </>
         ) : (
           <>
-            You've used <strong>{formatPercentage(data.usagePercentage)}</strong> of the {quotaCopy.limitName}{' '}
-            included in your <strong>{data.planName}</strong> plan for <strong>{periodLabel}</strong>.
+            You've used <strong>{formatPercentage(data.usagePercentage, LOCALE)}</strong> of the{' '}
+            {quotaCopy.limitName} included in your <strong>{data.planName}</strong> plan for{' '}
+            <strong>{periodLabel}</strong>.
           </>
         )}
       </P>
@@ -148,11 +152,14 @@ export function UsageAlertEmail(data: UsageAlertEmailData) {
         <table cellPadding={0} cellSpacing={0} border={0} className='w-full border-collapse'>
           <tbody>
             <UsageRow label='Plan' value={`${data.planName} plan`} />
-            <UsageRow label='Current usage' value={`${data.currentUsage.toLocaleString()} ${quotaCopy.unit}`} />
-            <UsageRow label='Plan limit' value={`${data.usageLimit.toLocaleString()} ${quotaCopy.unit}`} />
+            <UsageRow
+              label='Current usage'
+              value={`${data.currentUsage.toLocaleString(LOCALE)} ${quotaCopy.unit}`}
+            />
+            <UsageRow label='Plan limit' value={`${data.usageLimit.toLocaleString(LOCALE)} ${quotaCopy.unit}`} />
             <UsageRow
               label='Remaining'
-              value={`${remaining.toLocaleString()} ${quotaCopy.unit}`}
+              value={`${remaining.toLocaleString(LOCALE)} ${quotaCopy.unit}`}
               valueClass={`font-semibold ${remainingColorClass}`}
             />
           </tbody>
@@ -161,7 +168,7 @@ export function UsageAlertEmail(data: UsageAlertEmailData) {
           <div className={cn(barColorClass, 'h-2 rounded')} style={{ width: `${barWidth}%` }} />
         </div>
         <Text className='m-0 mt-2 text-right text-sm text-slate-500'>
-          {formatPercentage(data.usagePercentage)} used
+          {formatPercentage(data.usagePercentage, LOCALE)} used
         </Text>
       </Section>
 
