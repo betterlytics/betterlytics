@@ -103,6 +103,26 @@ export function withDashboardAuthContext<Args extends Array<unknown> = unknown[]
   };
 }
 
+// For reads the public demo must not reach: members only, with no demo fallback or demo cache.
+export function withDashboardMemberAuthContext<Args extends Array<unknown> = unknown[], Ret = unknown>(
+  action: ActionRequiringAuthContext<Args, Ret>,
+) {
+  return async function (dashboardId: string, ...args: Args): Promise<Awaited<Ret>> {
+    const context = await requireDashboardAuth(dashboardId);
+    const spanName = `action.${(action as AnyFn).name || 'dashboard_member_action'}`;
+    return await withActionSpan(
+      spanName,
+      {
+        'ba.action.id': getFnSignature(action as AnyFn),
+        'ba.dashboard.id': context.dashboardId,
+        'ba.site.id': context.siteId,
+        'ba.auth.is_demo': context.isDemo,
+      },
+      async () => await action(context, ...args),
+    );
+  };
+}
+
 export type MutationAuthOptions = {
   permission?: Permission;
   allowedRoles?: DashboardRole[];

@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { type StatusPageWithMonitors } from '@/entities/analytics/statusPage/statusPage.entities';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { collectStagedImages } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/collectStagedImages';
+import { holdForRedirect } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/holdForRedirect';
 import { type StatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 import {
   useDeleteStatusPageMutation,
@@ -41,10 +42,12 @@ export function useStatusPageEditor({
   const saveMutation = useMutation({
     mutationFn: async (section: 'settings' | 'studio') => {
       if (section === 'settings') {
-        return updateStatusPageAction(dashboardId, { id: statusPage.id, ...form.settingsInput });
+        return holdForRedirect(updateStatusPageAction(dashboardId, { id: statusPage.id, ...form.settingsInput }));
       }
       const images = await collectStagedImages(form);
-      return updateStatusPageAction(dashboardId, { id: statusPage.id, ...form.studioInput }, images);
+      return holdForRedirect(
+        updateStatusPageAction(dashboardId, { id: statusPage.id, ...form.studioInput }, images),
+      );
     },
     onSuccess: (page) => {
       if (page) {
@@ -56,7 +59,7 @@ export function useStatusPageEditor({
       queryClient.invalidateQueries({ queryKey: ['statusPageLivePreview', dashboardId, statusPage.id] });
       router.refresh();
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
+    onError: (error) => toast.error(error.message || t('error')),
   });
 
   const publishMutation = useSetStatusPagePublishedMutation(dashboardId, { onSuccess: () => router.refresh() });

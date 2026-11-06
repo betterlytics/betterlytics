@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { STATUS_PAGE_DEFAULT_ACCENT_COLOR } from '@/entities/analytics/statusPage/statusPage.entities';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import {
   createStatusPageAction,
   fetchStatusPageDraftPreviewAction,
@@ -21,6 +22,7 @@ import { FlowOverlayHeader } from '@/app/(app)/(protected)/dashboard/[dashboardI
 import { collectStagedImages } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/collectStagedImages';
 import { useStatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 import { useSlugAvailability } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useSlugAvailability';
+import { holdForRedirect } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/holdForRedirect';
 import { useStatusPageValidation } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageValidation';
 import { StudioShell } from './StudioShell';
 
@@ -68,7 +70,9 @@ function StudioForm({
   const commitMutation = useMutation({
     mutationFn: async (publish: boolean) => {
       const images = await collectStagedImages(form);
-      const page = await createStatusPageAction(dashboardId, { ...form.input, isPublished: publish }, images);
+      const page = await holdForRedirect(
+        createStatusPageAction(dashboardId, { ...form.input, isPublished: publish }, images),
+      );
       return { page, publish };
     },
     onSuccess: ({ page, publish }) => {
@@ -82,7 +86,7 @@ function StudioForm({
       }
       router.push(resolveHref(`status-pages/${page.id}`));
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
+    onError: (error) => toast.error(error.message || t('error')),
   });
 
   const { pageInvalid, blockedReason: commitBlockReason } = useStatusPageValidation(form, slugStatus, {
@@ -100,7 +104,7 @@ function StudioForm({
 
   const previewQuery = useQuery({
     queryKey: ['statusPageDraftPreview', dashboardId],
-    queryFn: () => fetchStatusPageDraftPreviewAction(dashboardId),
+    queryFn: () => holdForRedirect(fetchStatusPageDraftPreviewAction(dashboardId)),
     staleTime: Infinity,
     gcTime: 0,
   });
@@ -181,9 +185,10 @@ export function CreateStatusPageStudio({
   onClose,
 }: CreateStatusPageStudioProps) {
   const t = useTranslations('statusPagesPage.editor');
+  const { timeZone } = useTimeRangeContext();
   const defaultsQuery = useQuery({
-    queryKey: ['statusPageDefaults', dashboardId],
-    queryFn: () => suggestStatusPageDefaultsAction(dashboardId),
+    queryKey: ['statusPageDefaults', dashboardId, timeZone],
+    queryFn: () => holdForRedirect(suggestStatusPageDefaultsAction(dashboardId, timeZone)),
     staleTime: 0,
     gcTime: 0,
   });
