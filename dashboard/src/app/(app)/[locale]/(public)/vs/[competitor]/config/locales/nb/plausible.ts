@@ -6,13 +6,13 @@ export const plausible: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Plausible: Flere funksjoner, samme personvern',
     description:
-      'Sammenlign Betterlytics med Plausible. Samme personvernfokuserte tilnærming, pluss session replay, brukerreiser og overvåking. Gratisnivå tilgjengelig, fra $7/måned.',
+      'Sammenlign Betterlytics med Plausible. Samme personvernfokus, pluss session replay, oppetidsovervåking og brukerreiser på alle planer. Gratisnivå, fra $7/måned.',
   },
   hero: {
     title: 'Ser du etter et alternativ til Plausible?',
     titleHighlight: 'alternativ',
     subtitle:
-      'Alt Plausible tilbyr, pluss session replay, brukerreiser, overvåking og mer. Samme personvernfokuserte tilnærming, dypere innsikt.',
+      'Samme personvernfokuserte tilnærming som Plausible, pluss session replay, oppetidsovervåking og brukerreiser på alle planer.',
   },
   keyDifferentiators: [
     {
@@ -22,8 +22,9 @@ export const plausible: ComparisonLocaleContent = {
     },
     {
       title: 'Sporing av brukerreiser',
-      betterlytics: 'Visualiser hvordan brukere navigerer gjennom nettstedet ditt side for side.',
-      competitor: 'Kun traktanalyse. Ingen visualisering av individuelle brukerreiser.',
+      betterlytics:
+        'Visualiser hvordan brukere navigerer gjennom nettstedet ditt side for side. Inkludert i alle planer.',
+      competitor: 'Brukerreiser og trakter krever Business-planen, fra $19/måned.',
     },
     {
       title: 'Innebygd overvåking',
@@ -48,7 +49,7 @@ export const plausible: ComparisonLocaleContent = {
       {
         name: 'Ytelse og hastighet',
         features: [
-          { name: 'Skriptstørrelse', betterlytics: '~3,5KB', competitor: '<2KB' },
+          { name: 'Skriptstørrelse', betterlytics: '~3,5KB', competitor: '~2,5KB' },
           { name: 'Påvirkning på sidelasting', betterlytics: 'Minimal', competitor: 'Minimal' },
           { name: 'Fungerer med annonseblokkere', betterlytics: true, competitor: 'Delvis' },
         ],
@@ -62,13 +63,17 @@ export const plausible: ComparisonLocaleContent = {
           { name: 'Traktanalyse', betterlytics: true, competitor: true },
           { name: 'Kampanjesporing (UTM)', betterlytics: true, competitor: true },
           { name: 'Sporing av utgående lenker', betterlytics: true, competitor: true },
-          { name: 'Sporing av brukerreiser', betterlytics: true, competitor: false },
-          { name: 'Annotasjoner', betterlytics: true, competitor: false },
+          { name: 'Sporing av brukerreiser', betterlytics: true, competitor: 'Kun på Business-planen' },
+          { name: 'Annotasjoner', betterlytics: true, competitor: true },
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Ytelsesovervåking', betterlytics: true, competitor: false },
           { name: 'Oppetidsovervåking', betterlytics: true, competitor: false },
           { name: 'Offentlige statussider', betterlytics: true, competitor: false },
-          { name: 'Varslingsintegrasjoner (Slack, Discord osv.)', betterlytics: true, competitor: false },
+          {
+            name: 'Varslingsintegrasjoner (Slack, Discord osv.)',
+            betterlytics: true,
+            competitor: 'E-post/Slack-rapporter',
+          },
         ],
       },
       {
@@ -101,7 +106,7 @@ export const plausible: ComparisonLocaleContent = {
   detailedComparison: [
     {
       title: 'Samme verdier, ulike verktøysett',
-      content: `Plausible og Betterlytics deler samme DNA: personvern først, lettvektsløsning, ingen cookies, GDPR-klar rett ut av boksen. Begge er gode alternativer til Google Analytics hvis personvern er viktig for deg.\n\nForskjellen? Betterlytics inkluderer session replay, sporing av brukerreiser og overvåking. Plausible holder det bevisst minimalt. Hvis du trenger atferdsinnsikt utover sidevisninger og konverteringer, har vi det du trenger.`,
+      content: `Plausible og Betterlytics deler samme DNA: personvern først, lettvektsløsning, ingen cookies, GDPR-klar rett ut av boksen. Begge er gode alternativer til Google Analytics hvis personvern er viktig for deg.\n\nForskjellen? Betterlytics inkluderer session replay og overvåking, pluss brukerreiser på alle planer. Plausible holder det bevisst minimalt. Hvis du trenger atferdsinnsikt utover sidevisninger og konverteringer, har vi det du trenger.`,
       icon: 'shield',
     },
     {
@@ -121,7 +126,7 @@ export const plausible: ComparisonLocaleContent = {
     },
     {
       title: 'Når Plausible passer bedre',
-      content: `Plausible holder bevisst omfanget smalt: personvernfokusert trafikkanalyse med et kjent minimalistisk grensesnitt. Hvis du bare trenger sidevisninger, henvisere og konverteringsmål uten ekstra kompleksitet, kan Plausibles fokuserte produkt og etablerte merkevare være det tryggeste valget.\n\nBetterlytics legger til session replay, brukerreiser, ytelsesinnsikt og overvåking uten å gå på kompromiss med personverngrunnlaget. Hvis du er klar for dypere innsikt i atferd og færre leverandører, er den ekstra kapasiteten allerede innebygd; ingen ekstra verktøy å sy sammen.`,
+      content: `Plausible holder bevisst omfanget smalt: personvernfokusert trafikkanalyse med et kjent minimalistisk grensesnitt. Hvis du bare trenger sidevisninger, henvisere og konverteringsmål uten ekstra kompleksitet, kan Plausibles fokuserte produkt og etablerte merkevare være det tryggeste valget.\n\nBetterlytics legger til session replay, ytelsesinnsikt og overvåking uten å gå på kompromiss med personverngrunnlaget. Brukerreiser følger med på alle planer. Hvis du er klar for dypere innsikt i atferd og færre leverandører, er den ekstra kapasiteten allerede innebygd; ingen ekstra verktøy å sy sammen.`,
       icon: 'target',
     },
   ],

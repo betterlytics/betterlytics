@@ -39,7 +39,7 @@ export const fathom: ComparisonLocaleContent = {
           { name: 'Cookieless tracking', betterlytics: true, competitor: true },
           { name: 'GDPR-klar som standard', betterlytics: true, competitor: true },
           { name: 'Ingen cookie-banner nødvendig', betterlytics: true, competitor: true },
-          { name: 'EU-hosting af data', betterlytics: true, competitor: 'Valgfrit' },
+          { name: 'EU-hosting af data', betterlytics: true, competitor: 'EU-behandling, lagring i USA' },
           { name: 'Privacy-first som standard', betterlytics: true, competitor: true },
           { name: 'Ingen cross-site tracking', betterlytics: true, competitor: true },
           { name: 'Open source', betterlytics: true, competitor: false },
@@ -49,9 +49,9 @@ export const fathom: ComparisonLocaleContent = {
       {
         name: 'Performance & Hastighed',
         features: [
-          { name: 'Script-størrelse', betterlytics: '~3,5KB', competitor: '<2KB' },
+          { name: 'Script-størrelse', betterlytics: '~3,5KB', competitor: '~2KB' },
           { name: 'Indvirkning på sideindlæsning', betterlytics: 'Minimal', competitor: 'Minimal' },
-          { name: 'Fungerer med ad blockers', betterlytics: true, competitor: true },
+          { name: 'Fungerer med ad blockers', betterlytics: true, competitor: 'Delvist' },
         ],
       },
       {
@@ -64,7 +64,7 @@ export const fathom: ComparisonLocaleContent = {
           { name: 'Tracking af udgående links', betterlytics: true, competitor: true },
           { name: 'Funnel-analyse', betterlytics: true, competitor: false },
           { name: 'User journey tracking', betterlytics: true, competitor: false },
-          { name: 'Annotationer', betterlytics: true, competitor: false },
+          { name: 'Annotationer', betterlytics: true, competitor: true },
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Performance monitoring', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
@@ -79,7 +79,7 @@ export const fathom: ComparisonLocaleContent = {
           { name: 'Opsætningstid', betterlytics: '<5 minutter', competitor: '<5 minutter' },
           { name: 'Indlæringskurve', betterlytics: 'Lav', competitor: 'Lav' },
           { name: 'Simpelt og intuitivt interface', betterlytics: true, competitor: true },
-          { name: 'Dataopbevaring', betterlytics: 'Op til 5 år', competitor: 'For evigt' },
+          { name: 'Dataopbevaring', betterlytics: 'Op til 5 år', competitor: 'Fuld historik under abonnement' },
         ],
       },
       {
@@ -117,7 +117,7 @@ export const fathom: ComparisonLocaleContent = {
     },
     {
       title: 'Hvor Fathom er stærk',
-      content: `Fathom tilbyder ubegrænset dataopbevaring (vi gemmer op til 5 år), en GA4-importer til migrering af historiske data og custom domains for at reducere ad blocker-interferens. De har eksisteret længere og har et solidt track record.\n\nMen hvis du vil have session replay, funnels, user journeys og mere – til en lavere pris og med en gratis plan til at starte – tilbyder vi bedre værdi.`,
+      content: `Fathom gemmer hele din historik, så længe du abonnerer (vi gemmer op til 5 år), og har en GA4-importer til migrering af historiske data. De har eksisteret længere og har et solidt track record.\n\nMen hvis du vil have datalagring i EU, session replay, funnels, user journeys og mere – til en lavere pris og med en gratis plan til at starte – tilbyder vi bedre værdi.`,
       icon: 'target',
     },
   ],

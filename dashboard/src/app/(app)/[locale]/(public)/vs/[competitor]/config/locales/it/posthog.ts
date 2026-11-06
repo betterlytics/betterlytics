@@ -18,7 +18,7 @@ export const posthog: ComparisonLocaleContent = {
     {
       title: 'Davvero leggero',
       betterlytics: 'Script da 3,5KB, progettato per un impatto minimo sulle performance della pagina.',
-      competitor: 'Script di circa 57KB con un ampio set di funzionalità e maggiore overhead di caricamento.',
+      competitor: 'Script di circa 120KB con un ampio set di funzionalità e maggiore overhead di caricamento.',
     },
     {
       title: 'Privacy di default',
@@ -56,7 +56,7 @@ export const posthog: ComparisonLocaleContent = {
       {
         name: 'Performance e velocità',
         features: [
-          { name: 'Dimensione dello script', betterlytics: '~3,5KB', competitor: '~57KB' },
+          { name: 'Dimensione dello script', betterlytics: '~3,5KB', competitor: '~120KB' },
           { name: 'Impatto sul caricamento della pagina', betterlytics: 'Minimo', competitor: 'Moderato' },
           { name: 'Funziona con ad blocker', betterlytics: true, competitor: 'Parziale' },
         ],
@@ -101,7 +101,7 @@ export const posthog: ComparisonLocaleContent = {
         features: [
           { name: 'Piano gratuito disponibile', betterlytics: true, competitor: true },
           { name: 'Prezzi prevedibili', betterlytics: true, competitor: false },
-          { name: 'Supporto via email', betterlytics: true, competitor: true },
+          { name: 'Supporto via email', betterlytics: true, competitor: 'Solo sui piani a pagamento' },
         ],
       },
       {
@@ -120,7 +120,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'La velocità della pagina conta',
-      content: `Lo script di PostHog pesa circa 57KB (gzip). Include feature flag, session recording, autocapture e molte altre funzionalità. Su mobile o connessioni lente, questo peso si fa sentire.\n\nIl nostro script? Circa 3,5KB. Le pagine restano veloci, i Core Web Vitals restano verdi e la SEO ringrazia. Gli analytics non dovrebbero rallentare il tuo sito.`,
+      content: `Lo script di PostHog pesa circa 120KB (gzip). Include feature flag, session recording, autocapture e molte altre funzionalità. Su mobile o connessioni lente, questo peso si fa sentire.\n\nIl nostro script? Circa 3,5KB. Le pagine restano veloci, i Core Web Vitals restano verdi e la SEO ringrazia. Gli analytics non dovrebbero rallentare il tuo sito.`,
       icon: 'zap',
     },
     {

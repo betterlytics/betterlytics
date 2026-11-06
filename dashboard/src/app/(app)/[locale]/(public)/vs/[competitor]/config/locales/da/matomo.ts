@@ -23,14 +23,16 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Ingen plugins nødvendige',
-      betterlytics: 'Analytics, session replay og monitoring er inkluderet. Ét værktøj og én pris.',
-      competitor: 'Kerne-analytics er gratis, men session recording og heatmaps kræver betalte add-ons.',
+      betterlytics:
+        'Analytics, session replay og monitoring er inkluderet i alle planer og i den gratis self-hosted version.',
+      competitor:
+        'Heatmaps og session recordings er inkluderet i Cloud, men er betalte plugins, når du self-hoster.',
     },
     {
       title: 'Simpel prissætning',
       betterlytics: 'Gratis plan tilgængelig. Betalte planer fra $7/måned med alt inkluderet.',
       competitor:
-        'Self-hosted kræver infrastruktur og vedligeholdelse. Cloud-planer starter højere med betalte add-ons.',
+        'Self-hosted kræver infrastruktur og vedligeholdelse. Cloud starter fra €22/måned ($26) for 50.000 hits.',
     },
   ],
   comparison: {
@@ -41,7 +43,7 @@ export const matomo: ComparisonLocaleContent = {
           { name: 'Cookieless tracking', betterlytics: true, competitor: 'Valgfrit' },
           { name: 'GDPR-klar som standard', betterlytics: true, competitor: 'Med konfiguration' },
           { name: 'Ingen cookie-banner nødvendig', betterlytics: true, competitor: 'Med konfiguration' },
-          { name: 'EU-hosting af data', betterlytics: true, competitor: 'Valgfrit' },
+          { name: 'EU-hosting af data', betterlytics: true, competitor: true },
           { name: 'Privacy-first som standard', betterlytics: true, competitor: 'Valgfrit' },
           { name: 'Ingen cross-site tracking', betterlytics: true, competitor: true },
           { name: 'Fuld dataejerskab', betterlytics: true, competitor: true },
@@ -62,15 +64,19 @@ export const matomo: ComparisonLocaleContent = {
         features: [
           { name: 'Real-time dashboard', betterlytics: true, competitor: true },
           { name: 'Custom events', betterlytics: true, competitor: true },
-          { name: 'Global properties', betterlytics: true, competitor: 'Via brugerdefinerede variabler' },
+          { name: 'Global properties', betterlytics: true, competitor: 'Via brugerdefinerede dimensioner' },
           { name: 'Campaign tracking (UTM)', betterlytics: true, competitor: true },
-          { name: 'User journey tracking', betterlytics: true, competitor: 'Limited' },
-          { name: 'Funnel-analyse', betterlytics: true, competitor: 'Med add-on' },
-          { name: 'Session replay', betterlytics: true, competitor: 'Med add-on' },
-          { name: 'Performance monitoring', betterlytics: true, competitor: false },
+          { name: 'User journey tracking', betterlytics: true, competitor: true },
+          { name: 'Funnel-analyse', betterlytics: true, competitor: true },
+          { name: 'Session replay', betterlytics: true, competitor: true },
+          { name: 'Performance monitoring', betterlytics: true, competitor: 'Kun sideindlæsningstider' },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
           { name: 'Offentlige statussider', betterlytics: true, competitor: false },
-          { name: 'Notifikationsintegrationer (Slack, Discord osv.)', betterlytics: true, competitor: 'Med plugins' },
+          {
+            name: 'Notifikationsintegrationer (Slack, Discord osv.)',
+            betterlytics: true,
+            competitor: 'E-mail, SMS, Slack',
+          },
         ],
       },
       {
@@ -80,7 +86,7 @@ export const matomo: ComparisonLocaleContent = {
           { name: 'Indlæringskurve', betterlytics: 'Lav', competitor: 'Moderat' },
           { name: 'Simpelt og intuitivt interface', betterlytics: true, competitor: false },
           { name: 'Ingen kompleks konfiguration', betterlytics: true, competitor: false },
-          { name: 'Dataopbevaring', betterlytics: 'Op til 5 år', competitor: 'Op til 2 år' },
+          { name: 'Dataopbevaring', betterlytics: 'Op til 5 år', competitor: '2 år rådata, rapporter for altid' },
         ],
       },
       {
@@ -88,13 +94,13 @@ export const matomo: ComparisonLocaleContent = {
         features: [
           { name: 'Gratis plan tilgængelig', betterlytics: true, competitor: false },
           { name: 'Transparent prissætning', betterlytics: true, competitor: 'Limited' },
-          { name: 'Email-support', betterlytics: true, competitor: 'Betalt' },
+          { name: 'Email-support', betterlytics: true, competitor: true },
         ],
       },
       {
         name: 'AI og integrationer',
         features: [
-          { name: 'MCP-server', betterlytics: true, competitor: false },
+          { name: 'MCP-server', betterlytics: true, competitor: true },
         ],
       },
     ],
@@ -112,12 +118,12 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Den reelle pris på "gratis"',
-      content: `Matomos self-hosted version er gratis at downloade, men du betaler med serveromkostninger, vedligeholdelse og premium plugins som session recording. Matomo Cloud starter fra $19/måned og skalerer med pageviews.\n\nBetterlytics tilbyder en gratis plan til mindre sites. Betalte planer starter fra $7/måned med alt inkluderet. Session replay, monitoring og ingen add-on-gebyrer. Det, du ser, er det, du betaler.`,
+      content: `Matomos self-hosted version er gratis at downloade, men du betaler med serveromkostninger, vedligeholdelse og premium plugins som session recording. Matomo Cloud starter fra €22/måned ($26) for 50.000 hits og stiger med trafikken.\n\nBetterlytics tilbyder en gratis plan til mindre sites. Betalte planer starter fra $7/måned med alt inkluderet. Session replay, monitoring og ingen add-on-gebyrer. Det, du ser, er det, du betaler.`,
       icon: 'dollar',
     },
     {
       title: 'Alt samlet ét sted',
-      content: `Matomo har omfattende analytics, men session recording er et betalt plugin, og uptime monitoring er ikke inkluderet. Interfacet er kraftfuldt, men kan føles overvældende.\n\nBetterlytics samler analytics, session replay, uptime monitoring med advarsler via Slack, Discord og Teams, samt performance tracking ét sted. Ét overskueligt interface, ingen plugins der skal købes, og ingen paywalls på betalte planer.`,
+      content: `Matomo Cloud dækker analytics og session recording, men har ingen uptime monitoring. Interfacet er kraftfuldt, men kan føles overvældende.\n\nBetterlytics samler analytics, session replay, uptime monitoring med advarsler via Slack, Discord og Teams, samt performance tracking ét sted. Ét overskueligt interface, ingen plugins der skal købes, og ingen paywalls på betalte planer.`,
       icon: 'layers',
     },
   ],
