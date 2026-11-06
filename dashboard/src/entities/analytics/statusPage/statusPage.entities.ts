@@ -1,9 +1,10 @@
 import { z } from 'zod';
+import { PUBLIC_SLUG_LIMITS, PublicSlugSchema } from '@/entities/system/publicSlug.entities';
 
 export const STATUS_PAGE_LIMITS = {
   NAME_MAX: 60,
-  SLUG_MIN: 3,
-  SLUG_MAX: 63,
+  SLUG_MIN: PUBLIC_SLUG_LIMITS.MIN,
+  SLUG_MAX: PUBLIC_SLUG_LIMITS.MAX,
   PUBLIC_NAME_MAX: 40,
   MONITORS_MAX: 20,
   UPTIME_WINDOW_DAYS: 90,
@@ -51,50 +52,10 @@ export const STATUS_PAGE_IMAGE_CONFIG: Record<StatusPageImageKind, { maxDimensio
 
 export const STATUS_PAGE_DEFAULT_ACCENT_COLOR = '#304870';
 
-export const STATUS_PAGE_SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-
-export const RESERVED_STATUS_PAGE_SLUGS = new Set([
-  'admin',
-  'api',
-  'app',
-  'betterlytics',
-  'billing',
-  'dashboard',
-  'dashboards',
-  'docs',
-  'login',
-  'monitoring',
-  'pricing',
-  'share',
-  'signin',
-  'signup',
-  'status',
-  'www',
-  'pages',
-  'mail',
-  'ns1',
-  'ns2',
-  'dev',
-  'staging',
-  'domain',
-]);
-
-export const RESERVED_STATUS_PAGE_SLUG_PREFIX = /^demo(-|$)/;
-
 export const StatusPageThemeSchema = z.enum(['light', 'dark', 'system']);
 export type StatusPageTheme = z.infer<typeof StatusPageThemeSchema>;
 
-export const StatusPageSlugSchema = z
-  .string()
-  .trim()
-  .toLowerCase()
-  .min(STATUS_PAGE_LIMITS.SLUG_MIN)
-  .max(STATUS_PAGE_LIMITS.SLUG_MAX)
-  .regex(STATUS_PAGE_SLUG_REGEX, 'Only lowercase letters, digits and single hyphens')
-  .refine(
-    (slug) => !RESERVED_STATUS_PAGE_SLUGS.has(slug) && !RESERVED_STATUS_PAGE_SLUG_PREFIX.test(slug),
-    'This slug is reserved',
-  );
+export const StatusPageSlugSchema = PublicSlugSchema;
 
 export const StatusPageAccentColorSchema = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Must be a 6-digit hex color');
 
