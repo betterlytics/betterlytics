@@ -42,17 +42,9 @@ Self-hosted instances can also monitor private network addresses (LAN, Tailscale
 
 ### Monitor Limits
 
-The number of monitors you can create depends on your plan:
+On Betterlytics Cloud, your plan sets how many monitors you can create, the shortest check interval and which of the advanced configurations below you can use. [Pricing](/pricing) lists what each plan includes.
 
-
-| Plan          | Monitor Limit |
-|---------------|---------------|
-| Free          | 1 monitor     |
-| Plus          | 5 monitors    |
-| Business      | 50 monitors   |
-| Enterprise    | Unlimited     |
-
-On a [self-hosted instance](/installation/self-hosting) there are no plans and no monitor limit, and every monitor can use 1-minute check intervals and the advanced configurations below.
+On a [self-hosted instance](/installation/self-hosting) there are no plans and no monitor limit, and every monitor can use 30-second check intervals and the advanced configurations below.
 
 
 ## Configuration Options
@@ -61,16 +53,12 @@ On a [self-hosted instance](/installation/self-hosting) there are no plans and n
 
 #### Check Interval
 
-How often we check your site. Available options range from **1 minute** to **24 hours**.
+How often we check your site. Available options range from **30 seconds** to **24 hours**.
 
 - **Recommended**: 5 minutes for most websites
-- **Critical endpoints**: 1 minute for mission-critical services where fast detection is essential
+- **Critical endpoints**: 30 seconds to 1 minute for mission-critical services where fast detection is essential
 - **Shorter intervals**: Faster detection and more responsive alerts
 - **Longer intervals**: Suitable for non-critical or low-priority endpoints
-
-<Callout type="info">
-Check intervals under 5 minutes are available on the Plus, Business and Enterprise plans on Betterlytics Cloud, and on every self-hosted instance.
-</Callout>
 
 #### Request Timeout
 
@@ -145,8 +133,6 @@ SSL monitoring is only available for HTTPS URLs. For HTTP URLs, this setting has
 </Callout>
 
 ### Advanced Configurations
-
-These options are available on every Betterlytics Cloud plan, Free included, and on every self-hosted instance.
 
 #### HTTP Method
 

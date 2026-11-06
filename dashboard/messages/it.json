@@ -358,7 +358,7 @@
         "freeTierTitle": "Piano gratuito",
         "freeTierBody": "Offriamo un piano gratuito permanente con un limite mensile di eventi come specificato nella nostra pagina dei prezzi. Nessuna carta di credito è richiesta per il piano gratuito. Non vendiamo i tuoi dati — mai, indipendentemente dal piano utilizzato.",
         "billingTitle": "Fatturazione",
-        "billingBody": "Puoi utilizzare il nostro piano gratuito a tempo indeterminato entro i limiti mensili di eventi. Per un utilizzo superiore, devi effettuare l’upgrade a un piano a pagamento e pagare in anticipo. Se superi i limiti del piano senza effettuare l’upgrade, rischi di perdere i dati in eccesso. Se gli account a pagamento diventano insoluti, congeleremo l’account fino al pagamento.",
+        "billingBody": "Puoi utilizzare il nostro piano gratuito a tempo indeterminato entro i limiti mensili di eventi. Per un utilizzo superiore, devi effettuare l’upgrade a un piano a pagamento e pagare in anticipo. Se continui a superare i limiti del piano senza effettuare l’upgrade, potremmo bloccare il tuo account finché non effettui l’upgrade. I tuoi dati vengono conservati. Se gli account a pagamento diventano insoluti, congeleremo l’account fino al pagamento.",
         "limitsTitle": "Limiti di eventi",
         "limitsBody": "Ogni piano include un limite mensile di eventi (visualizzazioni di pagina, eventi personalizzati, ecc.). Gli eventi non utilizzati non vengono trasferiti al mese successivo. Non ti verranno mai addebitati costi extra per picchi occasionali di traffico. Se superi costantemente i limiti del tuo piano per due mesi consecutivi, ti contatteremo per discutere un upgrade.",
         "planChangesTitle": "Modifiche al piano",
@@ -1121,13 +1121,7 @@
       "seo": {
         "title": "Prezzi Betterlytics: inizia gratis, paga per eventi",
         "description": "Ogni piano include analisi web, session replay, tracciamento errori e uptime. Inizia gratis e paga in base agli eventi mensili, o fai self-hosting gratis."
-      },
-      "titleEmphasis": "Prezzi semplici e",
-      "titleRest": "trasparenti",
-      "subtitle": "Inizia gratis, aggiorna quando ne hai bisogno. Nessun costo nascosto, nessuna sorpresa.",
-      "footer": "Inizia con il nostro piano gratuito - nessuna carta di credito richiesta.",
-      "comparisonTitle": "Confronta tutte le funzionalità",
-      "exploreFeaturesLink": "Esplora tutte le funzionalità in dettaglio"
+      }
     },
     "shareImage": {
       "alt": "“You shouldn’t need five tools to understand one website” sopra la dashboard di Betterlytics"
@@ -1258,7 +1252,7 @@
           "tagline": "Per progetti personali e piccoli siti."
         },
         "plus": {
-          "tagline": "Per piccole aziende con pochi siti."
+          "tagline": "Per progetti personali molto visitati e piccole aziende."
         },
         "business": {
           "tagline": "Per agenzie, freelance e team in crescita."
@@ -1271,6 +1265,13 @@
         }
       },
       "cta": "Inizia"
+    },
+    "pricingPage": {
+      "compareTitle": "Confronta tutte le funzionalità",
+      "faqTitle": "Domande frequenti",
+      "note": "Inizi gratis, senza carta di credito.",
+      "included": "Incluso",
+      "notIncluded": "Non incluso"
     },
     "cta": {
       "title": "Aggiungi uno script e guarda arrivare il tuo primo visitatore",
@@ -1444,7 +1445,7 @@
         },
         "uptime": {
           "title": "Monitoraggio uptime",
-          "body": "Controlli anche ogni minuto, avvisi dove il tuo team già comunica e una pagina di stato."
+          "body": "Controlli anche ogni 30 secondi, avvisi dove il tuo team già comunica e una pagina di stato."
         }
       }
     },
@@ -1456,16 +1457,16 @@
       "hero": {
         "eyebrow": "Monitoraggio uptime",
         "title": "Scopri quando il tuo sito va offline, e quanto ti è costato",
-        "lede": "Controlli anche ogni minuto, avvisi dove il tuo team già comunica, notifiche SSL e una pagina di stato pubblica. Nella dashboard che contiene già il tuo traffico.",
+        "lede": "Controlli anche ogni 30 secondi, avvisi dove il tuo team già comunica, notifiche SSL e una pagina di stato pubblica. Nella dashboard che contiene già il tuo traffico.",
         "primary": "Inizia a monitorare gratis",
         "secondary": "Leggi la documentazione",
         "proof": "La usiamo anche per la nostra pagina di stato"
       },
       "specs": {
         "interval": {
-          "unit": "min",
+          "unit": "sec",
           "label": "Intervallo di controllo",
-          "body": "Controlli anche ogni minuto, o anche solo una volta al giorno."
+          "body": "Controlli anche ogni 30 secondi, o anche solo una volta al giorno."
         },
         "ssl": {
           "unit": "giorni",
@@ -1665,7 +1666,7 @@
           },
           "often": {
             "q": "Ogni quanto Betterlytics controlla il mio sito?",
-            "a": "Anche ogni minuto, o anche solo una volta al giorno. Scegli tu l’intervallo per ciascun monitor."
+            "a": "Anche ogni 30 secondi, o anche solo una volta al giorno. Scegli tu l’intervallo per ciascun monitor, e il piano stabilisce quello più breve."
           },
           "false": {
             "q": "Come evitate i falsi allarmi?",
@@ -1689,7 +1690,7 @@
           },
           "free": {
             "q": "Il monitoraggio uptime è gratuito?",
-            "a": "Sì. Il piano Free include un monitor, controllato ogni cinque minuti, e una pagina di stato pubblica con il branding Betterlytics. I piani a pagamento aggiungono più monitor, controlli ogni minuto, controlli per parola chiave, header personalizzati e codici di stato accettati, e pagine di stato sul tuo dominio. Business rimuove il branding Betterlytics."
+            "a": "Sì. Il piano Free include un monitor, controllato ogni cinque minuti, e una pagina di stato pubblica con il branding Betterlytics. I piani a pagamento aggiungono più monitor, controlli ogni minuto, controlli per parola chiave, header personalizzati e codici di stato accettati, e pagine di stato sul tuo dominio. Business aggiunge controlli ogni 30 secondi e rimuove il branding Betterlytics."
           },
           "internal": {
             "q": "Posso monitorare servizi interni?",
@@ -1946,7 +1947,7 @@
     "periodPerMonth": "/mese",
     "descriptions": {
       "free": "Per progetti personali e piccoli siti",
-      "plus": "Per piccole aziende con pochi siti",
+      "plus": "Per progetti personali molto visitati e piccole aziende",
       "business": "Per agenzie, freelance e team in crescita",
       "enterprise": "Per traffico elevato e organizzazioni con requisiti di sicurezza o conformità",
       "growth": "Per progetti personali e piccoli siti"
@@ -1968,6 +1969,7 @@
       "teamMembersCount": "{count, plural, one {# membro del team} other {# membri del team per sito}}",
       "retentionYears": "{count, plural, one {Conservazione dati # anno} other {Conservazione dati # anni}}",
       "uptimeMonitors": "{count} monitor uptime, controlli {minutes, plural, one {ogni minuto} other {ogni # minuti}}",
+      "uptimeMonitorsSeconds": "{count} monitor uptime, controlli ogni {seconds} secondi",
       "everythingIn": "Tutte le funzionalità di {name}, più:",
       "statusPagesCount": "{count, plural, one {# pagina di stato pubblica} other {# pagine di stato pubbliche}}",
       "statusPageCustomDomain": "Pagina di stato sul tuo dominio",
@@ -1977,7 +1979,7 @@
       "auditLog": "Registro di audit",
       "dpaSecurityReviews": "DPA e revisioni di sicurezza",
       "customRetention": "Conservazione dati personalizzata",
-      "customContracts": "Contratti e fatturazione personalizzati"
+      "customContracts": "Contratti annuali, fatturazione e condizioni personalizzate"
     },
     "cta": {
       "getStartedForFree": "Inizia gratis",
@@ -2014,21 +2016,21 @@
       "sites": {
         "name": "Siti",
         "values": {
-          "upToCount": "{count, plural, one {#} other {Fino a #}}",
+          "count": "{count, number}",
           "unlimited": "Illimitati"
         }
       },
       "dataRetention": {
         "name": "Conservazione dati",
         "values": {
-          "yearsCount": "{count, plural, one {#+ anno} other {#+ anni}}",
+          "yearsCount": "{count, plural, one {# anno} other {# anni}}",
           "custom": "Personalizzata"
         }
       },
       "teamMembers": {
         "name": "Membri del team per sito",
         "values": {
-          "upToCount": "{count, plural, one {#} other {Fino a #}}",
+          "count": "{count, number}",
           "unlimited": "Illimitati"
         }
       },
@@ -2076,7 +2078,8 @@
       "checkInterval": {
         "name": "Intervallo minimo di controllo",
         "values": {
-          "minutesCount": "{count} min"
+          "minutesCount": "{count} min",
+          "secondsCount": "{count} sec"
         }
       },
       "customHttpMethods": {
@@ -2118,27 +2121,6 @@
       },
       "slaGuarantee": {
         "name": "Garanzia SLA"
-      }
-    },
-    "coreFeatures": {
-      "title": "Incluso in tutti i piani",
-      "subtitle": "Ogni piano include la nostra suite completa di analytics",
-      "items": {
-        "realtimeAnalytics": "Analytics in tempo reale",
-        "sessionReplay": "Replay sessioni",
-        "geographicInsights": "Insights geografici",
-        "trafficSources": "Fonti di traffico",
-        "utmCampaigns": "Tracciamento campagne UTM",
-        "customEvents": "Eventi personalizzati",
-        "funnels": "Funnel e conversioni",
-        "userJourneys": "Percorsi utente",
-        "webVitals": "Web Vitals",
-        "botFiltering": "Filtraggio bot",
-        "outboundLinks": "Tracciamento link in uscita",
-        "advancedFiltering": "Filtri avanzati",
-        "cookieFree": "Senza cookie",
-        "gdprCcpa": "Pronto per GDPR e CCPA",
-        "errorTracking": "Monitoraggio errori lato client"
       }
     }
   },
@@ -2742,7 +2724,7 @@
           },
           "exceedLimit": {
             "q": "Cosa succede se supero il limite di eventi?",
-            "a": "Continueremo a tracciare i tuoi eventi e riceverai un'email quando superi il limite. Se superi i limiti per più di 30 giorni, i dati in eccesso potrebbero essere eliminati."
+            "a": "Continuiamo a tracciare i tuoi eventi e ti inviamo un'email quando ti avvicini al limite o lo superi. Se il tuo account continua a superare il limite senza un upgrade, potremmo bloccarlo finché non esegui l'upgrade. I tuoi dati vengono comunque conservati."
           },
           "annualBilling": {
             "q": "Offrite la fatturazione annuale?",
@@ -2759,6 +2741,10 @@
           "paymentMethods": {
             "q": "Quali metodi di pagamento accettate?",
             "a": "Accettiamo tutte le principali carte di credito (Visa, MasterCard, American Express) e supportiamo pagamenti sicuri tramite il nostro processore di pagamenti."
+          },
+          "payInEuros": {
+            "q": "Posso pagare in euro?",
+            "a": "Sì. Ogni piano costa lo stesso importo in euro e in dollari, e scegli la valuta quando passi a un piano a pagamento."
           }
         }
       },

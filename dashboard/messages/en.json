@@ -358,7 +358,7 @@
         "freeTierTitle": "Free Tier",
         "freeTierBody": "We offer a permanently free tier with a monthly event limit as specified on our pricing page. No credit card is required for the free tier. We do not sell your data - ever, regardless of which plan you use.",
         "billingTitle": "Billing",
-        "billingBody": "You can use our free tier indefinitely within the monthly event limits. For higher usage, you need to upgrade to a paid plan and pay in advance. If you exceed plan limits without upgrading, you risk losing excess data. If paid accounts become overdue, we will freeze the account until payment is made.",
+        "billingBody": "You can use our free tier indefinitely within the monthly event limits. For higher usage, you need to upgrade to a paid plan and pay in advance. If you keep exceeding your plan limits without upgrading, we may lock your account until you upgrade. Your data is kept. If paid accounts become overdue, we will freeze the account until payment is made.",
         "limitsTitle": "Event Limits",
         "limitsBody": "Each plan includes a monthly limit of events (pageviews, custom events, etc.). Unused events do not roll over to the next month. You will never be charged extra for occasional traffic spikes. If you consistently exceed your plan limits for two consecutive months, we will contact you to discuss upgrading.",
         "planChangesTitle": "Plan Changes",
@@ -1121,13 +1121,7 @@
       "seo": {
         "title": "Betterlytics pricing: start free, pay by monthly events",
         "description": "Every plan includes web analytics, session replay, error tracking and uptime monitoring. Start free and pay by monthly events, or self-host at no cost."
-      },
-      "titleEmphasis": "Simple, transparent",
-      "titleRest": "pricing",
-      "subtitle": "Start free, upgrade when you need more. No hidden fees, no surprises.",
-      "footer": "Start with our free plan - no credit card required.",
-      "comparisonTitle": "Compare all features",
-      "exploreFeaturesLink": "Explore all features in detail"
+      }
     },
     "shareImage": {
       "alt": "“You shouldn’t need five tools to understand one website” above the Betterlytics dashboard"
@@ -1258,7 +1252,7 @@
           "tagline": "For side projects and personal sites."
         },
         "plus": {
-          "tagline": "For small businesses with a handful of sites."
+          "tagline": "For busy side projects and small businesses."
         },
         "business": {
           "tagline": "For agencies, freelancers and growing teams."
@@ -1271,6 +1265,13 @@
         }
       },
       "cta": "Get started"
+    },
+    "pricingPage": {
+      "compareTitle": "Compare all features",
+      "faqTitle": "Frequently asked questions",
+      "note": "Free to start, no credit card needed.",
+      "included": "Included",
+      "notIncluded": "Not included"
     },
     "cta": {
       "title": "Add one script and watch your first visitor arrive",
@@ -1444,7 +1445,7 @@
         },
         "uptime": {
           "title": "Uptime monitoring",
-          "body": "Checks as often as every minute, alerts where your team talks, and a status page."
+          "body": "Checks as often as every 30 seconds, alerts where your team talks, and a status page."
         }
       }
     },
@@ -1456,16 +1457,16 @@
       "hero": {
         "eyebrow": "Uptime monitoring",
         "title": "Know when your site goes down, and what it cost you",
-        "lede": "Checks as often as every minute, alerts where your team talks, SSL warnings and a public status page. In the dashboard that already holds your traffic.",
+        "lede": "Checks as often as every 30 seconds, alerts where your team talks, SSL warnings and a public status page. In the dashboard that already holds your traffic.",
         "primary": "Start monitoring free",
         "secondary": "Read the docs",
         "proof": "Our own status page runs on it"
       },
       "specs": {
         "interval": {
-          "unit": "min",
+          "unit": "sec",
           "label": "Check interval",
-          "body": "Check as often as every minute, or as rarely as once a day."
+          "body": "Check as often as every 30 seconds, or as rarely as once a day."
         },
         "ssl": {
           "unit": "days",
@@ -1665,7 +1666,7 @@
           },
           "often": {
             "q": "How often does Betterlytics check my site?",
-            "a": "As often as every minute, or as rarely as once a day. You choose the interval for each monitor."
+            "a": "As often as every 30 seconds, or as rarely as once a day. You choose the interval for each monitor, and your plan sets the shortest."
           },
           "false": {
             "q": "How do you avoid false alarms?",
@@ -1689,7 +1690,7 @@
           },
           "free": {
             "q": "Is uptime monitoring free?",
-            "a": "Yes. The Free plan includes one monitor, checked every five minutes, and one public status page with Betterlytics branding. Paid plans add more monitors, one-minute checks, keyword checks, custom headers and accepted status codes, and status pages on your own domain. Business removes the Betterlytics branding."
+            "a": "Yes. The Free plan includes one monitor, checked every five minutes, and one public status page with Betterlytics branding. Paid plans add more monitors, one-minute checks, keyword checks, custom headers and accepted status codes, and status pages on your own domain. Business adds 30-second checks and removes the Betterlytics branding."
           },
           "internal": {
             "q": "Can I monitor internal services?",
@@ -1946,7 +1947,7 @@
     "periodPerMonth": "/month",
     "descriptions": {
       "free": "For side projects and personal sites",
-      "plus": "For small businesses with a handful of sites",
+      "plus": "For busy side projects and small businesses",
       "business": "For agencies, freelancers and growing teams",
       "enterprise": "For high traffic and organizations with security or compliance requirements",
       "growth": "For side projects and personal sites"
@@ -1968,6 +1969,7 @@
       "teamMembersCount": "{count, plural, one {# team member} other {# team members per site}}",
       "retentionYears": "{count, plural, other {#-year data retention}}",
       "uptimeMonitors": "{count, plural, one {# uptime monitor} other {# uptime monitors}}, {minutes}-minute checks",
+      "uptimeMonitorsSeconds": "{count, plural, one {# uptime monitor} other {# uptime monitors}}, {seconds}-second checks",
       "everythingIn": "Everything in {name}, plus:",
       "statusPagesCount": "{count, plural, one {# public status page} other {# public status pages}}",
       "statusPageCustomDomain": "Status page on your own domain",
@@ -1977,7 +1979,7 @@
       "auditLog": "Audit log",
       "dpaSecurityReviews": "DPA and security reviews",
       "customRetention": "Custom data retention",
-      "customContracts": "Custom contracts and invoicing"
+      "customContracts": "Annual contracts, invoicing and custom terms"
     },
     "cta": {
       "getStartedForFree": "Get Started for Free",
@@ -1999,7 +2001,7 @@
       "features": "Features"
     },
     "categories": {
-      "usageLimits": "Usage & Limits",
+      "usageLimits": "Usage & limits",
       "analytics": "Analytics",
       "observability": "Observability",
       "support": "Support"
@@ -2014,21 +2016,21 @@
       "sites": {
         "name": "Sites",
         "values": {
-          "upToCount": "{count, plural, one {#} other {Up to #}}",
+          "count": "{count, number}",
           "unlimited": "Unlimited"
         }
       },
       "dataRetention": {
         "name": "Data retention",
         "values": {
-          "yearsCount": "{count, plural, one {#+ year} other {#+ years}}",
+          "yearsCount": "{count, plural, one {# year} other {# years}}",
           "custom": "Custom"
         }
       },
       "teamMembers": {
         "name": "Team members per site",
         "values": {
-          "upToCount": "{count, plural, one {#} other {Up to #}}",
+          "count": "{count, number}",
           "unlimited": "Unlimited"
         }
       },
@@ -2076,7 +2078,8 @@
       "checkInterval": {
         "name": "Minimum check interval",
         "values": {
-          "minutesCount": "{count} min"
+          "minutesCount": "{count} min",
+          "secondsCount": "{count} sec"
         }
       },
       "customHttpMethods": {
@@ -2118,27 +2121,6 @@
       },
       "slaGuarantee": {
         "name": "SLA guarantee"
-      }
-    },
-    "coreFeatures": {
-      "title": "Included in all plans",
-      "subtitle": "Every plan comes with our full analytics suite",
-      "items": {
-        "realtimeAnalytics": "Real-time analytics",
-        "sessionReplay": "Session replay",
-        "geographicInsights": "Geographic insights",
-        "trafficSources": "Traffic sources",
-        "utmCampaigns": "UTM campaign tracking",
-        "customEvents": "Custom events",
-        "funnels": "Funnels & conversions",
-        "userJourneys": "User journeys",
-        "webVitals": "Web Vitals",
-        "botFiltering": "Bot filtering",
-        "outboundLinks": "Outbound link tracking",
-        "advancedFiltering": "Advanced filtering",
-        "cookieFree": "Cookie-free",
-        "gdprCcpa": "GDPR & CCPA ready",
-        "errorTracking": "Client-side error tracking"
       }
     }
   },
@@ -2742,7 +2724,7 @@
           },
           "exceedLimit": {
             "q": "What happens if I exceed my event limit?",
-            "a": "We will continue tracking your events and you will receive an email notification when you exceed your limit. If you exceed your limits for more than 30 days, there is a chance that your excessive tracked data will be deleted."
+            "a": "We keep tracking your events and email you when you get close to your limit or pass it. If your account keeps going over without an upgrade, we may lock it until you upgrade. Your data is kept either way."
           },
           "annualBilling": {
             "q": "Do you offer annual billing?",
@@ -2759,6 +2741,10 @@
           "paymentMethods": {
             "q": "What payment methods do you accept?",
             "a": "We accept all major credit cards (Visa, MasterCard, American Express) and support secure payments through our payment processor."
+          },
+          "payInEuros": {
+            "q": "Can I pay in euros?",
+            "a": "Yes. Every plan costs the same amount in euros as in dollars, and you choose the currency when you upgrade."
           }
         }
       },

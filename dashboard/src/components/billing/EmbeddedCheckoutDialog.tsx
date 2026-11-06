@@ -38,10 +38,14 @@ export function EmbeddedCheckoutDialog({ open, onOpenChange, plan }: EmbeddedChe
   const [hasError, setHasError] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  // created on first open, so pages that never open checkout don't load Stripe.js or its cookies
+  const [hasOpened, setHasOpened] = useState(open);
+  if (open && !hasOpened) setHasOpened(true);
+
   const stripePromise = useMemo<Promise<Stripe | null> | null>(() => {
-    if (!PUBLIC_STRIPE_PUBLISHABLE_KEY) return null;
+    if (!hasOpened || !PUBLIC_STRIPE_PUBLISHABLE_KEY) return null;
     return getStripeClient(PUBLIC_STRIPE_PUBLISHABLE_KEY);
-  }, [PUBLIC_STRIPE_PUBLISHABLE_KEY]);
+  }, [hasOpened, PUBLIC_STRIPE_PUBLISHABLE_KEY]);
 
   useEffect(() => {
     if (!open || !plan || clientSecret) {

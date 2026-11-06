@@ -358,7 +358,7 @@
         "freeTierTitle": "Gratisnivå",
         "freeTierBody": "Vi tilbyr et permanent gratisnivå med månedlig hendelsesgrense som oppgitt på prissiden vår. Kredittkort kreves ikke for gratisnivået. Vi selger aldri dataene dine, uansett hvilken plan du bruker.",
         "billingTitle": "Fakturering",
-        "billingBody": "Du kan bruke gratisnivået vårt på ubestemt tid innenfor de månedlige hendelsesgrensene. Ved høyere bruk må du oppgradere til en betalt plan og betale på forhånd. Hvis du overskrider plangrensene uten oppgradering, risikerer du å miste overskytende data. Hvis betalte kontoer forfaller, kan vi fryse kontoen til betaling er mottatt.",
+        "billingBody": "Du kan bruke gratisnivået vårt på ubestemt tid innenfor de månedlige hendelsesgrensene. Ved høyere bruk må du oppgradere til en betalt plan og betale på forhånd. Hvis du fortsetter å overskride plangrensene uten å oppgradere, kan vi låse kontoen din til du oppgraderer. Dataene dine beholdes. Hvis betalte kontoer forfaller, kan vi fryse kontoen til betaling er mottatt.",
         "limitsTitle": "Hendelsesgrenser",
         "limitsBody": "Hver plan inkluderer en månedlig grense for hendelser (sidevisninger, egendefinerte hendelser osv.). Ubrukte hendelser overføres ikke til neste måned. Du vil aldri bli belastet ekstra for sporadiske trafikkspiker. Hvis du konsekvent overskrider plangrensene i to påfølgende måneder, kontakter vi deg for å diskutere oppgradering.",
         "planChangesTitle": "Planendringer",
@@ -1121,13 +1121,7 @@
       "seo": {
         "title": "Betterlytics-priser: start gratis, betal etter hendelser",
         "description": "Alle planer har nettanalyse, sesjonsopptak, feilsporing og oppetidsovervåking. Start gratis og betal etter hendelser per måned, eller host det selv gratis."
-      },
-      "titleEmphasis": "Enkle, transparente",
-      "titleRest": "priser",
-      "subtitle": "Start gratis, oppgrader når du trenger mer. Ingen skjulte avgifter, ingen overraskelser.",
-      "footer": "Start med gratisplanen vår — ingen kredittkort kreves.",
-      "comparisonTitle": "Sammenlign alle funksjoner",
-      "exploreFeaturesLink": "Utforsk alle funksjoner i detalj"
+      }
     },
     "shareImage": {
       "alt": "«You shouldn’t need five tools to understand one website» over Betterlytics-dashboardet"
@@ -1258,7 +1252,7 @@
           "tagline": "For sideprosjekter og personlige nettsteder."
         },
         "plus": {
-          "tagline": "For små bedrifter med noen få nettsteder."
+          "tagline": "For sideprosjekter med mye trafikk og små bedrifter."
         },
         "business": {
           "tagline": "For byråer, frilansere og voksende team."
@@ -1271,6 +1265,13 @@
         }
       },
       "cta": "Kom i gang"
+    },
+    "pricingPage": {
+      "compareTitle": "Sammenlign alle funksjoner",
+      "faqTitle": "Ofte stilte spørsmål",
+      "note": "Gratis å starte, ingen kredittkort trengs.",
+      "included": "Inkludert",
+      "notIncluded": "Ikke inkludert"
     },
     "cta": {
       "title": "Legg inn ett skript og se den første besøkende tikke inn",
@@ -1444,7 +1445,7 @@
         },
         "uptime": {
           "title": "Oppetidsovervåking",
-          "body": "Sjekker så ofte som hvert minutt, varsler der teamet ditt snakker sammen, og en statusside."
+          "body": "Sjekker så ofte som hvert 30. sekund, varsler der teamet ditt snakker sammen, og en statusside."
         }
       }
     },
@@ -1456,16 +1457,16 @@
       "hero": {
         "eyebrow": "Oppetidsovervåking",
         "title": "Vit når nettstedet ditt går ned, og hva det kostet deg",
-        "lede": "Sjekker helt ned til hvert minutt, varsler der teamet ditt snakker sammen, SSL-varsler og en offentlig statusside. I dashboardet som allerede viser trafikken din.",
+        "lede": "Sjekker helt ned til hvert 30. sekund, varsler der teamet ditt snakker sammen, SSL-varsler og en offentlig statusside. I dashboardet som allerede viser trafikken din.",
         "primary": "Start overvåking gratis",
         "secondary": "Les dokumentasjonen",
         "proof": "Vår egen statusside kjører på det"
       },
       "specs": {
         "interval": {
-          "unit": "min",
+          "unit": "sek.",
           "label": "Sjekkintervall",
-          "body": "Sjekk så ofte som hvert minutt, eller så sjelden som én gang i døgnet."
+          "body": "Sjekk så ofte som hvert 30. sekund, eller så sjelden som én gang i døgnet."
         },
         "ssl": {
           "unit": "dager",
@@ -1665,7 +1666,7 @@
           },
           "often": {
             "q": "Hvor ofte sjekker Betterlytics nettstedet mitt?",
-            "a": "Så ofte som hvert minutt, eller så sjelden som én gang i døgnet. Du velger intervallet for hver monitor."
+            "a": "Så ofte som hvert 30. sekund, eller så sjelden som én gang i døgnet. Du velger intervallet for hver monitor, og planen din bestemmer det korteste."
           },
           "false": {
             "q": "Hvordan unngår dere falske alarmer?",
@@ -1689,7 +1690,7 @@
           },
           "free": {
             "q": "Er oppetidsovervåking gratis?",
-            "a": "Ja. Free-planen inkluderer én monitor, sjekket hvert femte minutt, og én offentlig statusside med Betterlytics-merking. Betalte planer gir flere monitorer, sjekker hvert minutt, nøkkelordsjekker, egne headere og godkjente statuskoder, og statussider på ditt eget domene. Business fjerner Betterlytics-merkingen."
+            "a": "Ja. Free-planen inkluderer én monitor, sjekket hvert femte minutt, og én offentlig statusside med Betterlytics-merking. Betalte planer gir flere monitorer, sjekker hvert minutt, nøkkelordsjekker, egne headere og godkjente statuskoder, og statussider på ditt eget domene. Business gir sjekker hvert 30. sekund og fjerner Betterlytics-merkingen."
           },
           "internal": {
             "q": "Kan jeg overvåke interne tjenester?",
@@ -1946,7 +1947,7 @@
     "periodPerMonth": "/måned",
     "descriptions": {
       "free": "For sideprosjekter og personlige nettsteder",
-      "plus": "For små bedrifter med noen få nettsteder",
+      "plus": "For sideprosjekter med mye trafikk og små bedrifter",
       "business": "For byråer, frilansere og voksende team",
       "enterprise": "For høy trafikk og organisasjoner med krav til sikkerhet eller samsvar",
       "growth": "For sideprosjekter og personlige nettsteder"
@@ -1968,6 +1969,7 @@
       "teamMembersCount": "{count, plural, one {# teammedlem} other {# teammedlemmer per nettsted}}",
       "retentionYears": "{count, plural, other {# år datalagring}}",
       "uptimeMonitors": "{count, plural, one {# oppetidsmonitor} other {# oppetidsmonitorer}}, {minutes}-minutts sjekker",
+      "uptimeMonitorsSeconds": "{count, plural, one {# oppetidsmonitor} other {# oppetidsmonitorer}}, {seconds}-sekunders sjekker",
       "everythingIn": "Alt i {name}, pluss:",
       "statusPagesCount": "{count, plural, one {# offentlig statusside} other {# offentlige statussider}}",
       "statusPageCustomDomain": "Statusside på ditt eget domene",
@@ -1977,7 +1979,7 @@
       "auditLog": "Revisjonslogg",
       "dpaSecurityReviews": "DPA og sikkerhetsgjennomganger",
       "customRetention": "Tilpasset datalagring",
-      "customContracts": "Tilpassede avtaler og fakturering"
+      "customContracts": "Årsavtaler, fakturering og tilpassede vilkår"
     },
     "cta": {
       "getStartedForFree": "Kom i gang gratis",
@@ -2014,21 +2016,21 @@
       "sites": {
         "name": "Nettsteder",
         "values": {
-          "upToCount": "{count, plural, one {#} other {Opptil #}}",
+          "count": "{count, number}",
           "unlimited": "Ubegrenset"
         }
       },
       "dataRetention": {
         "name": "Datalagring",
         "values": {
-          "yearsCount": "{count, plural, one {#+ år} other {#+ år}}",
+          "yearsCount": "{count, plural, one {# år} other {# år}}",
           "custom": "Tilpasset"
         }
       },
       "teamMembers": {
         "name": "Teammedlemmer per nettsted",
         "values": {
-          "upToCount": "{count, plural, one {#} other {Opptil #}}",
+          "count": "{count, number}",
           "unlimited": "Ubegrenset"
         }
       },
@@ -2076,7 +2078,8 @@
       "checkInterval": {
         "name": "Minimum kontrollintervall",
         "values": {
-          "minutesCount": "{count} min."
+          "minutesCount": "{count} min.",
+          "secondsCount": "{count} sek."
         }
       },
       "customHttpMethods": {
@@ -2118,27 +2121,6 @@
       },
       "slaGuarantee": {
         "name": "SLA-garanti"
-      }
-    },
-    "coreFeatures": {
-      "title": "Inkludert i alle planer",
-      "subtitle": "Hver plan kommer med hele analysepakken vår",
-      "items": {
-        "realtimeAnalytics": "Sanntidsanalyse",
-        "sessionReplay": "Sesjonsavspilling",
-        "geographicInsights": "Geografisk innsikt",
-        "trafficSources": "Trafikkilder",
-        "utmCampaigns": "UTM-kampanjesporing",
-        "customEvents": "Tilpassede hendelser",
-        "funnels": "Trakter og konverteringer",
-        "userJourneys": "Brukerreiser",
-        "webVitals": "Web-vitals",
-        "botFiltering": "Bot-filtrering",
-        "outboundLinks": "Sporing av utgående lenker",
-        "advancedFiltering": "Avansert filtrering",
-        "cookieFree": "Informasjonskapselfri",
-        "gdprCcpa": "Klar for GDPR og CCPA",
-        "errorTracking": "Klientside-feilsporing"
       }
     }
   },
@@ -2742,7 +2724,7 @@
           },
           "exceedLimit": {
             "q": "Hva skjer hvis jeg overskrider hendelsesgrensen min?",
-            "a": "Vi fortsetter å spore hendelsene dine og sender en e-post når du overskrider grensen. Hvis du overskrider grensen i mer enn 30 dager, kan overskytende data bli slettet."
+            "a": "Vi fortsetter å spore hendelsene dine og sender deg en e-post når du nærmer deg grensen eller passerer den. Hvis kontoen din fortsetter å gå over grensen uten oppgradering, kan vi låse den til du oppgraderer. Dataene dine beholdes uansett."
           },
           "annualBilling": {
             "q": "Tilbyr dere årlig fakturering?",
@@ -2759,6 +2741,10 @@
           "paymentMethods": {
             "q": "Hvilke betalingsmetoder aksepterer dere?",
             "a": "Vi aksepterer alle større kredittkort (Visa, MasterCard, American Express) og støtter sikre betalinger via vår betalingsleverandør."
+          },
+          "payInEuros": {
+            "q": "Kan jeg betale i euro?",
+            "a": "Ja. Alle planer koster det samme beløpet i euro som i dollar, og du velger valuta når du oppgraderer."
           }
         }
       },
