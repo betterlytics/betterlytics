@@ -99,7 +99,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
     if (!e.defaultPrevented) interactedOutsideRef.current = true;
   }, []);
 
-  // Closing hands focus back to the pill section that opened the editor, or to the band itself while it shows.
+  // Closing returns focus to the pill section that opened the editor, else to the band
   const handleCloseAutoFocus = useCallback(
     (e: Event) => {
       if (interactedOutsideRef.current) return;
@@ -127,7 +127,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [editorOffset, setEditorOffset] = useState({ side: 4, align: 0 });
 
-  // The band only shows once this trigger has scrolled away, so the editor is offset to open under the band instead.
+  // Opens under the band, whose trigger has scrolled out of view
   useLayoutEffect(() => {
     if (!isPopoverOpen) return;
     const trigger = triggerRef.current;

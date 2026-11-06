@@ -1,6 +1,6 @@
 import { useEffect, useState, type RefObject } from 'react';
 
-// Whether the element has scrolled up behind the sticky topbar, so none of it is in view any more.
+// True once the element has scrolled fully behind the sticky topbar
 export function useScrolledBehindTopbar(ref: RefObject<HTMLElement | null>, enabled: boolean) {
   const [behind, setBehind] = useState(false);
 
