@@ -159,6 +159,8 @@ A **cookie ID** is a random value stored in the browser on the first visit. It r
 
 **Persistent fingerprinting** builds a stable ID from many browser details, such as canvas rendering, installed fonts, audio hardware and time zone. It needs no storage and survives cleared cookies, which makes it a tracking technique by design. European regulators said in a [2014 opinion on device fingerprinting](https://ec.europa.eu/justice/article-29/documentation/opinion-recommendation/files/2014/wp224_en.pdf) that it can fall under the same consent rules as cookies.
 
+<FullWidth>
+
 | | Cookie ID | Persistent fingerprint | Betterlytics daily hash |
 |---|---|---|---|
 | Where the ID lives | In the browser | Recomputed from browser details | On the server only |
@@ -166,7 +168,11 @@ A **cookie ID** is a random value stored in the browser on the first visit. It r
 | Returning visitors and retention | Yes | Yes | No |
 | Same ID across different sites | Possible with third-party cookies | Yes | No, the domain is in the hash |
 
+</FullWidth>
+
 The daily hash gives up everything that needs memory across days. In return, once a salt is deleted, the IDs made with it can't be tied to a network, a person or any other day.
+
+Betterlytics isn't the only tool that counts without cookies. Our [comparison of European Google Analytics alternatives](/blog/european-google-analytics-alternatives) shows which tools set cookies and where each one stores its data.
 
 ## What this means for consent
 
@@ -187,6 +193,6 @@ Everything above comes from these files in [the Betterlytics repository](https:/
 - [`backend/src/visitor/mod.rs`](https://github.com/betterlytics/betterlytics/blob/main/backend/src/visitor/mod.rs) and [`backend/src/session/mod.rs`](https://github.com/betterlytics/betterlytics/blob/main/backend/src/session/mod.rs) assign visitor IDs and sessions, including the midnight bridge.
 - [`backend/src/db/models.rs`](https://github.com/betterlytics/betterlytics/blob/main/backend/src/db/models.rs) defines the event row written to ClickHouse.
 
-If you find a place where the code and this post disagree, [open an issue](https://github.com/betterlytics/betterlytics/issues) and we will fix whichever one is wrong.
+The excerpts show the code as of November 2026; the links go to the current version. If you find a place where the code and this post disagree, [open an issue](https://github.com/betterlytics/betterlytics/issues) and we will fix whichever one is wrong.
 
 To see the counts on a real site, the [live demo](/demo) is open, and you can [start a free account](/signup) whenever you want to try it on yours.

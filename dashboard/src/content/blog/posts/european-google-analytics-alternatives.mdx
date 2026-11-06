@@ -43,7 +43,7 @@ The starting price is the free plan where there is one, and otherwise the cheape
 
 Betterlytics puts web analytics, session replay, error tracking, uptime monitoring and Core Web Vitals in one dashboard. We're based in Denmark. Analytics, errors and uptime data live on our servers at Hetzner in Germany. Session replay is opt-in, and recordings are stored in Cloudflare R2's EU data centers. Cloudflare is a US company, which matters if you're weighing the CLOUD Act question above. Payments go through Stripe, also a US company.
 
-The tracking script sets no cookies. With session replay switched on, it keeps a small sampling flag in the browser's local storage, so a visit is either recorded from start to finish or not at all.
+The tracking script sets no cookies. With session replay switched on, it keeps a small sampling flag in the browser's local storage, so a visit is either recorded from start to finish or not at all. We explain [how Betterlytics counts visitors without cookies](/blog/how-we-count-visitors-without-cookies) in a separate post, code included.
 
 The code is open source under AGPL-3.0, and the [self-hosted version](/docs/installation/self-hosting) is the same product as our cloud. The free plan covers 10,000 events a month and includes session replay, error tracking and uptime monitoring.
 
