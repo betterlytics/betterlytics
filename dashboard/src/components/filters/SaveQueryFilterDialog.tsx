@@ -77,11 +77,7 @@ export function SaveQueryFilterDialog({ open, onOpenChange, filters }: SaveQuery
               disabled={!filterName.trim() || createSavedFilterMutation.isPending}
               className='cursor-pointer'
             >
-              {createSavedFilterMutation.isPending ? (
-                <Loader2Icon className='mr-2 h-4 w-4 animate-spin' />
-              ) : (
-                <SaveIcon className='mr-2 h-4 w-4' />
-              )}
+              {createSavedFilterMutation.isPending ? <Loader2Icon className='animate-spin' /> : <SaveIcon />}
               {t('selector.saveFilters')}
             </Button>
           </div>

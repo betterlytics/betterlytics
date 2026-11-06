@@ -255,7 +255,7 @@ export function StatusPageEditor({
                 onClick={() => setShowStudio(true)}
                 className='h-9 cursor-pointer'
               >
-                <Pencil className='mr-1.5 h-3.5 w-3.5' />
+                <Pencil />
                 {t('editPage')}
               </Button>
             )}

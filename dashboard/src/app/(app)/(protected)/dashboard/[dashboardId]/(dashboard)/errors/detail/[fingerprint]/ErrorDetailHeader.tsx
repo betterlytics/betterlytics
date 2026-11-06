@@ -71,11 +71,7 @@ export function ErrorDetailHeader({ dashboardId, errorGroup }: ErrorDetailHeader
               )}
             </PermissionGate>
             <Button variant='outline' size='sm' className='cursor-pointer' onClick={() => copy(window.location.href)}>
-              {copied ? (
-                <Check className='mr-1.5 h-4 w-4 text-emerald-600' />
-              ) : (
-                <Share2 className='mr-1.5 h-4 w-4' />
-              )}
+              {copied ? <Check className='text-emerald-600' /> : <Share2 />}
               {copied ? t('copied') : t('share')}
             </Button>
           </div>

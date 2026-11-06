@@ -236,12 +236,12 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
             >
               {isVerifying ? (
                 <>
-                  <RefreshCw className='mr-2 h-4 w-4 animate-spin' />
+                  <RefreshCw className='animate-spin' />
                   {t('verifying')}
                 </>
               ) : (
                 <>
-                  <RefreshCw className='mr-2 h-4 w-4' />
+                  <RefreshCw />
                   {t('verifyInstallation')}
                 </>
               )}

@@ -41,7 +41,7 @@ export function ErrorStatusActions({
         disabled={!canResolve || isPending}
         onClick={onResolve}
       >
-        <CheckCircle className='mr-1.5 h-3.5 w-3.5 text-emerald-600' />
+        <CheckCircle className='text-emerald-600' />
         {t('resolve')}
       </Button>
       <DropdownMenu>
@@ -57,11 +57,11 @@ export function ErrorStatusActions({
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
           <DropdownMenuItem className='cursor-pointer' disabled={!canIgnore} onClick={onIgnore}>
-            <EyeOff className='mr-2 h-4 w-4' />
+            <EyeOff />
             {t('ignore')}
           </DropdownMenuItem>
           <DropdownMenuItem className='cursor-pointer' disabled={!canUnresolve} onClick={onUnresolve}>
-            <RotateCcw className='mr-2 h-4 w-4' />
+            <RotateCcw />
             {t('unresolve')}
           </DropdownMenuItem>
         </DropdownMenuContent>

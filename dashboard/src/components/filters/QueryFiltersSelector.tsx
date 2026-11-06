@@ -92,7 +92,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
           <Badge className='h-4.5 min-w-4.5 rounded-full px-1 text-[11px] tabular-nums'>{activeFilterCount}</Badge>
         )}
       </div>
-      <ChevronDownIcon className={'ml-2 h-4 w-4 shrink-0 opacity-50'} />
+      <ChevronDownIcon className='shrink-0 opacity-50' />
     </Button>
   );
 
