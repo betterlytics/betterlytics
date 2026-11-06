@@ -130,7 +130,7 @@ describe('plans on sale', () => {
       dashboards: { maxDashboards: 5, maxMembers: 3 },
       monitoring: { maxMonitors: 5, minIntervalSeconds: 60, ...ALL_CHECKS },
       emailReports: { emailReportsEnabled: true },
-      dataRetention: { maxDataRetentionDays: 730 },
+      dataRetention: { maxDataRetentionDays: 1095 },
       statusPages: { maxStatusPages: 1, customDomain: true, removeBranding: false },
       sessionReplay: { maxReplaysPerMonth: 5_000 },
     });
@@ -138,7 +138,7 @@ describe('plans on sale', () => {
       dashboards: { maxDashboards: 25, maxMembers: 25 },
       monitoring: { maxMonitors: 50, minIntervalSeconds: 30, ...ALL_CHECKS },
       emailReports: { emailReportsEnabled: true },
-      dataRetention: { maxDataRetentionDays: 1095 },
+      dataRetention: { maxDataRetentionDays: 1825 },
       statusPages: { maxStatusPages: 3, customDomain: true, removeBranding: true },
       sessionReplay: { maxReplaysPerMonth: 25_000 },
     });
