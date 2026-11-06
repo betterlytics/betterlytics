@@ -34,9 +34,9 @@ export default function DashboardFilters({
           {showQueryFilters && <QueryFiltersSelector />}
           <TimeRangeToolbar showComparison={showComparison} />
         </div>
-        {hasPills && (
-          // Inert while the band stands in, so the filters exist once
-          <div ref={pillsRef} inert={showBand}>
+        {showQueryFilters && (
+          // Stays mounted while empty so new pills still flash, and inert while the band stands in
+          <div ref={pillsRef} inert={showBand} className='empty:hidden'>
             <ActiveQueryFilters />
           </div>
         )}
