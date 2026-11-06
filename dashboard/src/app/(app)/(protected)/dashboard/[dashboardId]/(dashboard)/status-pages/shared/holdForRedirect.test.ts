@@ -29,13 +29,13 @@ async function trackSettled(promise: Promise<unknown>) {
 }
 
 describe('holdForRedirect', () => {
-  let pageshow: Mock<(event: PageTransitionEvent) => void>;
+  let pageshow: Mock<EventListener>;
 
   beforeEach(() => {
     vi.useFakeTimers();
     vi.stubGlobal('window', new EventTarget());
     vi.stubGlobal('PageTransitionEvent', FakePageTransitionEvent);
-    pageshow = vi.fn<(event: PageTransitionEvent) => void>();
+    pageshow = vi.fn<EventListener>();
     window.addEventListener('pageshow', pageshow);
   });
 
@@ -74,7 +74,7 @@ describe('holdForRedirect', () => {
     expect(state.error).toBeInstanceOf(RedirectAbandonedError);
     expect((state.error as Error).message).toBe('');
     expect(pageshow).toHaveBeenCalledTimes(1);
-    expect(pageshow.mock.calls[0][0].persisted).toBe(true);
+    expect((pageshow.mock.calls[0][0] as PageTransitionEvent).persisted).toBe(true);
   });
 
   it('rejects when no page load starts at all', async () => {
