@@ -35,7 +35,7 @@ export default function BlogIndexPage() {
         </header>
       }
     >
-      <Section id='posts' className='pt-12'>
+      <Section id='posts' className='pt-0'>
         <PostGrid posts={posts} priority />
       </Section>
     </PageShell>
