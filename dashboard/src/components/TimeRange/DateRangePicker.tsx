@@ -46,11 +46,12 @@ export function DateRangePicker({ range, onDateRangeSelect, showSameLengthHint =
 
   const handleDateSelect = useCallback(
     (selectedRange: DateRange | undefined) => {
+      // Picks are whole days, even when the side kept from the current range has a time of day
       const emit = (next: DateRange | undefined) =>
         onDateRangeSelect(
           next && {
-            from: next.from && fromWallClock(next.from, timeZone),
-            to: next.to && fromWallClock(next.to, timeZone),
+            from: next.from && fromWallClock(startOfDay(next.from), timeZone),
+            to: next.to && fromWallClock(startOfDay(next.to), timeZone),
           },
         );
 
