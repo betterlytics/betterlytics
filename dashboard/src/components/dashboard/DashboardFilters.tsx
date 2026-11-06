@@ -35,7 +35,7 @@ export default function DashboardFilters({
           <TimeRangeToolbar showComparison={showComparison} />
         </div>
         {hasPills && (
-          // While the band stands in for the row, the row leaves the tab order and the accessibility tree, so the filters exist once.
+          // Inert while the band stands in, so the filters exist once
           <div ref={pillsRef} inert={showBand}>
             <ActiveQueryFilters />
           </div>

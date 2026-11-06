@@ -237,7 +237,7 @@
   }
 }
 
-/* Typed as a colour so the filter band's surface and the fade over its cut pill change shade together. */
+/* Typed, so the filter band's colour can transition */
 @property --band-bg {
   syntax: '<color>';
   inherits: true;

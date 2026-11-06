@@ -33,7 +33,7 @@ const pillBackground = cn(
 );
 
 type ActiveQueryFiltersProps = {
-  // The band is the one-row version shown under the topbar once the filters have scrolled out of view.
+  // 'band' is the pinned one-row version under the topbar
   variant?: 'row' | 'band';
 };
 
@@ -54,7 +54,7 @@ export function ActiveQueryFilters({ variant = 'row' }: ActiveQueryFiltersProps)
     return null;
   }
 
-  // The pills unmount once they empty, so focus goes to the Filters button instead of falling to <body>.
+  // Keeps focus off <body> once the pills unmount
   const focusFiltersTrigger = (from: HTMLElement) =>
     from
       .closest('[data-slot=dashboard-filters]')
@@ -145,10 +145,8 @@ type FilterBandProps = { pills: ReactNode[]; label: string; onClearAll: MouseEve
 const PEEK_MIN_WIDTH = 40;
 
 /*
- * The pills always wrap, at one width in both states, so no pill moves when the band opens: collapsed is the same
- * list clipped to its first row. Whatever space that row has left shows a faded peek of the next pill, a second
- * inert copy of it. The band only exists after scrolling, so it is never server rendered and everything is simply
- * measured.
+ * Pills always wrap at one width, so none moves on toggle: collapsed is the same list clipped to row one.
+ * The space left on that row shows a faded peek, an inert copy of the next pill.
  */
 function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
   const t = useTranslations('components.filters');
@@ -162,7 +160,7 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
   const [state, setState] = useState<'collapsed' | 'expanded' | 'collapsing'>('collapsed');
   const count = pills.length;
   const expanded = state === 'expanded';
-  // The lower rows stay in view while the band slides shut, so they leave under the closing edge.
+  // Stays open until the collapse slide has finished
   const open = state !== 'collapsed';
 
   const measure = useCallback(() => {
@@ -178,9 +176,8 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
       if (first >= 0) wrappedAtRef.current = band.clientWidth;
     } else if (first >= 0) {
       /*
-       * The toggle makes the row narrower than it is without it, so the layout cannot say whether the toggle is
-       * still needed. The pill widths can, with two guards against flipping back and forth: squeezed pills have no
-       * width of their own to add up, and a band width that already wrapped without the toggle is not tried again.
+       * The toggle narrows the row, so only the pill widths can say whether it is still needed. Squeezed pills
+       * and a band width that already wrapped are ruled out, or the two layouts flip forever.
        */
       const content = row.getBoundingClientRect().width;
       const widths = items.map((item) => item.getBoundingClientRect().width);
@@ -192,7 +189,7 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
     }
     items.forEach((item, index) => {
       item.toggleAttribute('inert', !open && first >= 0 && index >= first);
-      // An empty title keeps the band's toggle title off the live controls.
+      // Keeps the band's title off live controls
       item
         .querySelectorAll('[data-pill-part], [data-pill-remove]')
         .forEach((section) => section.setAttribute('title', ''));
@@ -208,7 +205,7 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
     setPeekLeft(row.clientWidth - left >= PEEK_MIN_WIDTH ? left : null);
   }, [count, open]);
 
-  // New pills have new widths, so what wrapped before says nothing about them.
+  // Changed pills void the wrap history
   useLayoutEffect(() => {
     wrappedAtRef.current = -Infinity;
   }, [pills]);
@@ -224,7 +221,7 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
     return () => observer.disconnect();
   }, [measure, pills]);
 
-  // Slides the band between one row and all of them, with the timing of the accordion animations.
+  // Height slide with the accordion's timing
   useLayoutEffect(() => {
     const band = bandRef.current;
     const pill = rowRef.current?.querySelector<HTMLElement>('[data-filter-pill]');
@@ -255,7 +252,7 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
     };
   }, [state]);
 
-  // Collapses on a click elsewhere or Escape, but not from inside the filter editor a pill opened.
+  // Outside click or Escape collapses, except from the filter editor
   useEffect(() => {
     if (!expanded) return;
     const band = bandRef.current;
@@ -289,7 +286,7 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
 
   const toggle = () => (expanded ? setState('collapsing') : expand());
 
-  // Live controls handle their own clicks; anywhere else on the band, the peek included, toggles it.
+  // Anywhere but a live control toggles the band
   const handleBandClick = (event: MouseEvent<HTMLElement>) => {
     if (!toggleable) return;
     if (event.target instanceof Element && event.target.closest('button')) return;
@@ -353,7 +350,7 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
             className={cn(
               'absolute top-0 right-0 flex h-8.5 overflow-clip transition-opacity duration-200 motion-reduce:transition-none',
               '[&_[data-filter-pill]]:max-w-80 [&_[data-filter-pill]]:animate-none',
-              // The fade is part of the peek, so the two dim as one and the peek's cut edge never shows through.
+              // Inside the peek, so fade and pill dim as one
               'after:absolute after:inset-y-0 after:right-0 after:w-6 after:bg-linear-to-r after:from-transparent after:to-(--band-bg) sm:after:w-10',
               expanded && 'opacity-0',
             )}
@@ -361,7 +358,7 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
             {pills[count - hidden]}
           </div>
         )}
-        {/* Phones drop the "+N more" label, so there a bare fade marks the overflow when there is no room for a peek. */}
+        {/* Phones have no "+N more", so a bare fade marks the overflow */}
         {toggleable && peekLeft === null && (
           <span
             aria-hidden
