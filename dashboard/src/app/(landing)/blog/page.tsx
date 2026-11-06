@@ -3,10 +3,9 @@ import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import { getBlogPosts } from '@/content/blog';
 import { PageShell } from '@/landing/components/page/pageShell';
-import { Panel, Section } from '@/landing/components/ui/frame';
+import { Section } from '@/landing/components/ui/frame';
 import { Heading, Lede } from '@/landing/components/ui/text';
 import { cn } from '@/landing/lib/cn';
-import { PostCard } from './_components/postCard';
 import { PostGrid } from './_components/postGrid';
 import { BLOG_COPY, BLOG_GUTTER, BLOG_LOCALE, blogPath } from './_lib/blog';
 import { blogIndexMetadata } from './_lib/seo';
@@ -15,8 +14,8 @@ export const generateMetadata = blogIndexMetadata;
 
 export default function BlogIndexPage() {
   setRequestLocale(BLOG_LOCALE);
-  const [lead, ...rest] = getBlogPosts();
-  if (!lead) notFound();
+  const posts = getBlogPosts();
+  if (posts.length === 0) notFound();
 
   return (
     <PageShell
@@ -37,10 +36,7 @@ export default function BlogIndexPage() {
       }
     >
       <Section id='posts' className='pt-12'>
-        <Panel flush>
-          <PostCard post={lead} lead />
-        </Panel>
-        {rest.length > 0 && <PostGrid posts={rest} className='mt-16 max-sm:mt-12' />}
+        <PostGrid posts={posts} priority />
       </Section>
     </PageShell>
   );
