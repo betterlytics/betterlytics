@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { leaveDashboard, removeMemberFromDashboard } from '@/services/dashboard/members.service';
+import { leaveDashboard, removeMemberFromDashboard, updateMemberRole } from '@/services/dashboard/members.service';
 import {
   findDashboardById,
   findUserDashboardOrNull,
   removeMember,
+  updateMemberRole as updateMemberRoleRepo,
 } from '@/repositories/postgres/dashboard.repository';
 import { findUserById } from '@/repositories/postgres/user.repository';
 import { enqueueEmail } from '@/services/email/email.service';
@@ -76,5 +77,32 @@ describe('leaveDashboard', () => {
 
     expect(removeMember).toHaveBeenCalledWith('dash-1', 'user-2', 'user-2');
     expect(enqueueEmail).not.toHaveBeenCalled();
+  });
+});
+
+describe('updateMemberRole', () => {
+  it('changes the role with the requester recorded as the changer', async () => {
+    mockRoles({ 'user-1': 'owner', 'user-2': 'editor' });
+
+    await updateMemberRole('dash-1', 'user-2', 'viewer', 'user-1');
+
+    expect(updateMemberRoleRepo).toHaveBeenCalledWith('dash-1', 'user-2', 'viewer', 'user-1');
+  });
+
+  it('changes nothing when the member already has the role', async () => {
+    mockRoles({ 'user-1': 'owner', 'user-2': 'editor' });
+
+    await updateMemberRole('dash-1', 'user-2', 'editor', 'user-1');
+
+    expect(updateMemberRoleRepo).not.toHaveBeenCalled();
+  });
+
+  it('still refuses a same-role request the requester may not make', async () => {
+    mockRoles({ 'user-1': 'viewer', 'user-2': 'editor' });
+
+    await expect(updateMemberRole('dash-1', 'user-2', 'editor', 'user-1')).rejects.toThrow(
+      'Requester cannot modify this member role',
+    );
+    expect(updateMemberRoleRepo).not.toHaveBeenCalled();
   });
 });

@@ -27,7 +27,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
-type SortField = 'name' | 'email' | 'role' | 'createdAt';
+type SortField = 'name' | 'email' | 'role' | 'joinedAt';
 type SortDirection = 'asc' | 'desc';
 
 interface MembersTableProps {
@@ -80,8 +80,8 @@ export function MembersTable({ dashboardId, members, currentUserId, currentUserR
           const roleOrder = { owner: 0, admin: 1, editor: 2, viewer: 3 };
           comparison = roleOrder[a.role] - roleOrder[b.role];
           break;
-        case 'createdAt':
-          comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        case 'joinedAt':
+          comparison = new Date(a.joinedAt).getTime() - new Date(b.joinedAt).getTime();
           break;
       }
       return sortDirection === 'asc' ? comparison : -comparison;
@@ -151,7 +151,7 @@ export function MembersTable({ dashboardId, members, currentUserId, currentUserR
                 <SortableHeader field='role'>{t('table.columns.role')}</SortableHeader>
               </TableHead>
               <TableHead className='hidden sm:table-cell'>
-                <SortableHeader field='createdAt'>{t('table.columns.joined')}</SortableHeader>
+                <SortableHeader field='joinedAt'>{t('table.columns.joined')}</SortableHeader>
               </TableHead>
               <TableHead className='w-12'></TableHead>
             </TableRow>
@@ -191,7 +191,7 @@ export function MembersTable({ dashboardId, members, currentUserId, currentUserR
                     <RoleBadge role={member.role} />
                   </TableCell>
                   <TableCell className='text-muted-foreground hidden py-3 sm:table-cell'>
-                    {formatDate(member.createdAt, locale)}
+                    {formatDate(member.joinedAt, locale)}
                   </TableCell>
                   <TableCell className='py-3'>
                     {member.role !== 'owner' &&
