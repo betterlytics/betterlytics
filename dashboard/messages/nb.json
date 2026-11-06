@@ -358,7 +358,7 @@
         "freeTierTitle": "Gratisnivå",
         "freeTierBody": "Vi tilbyr et permanent gratisnivå med månedlig hendelsesgrense som oppgitt på prissiden vår. Kredittkort kreves ikke for gratisnivået. Vi selger aldri dataene dine, uansett hvilken plan du bruker.",
         "billingTitle": "Fakturering",
-        "billingBody": "Du kan bruke gratisnivået vårt på ubestemt tid innenfor de månedlige hendelsesgrensene. Ved høyere bruk må du oppgradere til en betalt plan og betale på forhånd. Hvis du overskrider plangrensene uten oppgradering, risikerer du å miste overskytende data. Hvis betalte kontoer forfaller, kan vi fryse kontoen til betaling er mottatt.",
+        "billingBody": "Du kan bruke gratisnivået vårt på ubestemt tid innenfor de månedlige hendelsesgrensene. Ved høyere bruk må du oppgradere til en betalt plan og betale på forhånd. Hvis du fortsetter å overskride plangrensene uten å oppgradere, kan vi låse kontoen din til du oppgraderer. Dataene dine beholdes. Hvis betalte kontoer forfaller, kan vi fryse kontoen til betaling er mottatt.",
         "limitsTitle": "Hendelsesgrenser",
         "limitsBody": "Hver plan inkluderer en månedlig grense for hendelser (sidevisninger, egendefinerte hendelser osv.). Ubrukte hendelser overføres ikke til neste måned. Du vil aldri bli belastet ekstra for sporadiske trafikkspiker. Hvis du konsekvent overskrider plangrensene i to påfølgende måneder, kontakter vi deg for å diskutere oppgradering.",
         "planChangesTitle": "Planendringer",
