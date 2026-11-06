@@ -81,16 +81,19 @@ export async function getAccountDeletionBlocker(userId: string): Promise<Account
   return resolveAccountDeletionBlocker(user, { activeAdmins, activeUsers });
 }
 
-/** `removedById` is whoever ran the deletion; it defaults to the user deleting their own account. */
+/**
+ * `removedById` is whoever ran the deletion; it defaults to the user deleting their own account.
+ * Returns the slugs of the status pages released with the user's deleted dashboards.
+ */
 export async function deleteUser(
   userId: string,
   options: { ownedDashboards: OwnedDashboardsDisposal; removedById?: string } = { ownedDashboards: { mode: 'delete' } },
-): Promise<void> {
+): Promise<string[]> {
   const guard = !isFeatureEnabled('isCloud');
 
-  let outcome: AccountDeletionOutcome = null;
+  let result: { outcome: AccountDeletionOutcome; releasedSlugs: string[] };
   try {
-    outcome = await UserRepository.deleteUserAccount(userId, {
+    result = await UserRepository.deleteUserAccount(userId, {
       guard,
       ownedDashboards: options.ownedDashboards,
       removedById: options.removedById ?? userId,
@@ -101,11 +104,12 @@ export async function deleteUser(
   }
 
   // Outside the try above: its catch rewraps into a plain Error and would mask this message
-  if (outcome === 'invalid_recipient') {
+  if (result.outcome === 'invalid_recipient') {
     throw new UserException('The selected user can no longer receive these dashboards');
   }
-  await throwIfDeletionBlocked(outcome);
+  await throwIfDeletionBlocked(result.outcome);
   console.log(`Successfully anonymized user ${userId} and deleted all associated data`);
+  return result.releasedSlugs;
 }
 
 const DELETION_BLOCKER_MESSAGE_KEYS = {
