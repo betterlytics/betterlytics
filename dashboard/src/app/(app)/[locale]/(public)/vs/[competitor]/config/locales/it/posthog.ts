@@ -28,7 +28,7 @@ export const posthog: ComparisonLocaleContent = {
     {
       title: 'Prezzi semplici e prevedibili',
       betterlytics:
-        'Piano gratuito per sempre per siti piccoli. Piani a pagamento da $7/mese con le funzionalità principali incluse.',
+        'Piano gratuito per sempre per siti piccoli. Piani a pagamento da $9/mese con le funzionalità principali incluse.',
       competitor:
         'Piano gratuito generoso, ma la fatturazione basata sull’utilizzo su più prodotti diventa complessa con la crescita.',
     },
@@ -130,7 +130,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Sai sempre quanto spendi',
-      content: `PostHog fattura separatamente eventi, session replay, feature flag, sondaggi e altro. Il piano gratuito è generoso, ma i costi possono crescere rapidamente con l’aumento dell’utilizzo, rendendo la spesa mensile meno prevedibile.\n\nNoi manteniamo tutto semplice: prezzo fisso da $7/mese con limiti chiari sugli eventi. Session replay, monitoring e analytics principali inclusi. Nessun foglio di calcolo per capire quanto devi pagare.`,
+      content: `PostHog fattura separatamente eventi, session replay, feature flag, sondaggi e altro. Il piano gratuito è generoso, ma i costi possono crescere rapidamente con l’aumento dell’utilizzo, rendendo la spesa mensile meno prevedibile.\n\nNoi manteniamo tutto semplice: prezzo fisso da $9/mese con limiti chiari sugli eventi. Session replay, monitoring e analytics principali inclusi. Nessun foglio di calcolo per capire quanto devi pagare.`,
       icon: 'dollar',
     },
     {

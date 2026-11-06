@@ -1,6 +1,6 @@
 import type { PlanCapabilities } from '@/lib/billing/capabilities';
 import { CAPABILITY_ENTITLED_STATUSES } from '@/lib/billing/subscription-status';
-import { CUSTOM_VOLUME, EVENT_STEPS, FREE_PLAN_ID, PLANS, SELF_HOSTED_PLAN_ID } from './plans';
+import { CUSTOM_VOLUME, EVENT_STEPS, FREE_PLAN_ID, PLANS, RENAMED_PLAN_IDS, SELF_HOSTED_PLAN_ID } from './plans';
 import {
   type BillingInterval,
   type PlanCurrency,
@@ -20,6 +20,11 @@ export function getPlan(id: PlanId): PlanDefinition {
   return PLANS[id];
 }
 
+/** Maps a stored plan id that was renamed at launch to its current id; other ids pass through. */
+export function currentPlanId(storedId: string): string {
+  return RENAMED_PLAN_IDS.get(storedId) ?? storedId;
+}
+
 export function listedPlans(): PlanDefinition[] {
   return PLANS_BY_RANK.filter((plan) => plan.listed);
 }
@@ -32,12 +37,10 @@ export function selfHostedPlan(): PlanDefinition {
   return PLANS[SELF_HOSTED_PLAN_ID];
 }
 
-export function isCustomVolume(events: number): boolean {
-  return events > EVENT_STEPS[EVENT_STEPS.length - 1];
-}
+const LARGEST_STEP = EVENT_STEPS[EVENT_STEPS.length - 1];
 
-export function isQuoted(plan: PlanDefinition, events: number): boolean {
-  return !plan.selfServe || isCustomVolume(events);
+function isCustomVolume(events: number): boolean {
+  return events > LARGEST_STEP;
 }
 
 export function bandFor(plan: PlanDefinition, events: number): PriceBand | undefined {
@@ -58,6 +61,11 @@ function freeBand(plan: PlanDefinition): PriceBand | undefined {
   return plan.bands.find((band) => isZeroPriced(band, 'month'));
 }
 
+/** A plan that is only ever free, at one fixed allowance. */
+export function isFreePlan(plan: PlanDefinition): boolean {
+  return plan.bands.length === 1 && isZeroPriced(plan.bands[0], 'month');
+}
+
 /** Price in cents, or null when the plan has no self-serve price at that volume. */
 export function priceFor(
   plan: PlanDefinition,
@@ -66,6 +74,58 @@ export function priceFor(
   interval: BillingInterval = 'month',
 ): number | null {
   return bandFor(plan, events)?.prices[interval]?.[currency] ?? null;
+}
+
+export type PlanOffer =
+  | { kind: 'free'; events: number }
+  | { kind: 'paid'; events: number; cents: number }
+  | { kind: 'quoted'; events: number };
+
+/**
+ * What a plan's card offers at a slider volume. A free plan keeps its own allowance, and a self-serve plan
+ * past its largest step offers that step.
+ */
+export function offerFor(
+  plan: PlanDefinition,
+  events: number,
+  currency: PlanCurrency,
+  interval: BillingInterval = 'month',
+): PlanOffer {
+  if (isFreePlan(plan)) return { kind: 'free', events: plan.bands[0].events };
+  if (!plan.selfServe) return { kind: 'quoted', events };
+
+  const offered = Math.min(events, LARGEST_STEP);
+  const cents = priceFor(plan, offered, currency, interval);
+  return cents === null ? { kind: 'quoted', events: offered } : { kind: 'paid', events: offered, cents };
+}
+
+/** Whether a plan covers a slider volume: a free plan its allowance, self-serve plans the slider steps, sales-only plans any volume. */
+export function fitsVolume(plan: PlanDefinition, events: number): boolean {
+  if (isFreePlan(plan)) return events <= plan.bands[0].events;
+  return !plan.selfServe || !isCustomVolume(events);
+}
+
+/** The plan a pricing page highlights at a slider volume: the featured plan while it fits, otherwise the first that does. */
+export function recommendedPlanFor(events: number): PlanDefinition | null {
+  const fitting = listedPlans().filter((plan) => fitsVolume(plan, events));
+  return fitting.find((plan) => plan.featured) ?? fitting[0] ?? null;
+}
+
+/** Whether a card shows exactly what an account has. A retired price is no longer sold, so it matches no paid card. */
+export function isCurrentOffer(
+  subscription: { planId: PlanId; eventLimit: number; pricePerMonth: number; currency: PlanCurrency },
+  plan: PlanDefinition,
+  offer: PlanOffer,
+  currency: PlanCurrency,
+): boolean {
+  if (isFreePlan(plan)) return isFreePlan(PLANS[subscription.planId]);
+  return (
+    offer.kind === 'paid' &&
+    subscription.planId === plan.id &&
+    subscription.eventLimit === offer.events &&
+    subscription.currency === currency &&
+    subscription.pricePerMonth === offer.cents
+  );
 }
 
 export type LookupKeyMatch = { plan: PlanDefinition; events: number; interval: BillingInterval };

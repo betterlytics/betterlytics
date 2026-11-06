@@ -1,18 +1,30 @@
 'use client';
 
 import { Check } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import { SelectedPlan } from '@/types/pricing';
 import type { UserBillingData, Currency } from '@/entities/billing/billing.entities';
-import { isCustomVolume, isFreeBand, isQuoted, listedPlans, priceFor, type PlanId } from '@/lib/billing/catalog';
+import {
+  fitsVolume,
+  getPlan,
+  isCurrentOffer,
+  listedPlans,
+  offerFor,
+  recommendedPlanFor,
+  type PlanDefinition,
+  type PlanOffer,
+} from '@/lib/billing/catalog';
 import { Dispatch, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import NumberFlow from '@number-flow/react';
-import { usePlanFeatures, type PlanFeatureLabel } from './usePlanFeatures';
+import { EventCountText } from './EventCountFlow';
+import { useOfferVolumeLabel, usePlanFeatures, type PlanFeatureLabel, type VolumeLabel } from './usePlanFeatures';
+
+/** Cancels NumberFlow's mask padding, so the price lays out like text and shares a baseline with the period. */
+const FLUSH = '[--number-flow-mask-height:0.25em] -my-(--number-flow-mask-height)';
 
 interface PricingCardsProps {
   volume: number;
@@ -23,17 +35,15 @@ interface PricingCardsProps {
   billingData?: UserBillingData;
 }
 
-interface PlanConfig {
-  id: PlanId;
-  name: string;
-  contactOnly: boolean;
-  isFree: boolean;
-  priceCents: number | null;
-  period: string;
+interface PlanCard {
+  plan: PlanDefinition;
+  offer: PlanOffer;
   description: string;
+  volumeLabel: VolumeLabel;
   features: readonly PlanFeatureLabel[];
-  cta: string;
-  popular: boolean;
+  fits: boolean;
+  isRecommended: boolean;
+  isCurrent: boolean;
 }
 
 export function PricingCards({
@@ -41,53 +51,35 @@ export function PricingCards({
   currency,
   onPlanSelect,
   mode = 'landing',
-  className = '',
+  className,
   billingData,
 }: PricingCardsProps) {
   const t = useTranslations('pricingCards');
-  const isContactSales = isCustomVolume(volume);
-  const featuresFor = usePlanFeatures(volume);
+  const featuresFor = usePlanFeatures();
+  const volumeLabelFor = useOfferVolumeLabel();
 
-  const plans: PlanConfig[] = useMemo(
-    () =>
-      listedPlans().map((plan) => {
-        const contactOnly = isQuoted(plan, volume);
-        const isFree = isFreeBand(plan, volume);
-        return {
-          id: plan.id,
-          name: plan.name,
-          contactOnly,
-          isFree,
-          priceCents: contactOnly ? null : priceFor(plan, volume, currency),
-          period: contactOnly || isFree ? '' : t('periodPerMonth'),
-          description: t(`descriptions.${plan.id}`),
-          features: featuresFor(plan),
-          cta: !plan.selfServe
-            ? t('cta.contactUs')
-            : isContactSales
-              ? t('cta.contactSales')
-              : isFree
-                ? t('cta.getStartedForFree')
-                : t('cta.getStarted'),
-          popular: plan.featured,
-        };
-      }),
-    [volume, currency, isContactSales, featuresFor, t],
-  );
-
-  const handlePlanClick = (plan: PlanConfig) => {
-    if (mode === 'billing' && onPlanSelect) {
-      const selectedPlan: SelectedPlan = {
-        planId: plan.id,
-        eventLimit: volume,
-        currency,
+  const cards: PlanCard[] = useMemo(() => {
+    const recommended = recommendedPlanFor(volume);
+    const subscription = billingData?.subscription;
+    return listedPlans().map((plan) => {
+      const offer = offerFor(plan, volume, currency);
+      const isCurrent = subscription ? isCurrentOffer(subscription, plan, offer, currency) : false;
+      return {
+        plan,
+        offer,
+        description: t(`descriptions.${plan.id}`),
+        volumeLabel: volumeLabelFor(offer),
+        // an older free plan has larger limits than Free, so its card lists what the account really has
+        features: featuresFor(isCurrent && subscription ? getPlan(subscription.planId) : plan),
+        fits: fitsVolume(plan, volume),
+        isRecommended: plan.id === recommended?.id,
+        isCurrent,
       };
-      onPlanSelect(selectedPlan);
-    }
-  };
+    });
+  }, [volume, currency, billingData, featuresFor, volumeLabelFor, t]);
 
-  const renderButton = (plan: PlanConfig) => {
-    if (plan.contactOnly) {
+  const renderButton = ({ plan, offer, isRecommended, isCurrent }: PlanCard) => {
+    if (offer.kind === 'quoted') {
       return (
         <Link
           href='/contact'
@@ -95,127 +87,119 @@ export function PricingCards({
           target={mode === 'billing' ? '_blank' : undefined}
           rel={mode === 'billing' ? 'noopener noreferrer' : undefined}
         >
-          <Button className='mt-auto w-full cursor-pointer' variant='outline'>
+          <Button size='lg' className='w-full cursor-pointer' variant={isRecommended ? 'default' : 'outline'}>
             {t('cta.contactUs')}
           </Button>
         </Link>
       );
     }
 
+    const startLabel = offer.kind === 'free' ? t('cta.getStartedForFree') : t('cta.getStarted');
+    const variant = isRecommended ? 'default' : 'outline';
+
     if (mode === 'billing' && billingData) {
-      const isCurrentPlan =
-        billingData.subscription.planId === plan.id && billingData.subscription.eventLimit === volume;
-
-      let buttonText = plan.cta;
-      let buttonVariant: 'default' | 'outline' | 'secondary' = plan.popular ? 'default' : 'outline';
-      let isDisabled = false;
-
-      if (isCurrentPlan) {
-        buttonText = t('cta.currentPlan');
-        buttonVariant = 'secondary';
-        isDisabled = true;
-      } else if (plan.isFree) {
-        buttonText = t('cta.getStartedForFree');
-        isDisabled = true;
-      } else if (billingData.isExistingPaidSubscriber) {
-        buttonText = t('cta.changeToThisPlan');
-      } else {
-        buttonText = plan.cta;
+      if (isCurrent) {
+        return (
+          <Button size='lg' className='w-full' variant='secondary' disabled>
+            {t('cta.currentPlan')}
+          </Button>
+        );
       }
-
       return (
         <Button
-          className='mt-auto w-full cursor-pointer'
-          variant={buttonVariant}
-          onClick={() => handlePlanClick(plan)}
-          disabled={isDisabled}
+          size='lg'
+          className='w-full cursor-pointer'
+          variant={variant}
+          onClick={() => onPlanSelect?.({ planId: plan.id, eventLimit: offer.events, currency })}
+          disabled={offer.kind === 'free'}
         >
-          {buttonText}
+          {billingData.isExistingPaidSubscriber && offer.kind === 'paid' ? t('cta.changeToThisPlan') : startLabel}
         </Button>
       );
     }
 
-    const href = plan.cta.toLowerCase().includes(t('cta.getStarted').toLowerCase()) ? '/signup' : '/contact';
-
     return (
-      <Link href={href} className='w-full'>
-        <Button className='mt-auto w-full cursor-pointer' variant={plan.popular ? 'default' : 'outline'}>
-          {plan.cta}
+      <Link href='/signup' className='w-full'>
+        <Button size='lg' className='w-full cursor-pointer' variant={variant}>
+          {startLabel}
         </Button>
       </Link>
     );
   };
 
   return (
-    <div className={`mx-auto grid max-w-6xl gap-8 md:grid-cols-3 ${className}`}>
-      {plans.map((plan) => (
-        <Card
-          key={plan.id}
-          data-popular={plan.popular}
-          className={cn(
-            'group border-border/70 bg-card/80 hover:bg-card/90 focus-within:ring-offset-background relative flex h-full flex-col rounded-2xl border shadow-sm transition duration-300 ease-out focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 hover:-translate-y-1 hover:border-blue-400/40 hover:shadow-xl hover:shadow-blue-500/10 motion-reduce:transform-none motion-reduce:transition-none',
-            plan.popular
-              ? 'bg-gradient-to-b from-blue-600/10 via-blue-600/5 to-transparent shadow-2xl ring-2 shadow-blue-600/20 ring-blue-500/70'
-              : '',
-          )}
-        >
-          {plan.popular && (
-            <Badge className='absolute -top-3 left-1/2 -translate-x-1/2 transform rounded-full border-transparent bg-blue-600 px-3 py-1 text-white shadow-sm shadow-blue-600/30'>
-              {t('badges.mostPopular')}
-            </Badge>
-          )}
-          {billingData &&
-            billingData.subscription.planId === plan.id &&
-            billingData.subscription.eventLimit === volume && (
-              <Badge
-                variant='secondary'
-                className='absolute -bottom-3 left-1/2 -translate-x-1/2 transform rounded-full border-transparent'
-              >
-                {t('badges.current')}
-              </Badge>
+    <div
+      className={cn('bg-card grid overflow-hidden rounded-2xl border md:grid-cols-2 xl:grid-cols-4', className)}
+    >
+      {cards.map((card) => {
+        const { plan, offer } = card;
+        return (
+          <div
+            key={plan.id}
+            data-slot='plan-card'
+            // five rows shared with the other plans, so prices and buttons stay level when a description wraps
+            className={cn(
+              'relative row-span-5 grid grid-rows-subgrid p-7',
+              'max-md:not-first:border-t md:max-xl:even:border-l md:max-xl:nth-[n+3]:border-t xl:not-first:border-l',
+              card.isRecommended && 'bg-primary/5 shadow-[inset_0_2px_0_var(--color-primary)]',
+              // the rows fade rather than the plan, so the rules between plans stay crisp
+              '[&>*]:transition-opacity [&>*]:duration-200',
+              !card.fits && '[&:focus-within>*]:opacity-100 [&:hover>*]:opacity-100 [&>*]:opacity-50',
             )}
-          <CardHeader className='text-center'>
-            <CardTitle className='text-2xl'>{plan.name}</CardTitle>
-            <div className='mt-4 flex h-12 items-baseline justify-center'>
-              {!plan.isFree && plan.priceCents !== null ? (
-                <NumberFlow
-                  className='-translate-y-[0.2em] text-4xl leading-10 font-bold tabular-nums'
-                  value={plan.priceCents / 100}
-                  locales={'en-US'}
-                  format={{ style: 'currency', currency, maximumFractionDigits: 0 }}
-                  willChange
-                />
-              ) : (
-                <span className='text-4xl leading-10 font-bold'>
-                  {plan.isFree ? t('labels.free') : t('labels.custom')}
-                </span>
-              )}
-              {plan.period && (
-                <span className='text-muted-foreground -translate-y-[0.4em] text-lg'>{plan.period}</span>
+          >
+            {card.isRecommended && (
+              <span className='bg-primary text-primary-foreground absolute top-0.5 right-7 rounded-b-md px-2.5 pt-0.5 pb-1 text-[11px] font-medium'>
+                {t('badges.mostPopular')}
+              </span>
+            )}
+            <div className='flex items-center gap-2'>
+              <h3 className='text-lg font-semibold tracking-tight'>{plan.name}</h3>
+              {card.isCurrent && (
+                <Badge variant='secondary' className='rounded-full'>
+                  {t('badges.current')}
+                </Badge>
               )}
             </div>
-            <CardDescription className='mt-2 min-h-10'>{plan.description}</CardDescription>
-          </CardHeader>
-          <CardContent className='flex flex-grow flex-col'>
-            <ul className='mb-6 flex-grow space-y-3'>
-              {plan.features.map((feature) => (
-                <li key={feature.label} className='flex items-center'>
-                  <Check className='mr-3 h-4 w-4 flex-shrink-0 text-blue-500' />
+            <p className='text-muted-foreground mt-1.5 text-sm leading-relaxed text-pretty'>{card.description}</p>
+            <div className='mt-6'>
+              <div className='flex h-11 items-baseline gap-1.5'>
+                <b className='text-[2.5rem] leading-11 font-medium tracking-[-0.035em] tabular-nums'>
+                  {offer.kind === 'quoted' ? (
+                    t('labels.custom')
+                  ) : (
+                    <NumberFlow
+                      className={FLUSH}
+                      value={offer.kind === 'paid' ? offer.cents / 100 : 0}
+                      locales='en-US'
+                      format={{ style: 'currency', currency, maximumFractionDigits: 0 }}
+                      willChange
+                    />
+                  )}
+                </b>
+                {offer.kind !== 'quoted' && (
+                  <span className='text-muted-foreground text-sm'>{t('periodPerMonth')}</span>
+                )}
+              </div>
+              <p className='text-foreground/80 mt-2.5 text-sm'>
+                <EventCountText {...card.volumeLabel} />
+              </p>
+            </div>
+            <div className='mt-6'>{renderButton(card)}</div>
+            <ul className='mt-7 space-y-3 border-t pt-7'>
+              {card.features.map((feature) => (
+                <li key={feature.label} className='flex items-start gap-2.5 text-sm'>
+                  <Check className='text-primary mt-0.5 size-4 shrink-0' />
                   <span
-                    className={cn(
-                      'text-sm',
-                      feature.kind === 'header' ? 'text-foreground font-semibold' : 'text-foreground/90',
-                    )}
+                    className={feature.kind === 'header' ? 'text-foreground font-medium' : 'text-foreground/80'}
                   >
                     {feature.label}
                   </span>
                 </li>
               ))}
             </ul>
-            {renderButton(plan)}
-          </CardContent>
-        </Card>
-      ))}
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -27,7 +27,7 @@ export default async function PricingPage() {
       <StructuredData config={await buildSEOConfig(SEO_CONFIGS.pricing)} />
       <div className='bg-background text-foreground'>
         <section className='scroll-mt-20 overflow-visible py-20'>
-          <div className='container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8'>
+          <div className='container mx-auto max-w-[84rem] px-4 sm:px-6 lg:px-8'>
             <div className='mb-16 text-center'>
               <h1 className='mb-4 text-3xl font-bold sm:text-4xl'>
                 <span className='text-blue-600 dark:text-blue-400'>{t('titleEmphasis')}</span> {t('titleRest')}

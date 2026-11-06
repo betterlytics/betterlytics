@@ -1,17 +1,22 @@
 'use client';
 
-import { Fragment, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import * as Slider from '@radix-ui/react-slider';
 import NumberFlow from '@number-flow/react';
 import { useLocale, useTranslations } from 'next-intl';
-import { EventCountFlow } from '@/components/pricing/EventCountFlow';
-import { usePlanFeatures, type PlanFeatureLabel } from '@/components/pricing/usePlanFeatures';
+import { EventCountFlow, EventCountText } from '@/components/pricing/EventCountFlow';
+import {
+  useOfferVolumeLabel,
+  usePlanFeatures,
+  type PlanFeatureLabel,
+  type VolumeLabel,
+} from '@/components/pricing/usePlanFeatures';
 import {
   VOLUME_STOPS,
-  isQuoted,
-  isFreeBand,
+  fitsVolume,
   listedPlans,
-  priceFor,
+  offerFor,
+  recommendedPlanFor,
   type PlanId,
 } from '@/lib/billing/catalog';
 import { formatEventCount } from '@/utils/pricing';
@@ -30,21 +35,6 @@ const CURRENCY = 'USD';
 const PRICE_FORMAT = { style: 'currency', currency: CURRENCY, maximumFractionDigits: 0 } as const;
 /** Cancels NumberFlow's mask padding so a figure lays out like text. */
 const FLUSH = '[--number-flow-mask-height:0.25em] -my-(--number-flow-mask-height)';
-
-type SelectedVolume = { value: number; figure: string };
-
-function WithVolume({ text, volume }: { text: string; volume: SelectedVolume }) {
-  return (
-    <span>
-      {text.split(volume.figure).map((part, i) => (
-        <Fragment key={i}>
-          {i > 0 && <EventCountFlow value={volume.value} />}
-          {part}
-        </Fragment>
-      ))}
-    </span>
-  );
-}
 
 function Check() {
   return (
@@ -69,21 +59,27 @@ type PlanProps = {
   /** Cents, or a label such as 'Custom'. */
   price: number | string;
   period?: string;
+  volumeLabel: VolumeLabel;
   badge?: string;
   features: PlanFeatureLabel[];
   cta: PlanCta;
   pick?: boolean;
-  volume: SelectedVolume;
+  dimmed?: boolean;
 };
 
-function Plan({ tier, name, tagline, price, period, badge, features, cta, pick, volume }: PlanProps) {
+function Plan({ tier, name, tagline, price, period, volumeLabel, badge, features, cta, pick, dimmed }: PlanProps) {
   const locale = useLocale();
   return (
+    // a subgrid of five rows shared across plans, so prices and buttons stay level when a tagline wraps
     <div
+      data-dimmed={dimmed || undefined}
       className={cn(
-        'relative flex flex-1 flex-col border-rule-10 p-9 transition-ink not-first:border-l first:pl-0',
-        'max-lg:px-0 max-lg:py-7 max-lg:not-first:border-t max-lg:not-first:border-l-0 max-sm:px-(--pad) max-sm:first:pl-(--pad)',
-        pick && 'bg-volt/10 shadow-[inset_0_2px_0_var(--color-volt-lift)] max-lg:px-4 max-sm:px-(--pad)',
+        styles.plan,
+        'relative row-span-5 grid grid-rows-subgrid border-rule-10 p-9 transition-ink',
+        '3xl:not-first:border-l 3xl:first:pl-0',
+        'md:max-3xl:odd:pl-0 md:max-3xl:even:border-l md:max-3xl:nth-[n+3]:border-t',
+        'max-md:px-0 max-md:py-7 max-md:not-first:border-t max-sm:px-(--pad)',
+        pick && 'bg-volt/10 shadow-[inset_0_2px_0_var(--color-volt-lift)] max-md:px-4 max-sm:px-(--pad)',
       )}
     >
       <div className='mb-1 flex items-center gap-3'>
@@ -94,31 +90,40 @@ function Plan({ tier, name, tagline, price, period, badge, features, cta, pick, 
           </span>
         ) : null}
       </div>
-      {/* two lines tall so prices stay level across columns when a tagline wraps */}
-      <p className='mb-4 min-h-11 text-body-sm leading-[22px] text-muted max-lg:min-h-0'>{tagline}</p>
-      {/* fixed height so swapping a figure for a word doesn't shift the plans */}
-      <div className='mb-2.5 flex h-11 items-baseline gap-1.5'>
-        <b className='text-[42px] leading-11 font-medium tracking-[-1.5px] tabular-nums'>
-          {typeof price === 'number' ? (
-            <NumberFlow className={FLUSH} value={price / 100} locales={locale} format={PRICE_FORMAT} willChange />
-          ) : (
-            price
-          )}
-        </b>
-        {period ? <span className='text-body-sm tracking-ui text-muted'>{period}</span> : null}
+      <p className='mb-4 text-body-sm leading-[22px] text-muted'>{tagline}</p>
+      <div className='mb-2.5'>
+        {/* fixed height so swapping a figure for a word doesn't shift the plans */}
+        <div className='flex h-11 items-baseline gap-1.5'>
+          <b className='text-[42px] leading-11 font-medium tracking-[-1.5px] tabular-nums'>
+            {typeof price === 'number' ? (
+              <NumberFlow
+                className={FLUSH}
+                value={price / 100}
+                locales={locale}
+                format={PRICE_FORMAT}
+                willChange
+              />
+            ) : (
+              price
+            )}
+          </b>
+          {period ? <span className='text-body-sm tracking-ui text-muted'>{period}</span> : null}
+        </div>
+        <p className='mt-1.5 text-body-sm tracking-ui text-muted'>
+          <EventCountText {...volumeLabel} />
+        </p>
       </div>
       <ul className='mt-3 mb-[26px] border-t border-rule-08 pt-[22px] transition-ink'>
-        {/* index key: the volume line's text changes but it must keep its element to animate */}
-        {features.map((f, i) => (
+        {features.map((f) => (
           <li
-            key={i}
+            key={f.label}
             className={cn(
               'flex items-start gap-[11px] py-[7px] text-body-sm leading-[21px] tracking-ui text-fg opacity-84',
               f.kind === 'header' && 'pb-[11px] font-semibold opacity-100',
             )}
           >
             <Check />
-            <WithVolume text={f.label} volume={volume} />
+            <span>{f.label}</span>
           </li>
         ))}
       </ul>
@@ -145,11 +150,11 @@ export function PricingPanel() {
 
   const events = VOLUME_STOPS[rangeIndex];
   const lastIndex = VOLUME_STOPS.length - 1;
-  const featuresFor = usePlanFeatures(events);
+  const featuresFor = usePlanFeatures();
+  const volumeLabelFor = useOfferVolumeLabel();
+  const recommended = recommendedPlanFor(events);
 
   const sales: PlanCta = { label: t('contactCta'), destination: 'contact' };
-  // spelled as the shared feature labels spell it, so WithVolume can split on it
-  const volume = { value: events, figure: formatEventCount(events, locale) };
 
   const pickStop = (index: number) => {
     if (index === rangeIndex) return;
@@ -217,27 +222,27 @@ export function PricingPanel() {
       </div>
 
       <Panel>
-        <div className='flex max-lg:flex-col max-sm:-mx-(--pad)'>
+        <div className='grid max-sm:-mx-(--pad) md:grid-cols-2 3xl:grid-cols-4'>
           {listedPlans().map((plan) => {
-            const quoted = isQuoted(plan, events);
-            const cents = quoted ? null : priceFor(plan, events, CURRENCY);
-            const free = isFreeBand(plan, events);
+            const offer = offerFor(plan, events, CURRENCY);
+            const isRecommended = plan.id === recommended?.id;
             return (
               <Plan
                 key={plan.id}
                 tier={plan.id}
-                volume={volume}
-                pick={plan.featured}
+                pick={isRecommended}
+                dimmed={!fitsVolume(plan, events)}
                 name={plan.name}
-                badge={plan.featured ? t('badge') : undefined}
+                badge={isRecommended ? t('badge') : undefined}
                 tagline={t(`plans.${plan.id}.tagline`)}
-                price={cents === null ? t('custom') : free ? t('free') : cents}
-                period={cents === null || free ? undefined : t('perMonth')}
+                price={offer.kind === 'paid' ? offer.cents : offer.kind === 'free' ? 0 : t('custom')}
+                period={offer.kind === 'quoted' ? undefined : t('perMonth')}
+                volumeLabel={volumeLabelFor(offer)}
                 features={featuresFor(plan)}
                 cta={
-                  quoted
+                  offer.kind === 'quoted'
                     ? sales
-                    : { label: free ? t('ctaFree') : t('cta'), destination: 'signup' }
+                    : { label: offer.kind === 'free' ? t('ctaFree') : t('cta'), destination: 'signup' }
                 }
               />
             );
