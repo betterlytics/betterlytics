@@ -101,6 +101,7 @@ pub const REASON_PREFETCH: &str = "prefetch";
 pub const REASON_VELOCITY: &str = "velocity";
 pub const REASON_MISSING_CLIENT_HINTS: &str = "missing-client-hints";
 pub const REASON_STALE_CHROMIUM_NO_HINTS: &str = "stale-chromium-no-hints";
+pub const REASON_HEADLESS_RESOLUTION_NO_HINTS: &str = "headless-resolution-no-hints";
 pub const REASON_CLIENT_HINTS_MISMATCH: &str = "client-hints-mismatch";
 pub const REASON_STALE_BROWSER: &str = "stale-browser";
 
@@ -109,6 +110,7 @@ const ENFORCING_REASONS: &[&str] = &[
     REASON_UA_BLOCKLIST,
     REASON_CLIENT_AUTOMATION,
     REASON_STALE_CHROMIUM_NO_HINTS,
+    REASON_HEADLESS_RESOLUTION_NO_HINTS,
 ];
 
 pub struct Detection {
@@ -152,6 +154,11 @@ const CLIENT_HINTS_MIN_CHROMIUM_MAJOR: u32 = 89;
 /// Real desktop Chrome that old still exists (~4% of desktop sessions) but sends
 /// the header, so it is unaffected; the rule only fires when the header is missing too.
 const CLIENT_HINTS_ENFORCE_BELOW_MAJOR: u32 = 130;
+/// Headless Chromium's default window size. A hint-less desktop Chromium reporting it is
+/// rejected on any major: 28 days of bot_events matched 1,040 of 1,043 hits from an
+/// aocr.org referral bot plus 227 others, and of the 74 non-aocr sessions only one,
+/// on a residential network, showed any engagement.
+const HEADLESS_DEFAULT_RESOLUTION: (u32, u32) = (800, 600);
 /// Desktop Chromium auto-updates; majors older than this are suspect. Starts very
 /// generous (~3 years behind); tighten from shadow data.
 const STALE_DESKTOP_CHROMIUM_MAJOR: u32 = 110;
@@ -228,6 +235,8 @@ fn collect_reasons(input: &DetectionInput) -> Vec<&'static str> {
             if input.sec_ch_ua.is_empty() {
                 if major < CLIENT_HINTS_ENFORCE_BELOW_MAJOR && is_desktop_ua(user_agent) {
                     reasons.push(REASON_STALE_CHROMIUM_NO_HINTS);
+                } else if is_headless_default_resolution(input.screen_resolution) && is_desktop_ua(user_agent) {
+                    reasons.push(REASON_HEADLESS_RESOLUTION_NO_HINTS);
                 } else {
                     reasons.push(REASON_MISSING_CLIENT_HINTS);
                 }
@@ -293,6 +302,14 @@ fn has_impossible_resolution(screen_resolution: &str) -> bool {
     };
 
     width == 0 || height == 0 || width >= 10_000 || height >= 10_000
+}
+
+fn is_headless_default_resolution(screen_resolution: &str) -> bool {
+    let Some((w, h)) = screen_resolution.split_once('x') else {
+        return false;
+    };
+    let (width, height) = HEADLESS_DEFAULT_RESOLUTION;
+    w.trim().parse() == Ok(width) && h.trim().parse() == Ok(height)
 }
 
 /// Major version from a "Chrome/N..." token (also inside Edge/Opera/headless UAs);
@@ -679,6 +696,43 @@ mod tests {
             sec_ch_ua: "",
             ..Default::default()
         });
+        assert_eq!(detection.shadow, vec![REASON_MISSING_CLIENT_HINTS]);
+        assert!(!detection.should_reject());
+    }
+
+    #[test]
+    fn headless_resolution_without_client_hints_rejects() {
+        // The aocr.org referral bot: current desktop Chrome, no hints, 800x600
+        let ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36";
+        let detect_with = |user_agent: &str, screen_resolution: &str, sec_ch_ua: &str| {
+            detect(&DetectionInput {
+                user_agent,
+                header_user_agent: user_agent,
+                screen_resolution,
+                referrer: "https://aocr.org/",
+                sec_ch_ua,
+                ..Default::default()
+            })
+        };
+
+        let detection = detect_with(ua, "800x600", "");
+        assert_eq!(detection.enforcing, vec![REASON_HEADLESS_RESOLUTION_NO_HINTS]);
+        assert!(detection.should_reject());
+        assert_eq!(detection.tagged_reasons(), vec!["headless-resolution-no-hints"]);
+
+        // The same UA and screen with consistent hints is accepted
+        assert!(detect_with(ua, "800x600", "\"Chromium\";v=\"146\"").is_empty());
+
+        // At any other resolution, missing hints stay shadow
+        for screen_resolution in ["1920x1080", "600x800", "800x601", ""] {
+            let detection = detect_with(ua, screen_resolution, "");
+            assert_eq!(detection.shadow, vec![REASON_MISSING_CLIENT_HINTS], "{}", screen_resolution);
+            assert!(!detection.should_reject(), "{}", screen_resolution);
+        }
+
+        // Mobile Chromium without hints stays shadow even at 800x600
+        let mobile = "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Mobile Safari/537.36";
+        let detection = detect_with(mobile, "800x600", "");
         assert_eq!(detection.shadow, vec![REASON_MISSING_CLIENT_HINTS]);
         assert!(!detection.should_reject());
     }
