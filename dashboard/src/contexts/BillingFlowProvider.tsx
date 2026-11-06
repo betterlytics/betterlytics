@@ -12,6 +12,7 @@ import { ChangePlanDialog } from '@/components/billing/ChangePlanDialog';
 import { VerificationRequiredModal } from '@/components/accountVerification/VerificationRequiredModal';
 import { createStripeCustomerPortalSession } from '@/actions/stripe.action';
 import type { SelectedPlan } from '@/types/pricing';
+import { getPlan, isFreeBand } from '@/lib/billing/catalog';
 
 interface BillingFlowContextValue {
   // Open the plan-picker dialog so the user can browse plans.
@@ -70,11 +71,12 @@ function BillingFlowProviderInner({ children }: { children: ReactNode }) {
 
   const selectPlan = useCallback(
     (plan: SelectedPlan) => {
-      if (plan.tier === 'enterprise') {
+      const definition = getPlan(plan.planId);
+      if (!definition.selfServe) {
         toast.info(t('contactForCustomPlan'));
         return;
       }
-      if (plan.price_cents === 0) {
+      if (isFreeBand(definition, plan.eventLimit)) {
         setPickerOpen(false);
         return;
       }

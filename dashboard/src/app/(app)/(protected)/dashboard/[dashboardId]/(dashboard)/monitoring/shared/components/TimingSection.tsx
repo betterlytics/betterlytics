@@ -21,6 +21,7 @@ import {
   nearestIndex,
 } from '../utils/sliderConstants';
 import type { MonitorFormInterface } from '../types';
+import { planThatUnlocks } from '@/lib/billing/catalog';
 
 export type TimingSectionProps = {
   form: MonitorFormInterface;
@@ -34,12 +35,16 @@ export function TimingSection({ form, isPending, open, onOpenChange, defaultOpen
   const tTiming = useTranslations('monitoringPage.form.timing');
   const locale = useLocale();
   const { state, setField } = form;
+  const tUpgrade = useTranslations('components.proFeature');
   const { caps } = useCapabilities();
 
   const intervalIdx = nearestIndex(MONITOR_INTERVAL_MARKS, state.intervalSeconds);
   const timeoutIdx = nearestIndex(REQUEST_TIMEOUT_MARKS, state.timeoutMs);
 
   const minIntervalIdx = nearestIndex(MONITOR_INTERVAL_MARKS, caps.monitoring.minIntervalSeconds);
+  const fasterIntervalPlan = planThatUnlocks(
+    (c) => c.monitoring.minIntervalSeconds < caps.monitoring.minIntervalSeconds,
+  );
 
   const handleIntervalChange = useCallback(
     (idx: number) => setField('intervalSeconds')(MONITOR_INTERVAL_MARKS[idx]),
@@ -79,6 +84,9 @@ export function TimingSection({ form, isPending, open, onOpenChange, defaultOpen
             recommendedValue={nearestIndex(MONITOR_INTERVAL_MARKS, RECOMMENDED_INTERVAL_SECONDS)}
             disabled={isPending}
             minAllowed={minIntervalIdx}
+            lockedMessage={
+              fasterIntervalPlan ? tUpgrade('upgradeRequired', { plan: fasterIntervalPlan.name }) : undefined
+            }
           />
 
           <Separator className='my-4' />

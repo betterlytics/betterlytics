@@ -53,7 +53,7 @@ export function SubscriptionPaymentCancelledEmail({
       </P>
 
       <P>
-        Your account has been moved to the free Growth plan ({freeEventLimit.toLocaleString()} events/month). To
+        Your account has been moved to the free plan ({freeEventLimit.toLocaleString()} events/month). To
         restore your previous plan, update your payment method and resubscribe from your billing page.
       </P>
 
