@@ -358,7 +358,7 @@
         "freeTierTitle": "Free Tier",
         "freeTierBody": "We offer a permanently free tier with a monthly event limit as specified on our pricing page. No credit card is required for the free tier. We do not sell your data - ever, regardless of which plan you use.",
         "billingTitle": "Billing",
-        "billingBody": "You can use our free tier indefinitely within the monthly event limits. For higher usage, you need to upgrade to a paid plan and pay in advance. If you exceed plan limits without upgrading, you risk losing excess data. If paid accounts become overdue, we will freeze the account until payment is made.",
+        "billingBody": "You can use our free tier indefinitely within the monthly event limits. For higher usage, you need to upgrade to a paid plan and pay in advance. If you keep exceeding your plan limits without upgrading, we may lock your account until you upgrade. Your data is kept. If paid accounts become overdue, we will freeze the account until payment is made.",
         "limitsTitle": "Event Limits",
         "limitsBody": "Each plan includes a monthly limit of events (pageviews, custom events, etc.). Unused events do not roll over to the next month. You will never be charged extra for occasional traffic spikes. If you consistently exceed your plan limits for two consecutive months, we will contact you to discuss upgrading.",
         "planChangesTitle": "Plan Changes",
