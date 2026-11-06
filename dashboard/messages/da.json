@@ -7,9 +7,10 @@
       }
     },
     "notFound": {
-      "title": "404 - Siden blev ikke fundet",
-      "description": "Denne side ser ud til at være vandret ud i analytics-dimensionen. Men bare rolig, vi har styr på det!",
-      "goHome": "Tilbage til forsiden"
+      "title": "Siden blev ikke fundet",
+      "description": "Linket fører ingen steder hen. Siden kan være flyttet, eller der er en tastefejl i adressen.",
+      "goToDashboards": "Gå til dashboards",
+      "goBack": "Gå tilbage"
     },
     "about": {
       "seo": {
@@ -1932,6 +1933,12 @@
         "primary": "Begynd at optage gratis",
         "secondary": "Læs dokumentationen om session replay"
       }
+    },
+    "notFound": {
+      "title": "Siden blev ikke fundet",
+      "lede": "Linket fører ingen steder hen. Siden kan være flyttet, eller der er en tastefejl i adressen.",
+      "action": "Tilbage til forsiden",
+      "secondary": "Se alle funktioner"
     }
   },
   "pricingSlider": {

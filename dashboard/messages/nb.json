@@ -7,9 +7,10 @@
       }
     },
     "notFound": {
-      "title": "404 - Siden ble ikke funnet",
-      "description": "Denne siden ser ut til å ha forsvunnet inn i analysedimensjonen. Ingen grunn til bekymring — vi hjelper deg tilbake!",
-      "goHome": "Tilbake til forsiden"
+      "title": "Fant ikke siden",
+      "description": "Lenken fører ingen steder. Siden kan ha blitt flyttet, eller adressen har en skrivefeil.",
+      "goToDashboards": "Gå til dashboards",
+      "goBack": "Gå tilbake"
     },
     "about": {
       "seo": {
@@ -1932,6 +1933,12 @@
         "primary": "Start opptak gratis",
         "secondary": "Les dokumentasjonen om opptak"
       }
+    },
+    "notFound": {
+      "title": "Fant ikke siden",
+      "lede": "Lenken fører ingen steder. Siden kan ha blitt flyttet, eller adressen har en skrivefeil.",
+      "action": "Tilbake til forsiden",
+      "secondary": "Se alle funksjoner"
     }
   },
   "pricingSlider": {

@@ -45,7 +45,13 @@ const nextConfig: NextConfig = {
           destination: `/${process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE ?? 'en'}/:segment`,
         },
       ],
-      fallback: [],
+      // Not a catch-all route: it would take /dashboards/x as a locale and show Next's bare 404 instead of global-not-found
+      fallback: [
+        {
+          source: `/:locale(${SUPPORTED_LANGUAGES.join('|')})/:path*`,
+          destination: '/:locale/not_found',
+        },
+      ],
     };
   },
   async headers() {
