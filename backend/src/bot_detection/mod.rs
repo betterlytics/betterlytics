@@ -156,9 +156,9 @@ const CLIENT_HINTS_MIN_CHROMIUM_MAJOR: u32 = 89;
 const CLIENT_HINTS_ENFORCE_BELOW_MAJOR: u32 = 130;
 /// Headless Chromium's default window size. A hint-less desktop Chromium reporting it is
 /// rejected on any major: 28 days of bot_events matched 1,040 of 1,043 hits from an
-/// aocr.org referral bot plus 227 others, and of the 74 non-aocr sessions only one,
-/// on a residential network, showed any engagement.
-const HEADLESS_DEFAULT_RESOLUTION: (u32, u32) = (800, 600);
+/// aocr.org referral bot plus 227 others. Of the 74 non-aocr sessions, 10 sent
+/// engagement events: 9 from hosting networks, 1 from a residential one.
+const HEADLESS_DEFAULT_RESOLUTION: &str = "800x600";
 /// Desktop Chromium auto-updates; majors older than this are suspect. Starts very
 /// generous (~3 years behind); tighten from shadow data.
 const STALE_DESKTOP_CHROMIUM_MAJOR: u32 = 110;
@@ -235,7 +235,7 @@ fn collect_reasons(input: &DetectionInput) -> Vec<&'static str> {
             if input.sec_ch_ua.is_empty() {
                 if major < CLIENT_HINTS_ENFORCE_BELOW_MAJOR && is_desktop_ua(user_agent) {
                     reasons.push(REASON_STALE_CHROMIUM_NO_HINTS);
-                } else if is_headless_default_resolution(input.screen_resolution) && is_desktop_ua(user_agent) {
+                } else if input.screen_resolution == HEADLESS_DEFAULT_RESOLUTION && is_desktop_ua(user_agent) {
                     reasons.push(REASON_HEADLESS_RESOLUTION_NO_HINTS);
                 } else {
                     reasons.push(REASON_MISSING_CLIENT_HINTS);
@@ -302,14 +302,6 @@ fn has_impossible_resolution(screen_resolution: &str) -> bool {
     };
 
     width == 0 || height == 0 || width >= 10_000 || height >= 10_000
-}
-
-fn is_headless_default_resolution(screen_resolution: &str) -> bool {
-    let Some((w, h)) = screen_resolution.split_once('x') else {
-        return false;
-    };
-    let (width, height) = HEADLESS_DEFAULT_RESOLUTION;
-    w.trim().parse() == Ok(width) && h.trim().parse() == Ok(height)
 }
 
 /// Major version from a "Chrome/N..." token (also inside Edge/Opera/headless UAs);
