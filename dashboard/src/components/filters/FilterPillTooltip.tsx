@@ -93,7 +93,7 @@ export function FilterPillTooltip({ filter, disabled, children }: FilterPillTool
       >
         {children}
       </TooltipTrigger>
-      <TooltipContent side='bottom' className='max-w-xs'>
+      <TooltipContent side='bottom' className='z-40 max-w-xs'>
         {filter.values.length > 1 ? (
           <div className='flex flex-col gap-1.5 text-xs'>
             <div className='flex items-center gap-1 font-medium'>
