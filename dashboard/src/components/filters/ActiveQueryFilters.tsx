@@ -263,7 +263,14 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
         setState('collapsing');
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !inEditor(event.target)) setState('collapsing');
+      if (event.key !== 'Escape' || inEditor(event.target)) return;
+      const focused = document.activeElement;
+      const top = rowRef.current?.querySelector<HTMLElement>('[data-filter-pill]')?.offsetTop;
+      const staysInView = focused?.closest<HTMLElement>('[data-filter-pill]')?.offsetTop === top;
+      // Focus on a control that is about to leave moves to the chevron
+      if (band?.contains(focused) && !staysInView)
+        band.querySelector<HTMLElement>('[data-band-toggle]')?.focus({ preventScroll: true });
+      setState('collapsing');
     };
     document.addEventListener('pointerdown', onPointerDown);
     document.addEventListener('keydown', onKeyDown);
@@ -375,7 +382,7 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
             <span
               aria-hidden={expanded}
               className={cn(
-                'text-xs font-medium whitespace-nowrap tabular-nums transition-opacity duration-200 max-sm:hidden',
+                'text-xs font-medium whitespace-nowrap tabular-nums transition-opacity duration-200 motion-reduce:transition-none max-sm:hidden',
                 expanded && 'opacity-0',
               )}
             >
@@ -392,7 +399,7 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
               <ChevronDown
                 aria-hidden
                 className={cn(
-                  'size-4 rounded-md transition-transform duration-200',
+                  'size-4 rounded-md transition-transform duration-200 motion-reduce:transition-none',
                   expanded && 'rotate-180',
                   'group-focus-visible/toggle:ring-ring/50 group-focus-visible/toggle:ring-2',
                   'group-focus-visible/toggle:border-ring group-focus-visible/toggle:border',
