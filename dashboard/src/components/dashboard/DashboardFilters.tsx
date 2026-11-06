@@ -3,7 +3,7 @@
 import { TimeRangeToolbar } from '@/components/TimeRange/TimeRangeToolbar';
 import QueryFiltersSelector from '@/components/filters/QueryFiltersSelector';
 import { ActiveQueryFilters } from '@/components/filters/ActiveQueryFilters';
-import { ReactNode, useRef } from 'react';
+import { ReactNode, useRef, useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useScrolledBehindTopbar } from '@/hooks/use-scrolled-behind-topbar';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
@@ -25,13 +25,14 @@ export default function DashboardFilters({
   const pillsRef = useRef<HTMLDivElement>(null);
   const hasPills = showQueryFilters && queryFilters.length > 0;
   const showBand = useScrolledBehindTopbar(pillsRef, hasPills);
+  const [band, setBand] = useState<HTMLElement | null>(null);
 
   return (
     <QueryFiltersEditorProvider>
       <div data-slot='dashboard-filters' className='flex min-w-0 flex-col gap-2'>
         <div className='flex flex-col justify-end gap-x-8 gap-y-2 sm:flex-row'>
           {!isMobile && <div className='flex gap-4'>{children}</div>}
-          {showQueryFilters && <QueryFiltersSelector />}
+          {showQueryFilters && <QueryFiltersSelector anchor={band} />}
           <TimeRangeToolbar showComparison={showComparison} />
         </div>
         {showQueryFilters && (
@@ -43,7 +44,7 @@ export default function DashboardFilters({
         {isMobile && <div className='grid grid-cols-2 gap-2'>{children}</div>}
         {hasPills && showBand && (
           <div className='pointer-events-none fixed top-(--topbar-height) right-0 left-(--sidebar-offset) z-40 px-2 pt-2 transition-[left] duration-200 ease-linear sm:px-4'>
-            <div className='pointer-events-auto'>
+            <div ref={setBand} className='pointer-events-auto'>
               <ActiveQueryFilters variant='band' />
             </div>
           </div>

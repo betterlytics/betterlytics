@@ -11,7 +11,7 @@ import {
   type AnimationEvent,
 } from 'react';
 import { ChevronDownIcon, FilterIcon } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -31,9 +31,12 @@ import { useQueryFiltersEditor } from '@/contexts/QueryFiltersEditorProvider';
 const initOrDefault = (filters: QueryFilter[]): QueryFilter[] =>
   filters.length > 0 ? filters : [{ id: generateTempId(), column: 'url', operator: '=', values: [] }];
 
-type QueryFiltersSelectorProps = Omit<ComponentProps<typeof Popover>, 'open' | 'onOpenChange'>;
+type QueryFiltersSelectorProps = Omit<ComponentProps<typeof Popover>, 'open' | 'onOpenChange'> & {
+  // Stands in for the trigger while that is scrolled out of view
+  anchor?: HTMLElement | null;
+};
 
-export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
+export default function QueryFiltersSelector({ anchor, ...props }: QueryFiltersSelectorProps) {
   const { isOpen: isPopoverOpen, setIsOpen: setIsPopoverOpen, target } = useQueryFiltersEditor();
   const [isSavedFiltersOpen, setIsSavedFiltersOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -125,23 +128,12 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
   const activeFilterCount = useAllowedQueryFilters(nonEmptyFilters).length;
 
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const [editorOffset, setEditorOffset] = useState({ side: 4, align: 0 });
+  const anchorRef = useRef<HTMLElement | null>(null);
 
-  // Opens under the band, whose trigger has scrolled out of view
+  // One anchor part throughout, as swapping it in would remount the trigger
   useLayoutEffect(() => {
-    if (!isPopoverOpen) return;
-    const trigger = triggerRef.current;
-    const band = trigger
-      ?.closest('[data-slot=dashboard-filters]')
-      ?.querySelector('[data-slot=active-filters-band]');
-    if (!trigger || !band) {
-      setEditorOffset({ side: 4, align: 0 });
-      return;
-    }
-    const triggerRect = trigger.getBoundingClientRect();
-    const bandRect = band.getBoundingClientRect();
-    setEditorOffset({ side: bandRect.bottom - triggerRect.bottom + 4, align: bandRect.left - triggerRect.left });
-  }, [isPopoverOpen]);
+    anchorRef.current = anchor ?? triggerRef.current;
+  });
 
   const trigger = (
     <Button
@@ -198,11 +190,10 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
   return (
     <Popover {...props} open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+      <PopoverAnchor virtualRef={anchorRef} />
       <PopoverContent
         className='w-[620px] max-w-[calc(100svw-48px)] border p-2 shadow-2xl'
         align='start'
-        sideOffset={editorOffset.side}
-        alignOffset={editorOffset.align}
         onAnimationEnd={handleContentAnimationEnd}
         onOpenAutoFocus={handleOpenAutoFocus}
         onCloseAutoFocus={handleCloseAutoFocus}
