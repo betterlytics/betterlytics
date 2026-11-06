@@ -140,7 +140,7 @@ export function ReplayPage() {
         lede={t('related.lede')}
         items={[
           { key: 'analytics', icon: <MousePointerClick className='size-4' />, href: LINKS.docs, docs: true },
-          { key: 'errors', icon: <Bug className='size-4' />, href: `${LINKS.docs}/dashboard/errors`, docs: true },
+          { key: 'errors', icon: <Bug className='size-4' />, href: '/features/error-tracking' },
           {
             key: 'vitals',
             icon: <Gauge className='size-4' />,

@@ -1290,6 +1290,7 @@
         "features": "Funzionalità",
         "uptime": "Monitoraggio uptime",
         "replay": "Session replay",
+        "errors": "Tracciamento errori",
         "pricing": "Prezzi"
       },
       "company": {
@@ -1412,6 +1413,21 @@
           "incident": "1 incidente in corso · Checkout · offline dalle 10:12",
           "commits": "a41f2c9 10:09 Move Stripe keys to env vars",
           "answer": "Il checkout restituisce 503 dalle 10:12, tre minuti dopo che a41f2c9 ha spostato le chiavi Stripe nelle variabili d’ambiente. Vuoi che lo annulli?"
+        },
+        "debugAlt": "Una sessione nel terminale: avvisato che scegliere un piano non ha alcun effetto, un agente elenca gli errori su /pricing tramite il server MCP di Betterlytics, legge lo stack trace e la traccia della sessione del TypeError, apre pricing.js alla riga 142 e propone una correzione. Poi, alla domanda su quali errori correggere per primi, ordina gli errori della settimana per sessioni colpite e sceglie proprio quel TypeError.",
+        "debug": {
+          "question": "dicono che scegliere un piano non fa niente, puoi dare un’occhiata?",
+          "say": "Per prima cosa controllo gli errori su /pricing.",
+          "errors": "1206 TypeError in 318 sessioni",
+          "trace": "selectPlan (pricing.js:142) dopo plan_selected",
+          "code": "142  setPlan(selected.plan)",
+          "answer": "Se si clicca prima che i piani siano caricati, selected è ancora null. Vuoi che disattivi i pulsanti fino ad allora?"
+        },
+        "triage": {
+          "question": "quali errori dovrei sistemare per primi?",
+          "say": "Ordino gli errori di questa settimana.",
+          "groups": "TypeError 318 sessioni · ChunkLoadError 41 · RangeError 6",
+          "answer": "Inizia dal TypeError su 'plan'. Ha colpito 318 sessioni, più di sei volte gli altri due messi insieme."
         }
       }
     },
@@ -1931,6 +1947,210 @@
         "lede": "Attivalo nello script che hai già e, dove serve, collegalo al tuo banner di consenso. Il session replay è gratis in tutti i piani.",
         "primary": "Inizia a registrare gratis",
         "secondary": "Leggi la documentazione sul replay"
+      }
+    },
+    "errors": {
+      "seo": {
+        "title": "Tracciamento errori JavaScript con sessioni | Betterlytics",
+        "description": "Error tracking JavaScript: errori non gestiti e promise rifiutate, raggruppati per stack trace, con pagine ed eventi prima e dopo. Gratis in tutti i piani."
+      },
+      "hero": {
+        "eyebrow": "Tracciamento errori",
+        "title": "Cattura gli errori in cui incappano i visitatori, e scopri cosa li ha provocati",
+        "lede": "Individua quali bug colpiscono più visitatori, in quale punto del codice si verificano e cosa ha fatto poi ogni visitatore. Gratis in tutti i piani, nella stessa dashboard del tuo traffico e dei tuoi replay.",
+        "primary": "Inizia a tracciare gli errori gratis",
+        "secondary": "Leggi la documentazione"
+      },
+      "specs": {
+        "leadUp": {
+          "unit": "min",
+          "label": "Replay pre-errore",
+          "body": "Conserva fino a due minuti prima di un errore come replay, anche per le visite che di solito non registri."
+        },
+        "extensions": {
+          "unit": "errori da estensioni",
+          "label": "Solo i tuoi bug",
+          "body": "Gli errori delle estensioni del browser dei visitatori vengono ignorati e i bot vengono scartati prima di salvare qualsiasi cosa."
+        },
+        "script": {
+          "unit": "script",
+          "label": "Un solo script per tutto",
+          "body": "Analytics, errori e session replay si caricano da un unico tag script. Usi già Betterlytics? Basta un attributo."
+        },
+        "thesis": {
+          "unit": "cookie",
+          "label": "Niente cookie, niente IP",
+          "body": "Gli errori vengono salvati senza cookie, indirizzi IP né query string, così la privacy dei tuoi visitatori resta intatta."
+        }
+      },
+      "report": {
+        "title": "Da “non funziona” alla *riga 142*",
+        "lede": "La maggior parte dei visitatori che incappano in un bug se ne va senza dirtelo. Betterlytics mostra la riga che ha generato l’errore, il browser in cui è successo e quanto spesso.",
+        "guess": "Indovinare dalle segnalazioni",
+        "fix": "Correggere con lo stack trace",
+        "alt": "A sinistra scorre un flusso continuo di segnalazioni vaghe sulla pagina dei prezzi: la stessa email sull’upgrade impossibile ricevuta tre volte, qualcuno che scrive che scegliere un piano non fa nulla, una chat con il supporto, uno screenshot sfocato, un’ipotesi sul browser, un post-it con scritto “da me funziona”, un ticket P1 secondo cui gli upgrade falliscono da lunedì e una casella del supporto con 14 messaggi non letti. A destra, lo stesso bug come un unico gruppo di errori: un TypeError lanciato in selectPlan alla riga 142 di pricing.js e chiamato da onClick in plan-card.js, su Chrome per macOS in Danimarca, su /pricing, 1206 volte.",
+        "notes": {
+          "upgrade": "L’upgrade non va??",
+          "pricing": "solo a me la pagina prezzi non fa niente?",
+          "dead": "Il tasto Scegli piano non va",
+          "screenshot": "screenshot.png",
+          "phone": "pure a me, ma dal telefono",
+          "sticky": "Da me funziona",
+          "again": "Re: Re: ancora non va",
+          "chrome": "Uso Chrome, credo?",
+          "ticket": "Upgrade falliti da lunedì",
+          "inbox": "Inbox supporto",
+          "unread": "{count} non letti"
+        },
+        "inApp": "nell’app",
+        "occurrences": "occorrenze"
+      },
+      "trail": {
+        "title": "Scopri cosa hanno fatto *prima e dopo*",
+        "lede": "Lo stack trace mostra dove si è rotto il codice. Il resto della visita mostra cosa ha scatenato l’errore e cosa ha fatto poi il visitatore.",
+        "alt": "Una traccia di sessione con otto eventi. Prima dell’errore il visitatore è arrivato sulla homepage, ha aperto /pricing e ha scelto un piano. Il TypeError è arrivato un secondo dopo, lanciato in selectPlan alla riga 142 di pricing.js su Chrome 129 per macOS, da desktop in Danimarca. Dopo l’errore ha ricaricato /pricing, ha scelto di nuovo un piano, si è imbattuto nello stesso errore e invece di fare l’upgrade è andato su /contact.",
+        "label": "Traccia sessione",
+        "count": "{count} eventi in questa sessione",
+        "before": {
+          "label": "Cosa l’ha preceduto",
+          "body": "È arrivato sulla homepage, ha aperto la pagina prezzi e ha scelto un piano."
+        },
+        "thrown": {
+          "label": "Dove si è rotto",
+          "body": "Lanciato in selectPlan alla riga 142 di pricing.js, con il browser, il sistema operativo e il paese in cui si è verificato.",
+          "stacktrace": "Stack trace",
+          "mechanism": "Non gestito",
+          "inApp": "nell’app",
+          "more": "Mostra altri {count} frame",
+          "desktop": "Desktop"
+        },
+        "after": {
+          "label": "Com’è finita la visita",
+          "body": "Ha ricaricato, ha ritrovato l’errore e invece di fare l’upgrade è andato su /contact."
+        }
+      },
+      "triage": {
+        "title": "Smaltisci la lista *insieme*",
+        "body": "Gli stati sono condivisi con il tuo team, così tutti lavorano sulla stessa lista e nessuno insegue un bug già risolto.",
+        "cta": "Leggi la guida alla dashboard",
+        "items": {
+          "status": {
+            "title": "Risolvi, ignora, segna come non risolto",
+            "body": "Segna come risolti gli errori già corretti e ignora quelli che non contano, così la lista mostra solo i bug ancora da sistemare."
+          },
+          "history": {
+            "title": "Scopri chi colpisce",
+            "body": "Capisci se un errore sta crescendo o calando, e quali browser e dispositivi colpisce di più."
+          },
+          "filter": {
+            "title": "Filtra come nelle tue analytics",
+            "body": "Filtra gli errori per pagina, browser, sistema operativo, paese e altro, come nelle tue analytics, per capire se un bug colpisce solo alcuni visitatori."
+          },
+          "occurrences": {
+            "title": "Scorri le occorrenze",
+            "body": "Sfoglia ogni occorrenza con la sua visita e il suo dispositivo, e individua il pattern, ad esempio un bug che compare solo su iOS."
+          }
+        },
+        "art": {
+          "selected": "<count></count> selezionati",
+          "resolve": "Risolvi",
+          "ignore": "Ignora",
+          "occurrenceOf": "Occorrenza <number></number> di {total}",
+          "mobile": "Mobile",
+          "history": "Cronologia",
+          "days": "{count} giorni",
+          "desktop": "Desktop",
+          "pageIs": "Pagina è <value>/pricing</value>",
+          "browserIs": "Browser è <value>Safari</value>",
+          "addFilter": "Aggiungi filtro"
+        }
+      },
+      "agent": {
+        "title": "Passa il bug *al tuo agente*",
+        "lede": "Il tuo agente di coding può consultare gli errori tramite il server MCP integrato e lavorare alla correzione direttamente accanto al tuo codice.",
+        "lead": "Dalla lamentela alla correzione con una sola domanda",
+        "body": "Riporta la lamentela di un utente a Claude Code, Cursor o a qualsiasi client MCP. L’agente trova l’errore corrispondente, legge lo stack trace e la traccia della sessione e apre il file indicato dallo stack.",
+        "cta": "Configura MCP"
+      },
+      "setup": {
+        "title": "Inizia a catturare errori con *un solo* attributo",
+        "lede": "Scegli cosa catturare e copia lo snippet. Gira nello stesso script delle tue analytics.",
+        "lead": "Scegli cosa catturare",
+        "always": "Sempre attivo",
+        "options": {
+          "errors": {
+            "title": "Errori non gestiti e promise rifiutate",
+            "body": "Tutto ciò che il tuo codice lancia senza catturarlo, e le promise rifiutate senza un handler."
+          },
+          "console": {
+            "title": "Chiamate a console.error",
+            "body": "Invia anche ciò che la tua app scrive nei log come errore. Lascialo disattivato se i tuoi log possono contenere dati personali."
+          },
+          "replay": {
+            "title": "Replay prima dell’errore",
+            "body": "Conserva come replay fino a due minuti prima di ogni errore."
+          }
+        },
+        "snippetLabel": "Configurazione del tracciamento errori",
+        "cta": "Leggi la guida alla configurazione"
+      },
+      "related": {
+        "lede": "Il tracciamento errori è solo una parte di Betterlytics. Tutto ciò che trovi qui sotto condivide lo script, il login e la fattura."
+      },
+      "faq": {
+        "title": "Domande frequenti",
+        "items": {
+          "what": {
+            "q": "Cos’è il tracciamento errori?",
+            "a": "Il tracciamento errori, detto anche monitoraggio degli errori o error tracking, registra gli errori JavaScript in cui si imbattono i tuoi visitatori e raggruppa le ripetizioni dello stesso bug, così vedi quali si verificano più spesso. Betterlytics li cattura con lo stesso script che traccia le tue visualizzazioni di pagina e, per ognuno, conserva la sessione in cui si è verificato."
+          },
+          "free": {
+            "q": "Il tracciamento errori è gratuito?",
+            "a": "Sì. È incluso in tutti i piani, compreso quello gratuito. Ogni errore conta come un evento nel tuo limite mensile, proprio come una visualizzazione di pagina."
+          },
+          "captured": {
+            "q": "Quali errori vengono catturati?",
+            "a": "Le eccezioni non gestite e le promise rifiutate non gestite, ognuna con il suo stack trace e la pagina in cui si è verificata. Puoi catturare anche le chiamate a console.error. Una richiesta fallita viene catturata solo se il tuo codice non ne gestisce l’errore. I caricamenti falliti di immagini e script sono esclusi, perché ad blocker e connessioni instabili ne riempirebbero la tua lista."
+          },
+          "server": {
+            "q": "Cattura anche gli errori lato server?",
+            "a": "No. Copre gli errori frontend, cioè il JavaScript che gira nei browser dei tuoi visitatori. Gli errori nel codice del server, nelle route API o nei job in background non vengono catturati."
+          },
+          "filtered": {
+            "q": "Gli errori di estensioni del browser e bot vengono filtrati?",
+            "a": "Sì. Lo script ignora gli errori il cui stack trace punta a un’estensione del browser, così l’ad blocker o il password manager di un visitatore non compare come un tuo bug. Gli errori di bot, browser headless e strumenti di test come Playwright vengono scartati prima di essere salvati, proprio come le loro visualizzazioni di pagina."
+          },
+          "frameworks": {
+            "q": "Funziona con React, Next.js e Vue?",
+            "a": "Sì. Lo script cattura gli errori su qualsiasi sito, con qualunque framework. Gli errori che un framework intercetta da solo, come in un error boundary di React o nell’error handler di Vue, di solito vengono registrati con console.error invece di essere lanciati, quindi attiva la cattura di console.error per vedere anche quelli."
+          },
+          "grouped": {
+            "q": "Come vengono raggruppati gli errori?",
+            "a": "Tutte le occorrenze dello stesso bug finiscono in un unico gruppo con un conteggio progressivo, così ogni bug compare una sola volta nella tua lista anziché ogni volta che un visitatore lo incontra. Gli errori dello stesso tipo generati nello stesso punto del codice contano come un unico bug, anche quando i messaggi sono diversi."
+          },
+          "sourcemaps": {
+            "q": "Supportate le source map?",
+            "a": "No. Gli stack trace mostrano il codice così come l’ha eseguito il browser, quindi i frame di un bundle minificato puntano al file minificato."
+          },
+          "privacy": {
+            "q": "Il tracciamento errori raccoglie dati personali?",
+            "a": "Come il resto di Betterlytics, non usa cookie. I messaggi vengono conservati così come li ha scritti il tuo codice, quindi tienili privi di dati personali e lascia disattivata la cattura della console se i tuoi log possono contenerne."
+          },
+          "quota": {
+            "q": "Un loop impazzito può esaurire i miei eventi?",
+            "a": "Ogni pagina invia al massimo 10 errori dello stesso tipo ogni 10 secondi, quindi anche un loop che lancia un errore a ogni frame resta contenuto. Ignorare un gruppo lo nasconde dall’elenco, ma le nuove occorrenze continuano a contare come eventi finché non risolvi la causa."
+          },
+          "replay": {
+            "q": "Come funziona con il session replay?",
+            "a": "Se una visita con un errore è stata registrata, l’errore rimanda al suo replay, con un indicatore rosso per ogni errore nella cronologia. Puoi inoltre conservare fino a due minuti prima di ogni errore come replay, anche per le visite che il session replay non registrerebbe."
+          }
+        }
+      },
+      "cta": {
+        "title": "Cattura il tuo primo errore oggi stesso",
+        "lede": "Aggiungi lo script di Betterlytics, o un attributo se lo hai già, e gli errori iniziano ad arrivare nella tua dashboard. Gratis in tutti i piani.",
+        "primary": "Inizia a tracciare gli errori gratis",
+        "secondary": "Leggi la documentazione sugli errori"
       }
     }
   },

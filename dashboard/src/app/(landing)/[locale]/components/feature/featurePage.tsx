@@ -13,7 +13,7 @@ import { landingClientMessages } from '@/landing/lib/clientMessages';
 
 type Props = { params: Promise<{ locale: SupportedLanguages }> };
 
-export function featurePage(feature: 'uptime' | 'replay', path: string, Content: ComponentType) {
+export function featurePage(feature: 'uptime' | 'replay' | 'errors', path: string, Content: ComponentType) {
   async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { locale } = await params;
     setRequestLocale(locale);
