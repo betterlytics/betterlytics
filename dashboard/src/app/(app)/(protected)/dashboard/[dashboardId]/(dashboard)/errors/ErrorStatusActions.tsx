@@ -37,7 +37,7 @@ export function ErrorStatusActions({
       <Button
         variant='outline'
         size='sm'
-        className='cursor-pointer rounded-r-none border-r-0'
+        className='cursor-pointer rounded-r-none border-r-0 focus-visible:z-10'
         disabled={!canResolve || isPending}
         onClick={onResolve}
       >
@@ -49,7 +49,7 @@ export function ErrorStatusActions({
           <Button
             variant='outline'
             size='sm'
-            className='cursor-pointer rounded-l-none px-1.5'
+            className='cursor-pointer rounded-l-none px-1.5 focus-visible:z-10'
             disabled={dropdownDisabled}
           >
             <ChevronDown className='h-3.5 w-3.5' />
