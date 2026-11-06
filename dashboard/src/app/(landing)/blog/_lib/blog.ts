@@ -7,7 +7,7 @@ export const BLOG_LOCALE = 'en';
 export const BLOG_COPY = {
   title: 'Blog',
   description:
-    'Writing from the Betterlytics team on privacy-first analytics, GDPR, and how we build a cookieless analytics product.',
+    'Guides to privacy-friendly analytics, engineering notes and product news from the team building Betterlytics.',
 };
 
 export const BLOG_CTA = {
