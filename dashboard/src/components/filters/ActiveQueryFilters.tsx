@@ -280,18 +280,9 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
     };
   }, [expanded]);
 
-  const expand = () => {
-    const firstHidden = count - hidden;
-    flushSync(() => setState('expanded'));
-    rowRef.current
-      ?.querySelectorAll(':scope > [data-filter-pill]')
-      [firstHidden]?.querySelector<HTMLElement>('[data-pill-part]')
-      ?.focus({ preventScroll: true });
-  };
-
   const toggleable = hidden > 0;
 
-  const toggle = () => (expanded ? setState('collapsing') : expand());
+  const toggle = () => setState(expanded ? 'collapsing' : 'expanded');
 
   // Anywhere but a live control toggles the band
   const handleBandClick = (event: MouseEvent<HTMLElement>) => {
@@ -393,7 +384,7 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
               data-band-toggle=''
               aria-expanded={expanded}
               aria-label={t('toggleFilters')}
-              onClick={() => setState(expanded ? 'collapsing' : 'expanded')}
+              onClick={toggle}
               className='group/toggle grid size-8.5 cursor-pointer place-items-center outline-none'
             >
               <ChevronDown
