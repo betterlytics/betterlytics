@@ -65,6 +65,17 @@ export const onboardingEmailsJobDefinition = {
   saasOnly: true,
 } as const satisfies JobDefinition;
 
+export const trackingSilentAlertsJobDefinition = {
+  name: 'tracking-silent-alerts',
+  schedule: '0 * * * *',
+  retryLimit: 3,
+  retryBackoff: true,
+  expireInSeconds: 600,
+  policy: 'exclusive',
+  deadLetter: undefined,
+  saasOnly: true,
+} as const satisfies JobDefinition;
+
 export const telemetryPingJobDefinition = {
   name: 'telemetry-ping',
   schedule: '0 * * * *',
@@ -83,6 +94,7 @@ export const JOB_DEFINITIONS = [
   retentionPurgeJobDefinition,
   subscriptionEndingScanJobDefinition,
   onboardingEmailsJobDefinition,
+  trackingSilentAlertsJobDefinition,
   telemetryPingJobDefinition,
 ] as const;
 

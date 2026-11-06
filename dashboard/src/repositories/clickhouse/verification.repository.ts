@@ -1,25 +1,29 @@
-import { clickhouse } from "@/lib/clickhouse";
-import { safeSql } from "@/lib/safe-sql";
+import { clickhouse } from '@/lib/clickhouse';
+import { safeSql } from '@/lib/safe-sql';
 
-export async function hasAnalyticsData(siteId: string): Promise<boolean> {
-  try {
-    const query = safeSql`
-      SELECT 1
-      FROM analytics.events 
+export async function getLastEventAt(siteId: string): Promise<Date | null> {
+  // usage_daily's last active day bounds the events scan to that day onwards
+  const query = safeSql`
+    WITH (
+      SELECT max(date)
+      FROM analytics.usage_daily
       WHERE site_id = {site_id:String}
-      LIMIT 1
-    `;
+    ) AS last_active_day
+    SELECT toUnixTimestamp(max(timestamp)) AS lastEventAt
+    FROM analytics.events
+    WHERE site_id = {site_id:String}
+      AND toDate(timestamp) >= last_active_day
+  `;
 
-    const result = await clickhouse.query(query.taggedSql, {
+  const result = (await clickhouse
+    .query(query.taggedSql, {
       params: {
         ...query.taggedParams,
         site_id: siteId,
       },
-    }).toPromise();
-    
-    return result.length > 0;
-  } catch (error) {
-    console.error('Error checking analytics data existence:', error);
-    return false;
-  }
-} 
+    })
+    .toPromise()) as Array<{ lastEventAt: number | string }>;
+
+  const seconds = Number(result[0]?.lastEventAt ?? 0);
+  return seconds > 0 ? new Date(seconds * 1000) : null;
+}
