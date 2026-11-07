@@ -1,13 +1,14 @@
 'use client';
 
-import { memo, useEffect, useState } from 'react';
-import NumberFlow, { NumberFlowGroup } from '@number-flow/react';
+import { useEffect, useState } from 'react';
+import { NumberFlowGroup } from '@number-flow/react';
 import { useReducedMotion } from 'motion/react';
-import { useLocale, useTranslations } from 'next-intl';
-import { Gauge, getGaugeBox } from '@/components/gauge';
+import { useTranslations } from 'next-intl';
+import { getGaugeBox } from '@/components/gauge';
 import { MOCK_CORE_WEB_VITAL_VALUES } from '@/constants/coreWebVitals';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
-import { getCoreWebVitalGaugeProps, getCoreWebVitalIntlFormat, getCoreWebVitalLevel } from '@/utils/coreWebVitals';
+import { VitalGauge } from '@/landing/components/ui/vitalGauge';
+import levels from '@/landing/components/ui/vitalLevels.module.css';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
 import type { IllustrationProps } from './types';
@@ -37,41 +38,6 @@ const LEGEND = [
   { key: 'poor', swatch: 'bg-(--cwv-threshold-poor)' },
 ] as const;
 
-const MetricGauge = memo(function MetricGauge({
-  metric,
-  value,
-  drawn,
-}: {
-  metric: CoreWebVitalName;
-  value: number;
-  drawn: boolean;
-}) {
-  const { segments, progress } = getCoreWebVitalGaugeProps(metric, value);
-  const locale = useLocale();
-  const format = getCoreWebVitalIntlFormat(metric, value);
-  return (
-    <div className={styles.slot}>
-      {/* sets the track colour, drawn in currentColor */}
-      <Gauge
-        className='text-fg'
-        segments={segments}
-        progress={drawn ? progress : 0}
-        size={SIZE}
-        strokeWidth={STROKE}
-        arcGap={ARC_GAP}
-      >
-        <div className='absolute inset-x-0 bottom-[20%] flex flex-col items-center'>
-          <span className='-mb-0.5 text-[10.5px] font-semibold tracking-[0.12em] text-muted'>{metric}</span>
-          <span className={styles.value} data-level={getCoreWebVitalLevel(metric, value)}>
-            <NumberFlow value={format.value} format={format.format} locales={locale} willChange />
-            {format.suffix && <span key={format.suffix}>{format.suffix}</span>}
-          </span>
-        </div>
-      </Gauge>
-    </div>
-  );
-});
-
 function CyclingGauge({
   metric,
   intervalMs,
@@ -95,7 +61,18 @@ function CyclingGauge({
     return () => clearInterval(id);
   }, [live, reduce, intervalMs, values.length]);
 
-  return <MetricGauge metric={metric} value={values[index]} drawn={entered} />;
+  return (
+    <div className={styles.slot}>
+      <VitalGauge
+        metric={metric}
+        value={values[index]}
+        drawn={entered}
+        size={SIZE}
+        strokeWidth={STROKE}
+        arcGap={ARC_GAP}
+      />
+    </div>
+  );
 }
 
 export function Vitals({ entered, live }: IllustrationProps) {
@@ -103,7 +80,7 @@ export function Vitals({ entered, live }: IllustrationProps) {
   return (
     <div
       className={cn(
-        styles.root,
+        levels.levels,
         'absolute inset-0 flex flex-col items-center justify-center gap-3.5 px-[30px] py-6',
       )}
       style={vars({ '--box-w': `${BOX.width}px`, '--box-h': `${BOX.height}px` })}
