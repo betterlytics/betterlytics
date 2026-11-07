@@ -1,13 +1,24 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 import type { McpContext } from '@/mcp/context';
 
+const RESOURCE_METADATA = vi.hoisted(
+  () => 'https://betterlytics.example/.well-known/oauth-protected-resource/api/mcp',
+);
+
 const mocks = vi.hoisted(() => ({
   validateToken: vi.fn(),
+  validateOAuthToken: vi.fn(),
+  oauthEnabled: false,
   executeQuery: vi.fn(async () => ({ ok: true })),
 }));
 
 vi.mock('@/mcp/auth/token', () => ({ validateToken: mocks.validateToken }));
+vi.mock('@/mcp/auth/oauth-token', () => ({ validateOAuthToken: mocks.validateOAuthToken }));
+vi.mock('@/mcp/auth/oauth', () => ({
+  isMcpOAuthEnabled: () => mocks.oauthEnabled,
+  MCP_RESOURCE_METADATA_URL: RESOURCE_METADATA,
+}));
 vi.mock('@/lib/feature-flags', () => ({ isFeatureEnabled: () => false }));
 // The tool modules are kept for their input schemas; the services behind them are never reached.
 vi.mock('@/lib/env', () => ({ env: {} }));
@@ -45,13 +56,13 @@ const toolCall = (name: string, args: Record<string, unknown>, id = 1) => ({
   params: { name, arguments: args },
 });
 
-function post(body: unknown) {
+function post(body: unknown, authorization: string | null = 'Bearer btl_test') {
   mocks.executeQuery.mockClear();
   return POST(
     new NextRequest('http://localhost/api/mcp', {
       method: 'POST',
       headers: {
-        authorization: 'Bearer btl_test',
+        ...(authorization ? { authorization } : {}),
         'content-type': 'application/json',
         accept: 'application/json, text/event-stream',
       },
@@ -167,5 +178,84 @@ describe('POST /api/mcp', () => {
 
     expect((await callTool('no_such_tool')).status).toBe(429);
     expect((await callTool('query', QUERY_ARGS)).status).toBe(429);
+  });
+});
+
+describe('POST /api/mcp authentication', () => {
+  const LIST = { jsonrpc: '2.0', id: 1, method: 'tools/list' };
+  const context = severalDashboards('auth');
+
+  beforeEach(() => {
+    mocks.validateToken.mockReset();
+    mocks.validateOAuthToken.mockReset();
+  });
+  afterEach(() => {
+    mocks.oauthEnabled = false;
+  });
+
+  describe('on cloud', () => {
+    beforeEach(() => {
+      mocks.oauthEnabled = true;
+    });
+
+    it('points a call without a token to the protected resource metadata', async () => {
+      const response = await post(LIST, null);
+
+      expect(response.status).toBe(401);
+      expect(response.headers.get('WWW-Authenticate')).toBe(
+        `Bearer realm="betterlytics-mcp", resource_metadata="${RESOURCE_METADATA}"`,
+      );
+    });
+
+    it('checks any other bearer as an OAuth access token', async () => {
+      mocks.validateOAuthToken.mockResolvedValue({ valid: true, context });
+
+      const response = await post(LIST, 'Bearer eyJ.oauth.token');
+
+      expect(response.status).toBe(200);
+      expect(mocks.validateOAuthToken).toHaveBeenCalledWith('eyJ.oauth.token');
+      expect(mocks.validateToken).not.toHaveBeenCalled();
+    });
+
+    it('keeps checking personal tokens as before', async () => {
+      mocks.validateToken.mockResolvedValue({ valid: true, context });
+
+      expect((await post(LIST, 'Bearer btl_personal')).status).toBe(200);
+      expect(mocks.validateToken).toHaveBeenCalledWith('btl_personal');
+      expect(mocks.validateOAuthToken).not.toHaveBeenCalled();
+    });
+
+    it('answers a revoked OAuth token with an invalid_token challenge', async () => {
+      mocks.validateOAuthToken.mockResolvedValue({ valid: false, reason: 'Access has been revoked' });
+
+      const response = await post(LIST, 'Bearer eyJ.revoked');
+
+      expect(response.status).toBe(401);
+      expect(response.headers.get('WWW-Authenticate')).toBe(
+        `Bearer realm="betterlytics-mcp", resource_metadata="${RESOURCE_METADATA}", error="invalid_token", error_description="Access has been revoked"`,
+      );
+    });
+  });
+
+  describe('on self-host', () => {
+    it('keeps the plain challenge for a call without a token', async () => {
+      const response = await post(LIST, null);
+
+      expect(response.status).toBe(401);
+      expect(response.headers.get('WWW-Authenticate')).toBe('Bearer realm="betterlytics-mcp"');
+    });
+
+    it('treats any token as a personal token', async () => {
+      mocks.validateToken.mockResolvedValue({ valid: false, reason: 'Invalid MCP token' });
+
+      const response = await post(LIST, 'Bearer eyJ.oauth.token');
+
+      expect(response.status).toBe(401);
+      expect(mocks.validateToken).toHaveBeenCalledWith('eyJ.oauth.token');
+      expect(mocks.validateOAuthToken).not.toHaveBeenCalled();
+      expect(response.headers.get('WWW-Authenticate')).toBe(
+        'Bearer realm="betterlytics-mcp", error="invalid_token", error_description="Invalid MCP token"',
+      );
+    });
   });
 });
