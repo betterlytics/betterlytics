@@ -12,7 +12,7 @@ import * as SettingsRepository from '@/repositories/postgres/dashboardSettings.r
 import { findDashboardOwner } from '@/repositories/postgres/dashboard.repository';
 import { getUserSubscription } from '@/repositories/postgres/subscription.repository';
 import { UNLIMITED_DATA_RETENTION_DAYS } from '@/lib/billing/capabilities';
-import { getPlan } from '@/lib/billing/catalog';
+import { entitledPlan } from '@/lib/billing/catalog';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { UserException } from '@/lib/exceptions';
 
@@ -75,7 +75,7 @@ async function assertRetentionWithinPlan(dashboardId: string, updates: Dashboard
     throw new Error(`No subscription found for user ${owner.userId} during retention validation`);
   }
 
-  const maxRetentionDays = getPlan(subscription.planId).capabilities.dataRetention.maxDataRetentionDays;
+  const maxRetentionDays = entitledPlan(subscription).capabilities.dataRetention.maxDataRetentionDays;
   if (updates.dataRetentionDays > maxRetentionDays) {
     throw new UserException(`Your current plan supports up to ${maxRetentionDays} days of data retention.`);
   }

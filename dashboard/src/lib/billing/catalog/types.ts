@@ -1,6 +1,6 @@
 import type { PlanCapabilities } from '@/lib/billing/capabilities';
 
-export const PLAN_IDS = ['growth', 'professional', 'enterprise', 'free', 'plus', 'business'] as const;
+export const PLAN_IDS = ['free', 'plus', 'business', 'enterprise', 'growth'] as const;
 export type PlanId = (typeof PLAN_IDS)[number];
 
 export const PLAN_CURRENCIES = ['USD', 'EUR'] as const;
@@ -31,38 +31,40 @@ export type PlanService = {
 };
 
 /**
- * A pricing-card line. Limit lines (sites, members, retention, uptime) are worded from the plan's
- * capabilities; `feature` lines are fixed keys under `pricingCards.features`.
+ * A pricing-card line. Limit lines (sites, members, retention, uptime, replays) are worded from the
+ * plan's capabilities; `feature` lines are fixed keys under `pricingCards.features`.
  */
 export type PlanHighlight =
-  | { kind: 'events' }
   | { kind: 'everythingIn'; planId: PlanId }
   | { kind: 'sites' }
   | { kind: 'members' }
   | { kind: 'retention' }
   | { kind: 'uptime' }
   | { kind: 'statusPages' }
+  | { kind: 'replays' }
   | {
       kind: 'feature';
       key:
         | 'fullDashboard'
         | 'funnelsJourneys'
-        | 'sessionReplay'
         | 'errorTracking'
+        | 'advancedChecks'
         | 'statusPagesPro'
         | 'statusPageCustomDomain'
         | 'prioritySupport'
         | 'emailReports'
-        | 'customEventVolume'
-        | 'dedicatedSupport'
-        | 'slaGuarantee';
+        | 'samlSso'
+        | 'auditLog'
+        | 'slaGuarantee'
+        | 'dpaSecurityReviews'
+        | 'customRetention'
+        | 'customContracts';
     };
 
 export type PlanDefinition = {
   id: PlanId;
   /** Brand name, shown untranslated in every locale, emails and Stripe. */
   name: string;
-  shortName: string;
   listed: boolean;
   /** Bought through checkout; false means "talk to us". */
   selfServe: boolean;

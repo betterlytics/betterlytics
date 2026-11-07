@@ -6,7 +6,7 @@ export const matomo: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Matomo: Modern, Lightweight Alternative',
     description:
-      'Compare Betterlytics to Matomo Cloud. Get modern analytics without complexity, plugins, or server management. Session replay and monitoring included. Starts at $7/month.',
+      'Compare Betterlytics to Matomo Cloud. Get modern analytics without complexity, plugins, or server management. Session replay and monitoring included. Starts at $9/month.',
   },
   hero: {
     title: 'Looking for a Matomo Alternative?',
@@ -27,7 +27,7 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Simple Pricing',
-      betterlytics: 'Free tier available. Paid plans from $7/month, everything included.',
+      betterlytics: 'Free tier available. Paid plans from $9/month, every module included.',
       competitor:
         'Self-hosted has infrastructure and maintenance costs. Cloud plans start higher with paid add-ons.',
     },
@@ -112,12 +112,12 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Real Cost of "Free"',
-      content: `Matomo's self-hosted version is free to download, but you're paying for servers, maintenance time, and premium plugins like session recording. Matomo Cloud starts at $19/month and scales with pageviews.\n\nBetterlytics has a free tier for small sites. Paid plans start at $7/month with everything included: session replay, monitoring, no add-on fees. What you see is what you pay.`,
+      content: `Matomo's self-hosted version is free to download, but you're paying for servers, maintenance time, and premium plugins like session recording. Matomo Cloud starts at $19/month and scales with pageviews.\n\nBetterlytics has a free tier for small sites. Paid plans start at $9/month, and every plan includes session replay and monitoring with no add-on fees. What you see is what you pay.`,
       icon: 'dollar',
     },
     {
       title: 'Everything in One Place',
-      content: `Matomo has comprehensive analytics, but session recording is a paid plugin and there's no uptime monitoring. The interface is powerful but can feel overwhelming.\n\nBetterlytics bundles analytics, session replay, uptime monitoring with alerts via Slack, Discord, and Teams, and performance tracking together. One clean interface, no plugins to buy, no paywalls on paid plans.`,
+      content: `Matomo has comprehensive analytics, but session recording is a paid plugin and there's no uptime monitoring. The interface is powerful but can feel overwhelming.\n\nBetterlytics bundles analytics, session replay, uptime monitoring with alerts via Slack, Discord, and Teams, and performance tracking together. One clean interface, no plugins to buy, and every module on every plan.`,
       icon: 'layers',
     },
   ],

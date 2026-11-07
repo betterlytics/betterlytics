@@ -26,7 +26,10 @@ interface DevWidgetProps {
   initialPlanId: PlanId;
 }
 
-const PLAN_OPTIONS = PLAN_IDS.map((planId) => ({ value: planId, label: getPlan(planId).name }));
+const PLAN_OPTIONS = PLAN_IDS.map(getPlan).map((plan) => ({
+  value: plan.id,
+  label: plan.listed ? plan.name : `${plan.name} (${plan.id})`,
+}));
 
 const THEMES = [
   { value: 'light', label: 'Light' },
