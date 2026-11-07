@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { getAdminUsersAction } from '@/actions/admin/users.action';
 import { AdminUserStatusSchema, type AdminUserStatus } from '@/entities/admin/adminUser.entities';
-import { WarningBanner } from '@/components/WarningBanner';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { AdminPage } from '@/app/(app)/(protected)/admin/_components/AdminPage';
 import { AdminPagination } from '@/app/(app)/(protected)/admin/_components/AdminPagination';
@@ -40,11 +40,12 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
       }
     >
       {actor.edition === 'selfhost' && !actor.twoFactorEnabled && (
-        <WarningBanner
-          className='mb-6'
-          title='Protect your admin account with two-factor authentication'
-          description='Admins can disable, delete and reset every user here. Turn it on under Settings, Account.'
-        />
+        <Alert variant='warning' className='mb-6'>
+          <AlertTitle>Protect your admin account with two-factor authentication</AlertTitle>
+          <AlertDescription>
+            Admins can disable, delete and reset every user here. Turn it on under Settings, Account.
+          </AlertDescription>
+        </Alert>
       )}
 
       <div className='mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>

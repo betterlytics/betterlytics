@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Info } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Label } from '@/components/ui/label';
 import { type SlugStatus } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/constants';
 import { SlugField } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/SlugField';
@@ -38,10 +38,9 @@ export function PublishPanel({ form, slugStatus, publicHost, domain }: PublishPa
         <VisibilityRadioGroup value={form.visibility} onChange={(visibility) => form.patch({ visibility })} />
       </div>
 
-      <div className='border-border bg-muted/40 text-muted-foreground flex items-start gap-2.5 rounded-lg border px-3.5 py-3 text-xs leading-relaxed'>
-        <Info className='mt-0.5 h-3.5 w-3.5 flex-none' aria-hidden />
-        <span>{t('studio.customDomainLater', { domain })}</span>
-      </div>
+      <Alert variant='neutral'>
+        <AlertDescription>{t('studio.customDomainLater', { domain })}</AlertDescription>
+      </Alert>
     </div>
   );
 }
