@@ -147,7 +147,7 @@ export function PricingPanel() {
   const lastIndex = VOLUME_STOPS.length - 1;
   const featuresFor = usePlanFeatures(events);
 
-  const sales: PlanCta = { label: t('enterprise.cta'), destination: 'contact' };
+  const sales: PlanCta = { label: t('contactCta'), destination: 'contact' };
   // spelled as the shared feature labels spell it, so WithVolume can split on it
   const volume = { value: events, figure: formatEventCount(events, locale) };
 
@@ -230,14 +230,14 @@ export function PricingPanel() {
                 pick={plan.featured}
                 name={plan.name}
                 badge={plan.featured ? t('badge') : undefined}
-                tagline={t(`${plan.id}.tagline`)}
+                tagline={t(`plans.${plan.id}.tagline`)}
                 price={cents === null ? t('custom') : free ? t('free') : cents}
                 period={cents === null || free ? undefined : t('perMonth')}
                 features={featuresFor(plan)}
                 cta={
                   quoted
                     ? sales
-                    : { label: free ? t('ctaFree') : t(`${plan.id}.cta`), destination: 'signup' }
+                    : { label: free ? t('ctaFree') : t('cta'), destination: 'signup' }
                 }
               />
             );
