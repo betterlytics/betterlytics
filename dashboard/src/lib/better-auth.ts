@@ -42,6 +42,7 @@ import {
 import { isMcpOAuthEnabled, MCP_CONSENT_PATH, MCP_READ_SCOPE, MCP_RESOURCE } from '@/mcp/auth/oauth';
 import { acceptMcpRedirectUri } from '@/mcp/auth/redirect-uri';
 import { withMcpAuthorizationDefaults } from '@/mcp/auth/authorize-request';
+import { withoutDpopClientMetadata, withoutDpopInput } from '@/mcp/auth/dpop';
 
 // better-auth only enforces password length; these body fields get our full policy.
 const PASSWORD_POLICY_FIELDS: Record<string, string> = {
@@ -93,7 +94,10 @@ function mcpOAuthPlugins() {
       clientPrivileges: () => false,
       resourcePrivileges: () => false,
     }),
-    cimd({ fetchClientMetadataResource, metadataProfile: 'mcp-2026-07-28' }),
+    cimd({
+      fetchClientMetadataResource: withoutDpopClientMetadata(fetchClientMetadataResource),
+      metadataProfile: 'mcp-2026-07-28',
+    }),
   ];
 }
 
@@ -194,10 +198,15 @@ export const auth = betterAuth({
       }
 
       if (ctx.path === '/oauth2/authorize' && isMcpOAuthEnabled()) {
+        withoutDpopInput(ctx.method === 'POST' ? ctx.body : ctx.query, 'dpop_jkt');
         if (ctx.method === 'POST') {
           return { context: { body: withMcpAuthorizationDefaults(ctx.body ?? {}) } };
         }
         return { context: { query: withMcpAuthorizationDefaults(ctx.query ?? {}) } };
+      }
+
+      if (ctx.path === '/oauth2/register' && isMcpOAuthEnabled()) {
+        withoutDpopInput(ctx.body, 'dpop_bound_access_tokens');
       }
 
       // OAuth-only and disabled accounts get no reset token; the response must match the unknown-email case

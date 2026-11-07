@@ -1,4 +1,4 @@
-import { auth } from '@/lib/better-auth';
+import { handleAuthRequest } from '@/mcp/auth/auth-handler';
 import { isMcpOAuthEnabled } from '@/mcp/auth/oauth';
 
 type DiscoveryParams = { params: Promise<{ path?: string[] }> };
@@ -14,7 +14,7 @@ export function discoveryRoute(paths: Record<string, string>) {
     if (!isMcpOAuthEnabled() || target === undefined) {
       return new Response('Not Found', { status: 404 });
     }
-    return auth.handler(
+    return handleAuthRequest(
       new Request(new URL(target, request.url), { method: request.method, headers: request.headers }),
     );
   };
