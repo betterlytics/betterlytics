@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
 import { z } from 'zod';
 import { checkMcpRateLimit, isOversizedBatch, rateLimitKeys } from '@/mcp/rate-limit';
 import type { McpContext } from '@/mcp/context';
@@ -196,5 +196,48 @@ describe('checkMcpRateLimit', () => {
       expect(checkMcpRateLimit(['site-free', 'mcp-token:free']).allowed).toBe(true);
     }
     expect(checkMcpRateLimit(['site-free']).allowed).toBe(false);
+  });
+
+  it('counts a repeated key once per occurrence and records nothing when they do not all fit', () => {
+    checkMcpRateLimit(Array<string>(58).fill('site-repeat'));
+
+    expect(checkMcpRateLimit(Array<string>(3).fill('site-repeat')).allowed).toBe(false);
+
+    expect(checkMcpRateLimit(['site-repeat', 'site-repeat']).allowed).toBe(true);
+    expect(checkMcpRateLimit(['site-repeat']).allowed).toBe(false);
+  });
+
+  describe('retry time', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('reports when enough slots are free for a repeated key', () => {
+      checkMcpRateLimit(['site-retry']);
+      vi.advanceTimersByTime(10_000);
+      checkMcpRateLimit(['site-retry']);
+      vi.advanceTimersByTime(10_000);
+      checkMcpRateLimit(Array<string>(58).fill('site-retry'));
+
+      // At 20s all 60 slots are taken, and two free up once the second request leaves at 70s.
+      const { allowed, retryAfterMs } = checkMcpRateLimit(['site-retry', 'site-retry']);
+      expect({ allowed, retryAfterMs }).toEqual({ allowed: false, retryAfterMs: 50_000 });
+
+      vi.advanceTimersByTime(retryAfterMs);
+      expect(checkMcpRateLimit(['site-retry', 'site-retry']).allowed).toBe(true);
+    });
+
+    it('reports the key that takes longest to free up', () => {
+      checkMcpRateLimit(Array<string>(60).fill('site-early'));
+      vi.advanceTimersByTime(30_000);
+      checkMcpRateLimit(Array<string>(60).fill('site-late'));
+
+      expect(checkMcpRateLimit(['site-early', 'site-late'])).toEqual({ allowed: false, retryAfterMs: 60_000 });
+    });
   });
 });

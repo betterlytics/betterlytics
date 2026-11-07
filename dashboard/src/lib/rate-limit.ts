@@ -6,20 +6,12 @@ const SWEEP_INTERVAL_MS = 5 * 60_000;
 
 export type RateLimitResult = { allowed: boolean; retryAfterMs: number };
 
-export function createSlidingWindowLimiter(
-  windowMs: number,
-  maxRequests: number,
-): (key: string) => RateLimitResult {
-  const checkAll = createAllOrNothingLimiter(windowMs, maxRequests);
-  return (key) => checkAll([key]);
-}
+export type SlidingWindow = {
+  retryAfterMs(key: string, count?: number): number;
+  record(key: string, count?: number): void;
+};
 
-// Checks several requests as one unit, where a key that repeats takes one slot per occurrence: either
-// every request fits and all are recorded, or none is recorded and retryAfterMs says when they all fit.
-export function createAllOrNothingLimiter(
-  windowMs: number,
-  maxRequests: number,
-): (keys: readonly string[]) => RateLimitResult {
+export function createSlidingWindow(windowMs: number, maxRequests: number): SlidingWindow {
   const windows = new Map<string, number[]>();
 
   setInterval(() => {
@@ -31,7 +23,9 @@ export function createAllOrNothingLimiter(
     }
   }, SWEEP_INTERVAL_MS).unref();
 
-  function liveTimestamps(key: string, cutoff: number): number[] {
+  function liveTimestamps(key: string, now: number): number[] {
+    const cutoff = now - windowMs;
+
     let timestamps = windows.get(key);
     if (!timestamps) {
       timestamps = [];
@@ -48,30 +42,32 @@ export function createAllOrNothingLimiter(
     return timestamps;
   }
 
-  return function check(keys: readonly string[]): RateLimitResult {
-    const now = Date.now();
-    const cutoff = now - windowMs;
-
-    const requested = new Map<string, number>();
-    for (const key of keys) {
-      requested.set(key, (requested.get(key) ?? 0) + 1);
-    }
-
-    let retryAfterMs = 0;
-    for (const [key, count] of requested) {
-      const timestamps = liveTimestamps(key, cutoff);
+  return {
+    retryAfterMs(key, count = 1) {
+      if (count > maxRequests) return Infinity;
+      const now = Date.now();
+      const timestamps = liveTimestamps(key, now);
       const excess = timestamps.length + count - maxRequests;
-      if (excess > 0) {
-        // More requests than the limit never fit, so the longest honest answer is a whole window.
-        const freesSlotAt = timestamps[excess - 1] ?? now;
-        retryAfterMs = Math.max(retryAfterMs, freesSlotAt + windowMs - now);
-      }
-    }
+      return excess > 0 ? timestamps[excess - 1]! + windowMs - now : 0;
+    },
+    record(key, count = 1) {
+      const now = Date.now();
+      liveTimestamps(key, now).push(...Array<number>(count).fill(now));
+    },
+  };
+}
+
+export function createSlidingWindowLimiter(
+  windowMs: number,
+  maxRequests: number,
+): (key: string) => RateLimitResult {
+  const slidingWindow = createSlidingWindow(windowMs, maxRequests);
+
+  return function check(key: string): RateLimitResult {
+    const retryAfterMs = slidingWindow.retryAfterMs(key);
     if (retryAfterMs > 0) return { allowed: false, retryAfterMs };
 
-    for (const [key, count] of requested) {
-      windows.get(key)!.push(...Array<number>(count).fill(now));
-    }
+    slidingWindow.record(key);
     return { allowed: true, retryAfterMs: 0 };
   };
 }

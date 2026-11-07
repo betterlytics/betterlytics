@@ -7,24 +7,34 @@ import {
   JSONRPCMessageSchema,
   SUPPORTED_PROTOCOL_VERSIONS,
 } from '@modelcontextprotocol/sdk/types.js';
-import { createAllOrNothingLimiter } from '@/lib/rate-limit';
+import { createSlidingWindow, type RateLimitResult } from '@/lib/rate-limit';
 import type { McpContext } from '@/mcp/context';
 
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS = 60;
 
+const slidingWindow = createSlidingWindow(WINDOW_MS, MAX_REQUESTS);
+
+function countKeys(keys: readonly string[]): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const key of keys) counts.set(key, (counts.get(key) ?? 0) + 1);
+  return counts;
+}
+
 // A batch over any limit is answered with one 429, so it must use no quota at all.
-export const checkMcpRateLimit = createAllOrNothingLimiter(WINDOW_MS, MAX_REQUESTS);
+export function checkMcpRateLimit(keys: readonly string[]): RateLimitResult {
+  const counts = countKeys(keys);
+  const retryAfterMs = Math.max(0, ...[...counts].map(([key, count]) => slidingWindow.retryAfterMs(key, count)));
+  if (retryAfterMs > 0) return { allowed: false, retryAfterMs };
+
+  for (const [key, count] of counts) slidingWindow.record(key, count);
+  return { allowed: true, retryAfterMs: 0 };
+}
 
 export const OVERSIZED_BATCH_MESSAGE = `Batch has more than ${MAX_REQUESTS} calls counted against one rate limit of ${MAX_REQUESTS} a minute, so it can never be accepted. Send smaller batches.`;
 
 export function isOversizedBatch(keys: readonly string[]): boolean {
-  const counts = new Map<string, number>();
-  return keys.some((key) => {
-    const count = (counts.get(key) ?? 0) + 1;
-    counts.set(key, count);
-    return count > MAX_REQUESTS;
-  });
+  return [...countKeys(keys).values()].some((count) => count > MAX_REQUESTS);
 }
 
 // A credential with one dashboard counts every request against its site, as before multi-dashboard

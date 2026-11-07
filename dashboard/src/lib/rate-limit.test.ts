@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createAllOrNothingLimiter, createSlidingWindowLimiter } from '@/lib/rate-limit';
+import { createSlidingWindow, createSlidingWindowLimiter } from '@/lib/rate-limit';
 
 const WINDOW_MS = 60_000;
 
@@ -30,67 +30,39 @@ describe('createSlidingWindowLimiter', () => {
   });
 });
 
-describe('createAllOrNothingLimiter', () => {
-  it('records every key when all of them fit', () => {
-    const check = createAllOrNothingLimiter(WINDOW_MS, 1);
+describe('createSlidingWindow', () => {
+  it('checks without recording, and records only when told to', () => {
+    const slidingWindow = createSlidingWindow(WINDOW_MS, 2);
 
-    expect(check(['a', 'b'])).toEqual({ allowed: true, retryAfterMs: 0 });
+    expect(slidingWindow.retryAfterMs('a', 2)).toBe(0);
+    expect(slidingWindow.retryAfterMs('a', 2)).toBe(0);
 
-    expect(check(['a']).allowed).toBe(false);
-    expect(check(['b']).allowed).toBe(false);
+    slidingWindow.record('a', 2);
+    expect(slidingWindow.retryAfterMs('a')).toBe(WINDOW_MS);
+    expect(slidingWindow.retryAfterMs('b', 2)).toBe(0);
   });
 
-  it('records no key when one of them is over its limit', () => {
-    const check = createAllOrNothingLimiter(WINDOW_MS, 1);
-    check(['full']);
-
-    expect(check(['free', 'full']).allowed).toBe(false);
-
-    expect(check(['free']).allowed).toBe(true);
-  });
-
-  it('counts a repeated key once per occurrence and records nothing when they do not all fit', () => {
-    const check = createAllOrNothingLimiter(WINDOW_MS, 3);
-    check(['a', 'a']);
-
-    expect(check(['a', 'a']).allowed).toBe(false);
-
-    expect(check(['a']).allowed).toBe(true);
-    expect(check(['a']).allowed).toBe(false);
-  });
-
-  it('reports when enough slots are free for the repeated key', () => {
-    const check = createAllOrNothingLimiter(WINDOW_MS, 3);
-    check(['a']);
+  it('reports when enough slots are free for several requests', () => {
+    const slidingWindow = createSlidingWindow(WINDOW_MS, 3);
+    slidingWindow.record('a');
     vi.advanceTimersByTime(10_000);
-    check(['a']);
+    slidingWindow.record('a');
     vi.advanceTimersByTime(10_000);
-    check(['a']);
+    slidingWindow.record('a');
 
     // At 20s all three slots are taken, and two free up once the second request leaves at 70s.
-    const { retryAfterMs } = check(['a', 'a']);
+    const retryAfterMs = slidingWindow.retryAfterMs('a', 2);
     expect(retryAfterMs).toBe(50_000);
 
     vi.advanceTimersByTime(retryAfterMs - 1);
-    expect(check(['a', 'a']).allowed).toBe(false);
+    expect(slidingWindow.retryAfterMs('a', 2)).toBe(1);
     vi.advanceTimersByTime(1);
-    expect(check(['a', 'a']).allowed).toBe(true);
+    expect(slidingWindow.retryAfterMs('a', 2)).toBe(0);
   });
 
-  it('reports the key that takes longest to free up', () => {
-    const check = createAllOrNothingLimiter(WINDOW_MS, 1);
-    check(['early']);
-    vi.advanceTimersByTime(30_000);
-    check(['late']);
+  it('never fits more requests than the limit', () => {
+    const slidingWindow = createSlidingWindow(WINDOW_MS, 2);
 
-    expect(check(['early', 'late'])).toEqual({ allowed: false, retryAfterMs: 60_000 });
-  });
-
-  it('rejects more requests than the limit without recording them, reporting a whole window', () => {
-    const check = createAllOrNothingLimiter(WINDOW_MS, 2);
-
-    expect(check(['a', 'a', 'a'])).toEqual({ allowed: false, retryAfterMs: WINDOW_MS });
-
-    expect(check(['a', 'a']).allowed).toBe(true);
+    expect(slidingWindow.retryAfterMs('a', 3)).toBe(Infinity);
   });
 });
