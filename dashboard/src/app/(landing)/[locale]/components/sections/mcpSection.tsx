@@ -1,5 +1,7 @@
+import { ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { AgentTranscript, type ScriptKey } from '@/landing/components/illustrations/agentTranscript';
+import { AppLink } from '@/landing/components/ui/appLink';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { Panel, Section } from '@/landing/components/ui/frame';
 import { LinkTiles } from '@/landing/components/ui/linkTiles';
@@ -26,7 +28,16 @@ export function McpPanel({ lead, body, cta, scripts, alt }: McpPanelProps) {
     <div className='grid grid-cols-[1fr_1.15fr] grid-rows-[1fr_auto] max-lg:grid-cols-1 max-lg:grid-rows-none'>
       <div className='flex flex-col border-r border-rule-10 px-7.5 pt-8 transition-ink max-lg:border-r-0 max-lg:border-b max-lg:pb-8 max-sm:px-6'>
         <Heading as='h3' size='title' className='mb-2'>
-          {lead}
+          <AppLink
+            href='/features/mcp-server'
+            className='group/lead inline-flex items-center gap-1.5 transition-colors duration-180 ease-out-expo hover:text-white'
+          >
+            {lead}
+            <ArrowRight
+              className='size-3.5 text-muted transition-transform duration-180 ease-out-expo group-hover/lead:translate-x-0.5'
+              aria-hidden
+            />
+          </AppLink>
         </Heading>
         <p className='mb-6 text-body leading-[23px] text-muted'>{body}</p>
         <Label id={WORKS_WITH_ID} className='mb-4 block'>
