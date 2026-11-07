@@ -722,6 +722,72 @@
           "back": "Tilbake"
         }
       },
+      "consent": {
+        "eyebrow": "Tilkoblingsforespørsel",
+        "title": "Koble til {client}",
+        "lede": "{client} vil ha tilgang til Betterlytics-kontoen din.",
+        "facts": {
+          "app": "App",
+          "identity": "Identitet",
+          "returnsTo": "Går tilbake til",
+          "verified": "Verifisert",
+          "unverified": "Ikke verifisert",
+          "thisDevice": "Denne enheten",
+          "selfNamed": "Navngitt av appen selv"
+        },
+        "warnings": {
+          "unverifiedTitle": "Ikke verifisert app",
+          "unverifiedBody": "{client} registrerte seg selv, så vi kan ikke bekrefte hvem som laget den.",
+          "loopbackTitle": "Sender tilgang til denne enheten",
+          "loopbackBody": "Den går til <mono>{host}</mono>. Tillat dette bare hvis du nettopp startet tilkoblingen fra {client}."
+        },
+        "never": {
+          "title": "Aldri tillatt",
+          "secrets": "Se passordet ditt eller betalingsopplysningene dine",
+          "delete": "Slette dashbord eller dataene deres",
+          "role": "Gå utover rollen din på et dashbord"
+        },
+        "permissions": {
+          "title": "Hva {client} kan gjøre",
+          "read": "Lese statistikk",
+          "readDescription": "Trafikk, hendelser, trakter og feil på dashbordene du velger.",
+          "required": "Påkrevd",
+          "roleNote": "Den kan aldri gjøre mer enn rollen din tillater."
+        },
+        "dashboards": {
+          "title": "Dashbord",
+          "all": "Alle dashbord",
+          "allDescription": "Også de du legger til senere",
+          "included": "{count} inkludert",
+          "search": "Søk i dashbord",
+          "selectAll": "Velg alle",
+          "selected": "<b>{selected}</b> av {total} valgt",
+          "pickOne": "Velg minst ett dashbord",
+          "noMatch": "Ingen dashbord samsvarer med søket.",
+          "empty": "Du har ingen dashbord ennå. <link>Legg til et nettsted</link>"
+        },
+        "roles": {
+          "owner": "Eier",
+          "admin": "Admin",
+          "editor": "Redaktør",
+          "viewer": "Leser"
+        },
+        "reconnect": {
+          "title": "{client} er allerede koblet til",
+          "body": "Den nåværende tilgangen din er valgt nedenfor. Hvis du tillater, erstattes den."
+        },
+        "returnTo": "Du sendes tilbake til <mono>{host}</mono>.",
+        "returnToDevice": "Du sendes tilbake til {client} på denne enheten.",
+        "cancel": "Avbryt",
+        "allow": "Tillat",
+        "allowing": "Tillater…",
+        "signedInAs": "Logget inn som",
+        "switchAccount": "Bytt konto",
+        "saveError": "Vi kunne ikke lagre valgene dine. Prøv igjen.",
+        "invalidTitle": "Denne tilkoblingsforespørselen er ikke lenger gyldig",
+        "invalidLede": "Start tilkoblingen på nytt fra appen din.",
+        "goToDashboards": "Gå til dashbord"
+      },
       "register": {
         "seo": {
           "title": "Opprett din gratis Betterlytics-konto",

@@ -722,6 +722,72 @@
           "back": "Back"
         }
       },
+      "consent": {
+        "eyebrow": "Connection request",
+        "title": "Connect {client}",
+        "lede": "{client} wants to access your Betterlytics account.",
+        "facts": {
+          "app": "App",
+          "identity": "Identity",
+          "returnsTo": "Returns to",
+          "verified": "Verified",
+          "unverified": "Unverified",
+          "thisDevice": "This device",
+          "selfNamed": "Named by the app itself"
+        },
+        "warnings": {
+          "unverifiedTitle": "Unverified app",
+          "unverifiedBody": "{client} registered itself, so we can't confirm who made it.",
+          "loopbackTitle": "Sends access to this device",
+          "loopbackBody": "It goes to <mono>{host}</mono>. Only allow this if you just started the connection from {client}."
+        },
+        "never": {
+          "title": "Never allowed",
+          "secrets": "See your password or payment details",
+          "delete": "Delete dashboards or their data",
+          "role": "Go beyond your role on a dashboard"
+        },
+        "permissions": {
+          "title": "What {client} can do",
+          "read": "Read analytics",
+          "readDescription": "Traffic, events, funnels and errors on the dashboards you pick.",
+          "required": "Required",
+          "roleNote": "It can never do more than your role allows."
+        },
+        "dashboards": {
+          "title": "Dashboards",
+          "all": "All dashboards",
+          "allDescription": "Including ones you add later",
+          "included": "{count} included",
+          "search": "Search dashboards",
+          "selectAll": "Select all",
+          "selected": "<b>{selected}</b> of {total} selected",
+          "pickOne": "Pick at least one dashboard",
+          "noMatch": "No dashboards match your search.",
+          "empty": "You don't have any dashboards yet. <link>Add a site</link>"
+        },
+        "roles": {
+          "owner": "Owner",
+          "admin": "Admin",
+          "editor": "Editor",
+          "viewer": "Viewer"
+        },
+        "reconnect": {
+          "title": "{client} is already connected",
+          "body": "Your current access is selected below. Allowing replaces it."
+        },
+        "returnTo": "You'll go back to <mono>{host}</mono>.",
+        "returnToDevice": "You'll go back to {client} on this device.",
+        "cancel": "Cancel",
+        "allow": "Allow",
+        "allowing": "Allowing…",
+        "signedInAs": "Signed in as",
+        "switchAccount": "Switch account",
+        "saveError": "We couldn't save your choices. Please try again.",
+        "invalidTitle": "This connection request is no longer valid",
+        "invalidLede": "Start the connection again from your app.",
+        "goToDashboards": "Go to dashboards"
+      },
       "register": {
         "seo": {
           "title": "Create your free Betterlytics account",

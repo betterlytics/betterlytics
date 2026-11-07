@@ -722,6 +722,72 @@
           "back": "Indietro"
         }
       },
+      "consent": {
+        "eyebrow": "Richiesta di connessione",
+        "title": "Connetti {client}",
+        "lede": "{client} vuole accedere al tuo account Betterlytics.",
+        "facts": {
+          "app": "App",
+          "identity": "Identità",
+          "returnsTo": "Ritorna a",
+          "verified": "Verificata",
+          "unverified": "Non verificata",
+          "thisDevice": "Questo dispositivo",
+          "selfNamed": "Nome scelto dall'app"
+        },
+        "warnings": {
+          "unverifiedTitle": "App non verificata",
+          "unverifiedBody": "{client} si è registrata da sola, quindi non possiamo confermare chi l'ha creata.",
+          "loopbackTitle": "Invia l'accesso a questo dispositivo",
+          "loopbackBody": "Va a <mono>{host}</mono>. Consenti solo se hai appena avviato la connessione da {client}."
+        },
+        "never": {
+          "title": "Mai consentito",
+          "secrets": "Vedere la tua password o i dati di pagamento",
+          "delete": "Eliminare dashboard o i loro dati",
+          "role": "Andare oltre il tuo ruolo su una dashboard"
+        },
+        "permissions": {
+          "title": "Cosa può fare {client}",
+          "read": "Leggere le statistiche",
+          "readDescription": "Traffico, eventi, funnel ed errori sulle dashboard che scegli.",
+          "required": "Obbligatorio",
+          "roleNote": "Non può mai fare più di quanto consente il tuo ruolo."
+        },
+        "dashboards": {
+          "title": "Dashboard",
+          "all": "Tutte le dashboard",
+          "allDescription": "Anche quelle che aggiungerai in seguito",
+          "included": "{count} incluse",
+          "search": "Cerca dashboard",
+          "selectAll": "Seleziona tutte",
+          "selected": "<b>{selected}</b> di {total} selezionate",
+          "pickOne": "Scegli almeno una dashboard",
+          "noMatch": "Nessuna dashboard corrisponde alla ricerca.",
+          "empty": "Non hai ancora nessuna dashboard. <link>Aggiungi un sito</link>"
+        },
+        "roles": {
+          "owner": "Proprietario",
+          "admin": "Admin",
+          "editor": "Editor",
+          "viewer": "Visualizzatore"
+        },
+        "reconnect": {
+          "title": "{client} è già connesso",
+          "body": "Il tuo accesso attuale è selezionato qui sotto. Consentendo lo sostituisci."
+        },
+        "returnTo": "Tornerai a <mono>{host}</mono>.",
+        "returnToDevice": "Tornerai a {client} su questo dispositivo.",
+        "cancel": "Annulla",
+        "allow": "Consenti",
+        "allowing": "Consenso in corso…",
+        "signedInAs": "Accesso effettuato come",
+        "switchAccount": "Cambia account",
+        "saveError": "Non siamo riusciti a salvare le tue scelte. Riprova.",
+        "invalidTitle": "Questa richiesta di connessione non è più valida",
+        "invalidLede": "Avvia di nuovo la connessione dalla tua app.",
+        "goToDashboards": "Vai alle dashboard"
+      },
       "register": {
         "seo": {
           "title": "Crea il tuo account Betterlytics gratuito",
