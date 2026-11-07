@@ -1,0 +1,349 @@
+@reference '../../../landing.css';
+
+@layer components {
+  .priority {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    @variant max-xl {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .stage {
+    padding: 30px 34px 26px 26px;
+    border-right: 1px solid var(--color-rule-08);
+    @apply bg-hatch;
+    @variant max-xl {
+      border-right: 0;
+      border-bottom: 1px solid var(--color-rule-08);
+    }
+    @variant max-sm {
+      padding: 22px calc(var(--pad) + 4px) 18px var(--pad);
+    }
+  }
+  .plotWrap {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+  .axisY {
+    grid-row: 1;
+    align-self: center;
+    justify-self: center;
+    font-size: 11px;
+    white-space: nowrap;
+    color: var(--color-muted);
+    writing-mode: vertical-rl;
+    rotate: 180deg;
+  }
+
+  .plot {
+    position: relative;
+    height: 340px;
+    border-left: 1px solid var(--color-rule-22);
+    border-bottom: 1px solid var(--color-rule-22);
+    @variant max-sm {
+      height: 260px;
+    }
+  }
+  .heat {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .area {
+    fill: --alpha(var(--color-volt-lift) / 9%);
+  }
+  .legend {
+    position: absolute;
+    right: -14px;
+    top: -22px;
+    font-size: 10.5px;
+    line-height: 14px;
+    white-space: nowrap;
+    color: var(--color-volt-soft);
+  }
+  .iso {
+    fill: none;
+    stroke: --alpha(var(--color-volt-soft) / 45%);
+    stroke-width: 1;
+    stroke-dasharray: 3 4;
+  }
+  .isoLabel {
+    position: absolute;
+    right: -6px;
+    top: var(--y);
+    translate: 100% -50%;
+    font-size: 10.5px;
+    line-height: 14px;
+    color: var(--color-volt-soft);
+  }
+
+  .threshold {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--y);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 0;
+    border-top: 1px dashed var(--color-rule-22);
+    font-size: 10.5px;
+    color: var(--color-muted);
+  }
+  .threshold b {
+    position: absolute;
+    left: 8px;
+    bottom: 4px;
+    font-weight: 500;
+  }
+  .threshold b[data-grade='great'] {
+    color: rgb(110 231 183);
+  }
+  .threshold b[data-grade='okay'] {
+    color: rgb(252 211 77);
+  }
+
+  .dot {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    translate: calc(var(--size) / -2) -50%;
+    transition: translate 0.6s var(--ease-out-expo);
+  }
+  .dot i {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    border: 1.5px solid --alpha(var(--color-fg) / 55%);
+    background: var(--color-canvas);
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 700;
+    color: var(--color-on-volt);
+    transition:
+      scale 0.3s var(--ease-out-expo),
+      box-shadow 0.3s var(--ease-out-expo);
+  }
+  .dot[data-rank] i {
+    border-color: var(--color-volt-soft);
+    background: var(--color-volt);
+    box-shadow: 0 0 0 4px --alpha(var(--color-volt-lift) / 20%);
+  }
+  /* phones have no room for the paths; the numbered list under the plot names the top three */
+  .dot b {
+    font-size: 11.5px;
+    line-height: 16px;
+    font-weight: 500;
+    white-space: nowrap;
+    color: var(--color-muted);
+    transition: color 0.3s ease;
+    @variant max-sm {
+      display: none;
+    }
+  }
+  .dot[data-rank] b {
+    color: var(--color-fg);
+  }
+  .dot[data-left] {
+    flex-direction: row-reverse;
+    translate: calc(-100% + var(--size) / 2) -50%;
+  }
+  .dot[data-hot] i {
+    scale: 1.15;
+    box-shadow: 0 0 0 6px --alpha(var(--color-volt-lift) / 30%);
+  }
+  .dot[data-hot] b {
+    color: var(--color-fg);
+  }
+
+  .axisX {
+    grid-column: 2;
+    position: relative;
+    height: 40px;
+    font-size: 11px;
+    color: var(--color-muted);
+  }
+  .axisX span {
+    position: absolute;
+    top: 7px;
+    left: var(--x);
+    translate: -50% 0;
+  }
+  .axisX span:first-child {
+    translate: 0 0;
+  }
+  .axisX em {
+    position: absolute;
+    right: 0;
+    top: 24px;
+    font-style: normal;
+  }
+
+  .aside {
+    display: flex;
+    flex-direction: column;
+    padding: 30px 30px 28px;
+    @variant max-sm {
+      padding: 24px var(--pad) 26px;
+    }
+  }
+  .ranks {
+    display: grid;
+    margin-top: 14px;
+  }
+  .ranks li {
+    display: grid;
+    grid-template-columns: 26px minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 2px 12px;
+    padding: 12px 10px;
+    margin-inline: -10px;
+    border-radius: 9px;
+    transition: background-color 0.3s ease;
+  }
+  .ranks li + li {
+    border-top: 1px solid var(--color-rule-08);
+  }
+  .ranks li[data-hot] {
+    background: --alpha(var(--color-fg) / 4%);
+  }
+  .ranks i {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    margin-top: 1px;
+    border-radius: 50%;
+    background: var(--color-volt);
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 700;
+    color: var(--color-on-volt);
+  }
+  .rankText {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+  }
+  .rankText b {
+    overflow: hidden;
+    font-size: var(--text-body-sm);
+    font-weight: 500;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .rankText > span {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    font-size: 12.5px;
+    color: var(--color-muted);
+  }
+  .opportunity {
+    padding-top: 1px;
+    font-size: 12.5px;
+    font-weight: 500;
+    white-space: nowrap;
+    color: var(--color-volt-soft);
+  }
+
+  .recipe {
+    container-type: inline-size;
+    display: grid;
+    gap: 12px;
+    margin-top: auto;
+    padding-top: 26px;
+    border-top: 1px solid var(--color-rule-08);
+    @variant max-xl {
+      margin-top: 22px;
+    }
+  }
+  .weights {
+    display: flex;
+    gap: 3px;
+    height: 44px;
+  }
+  .weights i {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    padding: 0 8px;
+    flex: var(--w) 1 0;
+    overflow: hidden;
+    border-radius: 6px;
+    background: color-mix(in oklab, var(--color-volt-lift) calc(14% + var(--w) * 60%), transparent);
+    font-size: 11px;
+    line-height: 14px;
+    font-style: normal;
+    white-space: nowrap;
+    color: --alpha(var(--color-fg) / 75%);
+  }
+  .weights b {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--color-fg);
+  }
+  /* a 10% slice of a narrow bar can't hold "TTFB", so narrow columns list the weights as bars scaled to the heaviest */
+  @container (width < 400px) {
+    .weights {
+      flex-direction: column;
+      align-items: start;
+      height: auto;
+    }
+    .weights i {
+      flex: none;
+      flex-direction: row;
+      justify-content: start;
+      align-items: baseline;
+      gap: 6px;
+      width: calc(var(--of) * 100%);
+      padding-block: 6px;
+    }
+  }
+  .recipeBody {
+    max-width: 46ch;
+    font-size: var(--text-label);
+    line-height: 21px;
+    color: var(--color-muted);
+  }
+  .link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    justify-self: start;
+    font-size: var(--text-label);
+    color: var(--color-volt-text);
+    transition: color 0.2s ease;
+  }
+  .link:hover {
+    color: var(--color-volt-soft);
+  }
+
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .priority:not([data-in]) .dot {
+      opacity: 0;
+      translate: calc(var(--size) / -2) calc(-50% + 14px);
+    }
+    .priority:not([data-in]) .dot[data-left] {
+      translate: calc(-100% + var(--size) / 2) calc(-50% + 14px);
+    }
+    .dot {
+      transition:
+        translate 0.7s var(--ease-out-expo) calc(var(--i) * 90ms + 0.2s),
+        opacity 0.5s ease calc(var(--i) * 90ms + 0.2s);
+    }
+  }
+}

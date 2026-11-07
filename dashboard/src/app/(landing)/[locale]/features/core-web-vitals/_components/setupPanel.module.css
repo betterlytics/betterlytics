@@ -1,0 +1,96 @@
+@reference '../../../landing.css';
+
+@layer components {
+  .waterfall {
+    --label: 108px;
+    --col: 14px;
+    position: relative;
+    display: grid;
+    gap: 16px;
+    @variant max-sm {
+      --label: 92px;
+      --col: 10px;
+    }
+  }
+  .row {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: var(--label) minmax(0, 1fr);
+    align-items: center;
+    gap: 5px var(--col);
+  }
+  .label {
+    overflow: hidden;
+    font-size: 12.5px;
+    line-height: 16px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--color-fg);
+  }
+  .label[data-request] {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--color-muted);
+  }
+  .track {
+    position: relative;
+    height: 10px;
+    border-radius: 99px;
+    background: --alpha(var(--color-fg) / 4%);
+  }
+  .track i {
+    position: absolute;
+    inset-block: 0;
+    left: calc(var(--from) * 100%);
+    width: calc((var(--to) - var(--from)) * 100%);
+    min-width: 8px;
+    border-radius: 99px;
+    transform-origin: 0 50%;
+  }
+  .row[data-row='page'] .track i {
+    background: --alpha(var(--color-fg) / 24%);
+  }
+  .row[data-row='analytics'] .track i {
+    background: var(--color-volt-soft);
+  }
+  .row[data-row='vitals'] .track i {
+    background: var(--color-volt-lift);
+    box-shadow: 0 0 12px --alpha(var(--color-volt-lift) / 70%);
+  }
+  .row[data-row='event'] .track i {
+    background: var(--color-live);
+    box-shadow: 0 0 12px rgb(74 222 155 / 0.55);
+  }
+  .note {
+    grid-column: 2;
+    font-size: 12px;
+    line-height: 17px;
+    color: var(--color-muted);
+  }
+  .row[data-row='event'] .note {
+    justify-self: end;
+    max-width: 30ch;
+    text-align: right;
+  }
+
+  /* the visit between load and leave, folded away */
+  .gap {
+    position: absolute;
+    top: -6px;
+    bottom: 22px;
+    left: calc(var(--label) + var(--col) + (100% - var(--label) - var(--col)) * 0.6);
+    width: calc((100% - var(--label) - var(--col)) * 0.22);
+    border-inline: 1px dashed var(--color-rule-22);
+    @apply bg-hatch;
+  }
+
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .waterfall:not([data-in]) .track i {
+      scale: 0 1;
+    }
+    .track i {
+      transition: scale 0.6s var(--ease-out-expo) calc(var(--i) * 160ms + 0.15s);
+    }
+  }
+}
