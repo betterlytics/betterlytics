@@ -293,7 +293,7 @@ export default function ChangePasswordDialog({ open, onOpenChange }: ChangePassw
               {t('cancel')}
             </Button>
             <Button type='submit' disabled={isPending || !isFormFilled} className='cursor-pointer'>
-              {isPending && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+              {isPending && <Loader2 className='animate-spin' />}
               {t('changePassword')}
             </Button>
           </DialogFooter>

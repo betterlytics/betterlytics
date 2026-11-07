@@ -120,7 +120,7 @@ function RecipientInput({ recipients, onAdd, onRemove, isPending, disabled, repo
           className='cursor-pointer'
           disabled={isPending || disabled || recipients.length >= MAX_REPORT_RECIPIENTS}
         >
-          <Plus className='mr-1 h-4 w-4' />
+          <Plus />
           {t('recipients.addButton')}
         </Button>
       </div>

@@ -84,7 +84,7 @@ export function VerificationRequiredModal({
 
             {!emailSent ? (
               <Button onClick={handleResendVerification} disabled={isPending} className='w-full' size='lg'>
-                <Mail className='mr-2 h-4 w-4' />
+                <Mail />
                 {isPending ? t('sending') : t('resend')}
               </Button>
             ) : (

@@ -77,7 +77,7 @@ export function StudioShell({
         disabled={previewDisabled}
         className='cursor-pointer lg:hidden'
       >
-        <Maximize2 className='mr-1.5 h-3.5 w-3.5' />
+        <Maximize2 />
         {t('preview')}
       </Button>
       <div className='hidden items-center gap-2 lg:flex'>{buttons('sm', requestClose)}</div>

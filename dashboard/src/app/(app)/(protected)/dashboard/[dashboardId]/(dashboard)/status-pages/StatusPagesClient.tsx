@@ -146,7 +146,7 @@ export function StatusPagesClient({
                 onClick={() => setShowCreateStudio(true)}
                 className='cursor-pointer'
               >
-                <Plus className='mr-1 h-4 w-4' />
+                <Plus />
                 {label}
               </Button>
             )}
@@ -361,25 +361,25 @@ export function StatusPagesClient({
                   <DropdownMenuContent align='end' className='w-48'>
                     <DropdownMenuItem asChild className='cursor-pointer'>
                       <Link href={`${editorHref}?studio=1`}>
-                        <Pencil className='mr-2 h-4 w-4' />
+                        <Pencil />
                         {t('actions.editPage')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild className='cursor-pointer'>
                       <Link href={editorHref}>
-                        <Megaphone className='mr-2 h-4 w-4' />
+                        <Megaphone />
                         {t('actions.manageIncidents')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild className='cursor-pointer'>
                       <Link href={`${editorHref}?tab=settings`}>
-                        <Settings className='mr-2 h-4 w-4' />
+                        <Settings />
                         {t('actions.settings')}
                       </Link>
                     </DropdownMenuItem>
                     {page.isPublished && (
                       <DropdownMenuItem onSelect={() => copyLink(page)} className='cursor-pointer'>
-                        <Copy className='mr-2 h-4 w-4' />
+                        <Copy />
                         {t('actions.copyUrl')}
                       </DropdownMenuItem>
                     )}
@@ -390,11 +390,7 @@ export function StatusPagesClient({
                           onSelect={() => setPublishTarget(page)}
                           className='cursor-pointer'
                         >
-                          {page.isPublished ? (
-                            <Lock className='mr-2 h-4 w-4' />
-                          ) : (
-                            <Globe className='mr-2 h-4 w-4' />
-                          )}
+                          {page.isPublished ? <Lock /> : <Globe />}
                           {page.isPublished ? t('actions.unpublish') : t('actions.publish')}
                         </DropdownMenuItem>
                       )}
@@ -408,7 +404,7 @@ export function StatusPagesClient({
                           onSelect={() => setDeleteTarget(page)}
                           className='cursor-pointer'
                         >
-                          <Trash2 className='mr-2 h-4 w-4' />
+                          <Trash2 />
                           {t('editor.delete')}
                         </DropdownMenuItem>
                       )}

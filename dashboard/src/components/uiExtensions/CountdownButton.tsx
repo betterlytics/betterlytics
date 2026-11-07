@@ -45,7 +45,7 @@ function CountdownButton({
 
   return (
     <Button ref={ref} variant={variant} disabled={isDisabled} className={cn(baseClasses, className)} {...props}>
-      {isPending ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Trash2 className='mr-2 h-4 w-4' />}
+      {isPending ? <Loader2 className='animate-spin' /> : <Trash2 />}
       {isPending ? (
         (pendingLabel ?? children)
       ) : hasCountdown && !canConfirm ? (
