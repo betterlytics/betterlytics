@@ -50,6 +50,7 @@ import { MCPIcon } from '@/components/icons';
 const UPTIME = '/features/uptime-monitoring';
 const REPLAY = '/features/session-replay';
 const ERRORS = '/features/error-tracking';
+const VITALS = '/features/core-web-vitals';
 
 const CATEGORIES = [
   {
@@ -86,7 +87,7 @@ const CATEGORIES = [
   {
     id: 'performanceMonitoring',
     features: [
-      { id: 'coreWebVitals', icon: Gauge },
+      { id: 'coreWebVitals', icon: Gauge, href: VITALS },
       { id: 'uptimeMonitoring', icon: MonitorCheck, href: UPTIME },
       { id: 'statusPages', icon: Radio, href: UPTIME },
       { id: 'sslMonitoring', icon: ShieldCheck, href: UPTIME },

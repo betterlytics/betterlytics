@@ -118,7 +118,7 @@ export function VitalsPage() {
       <RelatedSection
         lede={t('related.lede')}
         items={[
-          { key: 'analytics', icon: <MousePointerClick className='size-4' />, href: LINKS.docs },
+          { key: 'analytics', icon: <MousePointerClick className='size-4' />, href: LINKS.docs, docs: true },
           { key: 'errors', icon: <Bug className='size-4' />, href: '/features/error-tracking' },
           { key: 'replay', icon: <PlayCircle className='size-4' />, href: '/features/session-replay' },
           { key: 'uptime', icon: <Activity className='size-4' />, href: '/features/uptime-monitoring' },
