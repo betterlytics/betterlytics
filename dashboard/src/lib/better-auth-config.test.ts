@@ -39,6 +39,9 @@ vi.mock('@/lib/env', () => ({
 vi.mock('@/lib/postgres', () => ({
   default: {},
 }));
+vi.mock('@/lib/better-auth-prisma', () => ({
+  authPrisma: {},
+}));
 vi.mock('@/repositories/postgres/session.repository', () => ({
   deleteOtherUserSessions: vi.fn(),
   countUserSessions: vi.fn(),
