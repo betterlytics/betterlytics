@@ -1291,6 +1291,7 @@
         "uptime": "Monitoraggio uptime",
         "replay": "Session replay",
         "errors": "Tracciamento errori",
+        "vitals": "Core Web Vitals",
         "pricing": "Prezzi"
       },
       "company": {

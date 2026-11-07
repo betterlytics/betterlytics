@@ -5,7 +5,13 @@ import { ColumnDef } from '@tanstack/react-table';
 import TabbedTable, { type TabDefinition } from '@/components/TabbedTable';
 import { DeviceIcon, BrowserIcon, OSIcon, FlagIcon } from '@/components/icons';
 import { formatNumber, formatString } from '@/utils/formatters';
-import { formatCWV, getCoreWebVitalLabelColor, type PercentileKey } from '@/utils/coreWebVitals';
+import {
+  formatCWV,
+  getCoreWebVitalLabelColor,
+  getPerformanceGrade,
+  type PercentileKey,
+  type PerformanceGrade,
+} from '@/utils/coreWebVitals';
 import MetricInfo from './MetricInfo';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import { useBAQueryParams } from '@/trpc/hooks';
@@ -26,6 +32,13 @@ import type { AppRouter } from '@/trpc/routers/_app';
 
 type RouterOutputs = inferRouterOutputs<AppRouter>;
 type Row = RouterOutputs['webVitals']['byDimension'][number];
+
+const GRADE_CLASSES: Record<PerformanceGrade, string> = {
+  great:
+    'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-900/40 dark:text-emerald-300 dark:border-emerald-700',
+  okay: 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-700',
+  poor: 'bg-red-100 text-red-700 border-red-300 dark:bg-red-900/40 dark:text-red-300 dark:border-red-700',
+};
 
 export default function WebVitalsTableSection() {
   const t = useTranslations('components.webVitals.table');
@@ -82,23 +95,8 @@ export default function WebVitalsTableSection() {
       };
 
       const scoreVisual = (score: number): { label: string; className: string } => {
-        if (score >= PERFORMANCE_SCORE_THRESHOLDS.greatMin)
-          return {
-            label: t('badges.great'),
-            className:
-              'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-900/40 dark:text-emerald-300 dark:border-emerald-700',
-          };
-        if (score >= PERFORMANCE_SCORE_THRESHOLDS.okayMin)
-          return {
-            label: t('badges.okay'),
-            className:
-              'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-700',
-          };
-        return {
-          label: t('badges.poor'),
-          className:
-            'bg-red-100 text-red-700 border-red-300 dark:bg-red-900/40 dark:text-red-300 dark:border-red-700',
-        };
+        const grade = getPerformanceGrade(score);
+        return { label: t(`badges.${grade}`), className: GRADE_CLASSES[grade] };
       };
 
       const valueCell = (metric: CoreWebVitalName) => {

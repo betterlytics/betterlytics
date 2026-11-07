@@ -1,0 +1,505 @@
+@reference '../../../../landing.css';
+
+@layer components {
+  .root {
+    container-type: inline-size;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @container (width >= 1040px) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr) 340px;
+    }
+  }
+
+  /* the key sits on the bottom edge, and the map centres in the room above it */
+  .atlas {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 28px;
+    padding: 32px 30px 14px;
+    @apply bg-hatch;
+  }
+  @container (width < 600px) {
+    .atlas {
+      gap: 16px;
+      padding: 22px 12px 20px;
+    }
+  }
+
+  /* the map and the loads landing on it share one box, so shares of it are places on the map */
+  .map {
+    position: relative;
+    align-self: center;
+  }
+  .svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .landings {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .arrival {
+    position: absolute;
+    top: calc(var(--y) * 100%);
+    left: calc(var(--x) * 100%);
+  }
+  /* the load itself, in its own level's colour, and a ring that spreads once as it lands */
+  .arrival::before,
+  .ping {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .arrival::before {
+    background: var(--level);
+    box-shadow: 0 0 0 2px var(--color-panel);
+  }
+  .ping {
+    border: 1px solid var(--level);
+    opacity: 0;
+  }
+
+  /* above the dot, or below it near the top edge; the stem joins the two */
+  .callout {
+    position: absolute;
+    bottom: 13px;
+    left: 0;
+    display: grid;
+    gap: 2px;
+    padding: 7px 11px 8px;
+    border: 1px solid var(--color-volt-lift);
+    background: --alpha(var(--color-canvas) / 82%);
+    font-size: 11.5px;
+    line-height: 16px;
+    white-space: nowrap;
+    translate: -50% 0;
+    @apply font-mono;
+  }
+  .callout::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 1px;
+    height: 8px;
+    background: var(--color-volt-lift);
+  }
+  .arrival[data-below] .callout {
+    top: 13px;
+    bottom: auto;
+  }
+  .arrival[data-below] .callout::after {
+    top: auto;
+    bottom: 100%;
+  }
+  .arrival[data-align='start'] .callout {
+    translate: -16px 0;
+  }
+  .arrival[data-align='start'] .callout::after {
+    left: 15px;
+  }
+  .arrival[data-align='end'] .callout {
+    translate: calc(-100% + 16px) 0;
+  }
+  .arrival[data-align='end'] .callout::after {
+    left: auto;
+    right: 15px;
+  }
+  .visit {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--color-fg);
+  }
+  .visit b {
+    margin-left: 3px;
+    font-weight: 400;
+  }
+  .reading {
+    color: var(--color-muted);
+  }
+  .reading b {
+    font-weight: 500;
+    color: var(--level-text);
+  }
+  .glyph,
+  .mask {
+    flex: none;
+    width: 13px;
+    height: 13px;
+  }
+  .mask {
+    background: var(--color-fg);
+    -webkit-mask: center / contain no-repeat;
+    mask: center / contain no-repeat;
+  }
+
+  /* one load at a time: it lands, stays a moment and fades, and its animation's end brings the next */
+  @keyframes arrive {
+    from {
+      opacity: 0;
+    }
+    8%,
+    88% {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes rise {
+    from {
+      transform: translateY(5px);
+    }
+  }
+  @keyframes ping {
+    from {
+      opacity: 0.9;
+      scale: 1;
+    }
+    to {
+      opacity: 0;
+      scale: 3.6;
+    }
+  }
+  .arrival[data-live] {
+    animation: arrive 3.6s linear both;
+  }
+  .arrival[data-live] .callout {
+    animation: rise 0.6s var(--ease-out-expo) both;
+  }
+  .arrival[data-live] .ping {
+    animation: ping 1.4s var(--ease-out-expo) 0.1s both;
+  }
+  .landings[data-paused] :is(.arrival, .callout, .ping) {
+    animation-play-state: paused;
+  }
+  .still {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .arrival[data-live] {
+      display: none;
+    }
+    .still {
+      display: contents;
+    }
+  }
+
+  @container (width < 600px) {
+    .callout {
+      bottom: 11px;
+      padding: 4px 7px 5px;
+      font-size: 10px;
+      line-height: 13px;
+    }
+    .callout::after {
+      height: 6px;
+    }
+    .arrival[data-below] .callout {
+      top: 11px;
+    }
+    .visit {
+      gap: 4px;
+    }
+    .visit b {
+      margin-left: 2px;
+    }
+    .glyph,
+    .mask {
+      width: 10px;
+      height: 10px;
+    }
+  }
+
+  /* each run of land is one line, dotted by a near-zero dash in the middle of every cell */
+  .land,
+  .dots {
+    fill: none;
+    stroke-width: 0.5;
+    stroke-linecap: round;
+    stroke-dasharray: 0.001 0.999;
+    stroke-dashoffset: 0.5;
+  }
+  .land {
+    stroke: --alpha(var(--color-fg) / 17%);
+  }
+  .dots {
+    stroke: var(--level);
+    stroke-width: 0.64;
+  }
+
+  /*
+   * hatched: the same runs, a cell tall, painted with diagonals two cells apart. The panel's own hatch stays off
+   * behind it, as two hatches at nearly the same pitch shimmer against each other.
+   */
+  .atlas[data-style='hatch'] {
+    background-image: none;
+  }
+  .hatched {
+    fill: none;
+    stroke-width: 1;
+    stroke-linecap: butt;
+  }
+  .slash,
+  .slashLand {
+    fill: none;
+    stroke-width: 0.3;
+  }
+  .slash {
+    stroke: var(--level);
+    stroke-width: 0.38;
+  }
+  .slashLand {
+    stroke: --alpha(var(--color-fg) / 26%);
+  }
+
+  .hit {
+    fill: none;
+    stroke: transparent;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    cursor: pointer;
+  }
+  .country {
+    transition: opacity 0.25s ease;
+  }
+  .svg[data-active] .country:not([data-on]) {
+    opacity: 0.22;
+  }
+  .locator {
+    fill: none;
+    stroke: var(--color-rule-22);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .locator[data-on] {
+    opacity: 1;
+  }
+
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 24px;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--color-muted);
+  }
+  .key {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+  }
+  .key span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+  }
+  .key span::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--level);
+  }
+  /* pushed right, and still right-aligned when it has to drop below the key */
+  .source {
+    margin-left: auto;
+    text-align: right;
+    color: --alpha(var(--color-muted) / 80%);
+  }
+  .source a {
+    color: var(--color-muted);
+    text-decoration: underline;
+    text-decoration-color: var(--color-rule-30);
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.2s ease;
+  }
+  .source a:hover {
+    text-decoration-color: currentColor;
+  }
+  @container (width < 600px) {
+    .foot {
+      padding-inline: 8px;
+    }
+    .key {
+      column-gap: 14px;
+    }
+    .source {
+      margin-left: 0;
+      text-align: left;
+    }
+  }
+
+  .ledger {
+    padding: 20px 28px 22px;
+    border-top: 1px solid var(--color-rule-08);
+  }
+  @container (width >= 1040px) {
+    .ledger {
+      border-top: 0;
+      border-left: 1px solid var(--color-rule-08);
+    }
+  }
+  @container (680px <= width < 1040px) {
+    .ledger {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      padding-inline: 30px;
+    }
+  }
+  @container (width < 600px) {
+    .ledger {
+      padding-inline: 24px 20px;
+    }
+  }
+
+  .table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: var(--text-label);
+    line-height: 20px;
+    text-align: right;
+  }
+  .table th,
+  .table td {
+    padding: 9px 0;
+    vertical-align: baseline;
+    white-space: nowrap;
+  }
+  .table tr > :first-child {
+    text-align: left;
+  }
+  .table tr > :nth-child(2) {
+    width: 84px;
+  }
+  .table tr > :last-child {
+    width: 76px;
+  }
+  .table thead th {
+    padding: 0 0 10px;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 400;
+    color: var(--color-muted);
+  }
+  .table tbody tr {
+    border-top: 1px solid var(--color-rule-08);
+  }
+  .table td {
+    color: var(--color-muted);
+  }
+  .table td[data-level] {
+    font-weight: 500;
+    color: var(--level-text);
+  }
+
+  .us th,
+  .us td {
+    padding-block: 14px 15px;
+  }
+  .us th {
+    font-weight: 400;
+  }
+  .us td[data-level] {
+    font-size: 1.75rem;
+    line-height: 30px;
+    letter-spacing: -0.8px;
+  }
+  .name {
+    display: block;
+    font-weight: 500;
+    color: var(--color-fg);
+  }
+  .note {
+    display: block;
+    font-size: 12.5px;
+    line-height: 18px;
+    color: var(--color-muted);
+  }
+
+  .countries tbody {
+    border-top: 1px solid var(--color-rule-22);
+  }
+  .countries th {
+    font-weight: 400;
+  }
+  .countries tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  .countries tbody tr:first-child {
+    border-top: 0;
+  }
+  .countries tbody tr[data-on] {
+    background: --alpha(var(--color-fg) / 4%);
+  }
+  /* the country a load is landing in */
+  .countries tbody tr[data-live] {
+    background: --alpha(var(--color-fg) / 3%);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .countries tbody tr[data-live]:not([data-on]) {
+      background: none;
+    }
+  }
+  .countries button {
+    color: var(--color-fg);
+    text-align: left;
+  }
+
+  /* stacked under the first table, whose headings already name these columns */
+  @container (width >= 1040px) or (width < 680px) {
+    .countries thead th {
+      padding: 0;
+    }
+    .countries thead span {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  /* side by side: the overall figure on the left, large, beside the countries */
+  @container (680px <= width < 1040px) {
+    .us {
+      padding-right: 28px;
+    }
+    .us tr > :last-child {
+      width: 104px;
+    }
+    .us td[data-level] {
+      font-size: 2.25rem;
+      line-height: 38px;
+      letter-spacing: -1.1px;
+    }
+    .countries {
+      padding-left: 28px;
+      border-left: 1px solid var(--color-rule-08);
+    }
+    .countries tbody {
+      border-top-color: var(--color-rule-08);
+    }
+  }
+}

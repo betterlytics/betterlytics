@@ -1,0 +1,52 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* the app's dark-theme Core Web Vitals colours, under the same names; the landing doesn't sit under that theme */
+  .levels {
+    --cwv-threshold-good: rgb(88 207 146);
+    --cwv-threshold-fair: oklch(80% 0.18 80);
+    --cwv-threshold-poor: rgb(212 89 81);
+    --cwv-threshold-good-label: rgb(100 220 160);
+    --cwv-threshold-fair-label: oklch(85% 0.16 80);
+    --cwv-threshold-poor-label: rgb(230 105 95);
+  }
+  .levels [data-level='good'] {
+    --level: var(--cwv-threshold-good);
+    --level-text: var(--cwv-threshold-good-label);
+  }
+  .levels [data-level='fair'] {
+    --level: var(--cwv-threshold-fair);
+    --level-text: var(--cwv-threshold-fair-label);
+  }
+  .levels [data-level='poor'] {
+    --level: var(--cwv-threshold-poor);
+    --level-text: var(--cwv-threshold-poor-label);
+  }
+
+  /* the dashboard's dark-theme performance score badges */
+  .badge {
+    display: inline-block;
+    padding: 0 7px;
+    border: 1px solid;
+    border-radius: 6px;
+    font-size: 11.5px;
+    line-height: 18px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .badge[data-grade='great'] {
+    border-color: rgb(4 120 87 / 0.7);
+    background: rgb(6 78 59 / 0.4);
+    color: rgb(110 231 183);
+  }
+  .badge[data-grade='okay'] {
+    border-color: rgb(180 83 9 / 0.7);
+    background: rgb(120 53 15 / 0.4);
+    color: rgb(252 211 77);
+  }
+  .badge[data-grade='poor'] {
+    border-color: rgb(185 28 28 / 0.7);
+    background: rgb(127 29 29 / 0.4);
+    color: rgb(252 165 165);
+  }
+}

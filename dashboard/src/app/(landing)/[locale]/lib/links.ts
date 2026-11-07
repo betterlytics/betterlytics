@@ -5,6 +5,8 @@ export const LINKS = {
   replayDocs: 'https://betterlytics.io/docs/integration/session-replay',
   errorsDocs: 'https://betterlytics.io/docs/integration/errors',
   errorsDashboardDocs: 'https://betterlytics.io/docs/dashboard/errors',
+  vitalsDocs: 'https://betterlytics.io/docs/integration/web-vitals',
+  vitalsScoreDocs: 'https://betterlytics.io/docs/dashboard/metrics-glossary#composite-score',
   integrationsDocs: 'https://betterlytics.io/docs/dashboard/integrations',
   github: 'https://github.com/betterlytics/betterlytics',
   license: 'https://github.com/betterlytics/betterlytics/blob/main/LICENSE',

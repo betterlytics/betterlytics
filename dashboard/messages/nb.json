@@ -1291,6 +1291,7 @@
         "uptime": "Oppetidsovervåking",
         "replay": "Sesjonsavspilling",
         "errors": "Feilsporing",
+        "vitals": "Core Web Vitals",
         "pricing": "Priser"
       },
       "company": {

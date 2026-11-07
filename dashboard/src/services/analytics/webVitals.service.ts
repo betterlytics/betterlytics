@@ -11,8 +11,8 @@ import {
   type CWVDimension,
   type CoreWebVitalName,
 } from '@/entities/analytics/webVitals.entities';
-import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { getPerformanceScore } from '@/utils/coreWebVitals';
 
 export async function getCoreWebVitalsSummaryForSite(siteQuery: BASiteQuery): Promise<CoreWebVitalsSummary> {
   return getCoreWebVitalsP75(siteQuery);
@@ -32,46 +32,15 @@ export async function getCoreWebVitalsAllPercentilesPerDimension(siteQuery: BASi
 
 type ScoreArray = [number, number, number, number]; // p50, p75, p90, p99
 
-const METRIC_WEIGHTS: Record<CoreWebVitalName, number> = {
-  LCP: 0.3,
-  CLS: 0.15,
-  FCP: 0.15,
-  TTFB: 0.1,
-  INP: 0.3,
-};
-
-function scoreForMetric(value: number | null | undefined, good: number, meh: number): number {
-  if (value == null || Number.isNaN(value)) return 0;
-  if (value <= good) {
-    const frac = Math.max(0, Math.min(1, value / good));
-    return 90 + (1 - frac) * 10;
-  }
-  if (value <= meh) {
-    const frac = (value - good) / (meh - good);
-    return 90 - frac * 40;
-  }
-  const over = Math.max(0, value - meh);
-  const frac = Math.min(1, over / meh);
-  return Math.max(0, 50 - frac * 50);
-}
-
 function computeScoreForRowPercentile(
   percentiles: Record<CoreWebVitalName, [number | null, number | null, number | null, number | null]>,
   percentileIndex: number,
 ): number {
-  let weighted = 0;
-  let weightSum = 0;
-  (['LCP', 'CLS', 'FCP', 'TTFB', 'INP'] as CoreWebVitalName[]).forEach((metric) => {
-    const value = percentiles[metric]?.[percentileIndex] ?? null;
-    if (value == null) return;
-
-    const [good, meh] = CWV_THRESHOLDS[metric];
-    const s = scoreForMetric(value, good, meh);
-    const w = METRIC_WEIGHTS[metric];
-    weighted += s * w;
-    weightSum += w;
-  });
-  return weightSum > 0 ? weighted / weightSum : 0;
+  return getPerformanceScore(
+    Object.fromEntries(
+      Object.entries(percentiles).map(([metric, values]) => [metric, values[percentileIndex]]),
+    ) as Partial<Record<CoreWebVitalName, number | null>>,
+  );
 }
 
 export async function getCoreWebVitalsPreparedByDimension(siteQuery: BASiteQuery, dimension: CWVDimension) {

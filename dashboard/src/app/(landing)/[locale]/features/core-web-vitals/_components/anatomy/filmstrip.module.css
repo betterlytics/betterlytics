@@ -1,0 +1,557 @@
+@reference '../../../../landing.css';
+
+@layer components {
+  .film {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stage {
+    padding: 26px 30px 20px;
+    border-bottom: 1px solid var(--color-rule-08);
+    @apply bg-hatch;
+    @variant max-sm {
+      padding: 26px var(--pad) 16px;
+    }
+  }
+
+  .strip {
+    container: strip / inline-size;
+  }
+
+  /*
+   * Nine frames from 0.5s, each with a slot to its right for its label. The axis follows the frame centres, so 0s
+   * falls left of the strip: the line and the TTFB wait fade in from there instead.
+   */
+  .reel {
+    --gap: 44px;
+    --pitch: calc(100cqw / 9);
+    --w: calc(var(--pitch) - var(--gap));
+    --x0: calc(var(--w) / 2 - var(--pitch));
+    --span: 100cqw;
+    --lane: 64px;
+    --line: 12px;
+    position: relative;
+  }
+
+  .frames {
+    display: grid;
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+    gap: 18px 0;
+  }
+  .frames > li {
+    margin-right: var(--gap);
+  }
+
+  .frame {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+    transition: opacity 0.25s ease;
+  }
+  .frame[data-owned] {
+    cursor: pointer;
+  }
+  .reel[data-picked] .frame:not([data-current]) {
+    opacity: 0.4;
+  }
+  .reel[data-picked] .frame[data-owned]:not([data-current]):hover {
+    opacity: 0.75;
+  }
+
+  .shot {
+    position: relative;
+    display: block;
+    container-type: inline-size;
+    aspect-ratio: 10 / 18;
+    overflow: hidden;
+    border: 1px solid var(--color-rule-22);
+    border-radius: 7px;
+    background: var(--color-canvas);
+    transition: box-shadow 0.25s ease;
+  }
+  .frame[data-current] .shot {
+    box-shadow:
+      0 0 0 2px var(--color-panel),
+      0 0 0 3.5px var(--color-volt-lift),
+      0 10px 24px rgb(0 0 0 / 0.45);
+  }
+
+  /* the page inside a frame: sizes are in frame widths */
+  .page {
+    --push: 15cqw;
+    position: absolute;
+    inset: 0;
+    display: block;
+    padding: 8cqw 7cqw 0;
+  }
+  /* nothing new on screen since the frame before */
+  .frame:not([data-changed], [data-tap], :first-child) .page {
+    opacity: 0.42;
+  }
+  .page i {
+    display: block;
+  }
+
+  .banner {
+    position: absolute;
+    inset: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--push);
+    padding: 0 7cqw;
+    background: #2b2826;
+    opacity: 0;
+  }
+  .banner i:first-child {
+    width: 52%;
+    height: 3.2cqw;
+    border-radius: 99px;
+    background: --alpha(var(--color-fg) / 50%);
+  }
+  .banner i:last-child {
+    width: 5cqw;
+    height: 5cqw;
+    border-radius: 50%;
+    background: --alpha(var(--color-fg) / 30%);
+  }
+  .page[data-shifted] .banner {
+    opacity: 1;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 5cqw;
+  }
+  .page[data-shifted] .content {
+    translate: 0 var(--push);
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 6cqw;
+    border-bottom: 1px solid var(--color-rule-10);
+  }
+  .nav > i {
+    width: 10cqw;
+    height: 10cqw;
+    border-radius: 3cqw;
+    background: var(--color-volt-soft);
+  }
+  .nav span {
+    display: flex;
+    gap: 4cqw;
+  }
+  .nav span i {
+    width: 13cqw;
+    height: 3.2cqw;
+    border-radius: 99px;
+    background: --alpha(var(--color-fg) / 32%);
+  }
+  .heading {
+    display: flex;
+    flex-direction: column;
+    gap: 4cqw;
+    margin-top: 2cqw;
+    border-radius: 2cqw;
+  }
+  .heading i {
+    height: 7cqw;
+    border-radius: 1.6cqw;
+    background: --alpha(var(--color-fg) / 90%);
+  }
+  .heading i:last-child {
+    width: 64%;
+  }
+
+  .media {
+    position: relative;
+    display: block;
+    aspect-ratio: 1 / 0.74;
+    border-radius: 4cqw;
+    background: --alpha(var(--color-fg) / 5%);
+  }
+  .page[data-image] .media {
+    background:
+      radial-gradient(90% 70% at 72% 118%, --alpha(var(--color-glow) / 85%), transparent 70%),
+      linear-gradient(160deg, var(--color-volt-lift), var(--color-volt) 72%);
+  }
+  .ghost {
+    position: absolute;
+    inset: 0;
+    border: 1.5px dashed var(--level);
+    border-radius: inherit;
+    translate: 0 calc(-1 * var(--push));
+    opacity: 0;
+  }
+
+  .lines {
+    display: flex;
+    flex-direction: column;
+    gap: 3cqw;
+  }
+  .lines i {
+    height: 3.2cqw;
+    border-radius: 99px;
+    background: --alpha(var(--color-fg) / 30%);
+  }
+  .lines i:last-child {
+    width: 70%;
+  }
+
+  .button {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 13cqw;
+    border-radius: 99px;
+    background: --alpha(var(--color-fg) / 88%);
+  }
+  .button > * {
+    grid-area: 1 / 1;
+  }
+  .button i {
+    width: 34%;
+    height: 3.2cqw;
+    border-radius: 99px;
+    background: var(--color-canvas);
+  }
+  .button svg {
+    width: 8cqw;
+    height: 8cqw;
+    fill: none;
+    stroke: var(--color-on-volt);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0;
+  }
+  .page[data-responded] .button {
+    background: var(--color-volt-lift);
+  }
+  .page[data-responded] .button i {
+    opacity: 0;
+  }
+  .page[data-responded] .button svg {
+    opacity: 1;
+  }
+
+  .nav,
+  .heading {
+    opacity: 0;
+  }
+  .page[data-text] :is(.nav, .heading) {
+    opacity: 1;
+  }
+  .media,
+  .lines,
+  .button {
+    opacity: 0;
+  }
+  .page[data-body] :is(.media, .lines, .button) {
+    opacity: 1;
+  }
+
+  /* what the marked frame is about, in its metric's colour */
+  .frame[data-for='FCP'] .heading,
+  .frame[data-for='LCP'] .media,
+  .frame[data-for='CLS'] .media,
+  .frame[data-for='INP'] .button {
+    box-shadow:
+      0 0 0 1.5cqw var(--color-canvas),
+      0 0 0 3cqw var(--level);
+  }
+  .frame[data-for='CLS'] .ghost {
+    opacity: 0.9;
+  }
+  .frame[data-tap] .button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 66%;
+    width: 17cqw;
+    height: 17cqw;
+    border: 1.5px solid var(--color-volt-soft);
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--color-volt-soft) 0 22%, --alpha(var(--color-volt-lift) / 35%) 24%);
+    translate: -50% -50%;
+  }
+
+  /* a line from the element into the slot beside its frame, and the label there */
+  .callout {
+    --ink: color-mix(in oklab, var(--level, var(--color-volt-soft)) 80%, transparent);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .callout i {
+    position: absolute;
+    top: calc(var(--y) * 100%);
+    left: 92.2%;
+    right: -7px;
+    border-top: 1px solid var(--ink);
+  }
+  .callout i::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -2.5px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--ink);
+  }
+  .callout b {
+    position: absolute;
+    top: calc(var(--y) * 100%);
+    left: calc(100% + 10px);
+    font-size: 11px;
+    line-height: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    color: --alpha(var(--color-fg) / 88%);
+    translate: 0 -50%;
+  }
+
+  /* a shift gets a bracket over the area it touched, its ends gripping the frame's edge */
+  .callout[data-span] i {
+    bottom: calc((1 - var(--to)) * 100%);
+    left: calc(100% - 3px);
+    right: -6px;
+    border: 1px solid var(--ink);
+    border-left: 0;
+    border-radius: 0 3px 3px 0;
+  }
+  .callout[data-span] i::before {
+    top: calc(50% - 0.5px);
+    left: 100%;
+    width: 5px;
+    height: 1px;
+    border-radius: 0;
+  }
+  .callout[data-span] b {
+    top: calc((var(--y) + var(--to)) * 50%);
+    left: calc(100% + 13px);
+  }
+
+  .lane {
+    position: relative;
+    height: var(--lane);
+    margin-top: 14px;
+    clip-path: inset(-40px 0 -40px -28px);
+  }
+  .lane::before {
+    content: '';
+    position: absolute;
+    top: var(--line);
+    left: var(--x0);
+    width: var(--span);
+    height: 1px;
+    background: var(--color-rule-30);
+  }
+  .lane::before,
+  .span[data-from-start] {
+    mask-image: linear-gradient(
+      to right,
+      transparent calc(-1 * var(--x0) - 28px),
+      #000 calc(-1 * var(--x0) + 12px)
+    );
+  }
+  .tick {
+    position: absolute;
+    top: calc(var(--line) - 3px);
+    left: 0;
+    width: 1px;
+    height: 7px;
+    background: var(--color-rule-30);
+    translate: calc(var(--x0) + var(--f) * var(--span)) 0;
+  }
+  .span {
+    position: absolute;
+    top: calc(var(--line) - 1px);
+    left: 0;
+    width: calc(var(--len) * var(--span));
+    height: 3px;
+    border-radius: 99px;
+    background: var(--level);
+    translate: calc(var(--x0) + var(--f) * var(--span)) 0;
+  }
+  .mark {
+    position: absolute;
+    top: calc(var(--line) - 4.5px);
+    left: 0;
+    translate: calc(var(--x0) + var(--f) * var(--span)) 0;
+  }
+  .mark::before {
+    content: '';
+    position: absolute;
+    left: -4.5px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--color-panel);
+    box-shadow: inset 0 0 0 4.5px var(--level);
+  }
+  .mark[data-spot]::before {
+    scale: 1.35;
+  }
+  .mark > span {
+    position: absolute;
+    top: 15px;
+    left: 0;
+    translate: -50% 0;
+    font-size: 11.5px;
+    line-height: 15px;
+    white-space: nowrap;
+    color: var(--level-text);
+  }
+  .mark > span b {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--color-fg);
+  }
+  .span,
+  .mark {
+    transition: opacity 0.25s ease;
+  }
+  .reel[data-picked] :is(.span, .mark):not([data-spot]) {
+    opacity: 0.3;
+  }
+
+  .deck {
+    container-type: inline-size;
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .card {
+    position: relative;
+    padding: 20px 22px 22px;
+    border-right: 1px solid var(--color-rule-08);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  .card:last-child {
+    border-right: 0;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 2px;
+    background: var(--color-volt-lift);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .card[data-active] {
+    background: --alpha(var(--color-fg) / 3%);
+  }
+  .card[data-active]::before {
+    opacity: 1;
+  }
+
+  .copy h3 {
+    font-size: var(--text-body-sm);
+    line-height: 22px;
+    font-weight: 500;
+  }
+  .copy button {
+    text-align: left;
+    color: var(--color-fg);
+  }
+  /* stretched over the card, so the whole card is the button's target */
+  .copy button::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .copy p {
+    margin-top: 5px;
+    max-width: 48ch;
+    font-size: var(--text-label);
+    line-height: 21px;
+    color: var(--color-muted);
+  }
+
+  /* narrower: rows of five, then three, and the axis runs under them on its own */
+  @container strip (width < 900px) {
+    .reel {
+      --gap: 40px;
+      --x0: 26px;
+      --span: calc(100cqw - 52px);
+    }
+    .frames {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+    .lane {
+      clip-path: none;
+    }
+  }
+  @container strip (width < 560px) {
+    .frames {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  /* where frames are narrow, the labels beside LCP's drop to a second row */
+  @container strip (width < 620px) {
+    .mark:is([data-metric='FCP'], [data-metric='CLS']) > span {
+      top: 33px;
+    }
+    .mark:is([data-metric='FCP'], [data-metric='CLS']) > span::before {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      width: 1px;
+      height: 20px;
+      background: var(--color-rule-22);
+    }
+  }
+
+  /* cards: three over two, then one per row */
+  @container (width < 1100px) {
+    .cards {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+    .card {
+      grid-column: span 2;
+    }
+    .card:nth-child(-n + 3) {
+      border-bottom: 1px solid var(--color-rule-08);
+    }
+    .card:nth-child(3) {
+      border-right: 0;
+    }
+    .card:nth-child(n + 4) {
+      grid-column: span 3;
+    }
+  }
+  @container (width < 640px) {
+    .cards {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .card,
+    .card:nth-child(n + 4) {
+      grid-column: auto;
+      padding: 14px var(--pad) 16px;
+      border-right: 0;
+      border-bottom: 1px solid var(--color-rule-08);
+    }
+    .card:last-child {
+      border-bottom: 0;
+    }
+    .card::before {
+      inset: 0 auto 0 0;
+      width: 2px;
+      height: auto;
+    }
+  }
+}
