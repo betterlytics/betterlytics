@@ -1,8 +1,10 @@
 import 'server-only';
 
+import { createHash } from 'node:crypto';
 import { verifyOAuthQueryParams } from '@better-auth/oauth-provider';
 import type { DashboardRole } from '@prisma/client';
 import type { McpGrantSelection } from '@/entities/dashboard/mcpOAuth.entities';
+import { MCP_CONSENT_REQUEST_INVALID } from '@/constants/auth';
 import { auth } from '@/lib/better-auth';
 import { env } from '@/lib/env';
 import { UserException } from '@/lib/exceptions';
@@ -14,6 +16,10 @@ import {
   findOauthClient,
   replaceMcpGrant,
 } from '@/repositories/postgres/mcpGrant.repository';
+import {
+  isMcpConsentRequestAnswered,
+  markMcpConsentRequestAnswered,
+} from '@/repositories/postgres/mcpConsentRequest.repository';
 import { grantedDashboards } from '@/services/auth/mcpAccess.service';
 
 // What the OAuth provider adds to the authorization request it signs for the consent page
@@ -55,10 +61,29 @@ export function signedOAuthQuery(searchParams: Record<string, string | string[] 
   return signed.toString();
 }
 
+// The provider's signature stays valid until it expires, so a request answered once is remembered by it
+function requestKey(params: URLSearchParams): string {
+  return createHash('sha256')
+    .update(params.get('sig') ?? '')
+    .digest('base64url');
+}
+
+/** The request's parameters, or null when it is unsigned, expired or already answered with Allow or Cancel. */
 async function verifiedRequest(oauthQuery: string): Promise<URLSearchParams | null> {
   if (!(await verifyOAuthQueryParams(oauthQuery, env.AUTH_SECRET))) return null;
   const params = new URLSearchParams(oauthQuery);
-  return params.get('client_id') && params.get('redirect_uri') ? params : null;
+  if (!params.get('client_id') || !params.get('redirect_uri')) return null;
+  return (await isMcpConsentRequestAnswered(requestKey(params))) ? null : params;
+}
+
+async function requireOpenRequest(oauthQuery: string): Promise<URLSearchParams> {
+  const params = await verifiedRequest(oauthQuery);
+  if (!params) throw new UserException('This connection request is no longer valid', MCP_CONSENT_REQUEST_INVALID);
+  return params;
+}
+
+async function markAnswered(params: URLSearchParams): Promise<void> {
+  await markMcpConsentRequestAnswered(requestKey(params), new Date(Number(params.get('exp')) * 1000));
 }
 
 function urlHost(value: string): string | null {
@@ -69,7 +94,7 @@ function urlHost(value: string): string | null {
   }
 }
 
-/** Null for a request that is unsigned, expired or for a client that is gone or disabled. */
+/** Null for a request that is unsigned, expired, already answered, or for a client that is gone or disabled. */
 export async function getMcpConsentRequest(userId: string, oauthQuery: string): Promise<McpConsentRequest | null> {
   const params = await verifiedRequest(oauthQuery);
   if (!params) return null;
@@ -139,8 +164,7 @@ export async function allowMcpConsent(
   selection: McpGrantSelection,
   requestHeaders: Headers,
 ): Promise<string> {
-  const params = await verifiedRequest(oauthQuery);
-  if (!params) throw new UserException('This connection request is no longer valid');
+  const params = await requireOpenRequest(oauthQuery);
   const clientId = params.get('client_id')!;
 
   // every picked dashboard is checked against the user's memberships now, not as the page showed them
@@ -156,12 +180,15 @@ export async function allowMcpConsent(
   const consent = await findMcpConsentGrant(userId, clientId);
   if (!consent) throw new Error('The OAuth provider stored no consent');
   await replaceMcpGrant(consent.consentId, selection);
+  await markAnswered(params);
 
   return url;
 }
 
 /** The client's redirect with `error=access_denied` and its state. */
 export async function denyMcpConsent(oauthQuery: string, requestHeaders: Headers): Promise<string> {
-  if (!(await verifiedRequest(oauthQuery))) throw new UserException('This connection request is no longer valid');
-  return await submitConsent(false, oauthQuery, requestHeaders);
+  const params = await requireOpenRequest(oauthQuery);
+  const url = await submitConsent(false, oauthQuery, requestHeaders);
+  await markAnswered(params);
+  return url;
 }

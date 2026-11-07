@@ -16,6 +16,7 @@ import { useTranslations } from 'next-intl';
 import type { DashboardRole } from '@prisma/client';
 import { allowMcpConsentAction, denyMcpConsentAction } from '@/app/actions/auth/mcpConsent.action';
 import { authClient } from '@/lib/auth-client';
+import { MCP_CONSENT_REQUEST_INVALID } from '@/constants/auth';
 import type { McpConsentRequest } from '@/services/auth/mcpConsent.service';
 import { Corners } from '@/landing/components/ui/frame';
 import frame from '@/landing/components/ui/frame.module.css';
@@ -61,6 +62,13 @@ function Icon({ name }: { name: keyof typeof ICONS }) {
 }
 
 /** The subdomain part and the registrable domain, which stays visible when a long host is cut short. */
+/** Answered or expired since the page loaded: a reload shows the page's invalid-request state instead. */
+function isAnswered(error: { [key: string]: unknown }): boolean {
+  if (error.code !== MCP_CONSENT_REQUEST_INVALID) return false;
+  window.location.reload();
+  return true;
+}
+
 function splitHost(host: string): [string, string] {
   const parts = host.split('.');
   const keep = parts.length > 2 && MULTI_PART_SUFFIXES.has(parts.slice(-2).join('.')) ? 3 : 2;
@@ -155,6 +163,7 @@ export function ConsentPanel({
         window.location.assign(result.data.url);
         return;
       }
+      if (isAnswered(result.error)) return;
     } catch {
       // shown below
     }
@@ -171,6 +180,7 @@ export function ConsentPanel({
         window.location.assign(result.data.url);
         return;
       }
+      if (isAnswered(result.error)) return;
     } catch {
       // shown below
     }
