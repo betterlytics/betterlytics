@@ -30,12 +30,199 @@
     }
   }
 
+  /* the map and the loads landing on it share one box, so shares of it are places on the map */
+  .map {
+    position: relative;
+    align-self: center;
+  }
   .svg {
     display: block;
-    align-self: center;
     width: 100%;
     height: auto;
     overflow: visible;
+  }
+
+  .landings {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .arrival {
+    position: absolute;
+    top: calc(var(--y) * 100%);
+    left: calc(var(--x) * 100%);
+  }
+  /* the load itself, in its own level's colour, and a ring that spreads once as it lands */
+  .arrival::before,
+  .ping {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .arrival::before {
+    background: var(--level);
+    box-shadow: 0 0 0 2px var(--color-panel);
+  }
+  .ping {
+    border: 1px solid var(--level);
+    opacity: 0;
+  }
+
+  /* above the dot, or below it near the top edge; the stem joins the two */
+  .callout {
+    position: absolute;
+    bottom: 13px;
+    left: 0;
+    display: grid;
+    gap: 2px;
+    padding: 7px 11px 8px;
+    border: 1px solid var(--color-volt-lift);
+    background: --alpha(var(--color-canvas) / 82%);
+    font-size: 11.5px;
+    line-height: 16px;
+    white-space: nowrap;
+    translate: -50% 0;
+    @apply font-mono;
+  }
+  .callout::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 1px;
+    height: 8px;
+    background: var(--color-volt-lift);
+  }
+  .arrival[data-below] .callout {
+    top: 13px;
+    bottom: auto;
+  }
+  .arrival[data-below] .callout::after {
+    top: auto;
+    bottom: 100%;
+  }
+  .arrival[data-align='start'] .callout {
+    translate: -16px 0;
+  }
+  .arrival[data-align='start'] .callout::after {
+    left: 15px;
+  }
+  .arrival[data-align='end'] .callout {
+    translate: calc(-100% + 16px) 0;
+  }
+  .arrival[data-align='end'] .callout::after {
+    left: auto;
+    right: 15px;
+  }
+  .visit {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--color-fg);
+  }
+  .visit b {
+    margin-left: 3px;
+    font-weight: 400;
+  }
+  .reading {
+    color: var(--color-muted);
+  }
+  .reading b {
+    font-weight: 500;
+    color: var(--level-text);
+  }
+  .glyph,
+  .mask {
+    flex: none;
+    width: 13px;
+    height: 13px;
+  }
+  .mask {
+    background: var(--color-fg);
+    -webkit-mask: center / contain no-repeat;
+    mask: center / contain no-repeat;
+  }
+
+  /* one load at a time: it lands, stays a moment and fades, and its animation's end brings the next */
+  @keyframes arrive {
+    from {
+      opacity: 0;
+    }
+    8%,
+    88% {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes rise {
+    from {
+      transform: translateY(5px);
+    }
+  }
+  @keyframes ping {
+    from {
+      opacity: 0.9;
+      scale: 1;
+    }
+    to {
+      opacity: 0;
+      scale: 3.6;
+    }
+  }
+  .arrival[data-live] {
+    animation: arrive 3.6s linear both;
+  }
+  .arrival[data-live] .callout {
+    animation: rise 0.6s var(--ease-out-expo) both;
+  }
+  .arrival[data-live] .ping {
+    animation: ping 1.4s var(--ease-out-expo) 0.1s both;
+  }
+  .landings[data-paused] :is(.arrival, .callout, .ping) {
+    animation-play-state: paused;
+  }
+  .still {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .arrival[data-live] {
+      display: none;
+    }
+    .still {
+      display: contents;
+    }
+  }
+
+  @container (width < 600px) {
+    .callout {
+      bottom: 11px;
+      padding: 4px 7px 5px;
+      font-size: 10px;
+      line-height: 13px;
+    }
+    .callout::after {
+      height: 6px;
+    }
+    .arrival[data-below] .callout {
+      top: 11px;
+    }
+    .visit {
+      gap: 4px;
+    }
+    .visit b {
+      margin-left: 2px;
+    }
+    .glyph,
+    .mask {
+      width: 10px;
+      height: 10px;
+    }
   }
 
   /* each run of land is one line, dotted by a near-zero dash in the middle of every cell */
@@ -264,6 +451,15 @@
   }
   .countries tbody tr[data-on] {
     background: --alpha(var(--color-fg) / 4%);
+  }
+  /* the country a load is landing in */
+  .countries tbody tr[data-live] {
+    background: --alpha(var(--color-fg) / 3%);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .countries tbody tr[data-live]:not([data-on]) {
+      background: none;
+    }
   }
   .countries button {
     color: var(--color-fg);
