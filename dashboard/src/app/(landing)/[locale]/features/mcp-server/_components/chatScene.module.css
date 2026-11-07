@@ -1,0 +1,342 @@
+@reference '../../../landing.css';
+
+@layer components {
+  /* a desktop chat app in its own dark palette, measured from the real one */
+  .app {
+    --app-bg: #181818;
+    --app-side: #1f1f1f;
+    --app-line: #2d2d2d;
+    --app-text: #ececec;
+    --app-muted: #9b9b9b;
+    --app-bubble: #222222;
+    --app-field: #303030;
+    --app-active: #333333;
+    --app-accent: #d97c59;
+    display: grid;
+    grid-template-columns: 218px minmax(0, 1fr);
+    height: 100%;
+    min-height: 600px;
+    background: var(--app-bg);
+    color: var(--app-text);
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      'Segoe UI',
+      sans-serif;
+    @variant max-xl {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    @variant max-md {
+      min-height: 0;
+    }
+  }
+
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 8px 10px;
+    border-right: 1px solid var(--app-line);
+    background: var(--app-side);
+    font-size: 13px;
+    @variant max-xl {
+      display: none;
+    }
+  }
+  .sideTop {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 8px 12px;
+  }
+  .sideIcon {
+    width: 16px;
+    height: 16px;
+    color: var(--app-muted);
+  }
+  .wordmark {
+    font-family: Charter, 'Sitka Text', 'Iowan Old Style', 'Palatino Linotype', ui-serif, Georgia, serif;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .nav > li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    border-radius: 7px;
+  }
+  .navIcon {
+    flex: none;
+    width: 15px;
+    height: 15px;
+    color: --alpha(var(--app-text) / 80%);
+  }
+  .recents {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 18px 8px 6px;
+    font-size: 11.5px;
+    color: var(--app-muted);
+  }
+  .chats {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .chats > li {
+    padding: 6px 8px;
+    border-radius: 7px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .chats > li[data-active] {
+    background: var(--app-active);
+  }
+  .viewAll {
+    color: var(--app-muted);
+  }
+  .account {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: auto;
+    padding: 8px;
+  }
+  .avatar {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    margin-right: 2px;
+    border-radius: 999px;
+    background: #3a3a3a;
+    color: var(--app-text);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .accountPlan {
+    color: var(--app-muted);
+  }
+  .cog {
+    flex: none;
+    width: 15px;
+    height: 15px;
+    margin-left: auto;
+    color: var(--app-muted);
+  }
+
+  .main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 46px;
+    padding: 0 18px;
+    font-size: 13px;
+  }
+  .title {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .headerIcon {
+    width: 16px;
+    height: 16px;
+    color: var(--app-muted);
+  }
+
+  .thread {
+    flex: 1;
+    width: 100%;
+    max-width: 632px;
+    margin: 0 auto;
+    padding: 10px 24px 18px;
+    @variant max-sm {
+      padding: 6px 16px 14px;
+    }
+  }
+  .user {
+    width: fit-content;
+    max-width: 82%;
+    margin-left: auto;
+    padding: 9px 14px;
+    border-radius: 14px;
+    background: var(--app-bubble);
+    font-size: 14px;
+    line-height: 21px;
+  }
+  .toolUse {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 18px;
+    padding: 8px 12px;
+    border: 1px solid var(--app-line);
+    border-radius: 10px;
+    font-size: 12.5px;
+    line-height: 18px;
+    color: var(--app-muted);
+  }
+  .toolMark {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    background: var(--color-volt);
+    color: var(--color-on-volt);
+  }
+  .toolLabel {
+    flex: none;
+    color: var(--app-text);
+  }
+  .toolNames {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    @variant max-sm {
+      display: none;
+    }
+  }
+  .toolChevron {
+    flex: none;
+    width: 14px;
+    height: 14px;
+    margin-left: auto;
+  }
+
+  .answer {
+    margin-top: 16px;
+    font-size: 14.5px;
+    line-height: 1.65;
+    text-wrap: pretty;
+  }
+  .answer > * + * {
+    margin-top: 12px;
+  }
+  .points {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-left: 1.2em;
+    list-style: disc;
+  }
+  .points > li::marker {
+    color: var(--app-muted);
+  }
+
+  .chart {
+    padding: 12px 14px 8px;
+    border: 1px solid var(--app-line);
+    border-radius: 12px;
+    background: var(--app-side);
+  }
+  .chartTitle {
+    font-size: 12.5px;
+    font-weight: 500;
+  }
+  .chartSvg {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin-top: 6px;
+  }
+  .bar {
+    fill: #5c5c5c;
+  }
+  .dipBar {
+    fill: var(--app-accent);
+  }
+  .outageBand {
+    fill: --alpha(var(--app-accent) / 10%);
+    stroke: --alpha(var(--app-accent) / 45%);
+    stroke-dasharray: 3 3;
+    rx: 6px;
+  }
+  .outageLabel {
+    font-size: 11px;
+    fill: var(--app-accent);
+  }
+  .axis {
+    stroke: var(--app-line);
+  }
+  .tick {
+    font-size: 10.5px;
+    fill: var(--app-muted);
+  }
+
+  .composerWrap {
+    width: calc(100% - 48px);
+    max-width: 632px;
+    margin: 0 auto 14px;
+    @variant max-sm {
+      width: calc(100% - 24px);
+      margin-bottom: 10px;
+    }
+  }
+  .composer {
+    padding: 12px 14px 10px 16px;
+    border: 1px solid #373737;
+    border-radius: 16px;
+    background: var(--app-field);
+  }
+  .placeholder {
+    font-size: 14px;
+    color: var(--app-muted);
+  }
+  .composerRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    font-size: 12.5px;
+    color: var(--app-muted);
+  }
+  .composerIcon,
+  .mic {
+    flex: none;
+    width: 16px;
+    height: 16px;
+  }
+  .connector {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 26px;
+    padding: 0 9px;
+    border-radius: 8px;
+    background: rgb(255 255 255 / 0.06);
+    color: var(--app-text);
+  }
+  .mic {
+    margin-left: auto;
+  }
+  .model {
+    margin-top: 8px;
+    padding-right: 10px;
+    font-size: 12px;
+    text-align: right;
+    color: var(--app-muted);
+  }
+  .model > b {
+    font-weight: 600;
+    color: var(--app-text);
+  }
+}

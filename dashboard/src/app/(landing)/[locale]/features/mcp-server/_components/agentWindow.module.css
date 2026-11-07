@@ -1,0 +1,73 @@
+@reference '../../../landing.css';
+
+@layer components {
+  .stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: 44px;
+  }
+  .scene {
+    grid-area: 1 / 1;
+    min-width: 0;
+    visibility: hidden;
+  }
+  .scene[data-active] {
+    visibility: visible;
+  }
+  .scene[data-active][data-switched] {
+    animation: arrive 0.45s var(--ease-out-expo);
+  }
+  @keyframes arrive {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* sits in the window's title bar, above its glow */
+  .switcher {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    z-index: 2;
+    display: flex;
+    gap: 2px;
+    padding: 2px;
+    border: 1px solid var(--color-rule-10);
+    border-radius: 999px;
+    background: --alpha(var(--color-fg) / 3%);
+  }
+  .client {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 24px;
+    padding: 0 11px 0 9px;
+    border-radius: 999px;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--color-muted);
+    transition:
+      background-color 0.18s var(--ease-out-expo),
+      color 0.18s var(--ease-out-expo);
+    @variant max-md {
+      padding: 0 8px;
+    }
+  }
+  .client:hover {
+    color: var(--color-fg);
+  }
+  .client[aria-selected='true'] {
+    background: --alpha(var(--color-fg) / 11%);
+    color: var(--color-fg);
+  }
+  .clientIcon {
+    flex: none;
+    width: 13px;
+    height: 13px;
+  }
+  .clientName {
+    @variant max-md {
+      display: none;
+    }
+  }
+}
