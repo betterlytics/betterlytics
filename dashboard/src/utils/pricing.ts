@@ -1,7 +1,8 @@
 import type { SupportedLanguages } from '@/constants/i18n';
+import { EVENT_STEPS } from '@/lib/billing/catalog';
 
 // Largest displayed event tier; anything above (the contact-sales range) is shown as "N+".
-export const EVENT_DISPLAY_CAP = 10_000_000;
+export const EVENT_DISPLAY_CAP = EVENT_STEPS[EVENT_STEPS.length - 1];
 
 const COMPACT_UNITS: Record<SupportedLanguages, { thousand: string; million: string }> = {
   en: { thousand: 'K', million: 'M' },

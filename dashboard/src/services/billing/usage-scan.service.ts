@@ -18,10 +18,6 @@ export function classifyUsageThreshold(pct: number): UsageThresholdKind | null {
   return null;
 }
 
-export function formatPlanName(tier: SubscriptionWithOwnedSites['tier']): string {
-  return tier.charAt(0).toUpperCase() + tier.slice(1);
-}
-
 function isFreeTierAndExpired(sub: SubscriptionWithOwnedSites): boolean {
   return !sub.paymentSubscriptionId && sub.currentPeriodEnd < new Date();
 }

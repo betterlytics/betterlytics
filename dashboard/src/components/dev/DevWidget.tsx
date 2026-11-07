@@ -18,18 +18,15 @@ import {
 import { TimezoneSelect } from '@/components/userSettings/preferences/TimezoneSelect';
 import { useUserSettings } from '@/contexts/UserSettingsProvider';
 import { useUserSettingsMutation } from '@/hooks/use-user-settings-mutation';
-import { TIER_TO_PLANNAME_KEY, type TierName } from '@/lib/billing/plans';
+import { PLAN_IDS, getPlan, type PlanId } from '@/lib/billing/catalog';
 import { useRouter } from 'next/navigation';
 import type { Theme } from '@prisma/client';
 
 interface DevWidgetProps {
-  initialTier: TierName;
+  initialPlanId: PlanId;
 }
 
-const TIERS = Object.keys(TIER_TO_PLANNAME_KEY).map((tier) => ({
-  value: tier as TierName,
-  label: tier.charAt(0).toUpperCase() + tier.slice(1),
-}));
+const PLAN_OPTIONS = PLAN_IDS.map((planId) => ({ value: planId, label: getPlan(planId).name }));
 
 const THEMES = [
   { value: 'light', label: 'Light' },
@@ -37,21 +34,21 @@ const THEMES = [
   { value: 'system', label: 'System' },
 ];
 
-export function DevWidget({ initialTier }: DevWidgetProps) {
+export function DevWidget({ initialPlanId }: DevWidgetProps) {
   const { theme, setTheme } = useTheme();
   const router = useRouter();
   const locale = useLocale();
   const [isPending, startTransition] = useTransition();
-  const [currentTier, setCurrentTier] = useState<TierName>(initialTier);
+  const [currentPlanId, setCurrentPlanId] = useState<PlanId>(initialPlanId);
   const settings = useUserSettings();
   const timezoneMutation = useUserSettingsMutation({ action: updateUserTimezoneAction });
 
-  function handleTierChange(tier: TierName) {
-    setCurrentTier(tier);
+  function handlePlanChange(planId: PlanId) {
+    setCurrentPlanId(planId);
     startTransition(async () => {
       try {
-        await updateDevSubscriptionAction(tier);
-        toast.success(`Subscription changed to ${tier}`);
+        await updateDevSubscriptionAction(planId);
+        toast.success(`Subscription changed to ${getPlan(planId).name}`);
         window.location.reload();
       } catch {
         toast.error('Failed to change subscription');
@@ -91,14 +88,14 @@ export function DevWidget({ initialTier }: DevWidgetProps) {
 
             <div className='grid gap-1.5'>
               <label className='text-muted-foreground text-xs'>Subscription</label>
-              <Select value={currentTier} onValueChange={handleTierChange} disabled={isPending}>
+              <Select value={currentPlanId} onValueChange={handlePlanChange} disabled={isPending}>
                 <SelectTrigger size='sm' className='w-full'>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {TIERS.map((tier) => (
-                    <SelectItem key={tier.value} value={tier.value}>
-                      {tier.label}
+                  {PLAN_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -6,18 +6,16 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import { SelectedPlan } from '@/types/pricing';
-import type { UserBillingData, Tier, Currency } from '@/entities/billing/billing.entities';
-import { formatPrice } from '@/utils/pricing';
-import { capitalizeFirstLetter } from '@/utils/formatters';
-import { EventRange, isContactSalesRange } from '@/lib/billing/plans';
+import type { UserBillingData, Currency } from '@/entities/billing/billing.entities';
+import { isCustomVolume, isFreeBand, isQuoted, listedPlans, priceFor, type PlanId } from '@/lib/billing/catalog';
 import { Dispatch, useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import NumberFlow from '@number-flow/react';
 import { usePlanFeatures, type PlanFeatureLabel } from './usePlanFeatures';
 
 interface PricingCardsProps {
-  eventRange: EventRange;
+  volume: number;
   currency: Currency;
   onPlanSelect?: Dispatch<SelectedPlan>;
   mode?: 'landing' | 'billing';
@@ -26,92 +24,70 @@ interface PricingCardsProps {
 }
 
 interface PlanConfig {
-  tier: Tier;
-  price_cents: number;
+  id: PlanId;
+  name: string;
+  contactOnly: boolean;
+  isFree: boolean;
+  priceCents: number | null;
   period: string;
   description: string;
   features: readonly PlanFeatureLabel[];
   cta: string;
   popular: boolean;
-  lookup_key: string | null;
 }
 
 export function PricingCards({
-  eventRange,
+  volume,
   currency,
   onPlanSelect,
   mode = 'landing',
   className = '',
   billingData,
 }: PricingCardsProps) {
-  const locale = useLocale();
   const t = useTranslations('pricingCards');
-  const growthPrice = currency === 'EUR' ? eventRange.growth.price.eur_cents : eventRange.growth.price.usd_cents;
-  const professionalPrice =
-    currency === 'EUR' ? eventRange.professional.price.eur_cents : eventRange.professional.price.usd_cents;
-
-  const isFree = growthPrice === 0;
-  const isContactSales = isContactSalesRange(eventRange);
-  const featuresFor = usePlanFeatures(eventRange);
+  const isContactSales = isCustomVolume(volume);
+  const featuresFor = usePlanFeatures(volume);
 
   const plans: PlanConfig[] = useMemo(
-    () => [
-      {
-        tier: 'growth',
-        price_cents: growthPrice,
-        period: !isFree && !isContactSales ? t('periodPerMonth') : '',
-        description: t('descriptions.growth'),
-        features: featuresFor('growth'),
-        cta: isFree ? t('cta.getStartedForFree') : isContactSales ? t('cta.contactSales') : t('cta.getStarted'),
-        popular: false,
-        lookup_key: eventRange.growth.lookup_key,
-      },
-      {
-        tier: 'professional',
-        price_cents: professionalPrice,
-        period: !isContactSales ? t('periodPerMonth') : '',
-        description: t('descriptions.professional'),
-        features: featuresFor('professional'),
-        cta: isContactSales ? t('cta.contactSales') : t('cta.getStarted'),
-        popular: true,
-        lookup_key: eventRange.professional.lookup_key,
-      },
-      {
-        tier: 'enterprise',
-        price_cents: -1,
-        period: '',
-        description: t('descriptions.enterprise'),
-        features: featuresFor('enterprise'),
-        cta: t('cta.contactUs'),
-        popular: false,
-        lookup_key: null,
-      },
-    ],
-    [eventRange, growthPrice, professionalPrice, isFree, isContactSales, featuresFor, t],
+    () =>
+      listedPlans().map((plan) => {
+        const contactOnly = isQuoted(plan, volume);
+        const isFree = isFreeBand(plan, volume);
+        return {
+          id: plan.id,
+          name: plan.name,
+          contactOnly,
+          isFree,
+          priceCents: contactOnly ? null : priceFor(plan, volume, currency),
+          period: contactOnly || isFree ? '' : t('periodPerMonth'),
+          description: t(`descriptions.${plan.id}`),
+          features: featuresFor(plan),
+          cta: !plan.selfServe
+            ? t('cta.contactUs')
+            : isContactSales
+              ? t('cta.contactSales')
+              : isFree
+                ? t('cta.getStartedForFree')
+                : t('cta.getStarted'),
+          popular: plan.featured,
+        };
+      }),
+    [volume, currency, isContactSales, featuresFor, t],
   );
 
   const handlePlanClick = (plan: PlanConfig) => {
     if (mode === 'billing' && onPlanSelect) {
       const selectedPlan: SelectedPlan = {
-        tier: plan.tier,
-        eventLimit: eventRange.value,
-        price_cents: plan.price_cents,
-        period: plan.period,
+        planId: plan.id,
+        eventLimit: volume,
         currency,
-        lookup_key: plan.lookup_key,
       };
       onPlanSelect(selectedPlan);
     }
   };
 
-  const formatDisplayPrice = (price: number): string => {
-    if (price === 0) return t('labels.free');
-    if (price < 0) return t('labels.custom');
-    return formatPrice(price, currency, locale);
-  };
-
   const renderButton = (plan: PlanConfig) => {
-    if (plan.tier === 'enterprise' || isContactSales) {
+    if (plan.contactOnly) {
       return (
         <Link
           href='/contact'
@@ -128,7 +104,7 @@ export function PricingCards({
 
     if (mode === 'billing' && billingData) {
       const isCurrentPlan =
-        billingData.subscription.tier === plan.tier && billingData.subscription.eventLimit === eventRange.value;
+        billingData.subscription.planId === plan.id && billingData.subscription.eventLimit === volume;
 
       let buttonText = plan.cta;
       let buttonVariant: 'default' | 'outline' | 'secondary' = plan.popular ? 'default' : 'outline';
@@ -138,7 +114,7 @@ export function PricingCards({
         buttonText = t('cta.currentPlan');
         buttonVariant = 'secondary';
         isDisabled = true;
-      } else if (plan.tier === 'growth' && plan.price_cents === 0) {
+      } else if (plan.isFree) {
         buttonText = t('cta.getStartedForFree');
         isDisabled = true;
       } else if (billingData.isExistingPaidSubscriber) {
@@ -174,7 +150,7 @@ export function PricingCards({
     <div className={`mx-auto grid max-w-6xl gap-8 md:grid-cols-3 ${className}`}>
       {plans.map((plan) => (
         <Card
-          key={plan.tier}
+          key={plan.id}
           data-popular={plan.popular}
           className={cn(
             'group border-border/70 bg-card/80 hover:bg-card/90 focus-within:ring-offset-background relative flex h-full flex-col rounded-2xl border shadow-sm transition duration-300 ease-out focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 hover:-translate-y-1 hover:border-blue-400/40 hover:shadow-xl hover:shadow-blue-500/10 motion-reduce:transform-none motion-reduce:transition-none',
@@ -189,8 +165,8 @@ export function PricingCards({
             </Badge>
           )}
           {billingData &&
-            billingData.subscription.tier === plan.tier &&
-            billingData.subscription.eventLimit === eventRange.value && (
+            billingData.subscription.planId === plan.id &&
+            billingData.subscription.eventLimit === volume && (
               <Badge
                 variant='secondary'
                 className='absolute -bottom-3 left-1/2 -translate-x-1/2 transform rounded-full border-transparent'
@@ -199,18 +175,20 @@ export function PricingCards({
               </Badge>
             )}
           <CardHeader className='text-center'>
-            <CardTitle className='text-2xl'>{capitalizeFirstLetter(plan.tier)}</CardTitle>
+            <CardTitle className='text-2xl'>{plan.name}</CardTitle>
             <div className='mt-4 flex h-12 items-baseline justify-center'>
-              {plan.price_cents > 0 ? (
+              {!plan.isFree && plan.priceCents !== null ? (
                 <NumberFlow
                   className='-translate-y-[0.2em] text-4xl leading-10 font-bold tabular-nums'
-                  value={plan.price_cents / 100}
+                  value={plan.priceCents / 100}
                   locales={'en-US'}
                   format={{ style: 'currency', currency, maximumFractionDigits: 0 }}
                   willChange
                 />
               ) : (
-                <span className='text-4xl leading-10 font-bold'>{formatDisplayPrice(plan.price_cents)}</span>
+                <span className='text-4xl leading-10 font-bold'>
+                  {plan.isFree ? t('labels.free') : t('labels.custom')}
+                </span>
               )}
               {plan.period && (
                 <span className='text-muted-foreground -translate-y-[0.4em] text-lg'>{plan.period}</span>
