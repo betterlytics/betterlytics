@@ -16,6 +16,17 @@ const MAX_REQUESTS = 60;
 // A batch over any limit is answered with one 429, so it must use no quota at all.
 export const checkMcpRateLimit = createAllOrNothingLimiter(WINDOW_MS, MAX_REQUESTS);
 
+export const OVERSIZED_BATCH_MESSAGE = `Batch has more than ${MAX_REQUESTS} calls counted against one rate limit of ${MAX_REQUESTS} a minute, so it can never be accepted. Send smaller batches.`;
+
+export function isOversizedBatch(keys: readonly string[]): boolean {
+  const counts = new Map<string, number>();
+  return keys.some((key) => {
+    const count = (counts.get(key) ?? 0) + 1;
+    counts.set(key, count);
+    return count > MAX_REQUESTS;
+  });
+}
+
 // A credential with one dashboard counts every request against its site, as before multi-dashboard
 // support. With several, each JSON-RPC message counts against the site it can read: a call to a
 // dashboard-scoped tool naming an allowed dashboardId, with arguments the tool's own schema accepts,

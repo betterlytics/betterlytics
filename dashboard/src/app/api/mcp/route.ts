@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server';
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
 import { validateToken } from '@/mcp/auth/token';
-import { createMcpServer } from '@/mcp/server';
-import { checkMcpRateLimit, rateLimitKeys } from '@/mcp/rate-limit';
+import { createMcpServer, dashboardToolInputs } from '@/mcp/server';
+import { checkMcpRateLimit, isOversizedBatch, OVERSIZED_BATCH_MESSAGE, rateLimitKeys } from '@/mcp/rate-limit';
 import { mcpRateLimitHitsTotal } from '@/mcp/metrics';
 
 export const runtime = 'nodejs';
@@ -38,9 +38,15 @@ export async function POST(req: NextRequest) {
 
   const { context } = result;
 
-  const { server, dashboardToolInputs } = createMcpServer(context);
+  const keys = await rateLimitKeys(context, dashboardToolInputs(), req);
+  if (isOversizedBatch(keys)) {
+    return Response.json(
+      { jsonrpc: '2.0', error: { code: -32600, message: OVERSIZED_BATCH_MESSAGE }, id: null },
+      { status: 413 },
+    );
+  }
 
-  const { allowed, retryAfterMs } = checkMcpRateLimit(await rateLimitKeys(context, dashboardToolInputs, req));
+  const { allowed, retryAfterMs } = checkMcpRateLimit(keys);
   if (!allowed) {
     mcpRateLimitHitsTotal.inc();
     return Response.json(
@@ -49,6 +55,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const server = createMcpServer(context);
   const transport = new WebStandardStreamableHTTPServerTransport({ enableJsonResponse: true });
 
   try {

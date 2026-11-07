@@ -191,6 +191,52 @@ describe('POST /api/mcp', () => {
     expect((await post(read)).status).toBe(429);
   });
 
+  it.each([
+    ['a malformed message', { jsonrpc: '1.0', id: 2, method: 'tools/list' }],
+    [
+      'an initialize',
+      {
+        jsonrpc: '2.0',
+        id: 2,
+        method: 'initialize',
+        params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'c', version: '1' } },
+      },
+    ],
+  ])('charges a batch the transport rejects for %s to the credential', async (label, other) => {
+    mocks.validateToken.mockResolvedValue({ valid: true, context: severalDashboards(`batch-${label}`) });
+    const read = toolCall('query', { ...QUERY_ARGS, dashboardId: 'dash-a' });
+
+    expect((await post([read, other])).status).toBe(400);
+    expect(mocks.executeQuery).not.toHaveBeenCalled();
+
+    await exhaust('query', { ...QUERY_ARGS, dashboardId: 'dash-a' });
+    expect((await post(read)).status).toBe(429);
+  });
+
+  it.each([
+    ['reads of one site', 'query', { ...QUERY_ARGS, dashboardId: 'dash-a' }],
+    ['calls charged to the credential', 'list_dashboards', {}],
+  ])('answers a batch with more %s than one window allows with a 413 and uses no quota', async (label, name, args) => {
+    mocks.validateToken.mockResolvedValue({ valid: true, context: severalDashboards(`oversized-${label}`) });
+
+    const rejected = await post(Array.from({ length: LIMIT + 1 }, (_, i) => toolCall(name, args, i + 1)));
+    expect(rejected.status).toBe(413);
+    expect(rejected.headers.get('Retry-After')).toBeNull();
+    expect((await rejected.json()).error.message).toContain('smaller batches');
+    expect(mocks.executeQuery).not.toHaveBeenCalled();
+
+    await exhaust(name, args);
+    expect((await callTool(name, args)).status).toBe(429);
+  });
+
+  it('still accepts a batch that fills a window exactly', async () => {
+    mocks.validateToken.mockResolvedValue({ valid: true, context: severalDashboards('full-batch') });
+    const read = (id: number) => toolCall('query', { ...QUERY_ARGS, dashboardId: 'dash-a' }, id);
+
+    expect((await post(Array.from({ length: LIMIT }, (_, i) => read(i + 1)))).status).toBe(200);
+    expect((await post(read(1))).status).toBe(429);
+  });
+
   it('charges a task-augmented call, which the server refuses, to the credential', async () => {
     mocks.validateToken.mockResolvedValue({ valid: true, context: severalDashboards('task') });
     const read = toolCall('query', { ...QUERY_ARGS, dashboardId: 'dash-a' });

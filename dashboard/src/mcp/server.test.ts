@@ -64,7 +64,7 @@ vi.mock('@/mcp/tools/statusPages', async (importOriginal) => ({
   executeListIncidentSuggestions: execute.executeListIncidentSuggestions,
 }));
 
-import { createMcpServer } from '@/mcp/server';
+import { createMcpServer, dashboardToolInputs } from '@/mcp/server';
 import { rateLimitKeys } from '@/mcp/rate-limit';
 
 const SHOP: McpDashboard = {
@@ -121,7 +121,7 @@ const DASHBOARD_TOOLS = [
 ] as const;
 
 async function connect(context: McpContext) {
-  const { server } = createMcpServer(context);
+  const server = createMcpServer(context);
   const client = new Client({ name: 'test', version: '1.0.0' });
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
   await Promise.all([server.connect(serverTransport), client.connect(clientTransport)]);
@@ -174,10 +174,9 @@ describe('createMcpServer', () => {
   it('reports exactly the tools that take a dashboardId as dashboard-scoped', async () => {
     const client = await connect(single);
     const { tools } = await client.listTools();
-    const { dashboardToolInputs } = createMcpServer(single);
 
     const scoped = tools.filter((t) => Object.hasOwn(t.inputSchema.properties ?? {}, 'dashboardId'));
-    expect([...dashboardToolInputs.keys()].sort()).toEqual(scoped.map((t) => t.name).sort());
+    expect([...dashboardToolInputs().keys()].sort()).toEqual(scoped.map((t) => t.name).sort());
   });
 
   it('keeps the refinements out of the published schema of a refined tool', async () => {
@@ -200,6 +199,18 @@ describe('createMcpServer', () => {
         { id: 'dash-blog', domain: 'blog.example.com', role: 'viewer' },
       ],
     });
+  });
+
+  it('answers input its schema refuses with the refusal messages, not the raw validation error', async () => {
+    const { executeListGlobalProperties } = await vi.importActual<typeof import('@/mcp/tools/globalProperties')>(
+      '@/mcp/tools/globalProperties',
+    );
+    execute.executeListGlobalProperties.mockImplementation(executeListGlobalProperties);
+    const client = await connect(single);
+
+    const result = await client.callTool({ name: 'list_global_properties', arguments: { ...RANGE, key: 'gp.' } });
+    expect(result.isError).toBe(true);
+    expect(text(result)).toBe('Error: Invalid global property key: "gp."');
   });
 
   describe.each(DASHBOARD_TOOLS)('$name', ({ name, args, fn, ids }) => {
@@ -245,11 +256,9 @@ describe('createMcpServer', () => {
     });
 
     it('charges a site for valid arguments, the same site the call reads', async () => {
-      const { dashboardToolInputs } = createMcpServer(several);
-
       const keys = await rateLimitKeys(
         several,
-        dashboardToolInputs,
+        dashboardToolInputs(),
         toolCallRequest(name, { ...args, dashboardId: 'dash-blog' }),
       );
       expect(keys).toEqual(['site-blog']);
@@ -368,10 +377,9 @@ describe('createMcpServer', () => {
 
   describe.each(INVALID_ARGS)('$name with invalid arguments', ({ name, load, cases }) => {
     it.each(cases)('charges the credential and the tool refuses it before reading: %j', async (args) => {
-      const { dashboardToolInputs } = createMcpServer(several);
       const keys = await rateLimitKeys(
         several,
-        dashboardToolInputs,
+        dashboardToolInputs(),
         toolCallRequest(name, { ...args, dashboardId: 'dash-blog' }),
       );
       expect(keys).toEqual(['mcp-token:2']);

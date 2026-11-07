@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { z } from 'zod';
-import { checkMcpRateLimit, rateLimitKeys } from '@/mcp/rate-limit';
+import { checkMcpRateLimit, isOversizedBatch, rateLimitKeys } from '@/mcp/rate-limit';
 import type { McpContext } from '@/mcp/context';
 
 const SHOP = { dashboardId: 'dash-shop', siteId: 'site-shop', domain: 'shop.example.com', role: 'owner' as const };
@@ -159,6 +159,17 @@ describe('rateLimitKeys', () => {
     await rateLimitKeys(several, DASHBOARD_TOOLS, req);
 
     expect((await req.json()).id).toBe(1);
+  });
+});
+
+describe('isOversizedBatch', () => {
+  it('flags only a batch with more calls against one key than a window holds', () => {
+    const repeat = (key: string, count: number) => Array<string>(count).fill(key);
+
+    expect(isOversizedBatch(repeat('site-a', 60))).toBe(false);
+    expect(isOversizedBatch([...repeat('site-a', 60), ...repeat('mcp-token:1', 60)])).toBe(false);
+    expect(isOversizedBatch(repeat('site-a', 61))).toBe(true);
+    expect(isOversizedBatch([...repeat('site-a', 30), 'site-b', ...repeat('site-a', 31)])).toBe(true);
   });
 });
 
