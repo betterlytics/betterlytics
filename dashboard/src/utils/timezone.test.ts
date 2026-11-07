@@ -4,12 +4,26 @@ import {
   createDateTimeFormat,
   formatDayKey,
   fromWallClock,
+  isValidDayKey,
   keepWallClock,
   normalizeTimezone,
   resolveTimezone,
   toWallClock,
 } from './timezone';
 import { BATimeZone } from '@/entities/analytics/analyticsQuery.entities';
+
+describe('isValidDayKey', () => {
+  it.each([
+    ['2026-02-28', true],
+    ['2028-02-29', true],
+    ['2026-02-29', false],
+    ['2026-02-31', false],
+    ['2026-13-01', false],
+    ['2026-00-10', false],
+  ])('%s -> %s', (dayKey, expected) => {
+    expect(isValidDayKey(dayKey)).toBe(expected);
+  });
+});
 
 describe('normalizeTimezone', () => {
   it.each([

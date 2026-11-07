@@ -18,7 +18,7 @@ function assertMonitoringEnabled() {
   }
 }
 
-export const McpListMonitorsInputBaseSchema = McpDateRangeSchema;
+const McpListMonitorsInputBaseSchema = McpDateRangeSchema;
 
 export const McpListMonitorsInputSchema = McpListMonitorsInputBaseSchema.refine(
   customDateRangeRefinement.check,
@@ -90,7 +90,7 @@ export async function executeListMonitors(rawInput: unknown, siteId: string, das
   };
 }
 
-export const McpListMonitorIncidentsInputBaseSchema = McpDateRangeSchema.extend({
+const McpListMonitorIncidentsInputBaseSchema = McpDateRangeSchema.extend({
   monitorId: z
     .string()
     .optional()
