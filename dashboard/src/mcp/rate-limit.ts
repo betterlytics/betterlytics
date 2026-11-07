@@ -1,50 +1,26 @@
-import type { ZodTypeAny } from 'zod';
-import { isJsonContentType } from '@modelcontextprotocol/sdk/shared/mediaType.js';
-import {
-  CallToolRequestSchema,
-  isInitializeRequest,
-  isJSONRPCRequest,
-  JSONRPCMessageSchema,
-  SUPPORTED_PROTOCOL_VERSIONS,
-} from '@modelcontextprotocol/sdk/types.js';
-import { createSlidingWindow, type RateLimitResult } from '@/lib/rate-limit';
+import { CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { createSlidingWindowLimiter, type RateLimitResult } from '@/lib/rate-limit';
 import type { McpContext } from '@/mcp/context';
 
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS = 60;
 
-const slidingWindow = createSlidingWindow(WINDOW_MS, MAX_REQUESTS);
+const checkKey = createSlidingWindowLimiter(WINDOW_MS, MAX_REQUESTS);
 
-function countKeys(keys: readonly string[]): Map<string, number> {
-  const counts = new Map<string, number>();
-  for (const key of keys) counts.set(key, (counts.get(key) ?? 0) + 1);
-  return counts;
-}
-
-// A batch over any limit is answered with one 429, so it must use no quota at all.
 export function checkMcpRateLimit(keys: readonly string[]): RateLimitResult {
-  const counts = countKeys(keys);
-  const retryAfterMs = Math.max(0, ...[...counts].map(([key, count]) => slidingWindow.retryAfterMs(key, count)));
-  if (retryAfterMs > 0) return { allowed: false, retryAfterMs };
-
-  for (const [key, count] of counts) slidingWindow.record(key, count);
+  for (const key of keys) {
+    const result = checkKey(key);
+    if (!result.allowed) return result;
+  }
   return { allowed: true, retryAfterMs: 0 };
 }
 
-export const OVERSIZED_BATCH_MESSAGE = `Batch has more than ${MAX_REQUESTS} calls counted against one rate limit of ${MAX_REQUESTS} a minute, so it can never be accepted. Send smaller batches.`;
-
-export function isOversizedBatch(keys: readonly string[]): boolean {
-  return [...countKeys(keys).values()].some((count) => count > MAX_REQUESTS);
-}
-
 // A credential with one dashboard counts every request against its site, as before multi-dashboard
-// support. With several, each JSON-RPC message counts against the site it can read: a call to a
-// dashboard-scoped tool naming an allowed dashboardId, with arguments the tool's own schema accepts,
-// counts against that site. Anything else (handshake, tools/list, describe, list_dashboards, unknown
-// tools, unknown ids, invalid arguments, requests the transport rejects) counts against the credential.
+// support. With several, each message counts against the site of the allowed dashboard it names in a
+// call to a dashboard tool, and anything else counts against the credential.
 export async function rateLimitKeys(
   context: McpContext,
-  dashboardToolInputs: ReadonlyMap<string, ZodTypeAny>,
+  dashboardTools: ReadonlySet<string>,
   req: Request,
 ): Promise<string[]> {
   if (context.dashboards.length === 1) return [context.dashboards[0]!.siteId];
@@ -54,40 +30,15 @@ export async function rateLimitKeys(
     .json()
     .catch(() => null);
   const messages: unknown[] = Array.isArray(body) && body.length > 0 ? body : [body];
-  const dispatched = hasDispatchableHeaders(req.headers) && isDispatched(messages);
   return messages.map((message) => {
-    const dashboardId = dispatched ? readableDashboardId(message, dashboardToolInputs) : undefined;
+    const dashboardId = namedDashboardId(message, dashboardTools);
     const dashboard = context.dashboards.find((d) => d.dashboardId === dashboardId);
     return dashboard?.siteId ?? context.credentialId;
   });
 }
 
-// The headers the transport checks before it runs anything; route.test.ts holds this to the real one.
-function hasDispatchableHeaders(headers: Headers): boolean {
-  const accept = headers.get('accept');
-  const protocolVersion = headers.get('mcp-protocol-version');
-  return (
-    !!accept?.includes('application/json') &&
-    accept.includes('text/event-stream') &&
-    isJsonContentType(headers.get('content-type')) &&
-    (protocolVersion === null || SUPPORTED_PROTOCOL_VERSIONS.includes(protocolVersion))
-  );
-}
-
-// One malformed message, or an initialize sharing a batch, makes the transport reject every message.
-function isDispatched(messages: unknown[]): boolean {
-  if (!messages.every((message) => JSONRPCMessageSchema.safeParse(message).success)) return false;
-  return messages.length === 1 || !messages.some(isInitializeRequest);
-}
-
-function readableDashboardId(message: unknown, dashboardToolInputs: ReadonlyMap<string, ZodTypeAny>): unknown {
-  if (!isJSONRPCRequest(message)) return undefined;
+function namedDashboardId(message: unknown, dashboardTools: ReadonlySet<string>): unknown {
   const call = CallToolRequestSchema.safeParse(message);
-  if (!call.success) return undefined;
-
-  // This server does not support tasks, so a task-augmented call is refused before it reaches the tool.
-  const { name, arguments: args, task } = call.data.params;
-  if (task) return undefined;
-
-  return dashboardToolInputs.get(name)?.safeParse(args).success ? args?.dashboardId : undefined;
+  if (!call.success || !dashboardTools.has(call.data.params.name)) return undefined;
+  return call.data.params.arguments?.dashboardId;
 }

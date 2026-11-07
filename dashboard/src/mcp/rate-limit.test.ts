@@ -1,6 +1,5 @@
-import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
-import { z } from 'zod';
-import { checkMcpRateLimit, isOversizedBatch, rateLimitKeys } from '@/mcp/rate-limit';
+import { describe, it, expect, vi } from 'vitest';
+import { checkMcpRateLimit, rateLimitKeys } from '@/mcp/rate-limit';
 import type { McpContext } from '@/mcp/context';
 
 const SHOP = { dashboardId: 'dash-shop', siteId: 'site-shop', domain: 'shop.example.com', role: 'owner' as const };
@@ -14,9 +13,7 @@ const BLOG = {
 const single: McpContext = { credentialId: 'mcp-token:1', dashboards: [SHOP] };
 const several: McpContext = { credentialId: 'mcp-token:2', dashboards: [SHOP, BLOG] };
 
-const DASHBOARD_TOOLS = new Map<string, z.ZodTypeAny>([
-  ['query', z.object({ metrics: z.array(z.string()).min(1) }).refine((args) => args.metrics[0] !== 'refused')],
-]);
+const DASHBOARD_TOOLS = new Set(['query']);
 const QUERY_ARGS = { metrics: ['visitors'] };
 
 const toolCall = (name: string, args: Record<string, unknown>, id = 1) => ({
@@ -26,17 +23,14 @@ const toolCall = (name: string, args: Record<string, unknown>, id = 1) => ({
   params: { name, arguments: args },
 });
 
-const TRANSPORT_HEADERS = { 'content-type': 'application/json', accept: 'application/json, text/event-stream' };
-
-const mcpRequest = (body: unknown, headers: Record<string, string> = {}) =>
+const mcpRequest = (body: unknown) =>
   new Request('http://localhost/api/mcp', {
     method: 'POST',
-    headers: { ...TRANSPORT_HEADERS, ...headers },
+    headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream' },
     body: typeof body === 'string' ? body : JSON.stringify(body),
   });
 
-const keysFor = (body: unknown, headers?: Record<string, string>) =>
-  rateLimitKeys(several, DASHBOARD_TOOLS, mcpRequest(body, headers));
+const keysFor = (body: unknown) => rateLimitKeys(several, DASHBOARD_TOOLS, mcpRequest(body));
 
 describe('rateLimitKeys', () => {
   it('counts every request of a single-dashboard credential against its site without reading the body', async () => {
@@ -53,64 +47,8 @@ describe('rateLimitKeys', () => {
     expect(await keysFor(toolCall('query', { ...QUERY_ARGS, dashboardId: 'dash-blog' }))).toEqual(['site-blog']);
   });
 
-  it.each([
-    ['fail the field checks', { metrics: [] }],
-    ['fail a refinement', { metrics: ['refused'] }],
-    ['are missing', {}],
-  ])('counts a call against the credential when its arguments %s', async (_label, args) => {
-    expect(await keysFor(toolCall('query', { ...args, dashboardId: 'dash-blog' }))).toEqual(['mcp-token:2']);
-  });
-
-  it('counts a notification against the credential, as it never runs', async () => {
-    const notification = {
-      jsonrpc: '2.0',
-      method: 'tools/call',
-      params: { name: 'query', arguments: { ...QUERY_ARGS, dashboardId: 'dash-blog' } },
-    };
-    expect(await keysFor(notification)).toEqual(['mcp-token:2']);
-  });
-
-  it('counts a task-augmented call against the credential, as this server refuses it', async () => {
-    const call = toolCall('query', { ...QUERY_ARGS, dashboardId: 'dash-blog' });
-    const keys = await keysFor({ ...call, params: { ...call.params, task: { ttl: 1000 } } });
-    expect(keys).toEqual(['mcp-token:2']);
-  });
-
-  it.each([
-    ['a malformed message', { jsonrpc: '1.0', id: 2, method: 'tools/list' }],
-    [
-      'an initialize',
-      {
-        jsonrpc: '2.0',
-        id: 2,
-        method: 'initialize',
-        params: { protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'c', version: '1' } },
-      },
-    ],
-  ])(
-    'counts a whole batch against the credential when %s makes the transport reject it',
-    async (_label, other) => {
-      const keys = await keysFor([toolCall('query', { ...QUERY_ARGS, dashboardId: 'dash-blog' }), other]);
-      expect(keys).toEqual(['mcp-token:2', 'mcp-token:2']);
-    },
-  );
-
-  it.each([
-    ['an Accept without event streams', { accept: 'application/json' }],
-    ['an Accept without JSON', { accept: 'text/event-stream' }],
-    ['a Content-Type that is not JSON', { 'content-type': 'text/plain' }],
-    ['an unsupported protocol version', { 'mcp-protocol-version': '1999-01-01' }],
-  ])('counts a call against the credential when %s makes the transport reject it', async (_label, headers) => {
-    const keys = await keysFor(toolCall('query', { ...QUERY_ARGS, dashboardId: 'dash-blog' }), headers);
-    expect(keys).toEqual(['mcp-token:2']);
-  });
-
-  it.each([
-    ['a Content-Type with a charset', { 'content-type': 'application/json; charset=utf-8' }],
-    ['a supported protocol version', { 'mcp-protocol-version': '2025-06-18' }],
-  ])('still counts a call against the site with %s', async (_label, headers) => {
-    const keys = await keysFor(toolCall('query', { ...QUERY_ARGS, dashboardId: 'dash-blog' }), headers);
-    expect(keys).toEqual(['site-blog']);
+  it('counts a call against the site it names even when its arguments are invalid', async () => {
+    expect(await keysFor(toolCall('query', { metrics: [], dashboardId: 'dash-blog' }))).toEqual(['site-blog']);
   });
 
   it('counts calls that read no dashboard against the credential', async () => {
@@ -119,7 +57,7 @@ describe('rateLimitKeys', () => {
       { jsonrpc: '2.0', id: 2, method: 'tools/list' },
       toolCall('describe', {}),
       toolCall('list_dashboards', {}),
-      toolCall('query', {}),
+      toolCall('query', QUERY_ARGS),
     ];
     for (const body of bodies) {
       expect(await keysFor(body)).toEqual(['mcp-token:2']);
@@ -162,17 +100,6 @@ describe('rateLimitKeys', () => {
   });
 });
 
-describe('isOversizedBatch', () => {
-  it('flags only a batch with more calls against one key than a window holds', () => {
-    const repeat = (key: string, count: number) => Array<string>(count).fill(key);
-
-    expect(isOversizedBatch(repeat('site-a', 60))).toBe(false);
-    expect(isOversizedBatch([...repeat('site-a', 60), ...repeat('mcp-token:1', 60)])).toBe(false);
-    expect(isOversizedBatch(repeat('site-a', 61))).toBe(true);
-    expect(isOversizedBatch([...repeat('site-a', 30), 'site-b', ...repeat('site-a', 31)])).toBe(true);
-  });
-});
-
 describe('checkMcpRateLimit', () => {
   it('allows 60 requests per key a minute and then reports when to retry', () => {
     for (let i = 0; i < 60; i++) {
@@ -183,61 +110,20 @@ describe('checkMcpRateLimit', () => {
     expect(blocked.allowed).toBe(false);
     expect(blocked.retryAfterMs).toBeGreaterThan(0);
 
-    // Another site is counted separately.
     expect(checkMcpRateLimit(['site-limit-b']).allowed).toBe(true);
   });
 
-  it('records nothing for any key when one of them is over its limit', () => {
+  it('counts the messages before the first one over its limit and stops there', () => {
     for (let i = 0; i < 60; i++) checkMcpRateLimit(['site-full']);
 
-    expect(checkMcpRateLimit(['site-free', 'mcp-token:free', 'site-full']).allowed).toBe(false);
+    expect(checkMcpRateLimit(['site-before', 'site-full', 'site-after']).allowed).toBe(false);
 
-    for (let i = 0; i < 60; i++) {
-      expect(checkMcpRateLimit(['site-free', 'mcp-token:free']).allowed).toBe(true);
+    for (let i = 0; i < 59; i++) {
+      expect(checkMcpRateLimit(['site-before']).allowed).toBe(true);
     }
-    expect(checkMcpRateLimit(['site-free']).allowed).toBe(false);
-  });
-
-  it('counts a repeated key once per occurrence and records nothing when they do not all fit', () => {
-    checkMcpRateLimit(Array<string>(58).fill('site-repeat'));
-
-    expect(checkMcpRateLimit(Array<string>(3).fill('site-repeat')).allowed).toBe(false);
-
-    expect(checkMcpRateLimit(['site-repeat', 'site-repeat']).allowed).toBe(true);
-    expect(checkMcpRateLimit(['site-repeat']).allowed).toBe(false);
-  });
-
-  describe('retry time', () => {
-    beforeEach(() => {
-      vi.useFakeTimers();
-      vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
-    });
-
-    afterEach(() => {
-      vi.useRealTimers();
-    });
-
-    it('reports when enough slots are free for a repeated key', () => {
-      checkMcpRateLimit(['site-retry']);
-      vi.advanceTimersByTime(10_000);
-      checkMcpRateLimit(['site-retry']);
-      vi.advanceTimersByTime(10_000);
-      checkMcpRateLimit(Array<string>(58).fill('site-retry'));
-
-      // At 20s all 60 slots are taken, and two free up once the second request leaves at 70s.
-      const { allowed, retryAfterMs } = checkMcpRateLimit(['site-retry', 'site-retry']);
-      expect({ allowed, retryAfterMs }).toEqual({ allowed: false, retryAfterMs: 50_000 });
-
-      vi.advanceTimersByTime(retryAfterMs);
-      expect(checkMcpRateLimit(['site-retry', 'site-retry']).allowed).toBe(true);
-    });
-
-    it('reports the key that takes longest to free up', () => {
-      checkMcpRateLimit(Array<string>(60).fill('site-early'));
-      vi.advanceTimersByTime(30_000);
-      checkMcpRateLimit(Array<string>(60).fill('site-late'));
-
-      expect(checkMcpRateLimit(['site-early', 'site-late'])).toEqual({ allowed: false, retryAfterMs: 60_000 });
-    });
+    expect(checkMcpRateLimit(['site-before']).allowed).toBe(false);
+    for (let i = 0; i < 60; i++) {
+      expect(checkMcpRateLimit(['site-after']).allowed).toBe(true);
+    }
   });
 });

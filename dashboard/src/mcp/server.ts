@@ -183,10 +183,8 @@ function dashboardTools(available: ToolAvailability): DashboardTool[] {
   ];
 }
 
-// Each tool's full input schema, the one its execute function parses, so the rate limit can tell
-// which calls will read their dashboard before any of them runs.
-export function dashboardToolInputs(): ReadonlyMap<string, z.ZodTypeAny> {
-  return new Map(dashboardTools(toolAvailability()).map((tool) => [tool.name, tool.inputSchema]));
+export function dashboardToolNames(): ReadonlySet<string> {
+  return new Set(dashboardTools(toolAvailability()).map((tool) => tool.name));
 }
 
 export function createMcpServer(context: McpContext): McpServer {

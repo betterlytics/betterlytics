@@ -64,7 +64,7 @@ vi.mock('@/mcp/tools/statusPages', async (importOriginal) => ({
   executeListIncidentSuggestions: execute.executeListIncidentSuggestions,
 }));
 
-import { createMcpServer, dashboardToolInputs } from '@/mcp/server';
+import { createMcpServer, dashboardToolNames } from '@/mcp/server';
 import { rateLimitKeys } from '@/mcp/rate-limit';
 
 const SHOP: McpDashboard = {
@@ -176,7 +176,7 @@ describe('createMcpServer', () => {
     const { tools } = await client.listTools();
 
     const scoped = tools.filter((t) => Object.hasOwn(t.inputSchema.properties ?? {}, 'dashboardId'));
-    expect([...dashboardToolInputs().keys()].sort()).toEqual(scoped.map((t) => t.name).sort());
+    expect([...dashboardToolNames()].sort()).toEqual(scoped.map((t) => t.name).sort());
   });
 
   it('keeps the refinements out of the published schema of a refined tool', async () => {
@@ -258,15 +258,14 @@ describe('createMcpServer', () => {
     it('charges a site for valid arguments, the same site the call reads', async () => {
       const keys = await rateLimitKeys(
         several,
-        dashboardToolInputs(),
+        dashboardToolNames(),
         toolCallRequest(name, { ...args, dashboardId: 'dash-blog' }),
       );
       expect(keys).toEqual(['site-blog']);
     });
   });
 
-  // Invalid arguments of each tool, and the real execute function that has to reject them too: what
-  // the rate limit treats as unable to read a site must be what the tool refuses before reading it.
+  // Invalid arguments of each tool, and the real execute function that has to refuse them before it reads anything.
   const CUSTOM_RANGE = { timeRange: 'custom', timezone: 'UTC' };
   const IMPOSSIBLE_DATE = { ...CUSTOM_RANGE, startDate: '2026-02-31', endDate: '2026-03-01' };
   const MISSING_DATE = { ...CUSTOM_RANGE, startDate: '2026-02-01' };
@@ -375,15 +374,8 @@ describe('createMcpServer', () => {
     expect(INVALID_ARGS.map((t) => t.name)).toEqual(DASHBOARD_TOOLS.map((t) => t.name));
   });
 
-  describe.each(INVALID_ARGS)('$name with invalid arguments', ({ name, load, cases }) => {
-    it.each(cases)('charges the credential and the tool refuses it before reading: %j', async (args) => {
-      const keys = await rateLimitKeys(
-        several,
-        dashboardToolInputs(),
-        toolCallRequest(name, { ...args, dashboardId: 'dash-blog' }),
-      );
-      expect(keys).toEqual(['mcp-token:2']);
-
+  describe.each(INVALID_ARGS)('$name with invalid arguments', ({ load, cases }) => {
+    it.each(cases)('the tool refuses it before reading: %j', async (args) => {
       const executeTool = (await load()) as (input: unknown, ...ids: string[]) => Promise<unknown>;
       await expect(executeTool(args, 'site-blog', 'dash-blog')).rejects.toBeInstanceOf(z.ZodError);
     });

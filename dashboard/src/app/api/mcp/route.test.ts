@@ -45,7 +45,7 @@ const toolCall = (name: string, args: Record<string, unknown>, id = 1) => ({
   params: { name, arguments: args },
 });
 
-function post(body: unknown, headers: Record<string, string> = {}) {
+function post(body: unknown) {
   mocks.executeQuery.mockClear();
   return POST(
     new NextRequest('http://localhost/api/mcp', {
@@ -54,7 +54,6 @@ function post(body: unknown, headers: Record<string, string> = {}) {
         authorization: 'Bearer btl_test',
         'content-type': 'application/json',
         accept: 'application/json, text/event-stream',
-        ...headers,
       },
       body: JSON.stringify(body),
     }),
@@ -114,139 +113,37 @@ describe('POST /api/mcp', () => {
     expect((await callTool('query', { ...QUERY_ARGS, dashboardId: 'dash-a' })).status).toBe(429);
   });
 
-  it('charges a call with invalid arguments to the credential and leaves the named site its full quota', async () => {
+  it('counts a call with invalid arguments against the site it names', async () => {
     mocks.validateToken.mockResolvedValue({ valid: true, context: severalDashboards('invalid') });
+    await exhaust('query', { ...QUERY_ARGS, metrics: [], dashboardId: 'dash-a' });
 
-    const invalid = await callTool('query', { ...QUERY_ARGS, metrics: [], dashboardId: 'dash-a' });
-    expect(invalid.status).toBe(200);
-    expect((await invalid.json()).result.isError).toBe(true);
+    expect((await callTool('query', { ...QUERY_ARGS, dashboardId: 'dash-a' })).status).toBe(429);
+    expect((await callTool('query', { ...QUERY_ARGS, dashboardId: 'dash-b' })).status).toBe(200);
+  });
 
-    await exhaust('query', { ...QUERY_ARGS, dashboardId: 'dash-a' });
+  it('counts each message of a batch against the site it reads', async () => {
+    mocks.validateToken.mockResolvedValue({ valid: true, context: severalDashboards('batch') });
+    const read = (dashboardId: string, id: number) => toolCall('query', { ...QUERY_ARGS, dashboardId }, id);
+
+    expect((await post([read('dash-a', 1), read('dash-a', 2), read('dash-b', 3)])).status).toBe(200);
+
+    for (let i = 0; i < LIMIT - 2; i++) {
+      expect((await callTool('query', { ...QUERY_ARGS, dashboardId: 'dash-a' })).status).toBe(200);
+    }
     expect((await callTool('query', { ...QUERY_ARGS, dashboardId: 'dash-a' })).status).toBe(429);
   });
 
-  it('answers an invalid call for a site over its limit, because it cannot read that site', async () => {
-    mocks.validateToken.mockResolvedValue({ valid: true, context: severalDashboards('invalid-full') });
-    await exhaust('query', { ...QUERY_ARGS, dashboardId: 'dash-a' });
-
-    const invalid = await callTool('query', { ...QUERY_ARGS, metrics: [], dashboardId: 'dash-a' });
-    expect(invalid.status).toBe(200);
-    expect((await invalid.json()).result.isError).toBe(true);
-  });
-
-  it('limits invalid calls through the credential', async () => {
-    mocks.validateToken.mockResolvedValue({ valid: true, context: severalDashboards('invalid-limit') });
-    const invalid = { ...QUERY_ARGS, metrics: [], dashboardId: 'dash-a' };
-    await exhaust('query', invalid);
-
-    expect((await callTool('query', invalid)).status).toBe(429);
-    expect((await callTool('query', { ...QUERY_ARGS, dashboardId: 'dash-a' })).status).toBe(200);
-  });
-
-  it('uses no quota on any site or the credential when a batch is rejected', async () => {
-    mocks.validateToken.mockResolvedValue({ valid: true, context: severalDashboards('batch') });
+  it('answers a batch with a message over its limit with 429 and runs none of it', async () => {
+    mocks.validateToken.mockResolvedValue({ valid: true, context: severalDashboards('batch-limited') });
     await exhaust('query', { ...QUERY_ARGS, dashboardId: 'dash-b' });
 
     const rejected = await post([
       toolCall('query', { ...QUERY_ARGS, dashboardId: 'dash-a' }, 1),
-      toolCall('list_dashboards', {}, 2),
-      toolCall('query', { ...QUERY_ARGS, dashboardId: 'dash-b' }, 3),
+      toolCall('query', { ...QUERY_ARGS, dashboardId: 'dash-b' }, 2),
     ]);
     expect(rejected.status).toBe(429);
     expect(Number(rejected.headers.get('Retry-After'))).toBeGreaterThan(0);
     expect(mocks.executeQuery).not.toHaveBeenCalled();
-
-    await exhaust('query', { ...QUERY_ARGS, dashboardId: 'dash-a' });
-    expect((await callTool('query', { ...QUERY_ARGS, dashboardId: 'dash-a' })).status).toBe(429);
-    await exhaust('list_dashboards');
-    expect((await callTool('list_dashboards')).status).toBe(429);
-  });
-
-  it('rejects a batch with more reads of a site than it has slots, recording none of them', async () => {
-    mocks.validateToken.mockResolvedValue({ valid: true, context: severalDashboards('repeat') });
-    const read = { ...QUERY_ARGS, dashboardId: 'dash-a' };
-    for (let i = 0; i < LIMIT - 1; i++) {
-      expect((await callTool('query', read)).status).toBe(200);
-    }
-
-    const rejected = await post([toolCall('query', read, 1), toolCall('query', read, 2)]);
-    expect(rejected.status).toBe(429);
-    expect(mocks.executeQuery).not.toHaveBeenCalled();
-
-    expect((await callTool('query', read)).status).toBe(200);
-    expect((await callTool('query', read)).status).toBe(429);
-  });
-
-  it.each([
-    ['Accept', { accept: 'application/json' }, 406],
-    ['Content-Type', { 'content-type': 'text/plain' }, 415],
-    ['Mcp-Protocol-Version', { 'mcp-protocol-version': '1999-01-01' }, 400],
-  ])('charges a call the transport rejects for its %s header to the credential', async (name, headers, status) => {
-    mocks.validateToken.mockResolvedValue({ valid: true, context: severalDashboards(`header-${name}`) });
-    const read = toolCall('query', { ...QUERY_ARGS, dashboardId: 'dash-a' });
-
-    expect((await post(read, headers)).status).toBe(status);
-
-    await exhaust('query', { ...QUERY_ARGS, dashboardId: 'dash-a' });
-    expect((await post(read)).status).toBe(429);
-  });
-
-  it.each([
-    ['a malformed message', { jsonrpc: '1.0', id: 2, method: 'tools/list' }],
-    [
-      'an initialize',
-      {
-        jsonrpc: '2.0',
-        id: 2,
-        method: 'initialize',
-        params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'c', version: '1' } },
-      },
-    ],
-  ])('charges a batch the transport rejects for %s to the credential', async (label, other) => {
-    mocks.validateToken.mockResolvedValue({ valid: true, context: severalDashboards(`batch-${label}`) });
-    const read = toolCall('query', { ...QUERY_ARGS, dashboardId: 'dash-a' });
-
-    expect((await post([read, other])).status).toBe(400);
-    expect(mocks.executeQuery).not.toHaveBeenCalled();
-
-    await exhaust('query', { ...QUERY_ARGS, dashboardId: 'dash-a' });
-    expect((await post(read)).status).toBe(429);
-  });
-
-  it.each([
-    ['reads of one site', 'query', { ...QUERY_ARGS, dashboardId: 'dash-a' }],
-    ['calls charged to the credential', 'list_dashboards', {}],
-  ])('answers a batch with more %s than one window allows with a 413 and uses no quota', async (label, name, args) => {
-    mocks.validateToken.mockResolvedValue({ valid: true, context: severalDashboards(`oversized-${label}`) });
-
-    const rejected = await post(Array.from({ length: LIMIT + 1 }, (_, i) => toolCall(name, args, i + 1)));
-    expect(rejected.status).toBe(413);
-    expect(rejected.headers.get('Retry-After')).toBeNull();
-    expect((await rejected.json()).error.message).toContain('smaller batches');
-    expect(mocks.executeQuery).not.toHaveBeenCalled();
-
-    await exhaust(name, args);
-    expect((await callTool(name, args)).status).toBe(429);
-  });
-
-  it('still accepts a batch that fills a window exactly', async () => {
-    mocks.validateToken.mockResolvedValue({ valid: true, context: severalDashboards('full-batch') });
-    const read = (id: number) => toolCall('query', { ...QUERY_ARGS, dashboardId: 'dash-a' }, id);
-
-    expect((await post(Array.from({ length: LIMIT }, (_, i) => read(i + 1)))).status).toBe(200);
-    expect((await post(read(1))).status).toBe(429);
-  });
-
-  it('charges a task-augmented call, which the server refuses, to the credential', async () => {
-    mocks.validateToken.mockResolvedValue({ valid: true, context: severalDashboards('task') });
-    const read = toolCall('query', { ...QUERY_ARGS, dashboardId: 'dash-a' });
-
-    const refused = await post({ ...read, params: { ...read.params, task: { ttl: 1000 } } });
-    expect((await refused.json()).error.code).toBe(-32603);
-    expect(mocks.executeQuery).not.toHaveBeenCalled();
-
-    await exhaust('query', { ...QUERY_ARGS, dashboardId: 'dash-a' });
-    expect((await post(read)).status).toBe(429);
   });
 
   it('counts an invalid call of a single-dashboard credential against its site, as before', async () => {
