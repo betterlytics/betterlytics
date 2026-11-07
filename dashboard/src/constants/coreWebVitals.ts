@@ -15,6 +15,14 @@ export const PERFORMANCE_SCORE_THRESHOLDS = {
   okayMin: 50,
 } as const;
 
+export const PERFORMANCE_SCORE_WEIGHTS = {
+  LCP: 0.3,
+  CLS: 0.15,
+  FCP: 0.15,
+  TTFB: 0.1,
+  INP: 0.3,
+} as const satisfies Record<CoreWebVitalName, number>;
+
 /** Gauge segment percentages derived from thresholds */
 export const CWV_GAUGE_SEGMENTS = Object.entries(CWV_THRESHOLDS).reduce(
   (acc, [metric, [good, fair, scaleMax]]) => {
