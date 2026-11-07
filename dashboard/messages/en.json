@@ -1097,6 +1097,7 @@
       "termsOfService": "Terms of Service",
       "dpa": "Data Processing Agreement",
       "documentation": "Documentation",
+      "blog": "Blog",
       "changelog": "Changelog",
       "pricing": "Pricing",
       "status": "Status",
@@ -1303,6 +1304,7 @@
       },
       "resources": {
         "docs": "Documentation",
+        "blog": "Blog",
         "changelog": "Changelog",
         "status": "Status"
       },
