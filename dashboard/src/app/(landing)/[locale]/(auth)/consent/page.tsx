@@ -1,0 +1,45 @@
+import type { Metadata } from 'next';
+import { notFound, redirect } from 'next/navigation';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { getAuthSession } from '@/auth/auth-actions';
+import type { SupportedLanguages } from '@/constants/i18n';
+import { isMcpOAuthEnabled } from '@/mcp/auth/oauth';
+import { getMcpConsentRequest, signedOAuthQuery } from '@/services/auth/mcpConsent.service';
+import { AuthAction, AuthPanel } from '@/landing/components/auth/authPanel';
+import { ConsentPanel } from '@/landing/components/auth/consentPanel';
+import { NO_INDEX } from '@/landing/components/auth/metadata';
+
+type Props = {
+  params: Promise<{ locale: SupportedLanguages }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export const metadata: Metadata = { title: 'Betterlytics', robots: NO_INDEX };
+
+/** Where the OAuth provider sends a signed-in user to approve an MCP client and pick its dashboards. */
+export default async function ConsentPage({ params, searchParams }: Props) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  if (!isMcpOAuthEnabled()) {
+    notFound();
+  }
+
+  const oauthQuery = signedOAuthQuery(await searchParams);
+  const session = await getAuthSession();
+  // signed out since the request started: sign-in carries the request on and comes back here
+  if (oauthQuery && !session) {
+    redirect(`/${locale}/signin?${oauthQuery}`);
+  }
+
+  const request = oauthQuery && session ? await getMcpConsentRequest(session.user.id, oauthQuery) : null;
+  if (!oauthQuery || !session || !request) {
+    const t = await getTranslations('public.auth.consent');
+    return (
+      <AuthPanel title={t('invalidTitle')} lede={t('invalidLede')}>
+        <AuthAction href='/dashboards' label={t('goToDashboards')} />
+      </AuthPanel>
+    );
+  }
+
+  return <ConsentPanel request={request} oauthQuery={oauthQuery} email={session.user.email} />;
+}
