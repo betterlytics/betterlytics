@@ -149,7 +149,7 @@ describe('createMcpServer', () => {
   const several: McpContext = { credentialId: 'mcp-token:2', dashboards: [SHOP, BLOG] };
   const single: McpContext = { credentialId: 'mcp-token:1', dashboards: [SHOP] };
 
-  it('registers every dashboard-scoped tool with an optional dashboardId and a description pointing to it', async () => {
+  it('registers every dashboard-scoped tool with an optional dashboardId that points to list_dashboards', async () => {
     const client = await connect(single);
     const { tools } = await client.listTools();
 
@@ -158,15 +158,15 @@ describe('createMcpServer', () => {
       expect.arrayContaining(['describe', 'list_dashboards', ...DASHBOARD_TOOLS.map((t) => t.name)]),
     );
     expect(tools).toHaveLength(DASHBOARD_TOOLS.length + 2);
+    expect(tools.find((t) => t.name === 'list_dashboards')!.description).toContain('dashboardId');
 
     for (const tool of tools) {
-      expect(tool.description, tool.name).toContain('dashboardId');
-      if (tool.name !== 'list_dashboards') expect(tool.description, tool.name).toContain('list_dashboards');
+      const dashboardId = tool.inputSchema.properties?.dashboardId as { description?: string } | undefined;
       if (tool.name === 'describe' || tool.name === 'list_dashboards') {
-        expect(tool.inputSchema.properties ?? {}, tool.name).not.toHaveProperty('dashboardId');
+        expect(dashboardId, tool.name).toBeUndefined();
         continue;
       }
-      expect(tool.inputSchema.properties, tool.name).toHaveProperty('dashboardId');
+      expect(dashboardId?.description, tool.name).toContain('list_dashboards');
       expect(tool.inputSchema.required ?? [], tool.name).not.toContain('dashboardId');
     }
   });

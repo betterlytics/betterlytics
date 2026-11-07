@@ -36,9 +36,6 @@ import {
   type McpDashboard,
 } from '@/mcp/context';
 
-const DASHBOARD_HINT =
-  ' Reads one dashboard: pass its dashboardId from list_dashboards, which may be left out when the connection can read only one.';
-
 type ToolResult = {
   content: { type: 'text'; text: string }[];
   isError?: boolean;
@@ -199,7 +196,7 @@ export function createMcpServer(context: McpContext): McpServer {
     'describe',
     {
       description:
-        'Returns available metrics, dimensions, filter columns, time ranges, and granularities. Call this first to understand what you can query. Every other tool except list_dashboards reads one dashboard, chosen with its dashboardId argument; call list_dashboards to see the dashboards you can read.',
+        'Returns available metrics, dimensions, filter columns, time ranges, and granularities. Call this first to understand what you can query.',
     },
     () => runTool('describe', () => getSchemaDescription(available)),
   );
@@ -217,7 +214,7 @@ export function createMcpServer(context: McpContext): McpServer {
     server.registerTool(
       tool.name,
       {
-        description: tool.description + DASHBOARD_HINT,
+        description: tool.description,
         inputSchema: { ...objectShape(tool.inputSchema), dashboardId: DashboardIdInputSchema },
       },
       ({ dashboardId, ...params }: { dashboardId?: string }) =>
