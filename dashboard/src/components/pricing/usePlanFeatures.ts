@@ -1,25 +1,19 @@
 import { useCallback } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { getPlan, type PlanDefinition } from '@/lib/billing/catalog';
+import { EVENT_STEPS, getPlan, type PlanDefinition, type PlanOffer } from '@/lib/billing/catalog';
 import { checkIntervalMinutes, isUnlimitedCount, retentionYears } from '@/lib/billing/capabilities';
 import { formatEventCount } from '@/utils/pricing';
 
 export type PlanFeatureLabel = { kind: 'header' | 'feature'; label: string };
 
-export function usePlanFeatures(volume: number) {
+export function usePlanFeatures() {
   const t = useTranslations('pricingCards');
-  const locale = useLocale();
 
   return useCallback(
     (plan: PlanDefinition): PlanFeatureLabel[] => {
-      const { dashboards, dataRetention, monitoring, statusPages } = plan.capabilities;
+      const { dashboards, dataRetention, monitoring, statusPages, sessionReplay } = plan.capabilities;
       return plan.highlights.map((item): PlanFeatureLabel => {
         switch (item.kind) {
-          case 'events':
-            return {
-              kind: 'feature',
-              label: t('features.upToEventsPerMonth', { events: formatEventCount(volume, locale) }),
-            };
           case 'everythingIn':
             return { kind: 'header', label: t('features.everythingIn', { name: getPlan(item.planId).name }) };
           case 'sites':
@@ -52,12 +46,41 @@ export function usePlanFeatures(volume: number) {
                   }),
             };
           case 'statusPages':
-            return { kind: 'feature', label: t('features.statusPagesCount', { count: statusPages.maxStatusPages }) };
+            return {
+              kind: 'feature',
+              label: t('features.statusPagesCount', { count: statusPages.maxStatusPages }),
+            };
+          case 'replays':
+            return {
+              kind: 'feature',
+              label: t('features.replaysPerMonth', { count: sessionReplay.maxReplaysPerMonth }),
+            };
           case 'feature':
             return { kind: 'feature', label: t(`features.${item.key}`) };
         }
       });
     },
-    [volume, locale, t],
+    [t],
+  );
+}
+
+/** The events line under a plan's price, such as "100K events/month", with the count spelled in it. */
+export type VolumeLabel = { text: string; figure: string; events: number };
+
+export function useOfferVolumeLabel() {
+  const t = useTranslations('pricingCards');
+  const locale = useLocale();
+
+  return useCallback(
+    (offer: PlanOffer): VolumeLabel => {
+      const events = offer.kind === 'quoted' ? EVENT_STEPS[EVENT_STEPS.length - 1] : offer.events;
+      const figure = formatEventCount(events, locale);
+      const text =
+        offer.kind === 'quoted'
+          ? t('features.moreThanEventsPerMonth', { events: figure })
+          : t('features.eventsPerMonth', { events: figure });
+      return { text, figure, events };
+    },
+    [locale, t],
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import NumberFlow from '@number-flow/react';
 import { useLocale } from 'next-intl';
 import { compactEventParts } from '@/utils/pricing';
@@ -18,5 +18,19 @@ export function EventCountFlow({ value, className }: { value: number; className?
 
   return (
     <NumberFlow className={className} value={scaled} locales={locale} suffix={suffix} trend={trend} willChange />
+  );
+}
+
+/** Text with an event count in it, such as "50K events/month", whose count rolls when it changes. */
+export function EventCountText({ text, figure, events }: { text: string; figure: string; events: number }) {
+  return (
+    <>
+      {text.split(figure).map((part, i) => (
+        <Fragment key={i}>
+          {i > 0 && <EventCountFlow value={events} />}
+          {part}
+        </Fragment>
+      ))}
+    </>
   );
 }

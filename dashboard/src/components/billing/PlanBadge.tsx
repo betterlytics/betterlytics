@@ -26,7 +26,7 @@ export function PlanBadge({ plan, className, showIcon = true }: PlanBadgeProps) 
       )}
     >
       {showIcon && <Crown className='h-2.5 w-2.5' />}
-      {plan.shortName}
+      {plan.name}
     </Badge>
   );
 }

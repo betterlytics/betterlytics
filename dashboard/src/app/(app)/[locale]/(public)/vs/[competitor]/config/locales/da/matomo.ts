@@ -30,7 +30,7 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Simpel prissætning',
-      betterlytics: 'Gratis plan tilgængelig. Betalte planer fra $7/måned med alt inkluderet.',
+      betterlytics: 'Gratis plan tilgængelig. Betalte planer fra $9/måned med alle moduler inkluderet.',
       competitor:
         'Self-hosted kræver infrastruktur og vedligeholdelse. Cloud starter fra €22/måned ($26) for 50.000 hits.',
     },
@@ -118,12 +118,12 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Den reelle pris på "gratis"',
-      content: `Matomos self-hosted version er gratis at downloade, men du betaler med serveromkostninger, vedligeholdelse og premium plugins som session recording. Matomo Cloud starter fra €22/måned ($26) for 50.000 hits og stiger med trafikken.\n\nBetterlytics tilbyder en gratis plan til mindre sites. Betalte planer starter fra $7/måned med alt inkluderet. Session replay, monitoring og ingen add-on-gebyrer. Det, du ser, er det, du betaler.`,
+      content: `Matomos self-hosted version er gratis at downloade, men du betaler med serveromkostninger, vedligeholdelse og premium plugins som session recording. Matomo Cloud starter fra €22/måned ($26) for 50.000 hits og stiger med trafikken.\n\nBetterlytics tilbyder en gratis plan til mindre sites. Betalte planer starter fra $9/måned, og alle planer inkluderer session replay og monitoring uden add-on-gebyrer. Det, du ser, er det, du betaler.`,
       icon: 'dollar',
     },
     {
       title: 'Alt samlet ét sted',
-      content: `Matomo Cloud dækker analytics og session recording, men har ingen uptime monitoring. Interfacet er kraftfuldt, men kan føles overvældende.\n\nBetterlytics samler analytics, session replay, uptime monitoring med advarsler via Slack, Discord og Teams, samt performance tracking ét sted. Ét overskueligt interface, ingen plugins der skal købes, og ingen paywalls på betalte planer.`,
+      content: `Matomo Cloud dækker analytics og session recording, men har ingen uptime monitoring. Interfacet er kraftfuldt, men kan føles overvældende.\n\nBetterlytics samler analytics, session replay, uptime monitoring med advarsler via Slack, Discord og Teams, samt performance tracking ét sted. Ét overskueligt interface, ingen plugins der skal købes, og alle moduler i alle planer.`,
       icon: 'layers',
     },
   ],

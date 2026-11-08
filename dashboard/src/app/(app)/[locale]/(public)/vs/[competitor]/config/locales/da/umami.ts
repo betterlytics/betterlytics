@@ -118,7 +118,7 @@ export const umami: ComparisonLocaleContent = {
     },
     {
       title: 'Hosted eller self-hosted',
-      content: `Begge værktøjer understøtter self-hosting. Umami kører på PostgreSQL. Betterlytics bruger Docker med ClickHouse.\n\nTil managed hosting har begge en gratis plan. Betalte planer starter ved $7/måned hos Betterlytics og $20/måned hos Umami Cloud. Umami forbeholder session replays Business-planen til $200/måned.`,
+      content: `Begge værktøjer understøtter self-hosting. Umami kører på PostgreSQL. Betterlytics bruger Docker med ClickHouse.\n\nTil managed hosting har begge en gratis plan. Betalte planer starter ved $9/måned hos Betterlytics og $20/måned hos Umami Cloud. Umami forbeholder session replays Business-planen til $200/måned.`,
       icon: 'server',
     },
     {

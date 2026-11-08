@@ -26,12 +26,18 @@ export type StatusPagesCapabilities = {
   removeBranding: boolean;
 };
 
+export type SessionReplayCapabilities = {
+  /** Advertised on the pricing page, but recording isn't capped yet. */
+  maxReplaysPerMonth: number;
+};
+
 export type PlanCapabilities = {
   dashboards: DashboardCapabilities;
   monitoring: MonitoringCapabilities;
   emailReports: EmailReportCapabilities;
   dataRetention: DataRetentionCapabilities;
   statusPages: StatusPagesCapabilities;
+  sessionReplay: SessionReplayCapabilities;
 };
 
 /** Count limits at or above this read as unlimited. */

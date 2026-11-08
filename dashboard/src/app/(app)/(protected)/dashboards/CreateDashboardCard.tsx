@@ -1,104 +1,57 @@
 'use client';
 
-import { use } from 'react';
+import { use, type ComponentProps } from 'react';
 import { Card } from '@/components/ui/card';
-import { Plus, Crown } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { CreateDashboardDialog } from '@/app/(app)/(protected)/dashboards/CreateDashboardDialog';
 import { getUserDashboardStatsAction } from '@/app/actions/dashboard/dashboard.action';
 import { useTranslations } from 'next-intl';
-import { PlanBadge } from '@/components/billing/PlanBadge';
 import { useBillingFlow } from '@/contexts/BillingFlowProvider';
-import { planThatUnlocks, type PlanDefinition } from '@/lib/billing/catalog';
-import { isUnlimitedCount } from '@/lib/billing/capabilities';
+import { planThatUnlocks } from '@/lib/billing/catalog';
 
 export function CreateDashboardCard({
   dashboardStatsPromise,
 }: {
   dashboardStatsPromise: ReturnType<typeof getUserDashboardStatsAction>;
 }) {
-  const t = useTranslations('dashboardsPage');
+  const t = useTranslations('validation.capabilities');
   const dashboardStats = use(dashboardStatsPromise);
-  const canCreateMore = dashboardStats.success && dashboardStats.data.canCreateMore;
+  const { openPlanPicker } = useBillingFlow();
 
-  if (!canCreateMore) {
-    const limit = dashboardStats.success ? dashboardStats.data.limit : null;
-    return (
-      <UpgradeCard plan={limit === null ? null : planThatUnlocks((c) => c.dashboards.maxDashboards > limit)} />
-    );
+  if (dashboardStats.success && !dashboardStats.data.canCreateMore) {
+    const { limit } = dashboardStats.data;
+    const plan = planThatUnlocks((c) => c.dashboards.maxDashboards > limit);
+    const reason = plan ? t('dashboardLimit', { plan: plan.name }) : t('limitReached');
+    return <CreateCard onClick={() => openPlanPicker(reason)} />;
   }
 
-  return (
-    <CreateDashboardDialog
-      dashboardStatsPromise={dashboardStatsPromise}
-      trigger={
-        <Card
-          role='button'
-          tabIndex={0}
-          aria-label={t('createCard.title')}
-          className='group border-border/70 hover:border-primary/30 focus-visible:border-primary/40 relative h-full cursor-pointer items-center justify-center border-2 border-dashed p-6 text-center transition-all outline-none hover:scale-[1.01] hover:shadow-lg focus-visible:scale-[1.01] focus-visible:shadow-lg'
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              (e.currentTarget as HTMLElement).click();
-            }
-          }}
-        >
-          <div className='flex h-full flex-col items-center justify-center gap-3'>
-            <div className='bg-primary/10 group-hover:bg-primary/20 rounded-lg p-3 transition-colors'>
-              <Plus className='text-primary h-6 w-6' />
-            </div>
-            <div className='space-y-1'>
-              <div className='text-foreground font-medium'>{t('createCard.title')}</div>
-              <div className='text-muted-foreground text-sm'>{t('createCard.description')}</div>
-            </div>
-          </div>
-        </Card>
-      }
-    />
-  );
+  return <CreateDashboardDialog dashboardStatsPromise={dashboardStatsPromise} trigger={<CreateCard />} />;
 }
 
-function UpgradeCard({ plan }: { plan: PlanDefinition | null }) {
-  const t = useTranslations('dashboardsPage.upgradeCard');
-  const { openPlanPicker } = useBillingFlow();
-  const maxSites = plan?.capabilities.dashboards.maxDashboards;
+function CreateCard(props: ComponentProps<typeof Card>) {
+  const t = useTranslations('dashboardsPage.createCard');
 
   return (
     <Card
       role='button'
       tabIndex={0}
       aria-label={t('title')}
-      onClick={openPlanPicker}
+      className='group border-border/70 hover:border-primary/30 focus-visible:border-primary/40 relative h-full cursor-pointer items-center justify-center border-2 border-dashed p-6 text-center transition-all outline-none hover:scale-[1.01] hover:shadow-lg focus-visible:scale-[1.01] focus-visible:shadow-lg'
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          openPlanPicker();
+          (e.currentTarget as HTMLElement).click();
         }
       }}
-      className='group relative h-full cursor-pointer items-center justify-center border-2 border-dashed border-amber-500/20 p-6 text-center transition-all outline-none hover:scale-[1.01] hover:border-amber-500/35 hover:shadow-lg focus-visible:scale-[1.01] focus-visible:border-amber-500/45 focus-visible:shadow-lg'
-      style={{
-        background:
-          'linear-gradient(135deg, rgba(251,191,36,0.015) 0%, rgba(255,255,255,0.02) 50%, rgba(251,191,36,0.02) 100%)',
-      }}
+      {...props}
     >
-      <div className='absolute top-3 right-3'>
-        <PlanBadge plan={plan} />
-      </div>
-
       <div className='flex h-full flex-col items-center justify-center gap-3'>
-        <div className='rounded-lg bg-amber-500/10 p-3 transition-colors group-hover:bg-amber-500/15'>
-          <Crown className='h-6 w-6 text-amber-500' />
+        <div className='bg-primary/10 group-hover:bg-primary/20 rounded-lg p-3 transition-colors'>
+          <Plus className='text-primary h-6 w-6' />
         </div>
-
         <div className='space-y-1'>
           <div className='text-foreground font-medium'>{t('title')}</div>
-          {plan && maxSites !== undefined && (
-            <div className='text-muted-foreground text-sm'>
-              {isUnlimitedCount(maxSites)
-                ? t('descriptionUnlimited', { plan: plan.name })
-                : t('description', { plan: plan.name, count: maxSites })}
-            </div>
-          )}
+          <div className='text-muted-foreground text-sm'>{t('description')}</div>
         </div>
       </div>
     </Card>
