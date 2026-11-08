@@ -3,6 +3,8 @@
 import { useLocale, useTranslations } from 'next-intl';
 import { ComparisonTable } from '@/components/public/comparison-table';
 import { formatEventCount } from '@/utils/pricing';
+import { formatNumber } from '@/utils/formatters';
+import { getRecordedSessionLimitForTier } from '@/lib/billing/capabilities';
 
 type FeatureValue = boolean | string | 'partial';
 
@@ -39,7 +41,12 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
       { key: 'customEvents', growth: true, professional: true, enterprise: true },
       { key: 'webVitals', growth: true, professional: true, enterprise: true },
       { key: 'campaignTracking', growth: true, professional: true, enterprise: true },
-      { key: 'sessionReplay', growth: true, professional: true, enterprise: true },
+      {
+        key: 'sessionReplay',
+        growth: 'recordedSessions',
+        professional: 'recordedSessions',
+        enterprise: 'recordedSessions',
+      },
       { key: 'errorTracking', growth: true, professional: true, enterprise: true },
       { key: 'emailReports', growth: false, professional: true, enterprise: true },
     ],
@@ -90,6 +97,11 @@ export function FeatureComparisonSection() {
         if (typeof value !== 'string') return value;
         if (feature.key === 'monthlyEvents' && value === 'range') {
           return formatEventRange();
+        }
+        if (feature.key === 'sessionReplay' && value === 'recordedSessions') {
+          return t('features.sessionReplay.values.recordedSessions', {
+            count: formatNumber(getRecordedSessionLimitForTier(tier), locale, { notation: 'standard' }),
+          });
         }
         return td(`features.${feature.key}.values.${value}`);
       }),

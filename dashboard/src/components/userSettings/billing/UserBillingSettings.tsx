@@ -59,7 +59,7 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
     return <p className='text-muted-foreground'>{t('loadError')}</p>;
   }
 
-  const { subscription, usage } = billingData;
+  const { subscription, usage, replayUsage } = billingData;
   const isPaid = billingData.isExistingPaidSubscriber;
 
   const planStatus = derivePlanStatus(subscription.status, subscription.cancelAtPeriodEnd);
@@ -118,7 +118,7 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
         />
       </UserSettingsSection>
 
-      <UserBillingUsageSettings usage={usage} />
+      <UserBillingUsageSettings usage={usage} replayUsage={replayUsage} />
 
       {isPaid && (
         <UserSettingsSection title={t('payment.title')}>
