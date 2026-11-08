@@ -762,11 +762,11 @@
         },
         "reconnect": {
           "title": "{client} er allerede koblet til",
-          "body": "Den nåværende tilgangen din er valgt nedenfor. Hvis du tillater, erstattes den."
+          "body": "Den nåværende tilgangen din er valgt nedenfor. Hvis du kobler til, erstattes den."
         },
         "cancel": "Avbryt",
-        "allow": "Tillat",
-        "allowing": "Tillater…",
+        "connect": "Koble til",
+        "connecting": "Kobler til…",
         "signedInAs": "Logget inn som",
         "switchAccount": "Bytt konto",
         "saveError": "Vi kunne ikke lagre valgene dine. Prøv igjen.",

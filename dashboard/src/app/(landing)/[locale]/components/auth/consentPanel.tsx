@@ -23,6 +23,9 @@ const SEARCH_FROM_DASHBOARDS = 8;
 const MULTI_PART_SUFFIXES = new Set(['co.uk', 'org.uk', 'ac.uk', 'com.au', 'co.nz', 'co.jp', 'com.br', 'co.za']);
 
 const ICONS = {
+  check: 'M8 1.75a6.25 6.25 0 1 1 0 12.5 6.25 6.25 0 0 1 0-12.5Z M5.5 8.25l1.75 1.75 3.25-3.5',
+  triangle: 'M7.13 2.5a1 1 0 0 1 1.74 0l5.4 9.5a1 1 0 0 1-.87 1.5H2.6a1 1 0 0 1-.87-1.5Z M8 6.25v3 M8 11.1v.01',
+  laptop: 'M4.25 3.25h7.5a1.25 1.25 0 0 1 1.25 1.25v6H3v-6a1.25 1.25 0 0 1 1.25-1.25Z M1.5 12.75h13',
   info: 'M8 1.75a6.25 6.25 0 1 1 0 12.5 6.25 6.25 0 0 1 0-12.5Z M8 7.25V11 M8 5v.01',
   search: 'M7 2.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Z m3.5 8 3 3',
   history: 'M2.5 8a5.5 5.5 0 1 0 1.6-3.9 M2.25 2.5v2.25H4.5 M8 5.25V8l2 1.5',
@@ -190,8 +193,14 @@ export function ConsentPanel({
               <dt>{t('facts.app')}</dt>
               <dd>
                 {client}
-                <span className={cn(styles.tag, request.verified ? styles.tagOk : styles.tagWarn)}>
-                  {request.verified ? t('facts.verified') : t('facts.unverified')}
+                <span
+                  className={cn(styles.badge, request.verified ? styles.badgeOk : styles.badgeWarn)}
+                  role='img'
+                  tabIndex={0}
+                  aria-label={request.verified ? t('facts.verified') : t('facts.unverified')}
+                  data-tip={request.verified ? t('facts.verified') : t('facts.unverified')}
+                >
+                  <Icon name={request.verified ? 'check' : 'triangle'} />
                 </span>
               </dd>
             </div>
@@ -212,9 +221,19 @@ export function ConsentPanel({
           </dl>
 
           {warnUnverified || warnLoopback ? (
-            <div className={styles.note} role='note'>
-              {warnUnverified ? <p id={ids.unverified}>{t('warnings.unverified', { client })}</p> : null}
-              {warnLoopback ? <p id={ids.loopback}>{t('warnings.loopback', { client })}</p> : null}
+            <div className={styles.warn} role='note'>
+              {warnUnverified ? (
+                <p id={ids.unverified}>
+                  <Icon name='triangle' />
+                  {t('warnings.unverified', { client })}
+                </p>
+              ) : null}
+              {warnLoopback ? (
+                <p id={ids.loopback}>
+                  <Icon name='laptop' />
+                  {t('warnings.loopback', { client })}
+                </p>
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -369,7 +388,7 @@ export function ConsentPanel({
             }
           >
             {pending === 'allow' ? <Spinner className={form.spin} /> : null}
-            {pending === 'allow' ? t('allowing') : t('allow')}
+            {pending === 'allow' ? t('connecting') : t('connect')}
           </button>
         </div>
       </div>

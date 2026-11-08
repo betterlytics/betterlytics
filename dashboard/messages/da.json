@@ -762,11 +762,11 @@
         },
         "reconnect": {
           "title": "{client} er allerede forbundet",
-          "body": "Din nuværende adgang er valgt nedenfor. Hvis du tillader, erstatter det den."
+          "body": "Din nuværende adgang er valgt nedenfor. Hvis du forbinder, erstatter det den."
         },
         "cancel": "Annuller",
-        "allow": "Tillad",
-        "allowing": "Tillader…",
+        "connect": "Forbind",
+        "connecting": "Forbinder…",
         "signedInAs": "Logget ind som",
         "switchAccount": "Skift konto",
         "saveError": "Vi kunne ikke gemme dine valg. Prøv igen.",

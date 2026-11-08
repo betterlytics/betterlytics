@@ -762,11 +762,11 @@
         },
         "reconnect": {
           "title": "{client} is already connected",
-          "body": "Your current access is selected below. Allowing replaces it."
+          "body": "Your current access is selected below. Connecting replaces it."
         },
         "cancel": "Cancel",
-        "allow": "Allow",
-        "allowing": "Allowing…",
+        "connect": "Connect",
+        "connecting": "Connecting…",
         "signedInAs": "Signed in as",
         "switchAccount": "Switch account",
         "saveError": "We couldn't save your choices. Please try again.",

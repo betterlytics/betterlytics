@@ -128,16 +128,79 @@
     font-size: 13.5px;
   }
 
-  .note {
+  .badge {
+    position: relative;
+    display: inline-grid;
+    align-self: center;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    outline: none;
+  }
+  .badge svg {
+    width: 16px;
+    height: 16px;
+  }
+  .badgeOk {
+    color: var(--color-live);
+  }
+  .badgeWarn {
+    color: var(--color-warn);
+  }
+  .badge::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    padding: 3px 7px;
+    border: 1px solid var(--color-rule-22);
+    border-radius: 5px;
+    background: var(--color-panel);
+    color: var(--color-fg);
+    font-size: 12px;
+    line-height: 16px;
+    white-space: nowrap;
+    opacity: 0;
+    translate: -50% 2px;
+    pointer-events: none;
+    transition:
+      opacity 0.15s var(--ease-out-expo),
+      translate 0.15s var(--ease-out-expo);
+  }
+  .badge:hover::after,
+  .badge:focus-visible::after {
+    opacity: 1;
+    translate: -50% 0;
+  }
+  .badge:focus-visible {
+    outline: 2px solid var(--color-volt-lift);
+    outline-offset: 2px;
+  }
+
+  .warn {
     display: grid;
-    gap: 6px;
+    gap: 8px;
     margin-top: 20px;
-    padding: 2px 0 2px 12px;
-    border-left: 2px solid color-mix(in srgb, var(--color-warn) 70%, transparent);
-    color: var(--color-muted);
-    font-size: 13px;
+    padding: 12px 14px;
+    border: 1px solid color-mix(in srgb, var(--color-warn) 30%, transparent);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--color-warn) 6%, transparent);
+    color: color-mix(in srgb, var(--color-warn) 50%, var(--color-fg));
+    font-size: 13.5px;
     line-height: 19px;
+  }
+  .warn p {
+    display: flex;
+    gap: 10px;
     text-wrap: pretty;
+  }
+  .warn svg {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    margin-top: 1.5px;
+    color: var(--color-warn);
   }
 
   .account {
@@ -213,14 +276,6 @@
   }
   .tagStrong {
     color: var(--color-fg);
-  }
-  .tagOk {
-    border-color: color-mix(in srgb, var(--color-live) 40%, transparent);
-    color: var(--color-live);
-  }
-  .tagWarn {
-    border-color: color-mix(in srgb, var(--color-warn) 40%, transparent);
-    color: var(--color-warn);
   }
 
   /* --- choices column --- */

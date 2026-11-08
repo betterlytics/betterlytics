@@ -762,11 +762,11 @@
         },
         "reconnect": {
           "title": "{client} è già connesso",
-          "body": "Il tuo accesso attuale è selezionato qui sotto. Consentendo lo sostituisci."
+          "body": "Il tuo accesso attuale è selezionato qui sotto. Connettendo lo sostituisci."
         },
         "cancel": "Annulla",
-        "allow": "Consenti",
-        "allowing": "Consenso in corso…",
+        "connect": "Connetti",
+        "connecting": "Connessione in corso…",
         "signedInAs": "Accesso effettuato come",
         "switchAccount": "Cambia account",
         "saveError": "Non siamo riusciti a salvare le tue scelte. Riprova.",
