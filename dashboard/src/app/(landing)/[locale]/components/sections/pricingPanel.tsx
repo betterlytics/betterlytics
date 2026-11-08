@@ -4,21 +4,9 @@ import { useRef, useState } from 'react';
 import * as Slider from '@radix-ui/react-slider';
 import NumberFlow from '@number-flow/react';
 import { useLocale, useTranslations } from 'next-intl';
-import { EventCountFlow, EventCountText } from '@/components/pricing/EventCountFlow';
-import {
-  useOfferVolumeLabel,
-  usePlanFeatures,
-  type PlanFeatureLabel,
-  type VolumeLabel,
-} from '@/components/pricing/usePlanFeatures';
-import {
-  VOLUME_STOPS,
-  fitsVolume,
-  listedPlans,
-  offerFor,
-  recommendedPlanFor,
-  type PlanId,
-} from '@/lib/billing/catalog';
+import { EventCountFlow, EventCountText, FLUSH, QUICK_ROLL } from '@/components/pricing/EventCountFlow';
+import { usePlanCards, type PlanFeatureLabel, type VolumeLabel } from '@/components/pricing/usePlanFeatures';
+import { VOLUME_STOPS, type PlanId } from '@/lib/billing/catalog';
 import { formatEventCount } from '@/utils/pricing';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { Panel } from '@/landing/components/ui/frame';
@@ -33,8 +21,6 @@ import styles from './pricingPanel.module.css';
 /** USD only here, though billing also offers EUR. */
 const CURRENCY = 'USD';
 const PRICE_FORMAT = { style: 'currency', currency: CURRENCY, maximumFractionDigits: 0 } as const;
-/** Cancels NumberFlow's mask padding so a figure lays out like text. */
-const FLUSH = '[--number-flow-mask-height:0.25em] -my-(--number-flow-mask-height)';
 
 function Check() {
   return (
@@ -76,10 +62,10 @@ function Plan({ tier, name, tagline, price, period, volumeLabel, badge, features
       className={cn(
         styles.plan,
         'relative row-span-5 grid grid-rows-subgrid border-rule-10 p-9 transition-ink',
-        '3xl:not-first:border-l 3xl:first:pl-0',
-        'md:max-3xl:odd:pl-0 md:max-3xl:even:border-l md:max-3xl:nth-[n+3]:border-t',
-        'max-md:px-0 max-md:py-7 max-md:not-first:border-t max-sm:px-(--pad)',
-        pick && 'bg-volt/10 shadow-[inset_0_2px_0_var(--color-volt-lift)] max-md:px-4 max-sm:px-(--pad)',
+        '3xl:not-first:border-l',
+        'md:max-3xl:even:border-l md:max-3xl:nth-[n+3]:border-t',
+        'max-md:py-7 max-md:not-first:border-t max-sm:px-(--pad)',
+        pick && 'bg-volt/10 shadow-[inset_0_2px_0_var(--color-volt-lift)]',
       )}
     >
       <div className='mb-1 flex items-center gap-3'>
@@ -102,6 +88,7 @@ function Plan({ tier, name, tagline, price, period, volumeLabel, badge, features
                 locales={locale}
                 format={PRICE_FORMAT}
                 willChange
+                {...QUICK_ROLL}
               />
             ) : (
               price
@@ -113,29 +100,33 @@ function Plan({ tier, name, tagline, price, period, volumeLabel, badge, features
           <EventCountText {...volumeLabel} />
         </p>
       </div>
-      <ul className='mt-3 mb-[26px] border-t border-rule-08 pt-[22px] transition-ink'>
-        {features.map((f) => (
-          <li
-            key={f.label}
-            className={cn(
-              'flex items-start gap-[11px] py-[7px] text-body-sm leading-[21px] tracking-ui text-fg opacity-84',
-              f.kind === 'header' && 'pb-[11px] font-semibold opacity-100',
-            )}
-          >
-            <Check />
-            <span>{f.label}</span>
-          </li>
-        ))}
-      </ul>
-      <TrackedLink
-        className={buttonStyles({ variant: pick ? 'volt' : 'line', className: 'group mt-auto w-full p-[13px]' })}
-        href={`/${cta.destination}`}
-        placement='pricing'
-        destination={cta.destination}
-        plan={tier}
-      >
-        <RollLabel text={cta.label} />
-      </TrackedLink>
+      <div>
+        <ul className='mt-3 mb-[26px] border-t border-rule-08 pt-[22px] transition-ink'>
+          {features.map((f) => (
+            <li
+              key={f.label}
+              className={cn(
+                'flex items-start gap-[11px] py-[7px] text-body-sm leading-[21px] tracking-ui text-fg opacity-84',
+                f.kind === 'header' && 'pb-[11px] font-semibold opacity-100',
+              )}
+            >
+              <Check />
+              <span>{f.label}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <TrackedLink
+          className={buttonStyles({ variant: pick ? 'volt' : 'line', className: 'group w-full p-[13px]' })}
+          href={`/${cta.destination}`}
+          placement='pricing'
+          destination={cta.destination}
+          plan={tier}
+        >
+          <RollLabel text={cta.label} />
+        </TrackedLink>
+      </div>
     </div>
   );
 }
@@ -150,9 +141,7 @@ export function PricingPanel() {
 
   const events = VOLUME_STOPS[rangeIndex];
   const lastIndex = VOLUME_STOPS.length - 1;
-  const featuresFor = usePlanFeatures();
-  const volumeLabelFor = useOfferVolumeLabel();
-  const recommended = recommendedPlanFor(events);
+  const cards = usePlanCards(events, CURRENCY);
 
   const sales: PlanCta = { label: t('contactCta'), destination: 'contact' };
 
@@ -221,24 +210,22 @@ export function PricingPanel() {
         </div>
       </div>
 
-      <Panel>
+      <Panel flush>
         <div className='grid max-sm:-mx-(--pad) md:grid-cols-2 3xl:grid-cols-4'>
-          {listedPlans().map((plan) => {
-            const offer = offerFor(plan, events, CURRENCY);
-            const isRecommended = plan.id === recommended?.id;
+          {cards.map(({ plan, offer, fits, isRecommended, volumeLabel, features }) => {
             return (
               <Plan
                 key={plan.id}
                 tier={plan.id}
                 pick={isRecommended}
-                dimmed={!fitsVolume(plan, events)}
+                dimmed={!fits}
                 name={plan.name}
                 badge={isRecommended ? t('badge') : undefined}
                 tagline={t(`plans.${plan.id}.tagline`)}
                 price={offer.kind === 'paid' ? offer.cents : offer.kind === 'free' ? 0 : t('custom')}
                 period={offer.kind === 'quoted' ? undefined : t('perMonth')}
-                volumeLabel={volumeLabelFor(offer)}
-                features={featuresFor(plan)}
+                volumeLabel={volumeLabel}
+                features={features}
                 cta={
                   offer.kind === 'quoted'
                     ? sales

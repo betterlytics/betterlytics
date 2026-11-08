@@ -102,7 +102,9 @@ export function ChangePlanDialog({
         {phase === 'success' ? (
           <SuccessCheckmark
             label={t('successLabel')}
-            description={targetPlan ? t('successDescription', { tier: getPlan(targetPlan.planId).name }) : undefined}
+            description={
+              targetPlan ? t('successDescription', { tier: getPlan(targetPlan.planId).name }) : undefined
+            }
           />
         ) : phase === 'authenticating' ? (
           <PendingBody label={t('authenticatingLabel')} description={t('authenticatingDescription')} />

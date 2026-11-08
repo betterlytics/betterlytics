@@ -6,131 +6,81 @@ import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import { SelectedPlan } from '@/types/pricing';
 import type { UserBillingData, Currency } from '@/entities/billing/billing.entities';
-import {
-  fitsVolume,
-  getPlan,
-  isCurrentOffer,
-  listedPlans,
-  offerFor,
-  recommendedPlanFor,
-  type PlanDefinition,
-  type PlanOffer,
-} from '@/lib/billing/catalog';
+import { getPlan, isCurrentOffer } from '@/lib/billing/catalog';
 import { Dispatch, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import NumberFlow from '@number-flow/react';
-import { EventCountText } from './EventCountFlow';
-import { useOfferVolumeLabel, usePlanFeatures, type PlanFeatureLabel, type VolumeLabel } from './usePlanFeatures';
-
-/** Cancels NumberFlow's mask padding, so the price lays out like text and shares a baseline with the period. */
-const FLUSH = '[--number-flow-mask-height:0.25em] -my-(--number-flow-mask-height)';
+import { EventCountText, FLUSH, QUICK_ROLL } from './EventCountFlow';
+import { usePlanCards, usePlanFeatures, type PlanCard } from './usePlanFeatures';
 
 interface PricingCardsProps {
   volume: number;
   currency: Currency;
-  onPlanSelect?: Dispatch<SelectedPlan>;
-  mode?: 'landing' | 'billing';
-  className?: string;
-  billingData?: UserBillingData;
+  onPlanSelect: Dispatch<SelectedPlan>;
+  billingData: UserBillingData;
 }
 
-interface PlanCard {
-  plan: PlanDefinition;
-  offer: PlanOffer;
-  description: string;
-  volumeLabel: VolumeLabel;
-  features: readonly PlanFeatureLabel[];
-  fits: boolean;
-  isRecommended: boolean;
-  isCurrent: boolean;
-}
+type BillingPlanCard = PlanCard & { description: string; isCurrent: boolean };
 
-export function PricingCards({
-  volume,
-  currency,
-  onPlanSelect,
-  mode = 'landing',
-  className,
-  billingData,
-}: PricingCardsProps) {
+export function PricingCards({ volume, currency, onPlanSelect, billingData }: PricingCardsProps) {
   const t = useTranslations('pricingCards');
   const featuresFor = usePlanFeatures();
-  const volumeLabelFor = useOfferVolumeLabel();
+  const planCards = usePlanCards(volume, currency);
 
-  const cards: PlanCard[] = useMemo(() => {
-    const recommended = recommendedPlanFor(volume);
-    const subscription = billingData?.subscription;
-    return listedPlans().map((plan) => {
-      const offer = offerFor(plan, volume, currency);
-      const isCurrent = subscription ? isCurrentOffer(subscription, plan, offer, currency) : false;
+  const cards: BillingPlanCard[] = useMemo(() => {
+    const { subscription } = billingData;
+    return planCards.map((card) => {
+      const isCurrent = isCurrentOffer(subscription, card.plan, card.offer, currency);
       return {
-        plan,
-        offer,
-        description: t(`descriptions.${plan.id}`),
-        volumeLabel: volumeLabelFor(offer),
+        ...card,
+        description: t(`descriptions.${card.plan.id}`),
         // an older free plan has larger limits than Free, so its card lists what the account really has
-        features: featuresFor(isCurrent && subscription ? getPlan(subscription.planId) : plan),
-        fits: fitsVolume(plan, volume),
-        isRecommended: plan.id === recommended?.id,
+        features: isCurrent ? featuresFor(getPlan(subscription.planId)) : card.features,
         isCurrent,
       };
     });
-  }, [volume, currency, billingData, featuresFor, volumeLabelFor, t]);
+  }, [planCards, billingData, currency, featuresFor, t]);
 
-  const renderButton = ({ plan, offer, isRecommended, isCurrent }: PlanCard) => {
+  const renderButton = ({ plan, offer, isRecommended, isCurrent }: BillingPlanCard) => {
+    const variant = isRecommended ? 'default' : 'outline';
     if (offer.kind === 'quoted') {
       return (
-        <Link
-          href='/contact'
-          className='w-full'
-          target={mode === 'billing' ? '_blank' : undefined}
-          rel={mode === 'billing' ? 'noopener noreferrer' : undefined}
-        >
-          <Button size='lg' className='w-full cursor-pointer' variant={isRecommended ? 'default' : 'outline'}>
+        <Link href='/contact' className='w-full' target='_blank' rel='noopener noreferrer'>
+          <Button size='lg' className='w-full cursor-pointer' variant={variant}>
             {t('cta.contactUs')}
           </Button>
         </Link>
       );
     }
-
-    const startLabel = offer.kind === 'free' ? t('cta.getStartedForFree') : t('cta.getStarted');
-    const variant = isRecommended ? 'default' : 'outline';
-
-    if (mode === 'billing' && billingData) {
-      if (isCurrent) {
-        return (
-          <Button size='lg' className='w-full' variant='secondary' disabled>
-            {t('cta.currentPlan')}
-          </Button>
-        );
-      }
+    if (isCurrent) {
       return (
-        <Button
-          size='lg'
-          className='w-full cursor-pointer'
-          variant={variant}
-          onClick={() => onPlanSelect?.({ planId: plan.id, eventLimit: offer.events, currency })}
-          disabled={offer.kind === 'free'}
-        >
-          {billingData.isExistingPaidSubscriber && offer.kind === 'paid' ? t('cta.changeToThisPlan') : startLabel}
+        <Button size='lg' className='w-full' variant='secondary' disabled>
+          {t('cta.currentPlan')}
         </Button>
       );
     }
-
+    const label =
+      offer.kind === 'free'
+        ? t('cta.getStartedForFree')
+        : billingData.isExistingPaidSubscriber
+          ? t('cta.changeToThisPlan')
+          : t('cta.getStarted');
     return (
-      <Link href='/signup' className='w-full'>
-        <Button size='lg' className='w-full cursor-pointer' variant={variant}>
-          {startLabel}
-        </Button>
-      </Link>
+      <Button
+        size='lg'
+        className='w-full cursor-pointer'
+        variant={variant}
+        onClick={() => onPlanSelect({ planId: plan.id, eventLimit: offer.events, currency })}
+        disabled={offer.kind === 'free'}
+      >
+        {label}
+      </Button>
     );
   };
 
   return (
-    <div
-      className={cn('bg-card grid overflow-hidden rounded-2xl border md:grid-cols-2 xl:grid-cols-4', className)}
-    >
+    <div className='bg-card grid overflow-hidden rounded-2xl border md:grid-cols-2 xl:grid-cols-4'>
       {cards.map((card) => {
         const { plan, offer } = card;
         return (
@@ -142,7 +92,6 @@ export function PricingCards({
               'relative row-span-5 grid grid-rows-subgrid p-7',
               'max-md:not-first:border-t md:max-xl:even:border-l md:max-xl:nth-[n+3]:border-t xl:not-first:border-l',
               card.isRecommended && 'bg-primary/5 shadow-[inset_0_2px_0_var(--color-primary)]',
-              // the rows fade rather than the plan, so the rules between plans stay crisp
               '[&>*]:transition-opacity [&>*]:duration-200',
               !card.fits && '[&:focus-within>*]:opacity-100 [&:hover>*]:opacity-100 [&>*]:opacity-50',
             )}
@@ -173,6 +122,7 @@ export function PricingCards({
                       locales='en-US'
                       format={{ style: 'currency', currency, maximumFractionDigits: 0 }}
                       willChange
+                      {...QUICK_ROLL}
                     />
                   )}
                 </b>

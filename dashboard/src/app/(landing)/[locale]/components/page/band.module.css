@@ -6,6 +6,9 @@
     flex-grow: 1;
     margin-block: 12px;
   }
+  .band:first-child {
+    margin-top: 0;
+  }
   .band::before,
   .band::after {
     content: '';

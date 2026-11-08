@@ -80,7 +80,7 @@ export function UptimePage() {
         <SpecStrip
           specs={[
             {
-              value: 1,
+              value: 30,
               unit: t('specs.interval.unit'),
               label: t('specs.interval.label'),
               body: t('specs.interval.body'),

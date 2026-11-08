@@ -23,7 +23,6 @@ function monthlyBands(planId: PlanId, version: string, dollars: readonly number[
   });
 }
 
-/** Prices of the plans sold before November 2026, still billing the subscriptions moved onto their successors. */
 function retiredMonthlyPrices(retiredPlan: 'growth' | 'professional', steps: readonly number[]): LegacyPrice[] {
   return steps.map((events) => ({ lookupKey: `${retiredPlan}_${events}_events`, events, interval: 'month' }));
 }
@@ -59,10 +58,10 @@ const free: PlanDefinition = {
   },
   service: { prioritySupport: false, dedicatedSupport: false, slaGuarantee: false },
   highlights: [
-    { kind: 'replays' },
     { kind: 'sites' },
     { kind: 'members' },
     { kind: 'retention' },
+    { kind: 'replays' },
     { kind: 'uptime' },
     { kind: 'statusPages' },
     feature('fullDashboard'),
@@ -71,7 +70,6 @@ const free: PlanDefinition = {
   ],
 };
 
-/** Free as it was before November 2026. Accounts that joined then keep its 2 sites and 3 members per site. */
 const growth: PlanDefinition = {
   ...free,
   id: 'growth',
@@ -101,17 +99,17 @@ const plus: PlanDefinition = {
       keywordValidation: true,
     },
     emailReports: { emailReportsEnabled: true },
-    dataRetention: { maxDataRetentionDays: 730 },
+    dataRetention: { maxDataRetentionDays: 1095 },
     statusPages: { maxStatusPages: 1, customDomain: true, removeBranding: false },
     sessionReplay: { maxReplaysPerMonth: 5_000 },
   },
   service: { prioritySupport: false, dedicatedSupport: false, slaGuarantee: false },
   highlights: [
     { kind: 'everythingIn', planId: 'free' },
-    { kind: 'replays' },
     { kind: 'sites' },
     { kind: 'members' },
     { kind: 'retention' },
+    { kind: 'replays' },
     { kind: 'uptime' },
     feature('advancedChecks'),
     feature('emailReports'),
@@ -132,24 +130,24 @@ const business: PlanDefinition = {
     dashboards: { maxDashboards: 25, maxMembers: 25 },
     monitoring: {
       maxMonitors: 50,
-      minIntervalSeconds: 60,
+      minIntervalSeconds: 30,
       httpMethodConfigurable: true,
       customStatusCodes: true,
       customHeaders: true,
       keywordValidation: true,
     },
     emailReports: { emailReportsEnabled: true },
-    dataRetention: { maxDataRetentionDays: 1095 },
+    dataRetention: { maxDataRetentionDays: 1825 },
     statusPages: { maxStatusPages: 3, customDomain: true, removeBranding: true },
     sessionReplay: { maxReplaysPerMonth: 25_000 },
   },
   service: { prioritySupport: true, dedicatedSupport: false, slaGuarantee: false },
   highlights: [
     { kind: 'everythingIn', planId: 'plus' },
-    { kind: 'replays' },
     { kind: 'sites' },
     { kind: 'members' },
     { kind: 'retention' },
+    { kind: 'replays' },
     { kind: 'uptime' },
     feature('statusPagesPro'),
     feature('prioritySupport'),
@@ -169,7 +167,7 @@ const enterprise: PlanDefinition = {
     dashboards: { maxDashboards: UNLIMITED_COUNT, maxMembers: UNLIMITED_COUNT },
     monitoring: {
       maxMonitors: UNLIMITED_COUNT,
-      minIntervalSeconds: 60,
+      minIntervalSeconds: 30,
       httpMethodConfigurable: true,
       customStatusCodes: true,
       customHeaders: true,
@@ -178,18 +176,18 @@ const enterprise: PlanDefinition = {
     emailReports: { emailReportsEnabled: true },
     dataRetention: { maxDataRetentionDays: 1825 },
     statusPages: { maxStatusPages: UNLIMITED_COUNT, customDomain: true, removeBranding: true },
-    sessionReplay: { maxReplaysPerMonth: Number.MAX_SAFE_INTEGER },
+    sessionReplay: { maxReplaysPerMonth: UNLIMITED_COUNT },
   },
   service: { prioritySupport: true, dedicatedSupport: true, slaGuarantee: true },
   highlights: [
     { kind: 'everythingIn', planId: 'business' },
     { kind: 'sites' },
     { kind: 'members' },
+    feature('customRetention'),
     feature('samlSso'),
     feature('auditLog'),
     feature('slaGuarantee'),
     feature('dpaSecurityReviews'),
-    feature('customRetention'),
     feature('customContracts'),
   ],
 };
@@ -202,11 +200,9 @@ export const PLANS: Readonly<Record<PlanId, PlanDefinition>> = {
   growth,
 };
 
-/** Plan new accounts start on, and accounts return to when a paid subscription lapses, is canceled or is past due. */
 export const FREE_PLAN_ID: PlanId = 'free';
 
-/** Plan whose capabilities self-hosted deploys (billing off) get. */
 export const SELF_HOSTED_PLAN_ID: PlanId = 'enterprise';
 
-/** Plan ids renamed at the November 2026 launch, still readable in case an older deploy writes one mid-rollout. */
+/** Still read in case an older deploy writes a renamed id mid-rollout. */
 export const RENAMED_PLAN_IDS: ReadonlyMap<string, PlanId> = new Map([['professional', 'business']]);

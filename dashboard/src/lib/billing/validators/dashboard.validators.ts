@@ -18,7 +18,10 @@ class DashboardCapabilityValidator extends CapabilityValidator {
         const count = await this.resolveLazy(currentCount);
         return count < this.caps.maxDashboards;
       },
-      this.upgradeMessage('capabilities.dashboardLimit', (c) => c.dashboards.maxDashboards > this.caps.maxDashboards),
+      this.upgradeMessage(
+        'capabilities.dashboardLimit',
+        (c) => c.dashboards.maxDashboards > this.caps.maxDashboards,
+      ),
     );
     return this;
   }

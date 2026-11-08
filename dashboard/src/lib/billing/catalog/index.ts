@@ -20,7 +20,6 @@ export function getPlan(id: PlanId): PlanDefinition {
   return PLANS[id];
 }
 
-/** Maps a stored plan id that was renamed at launch to its current id; other ids pass through. */
 export function currentPlanId(storedId: string): string {
   return RENAMED_PLAN_IDS.get(storedId) ?? storedId;
 }
@@ -61,12 +60,10 @@ function freeBand(plan: PlanDefinition): PriceBand | undefined {
   return plan.bands.find((band) => isZeroPriced(band, 'month'));
 }
 
-/** A plan that is only ever free, at one fixed allowance. */
 export function isFreePlan(plan: PlanDefinition): boolean {
   return plan.bands.length === 1 && isZeroPriced(plan.bands[0], 'month');
 }
 
-/** Price in cents, or null when the plan has no self-serve price at that volume. */
 export function priceFor(
   plan: PlanDefinition,
   events: number,
@@ -81,10 +78,6 @@ export type PlanOffer =
   | { kind: 'paid'; events: number; cents: number }
   | { kind: 'quoted'; events: number };
 
-/**
- * What a plan's card offers at a slider volume. A free plan keeps its own allowance, and a self-serve plan
- * past its largest step offers that step.
- */
 export function offerFor(
   plan: PlanDefinition,
   events: number,
@@ -99,19 +92,17 @@ export function offerFor(
   return cents === null ? { kind: 'quoted', events: offered } : { kind: 'paid', events: offered, cents };
 }
 
-/** Whether a plan covers a slider volume: a free plan its allowance, self-serve plans the slider steps, sales-only plans any volume. */
 export function fitsVolume(plan: PlanDefinition, events: number): boolean {
   if (isFreePlan(plan)) return events <= plan.bands[0].events;
   return !plan.selfServe || !isCustomVolume(events);
 }
 
-/** The plan a pricing page highlights at a slider volume: the featured plan while it fits, otherwise the first that does. */
 export function recommendedPlanFor(events: number): PlanDefinition | null {
   const fitting = listedPlans().filter((plan) => fitsVolume(plan, events));
   return fitting.find((plan) => plan.featured) ?? fitting[0] ?? null;
 }
 
-/** Whether a card shows exactly what an account has. A retired price is no longer sold, so it matches no paid card. */
+/** A retired price is no longer sold, so it matches no paid card. */
 export function isCurrentOffer(
   subscription: { planId: PlanId; eventLimit: number; pricePerMonth: number; currency: PlanCurrency },
   plan: PlanDefinition,
@@ -142,7 +133,6 @@ for (const plan of PLANS_BY_RANK) {
   }
 }
 
-/** Resolves any Stripe lookup key we have ever sold, current or retired. */
 export function planForLookupKey(lookupKey: string): LookupKeyMatch | null {
   return LOOKUP_KEY_INDEX.get(lookupKey) ?? null;
 }
@@ -161,7 +151,6 @@ export function purchasableLookupKey(
   return band.lookupKeys[interval] ?? null;
 }
 
-/** The cheapest listed plan whose capabilities pass the check, used to name the plan an upgrade unlocks. */
 export function planThatUnlocks(check: (capabilities: PlanCapabilities) => boolean): PlanDefinition | null {
   return listedPlans().find((plan) => check(plan.capabilities)) ?? null;
 }
@@ -173,7 +162,6 @@ export function upgradeFor(
   return check(capabilities) ? null : planThatUnlocks(check);
 }
 
-/** A failed or unpaid subscription keeps its plan on record but gets the free plan's capabilities. */
 export function entitledPlan(subscription: { planId: PlanId; status: string }): PlanDefinition {
   return CAPABILITY_ENTITLED_STATUSES.has(subscription.status) ? PLANS[subscription.planId] : freePlan();
 }
