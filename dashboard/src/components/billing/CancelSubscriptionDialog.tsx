@@ -53,8 +53,8 @@ export function CancelSubscriptionDialog({
           <AlertDialogTitle>Cancel Subscription</AlertDialogTitle>
           <AlertDialogDescription>
             Are you sure you want to cancel your subscription? You'll be redirected to Stripe Customer Portal to
-            cancel your subscription. You'll still have access to your {getPlan(planId).name} plan until the end of your current
-            billing period, after which you'll be downgraded to the free plan.
+            cancel your subscription. You'll still have access to your {getPlan(planId).name} plan until the end of
+            your current billing period, after which you'll be downgraded to the free plan.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

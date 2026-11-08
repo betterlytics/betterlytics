@@ -32,7 +32,10 @@ import { NonRetryableWebhookError } from '@/lib/exceptions';
 
 const RETENTION_GRACE_DAYS = 30;
 
-function resolvePlanForWebhook(lookupKey: string | null | undefined): { plan: PlanDefinition; eventLimit: number } {
+function resolvePlanForWebhook(lookupKey: string | null | undefined): {
+  plan: PlanDefinition;
+  eventLimit: number;
+} {
   if (!lookupKey) {
     throw new NonRetryableWebhookError('Subscription price has no lookup key');
   }
