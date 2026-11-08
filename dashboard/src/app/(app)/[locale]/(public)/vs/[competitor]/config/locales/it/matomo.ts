@@ -22,15 +22,15 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Nessun plugin necessario',
-      betterlytics: 'Analytics, session replay e monitoring inclusi. Un solo strumento, un solo prezzo.',
-      competitor:
-        'Le analytics di base sono gratuite, ma session recording e heatmap richiedono componenti aggiuntivi a pagamento.',
+      betterlytics:
+        'Analytics, session replay e monitoring inclusi in ogni piano e nella versione self-hosted gratuita.',
+      competitor: 'Heatmap e session recording sono inclusi in Cloud, ma in self-hosting sono plugin a pagamento.',
     },
     {
       title: 'Prezzi semplici',
       betterlytics: 'Piano gratuito disponibile. Piani a pagamento da $7/mese con tutto incluso.',
       competitor:
-        'La versione self-hosted comporta costi di infrastruttura e manutenzione. I piani cloud partono da prezzi più alti con add-on a pagamento.',
+        'La versione self-hosted comporta costi di infrastruttura e manutenzione. Cloud parte da €22/mese ($26) per 50.000 hit.',
     },
   ],
   comparison: {
@@ -41,7 +41,7 @@ export const matomo: ComparisonLocaleContent = {
           { name: 'Tracciamento senza cookie', betterlytics: true, competitor: 'Opzionale' },
           { name: 'Pronto per il GDPR di default', betterlytics: true, competitor: 'Con configurazione' },
           { name: 'Nessun banner di cookie necessario', betterlytics: true, competitor: 'Con configurazione' },
-          { name: 'Hosting dei dati in UE', betterlytics: true, competitor: 'Opzionale' },
+          { name: 'Hosting dei dati in UE', betterlytics: true, competitor: true },
           { name: 'Privacy-first di default', betterlytics: true, competitor: 'Opzionale' },
           { name: 'Nessun cross-site tracking', betterlytics: true, competitor: true },
           { name: 'Piena proprietà dei dati', betterlytics: true, competitor: true },
@@ -62,15 +62,19 @@ export const matomo: ComparisonLocaleContent = {
         features: [
           { name: 'Dashboard in tempo reale', betterlytics: true, competitor: true },
           { name: 'Eventi personalizzati', betterlytics: true, competitor: true },
-          { name: 'Proprietà globali', betterlytics: true, competitor: 'Tramite variabili personalizzate' },
+          { name: 'Proprietà globali', betterlytics: true, competitor: 'Tramite dimensioni personalizzate' },
           { name: 'Tracciamento campagne (UTM)', betterlytics: true, competitor: true },
-          { name: 'Tracciamento dei percorsi utente', betterlytics: true, competitor: 'Limited' },
-          { name: 'Analisi dei funnel', betterlytics: true, competitor: 'Con add-on' },
-          { name: 'Session replay', betterlytics: true, competitor: 'Con add-on' },
-          { name: 'Monitoring delle performance', betterlytics: true, competitor: false },
+          { name: 'Tracciamento dei percorsi utente', betterlytics: true, competitor: true },
+          { name: 'Analisi dei funnel', betterlytics: true, competitor: true },
+          { name: 'Session replay', betterlytics: true, competitor: true },
+          { name: 'Monitoring delle performance', betterlytics: true, competitor: 'Solo tempi di caricamento' },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
           { name: 'Pagine di stato pubbliche', betterlytics: true, competitor: false },
-          { name: 'Integrazioni di notifica (Slack, Discord, ecc.)', betterlytics: true, competitor: 'Con plugin' },
+          {
+            name: 'Integrazioni di notifica (Slack, Discord, ecc.)',
+            betterlytics: true,
+            competitor: 'Email, SMS, Slack',
+          },
         ],
       },
       {
@@ -80,7 +84,11 @@ export const matomo: ComparisonLocaleContent = {
           { name: 'Curva di apprendimento', betterlytics: 'Bassa', competitor: 'Media' },
           { name: 'Interfaccia semplice e intuitiva', betterlytics: true, competitor: false },
           { name: 'Nessuna configurazione complessa', betterlytics: true, competitor: false },
-          { name: 'Conservazione dei dati', betterlytics: 'Fino a 5 anni', competitor: 'Fino a 2 anni' },
+          {
+            name: 'Conservazione dei dati',
+            betterlytics: 'Fino a 5 anni',
+            competitor: '2 anni di dati grezzi, report per sempre',
+          },
         ],
       },
       {
@@ -88,13 +96,13 @@ export const matomo: ComparisonLocaleContent = {
         features: [
           { name: 'Piano gratuito disponibile', betterlytics: true, competitor: false },
           { name: 'Prezzi trasparenti', betterlytics: true, competitor: 'Limited' },
-          { name: 'Supporto via email', betterlytics: true, competitor: 'A pagamento' },
+          { name: 'Supporto via email', betterlytics: true, competitor: true },
         ],
       },
       {
         name: 'AI e integrazioni',
         features: [
-          { name: 'Server MCP', betterlytics: true, competitor: false },
+          { name: 'Server MCP', betterlytics: true, competitor: true },
         ],
       },
     ],
@@ -112,12 +120,12 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Il vero costo del “gratuito”',
-      content: `La versione self-hosted di Matomo è gratuita da scaricare, ma paghi server, tempo di manutenzione e plugin premium come il session recording. Matomo Cloud parte da $19/mese e cresce in base alle pageview.\n\nBetterlytics offre un piano gratuito per siti piccoli. I piani a pagamento partono da $7/mese con tutto incluso: session replay, monitoring, nessun costo aggiuntivo. Quello che vedi è quello che paghi.`,
+      content: `La versione self-hosted di Matomo è gratuita da scaricare, ma paghi server, tempo di manutenzione e plugin premium come il session recording. Matomo Cloud parte da €22/mese ($26) per 50.000 hit e cresce con il traffico.\n\nBetterlytics offre un piano gratuito per siti piccoli. I piani a pagamento partono da $7/mese con tutto incluso: session replay, monitoring, nessun costo aggiuntivo. Quello che vedi è quello che paghi.`,
       icon: 'dollar',
     },
     {
       title: 'Tutto in un unico posto',
-      content: `Matomo offre analytics complete, ma il session recording è un plugin a pagamento e non include uptime monitoring. L’interfaccia è potente, ma può risultare complessa.\n\nBetterlytics riunisce analytics, session replay, uptime monitoring con avvisi tramite Slack, Discord e Teams, e performance tracking in un’unica soluzione. Un’interfaccia pulita, nessun plugin da acquistare, nessun paywall sui piani a pagamento.`,
+      content: `Matomo Cloud copre analytics e session recording, ma non ha uptime monitoring. L’interfaccia è potente, ma può risultare complessa.\n\nBetterlytics riunisce analytics, session replay, uptime monitoring con avvisi tramite Slack, Discord e Teams, e performance tracking in un’unica soluzione. Un’interfaccia pulita, nessun plugin da acquistare, nessun paywall sui piani a pagamento.`,
       icon: 'layers',
     },
   ],
