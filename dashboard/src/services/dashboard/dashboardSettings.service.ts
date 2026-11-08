@@ -11,7 +11,8 @@ import {
 import * as SettingsRepository from '@/repositories/postgres/dashboardSettings.repository';
 import { findDashboardOwner } from '@/repositories/postgres/dashboard.repository';
 import { getUserSubscription } from '@/repositories/postgres/subscription.repository';
-import { getMaxRetentionDaysForTier, UNLIMITED_DATA_RETENTION_DAYS } from '@/lib/billing/capabilities';
+import { UNLIMITED_DATA_RETENTION_DAYS } from '@/lib/billing/capabilities';
+import { getPlan } from '@/lib/billing/catalog';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { UserException } from '@/lib/exceptions';
 
@@ -74,7 +75,7 @@ async function assertRetentionWithinPlan(dashboardId: string, updates: Dashboard
     throw new Error(`No subscription found for user ${owner.userId} during retention validation`);
   }
 
-  const maxRetentionDays = getMaxRetentionDaysForTier(subscription.tier);
+  const maxRetentionDays = getPlan(subscription.planId).capabilities.dataRetention.maxDataRetentionDays;
   if (updates.dataRetentionDays > maxRetentionDays) {
     throw new UserException(`Your current plan supports up to ${maxRetentionDays} days of data retention.`);
   }
@@ -84,7 +85,7 @@ async function assertRetentionWithinPlan(dashboardId: string, updates: Dashboard
  * Decides per affected DashboardSettings row whether to restore from grace, clamp to the
  * new ceiling, or partially raise retention while the existing grace continues
  */
-export async function applyTierChangeToRetention(
+export async function applyPlanChangeToRetention(
   userId: string,
   newMaxDays: number,
   graceUntil: Date,
