@@ -744,8 +744,9 @@
         },
         "dashboards": {
           "title": "Vælg dashboards",
-          "future": "Medtag dashboards, du tilføjer senere",
-          "futureHint": "Kan vælges, når alle dashboards er valgt.",
+          "modeAll": "Alle dashboards",
+          "modeSelected": "Kun valgte",
+          "allHint": "Inkluderer dashboards, du tilføjer senere",
           "search": "Søg i dashboards",
           "selectAll": "Vælg alle",
           "selected": "<b>{selected}</b> af {total} valgt",

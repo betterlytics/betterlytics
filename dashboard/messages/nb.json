@@ -744,8 +744,9 @@
         },
         "dashboards": {
           "title": "Velg dashbord",
-          "future": "Ta med dashbord du legger til senere",
-          "futureHint": "Tilgjengelig når alle dashbordene er valgt.",
+          "modeAll": "Alle dashbord",
+          "modeSelected": "Bare valgte",
+          "allHint": "Inkluderer dashbord du legger til senere",
           "search": "Søk i dashbord",
           "selectAll": "Velg alle",
           "selected": "<b>{selected}</b> av {total} valgt",

@@ -744,8 +744,9 @@
         },
         "dashboards": {
           "title": "Select dashboards",
-          "future": "Include dashboards you add later",
-          "futureHint": "Available when every dashboard is selected.",
+          "modeAll": "All dashboards",
+          "modeSelected": "Only selected",
+          "allHint": "Includes dashboards you add later",
           "search": "Search dashboards",
           "selectAll": "Select all",
           "selected": "<b>{selected}</b> of {total} selected",

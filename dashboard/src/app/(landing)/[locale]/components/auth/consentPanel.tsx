@@ -65,14 +65,13 @@ function CheckMark() {
   return <Checkbox.Indicator className={styles.indicator} />;
 }
 
-type Selection = { picked: Set<string>; includeFuture: boolean };
+type Selection = { allDashboards: boolean; picked: Set<string> };
 
 function initialSelection(request: McpConsentRequest): Selection {
-  const everyDashboard = new Set(request.dashboards.map((dashboard) => dashboard.id));
   if (!request.previous || request.previous.allDashboards) {
-    return { picked: everyDashboard, includeFuture: true };
+    return { allDashboards: true, picked: new Set(request.dashboards.map((dashboard) => dashboard.id)) };
   }
-  return { picked: new Set(request.previous.dashboardIds), includeFuture: false };
+  return { allDashboards: false, picked: new Set(request.previous.dashboardIds) };
 }
 
 export function ConsentPanel({
@@ -86,7 +85,12 @@ export function ConsentPanel({
 }) {
   const t = useTranslations('public.auth.consent');
   const id = useId();
-  const ids = { warnings: `${id}-warnings`, error: `${id}-error`, hint: `${id}-hint` };
+  const ids = {
+    warnings: `${id}-warnings`,
+    error: `${id}-error`,
+    hint: `${id}-hint`,
+    dashboards: `${id}-dashboards`,
+  };
   const client = request.clientName;
 
   const [selection, setSelection] = useState<Selection>(() => initialSelection(request));
@@ -94,7 +98,7 @@ export function ConsentPanel({
   const [pending, setPending] = useState<'allow' | 'cancel' | 'switch' | null>(null);
   const [failed, setFailed] = useState(false);
 
-  const { picked, includeFuture } = selection;
+  const { allDashboards, picked } = selection;
   const total = request.dashboards.length;
   const searchable = total >= SEARCH_FROM_DASHBOARDS;
   const visible = useMemo(() => {
@@ -104,15 +108,13 @@ export function ConsentPanel({
       : request.dashboards;
   }, [query, request.dashboards, searchable]);
   const visiblePicked = visible.filter((d) => picked.has(d.id)).length;
-  const allPicked = picked.size === total;
-  const allDashboards = allPicked && includeFuture;
   const canAllow = allDashboards || picked.size > 0;
   const busy = pending !== null;
   const warnUnverified = !request.verified;
   const warnLoopback = request.onlyLoopbackRedirects;
 
-  const setPicked = (next: Set<string>) =>
-    setSelection((current) => ({ picked: next, includeFuture: current.includeFuture && next.size === total }));
+  const setPicked = (next: Set<string>) => setSelection((current) => ({ ...current, picked: next }));
+  const setAllDashboards = (on: boolean) => setSelection((current) => ({ ...current, allDashboards: on }));
 
   const togglePicked = (dashboardId: string, on: boolean) => {
     const next = new Set(picked);
@@ -276,8 +278,25 @@ export function ConsentPanel({
             </div>
           </fieldset>
 
-          <fieldset className={styles.section} disabled={busy}>
-            <legend className={styles.sectionTitle}>{t('dashboards.title')}</legend>
+          <fieldset className={styles.section} disabled={busy} aria-labelledby={ids.dashboards}>
+            <legend className={styles.sectionHead}>
+              <span id={ids.dashboards} className={styles.sectionTitle}>
+                {t('dashboards.title')}
+              </span>
+              <span className={styles.segmented} role='radiogroup' aria-labelledby={ids.dashboards}>
+                {[true, false].map((all) => (
+                  <label key={String(all)}>
+                    <input
+                      type='radio'
+                      name={`${id}-scope`}
+                      checked={allDashboards === all}
+                      onChange={() => setAllDashboards(all)}
+                    />
+                    {all ? t('dashboards.modeAll') : t('dashboards.modeSelected')}
+                  </label>
+                ))}
+              </span>
+            </legend>
             <div className={styles.group}>
               {total === 0 ? (
                 <p className={styles.noteRow}>
@@ -291,6 +310,7 @@ export function ConsentPanel({
               ) : (
                 <DashboardList
                   dashboards={visible}
+                  allDashboards={allDashboards}
                   picked={picked}
                   searchable={searchable}
                   query={query}
@@ -301,13 +321,13 @@ export function ConsentPanel({
                         <Checkbox.Root
                           className={styles.checkbox}
                           checked={
-                            visiblePicked === 0
-                              ? false
-                              : visiblePicked === visible.length
-                                ? true
+                            allDashboards || (visiblePicked > 0 && visiblePicked === visible.length)
+                              ? true
+                              : visiblePicked === 0
+                                ? false
                                 : 'indeterminate'
                           }
-                          disabled={visible.length === 0}
+                          disabled={allDashboards || visible.length === 0}
                           onCheckedChange={() => toggleVisible(visiblePicked < visible.length)}
                         >
                           <CheckMark />
@@ -315,13 +335,15 @@ export function ConsentPanel({
                         {t('dashboards.selectAll')}
                       </label>
                       <span className={styles.count} id={ids.hint} aria-live='polite'>
-                        {picked.size === 0
-                          ? t('dashboards.pickOne')
-                          : t.rich('dashboards.selected', {
-                              selected: picked.size,
-                              total,
-                              b: (chunks) => <b>{chunks}</b>,
-                            })}
+                        {allDashboards
+                          ? t('dashboards.allHint')
+                          : picked.size === 0
+                            ? t('dashboards.pickOne')
+                            : t.rich('dashboards.selected', {
+                                selected: picked.size,
+                                total,
+                                b: (chunks) => <b>{chunks}</b>,
+                              })}
                       </span>
                     </div>
                   }
@@ -331,20 +353,6 @@ export function ConsentPanel({
                   noMatch={t('dashboards.noMatch')}
                 />
               )}
-              <label className={cn(styles.row, styles.futureRow)}>
-                <Checkbox.Root
-                  className={styles.checkbox}
-                  checked={allDashboards}
-                  disabled={!allPicked}
-                  onCheckedChange={(on) => setSelection((current) => ({ ...current, includeFuture: on === true }))}
-                >
-                  <CheckMark />
-                </Checkbox.Root>
-                <span className={styles.rowMain}>
-                  <span className={styles.rowTitle}>{t('dashboards.future')}</span>
-                  <span className={styles.rowText}>{t('dashboards.futureHint')}</span>
-                </span>
-              </label>
             </div>
           </fieldset>
 
@@ -378,6 +386,7 @@ export function ConsentPanel({
 
 function DashboardList({
   dashboards,
+  allDashboards,
   picked,
   searchable,
   query,
@@ -389,6 +398,7 @@ function DashboardList({
   noMatch,
 }: {
   dashboards: McpConsentRequest['dashboards'];
+  allDashboards: boolean;
   picked: Set<string>;
   searchable: boolean;
   query: string;
@@ -413,7 +423,7 @@ function DashboardList({
   }, [measure, dashboards.length]);
 
   return (
-    <div>
+    <div className={cn(allDashboards && styles.locked)}>
       {searchable ? (
         <div className={cn(styles.toolbar, styles.searchBar)}>
           <label className={styles.search}>
@@ -437,7 +447,8 @@ function DashboardList({
             <label key={dashboard.id} className={styles.dashRow}>
               <Checkbox.Root
                 className={styles.checkbox}
-                checked={picked.has(dashboard.id)}
+                checked={allDashboards || picked.has(dashboard.id)}
+                disabled={allDashboards}
                 onCheckedChange={(on) => onToggle(dashboard.id, on === true)}
               >
                 <CheckMark />
