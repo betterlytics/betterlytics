@@ -16,6 +16,17 @@ function legacyMonthlyBands(planId: PlanId, prices: ReadonlyArray<readonly [numb
   }));
 }
 
+function monthlyBands(planId: PlanId, dollars: readonly number[]): PriceBand[] {
+  return EVENT_STEPS.map((events, index) => {
+    const cents = dollars[index] * 100;
+    return {
+      events,
+      prices: { month: { USD: cents, EUR: cents } },
+      lookupKeys: { month: `${planId}_${events}_month` },
+    };
+  });
+}
+
 const feature = (key: Extract<PlanHighlight, { kind: 'feature' }>['key']): PlanHighlight => ({
   kind: 'feature',
   key,
@@ -122,7 +133,7 @@ const enterprise: PlanDefinition = {
   shortName: 'Enterprise',
   listed: true,
   selfServe: false,
-  rank: 3,
+  rank: 4,
   featured: false,
   bands: [],
   legacyPrices: [],
@@ -153,7 +164,125 @@ const enterprise: PlanDefinition = {
   ],
 };
 
-export const PLANS: Readonly<Record<PlanId, PlanDefinition>> = { growth, professional, enterprise };
+const free: PlanDefinition = {
+  id: 'free',
+  name: 'Free',
+  shortName: 'Free',
+  listed: false,
+  selfServe: true,
+  rank: 1,
+  featured: false,
+  bands: [{ events: 10_000, prices: { month: { USD: 0, EUR: 0 } }, lookupKeys: {} }],
+  legacyPrices: [],
+  capabilities: {
+    dashboards: { maxDashboards: 1, maxMembers: 1 },
+    monitoring: {
+      maxMonitors: 1,
+      minIntervalSeconds: 300,
+      httpMethodConfigurable: true,
+      customStatusCodes: true,
+      customHeaders: true,
+      keywordValidation: true,
+    },
+    emailReports: { emailReportsEnabled: false },
+    dataRetention: { maxDataRetentionDays: 365 },
+    statusPages: { maxStatusPages: 1, customDomain: false, removeBranding: false },
+  },
+  service: { prioritySupport: false, dedicatedSupport: false, slaGuarantee: false },
+  highlights: [
+    { kind: 'events' },
+    { kind: 'sites' },
+    { kind: 'members' },
+    { kind: 'retention' },
+    { kind: 'uptime' },
+    { kind: 'statusPages' },
+    feature('fullDashboard'),
+    feature('funnelsJourneys'),
+    feature('sessionReplay'),
+    feature('errorTracking'),
+  ],
+};
+
+const plus: PlanDefinition = {
+  id: 'plus',
+  name: 'Plus',
+  shortName: 'Plus',
+  listed: false,
+  selfServe: true,
+  rank: 2,
+  featured: true,
+  bands: monthlyBands('plus', [9, 14, 19, 29, 49, 69, 89, 129, 169]),
+  legacyPrices: [],
+  capabilities: {
+    dashboards: { maxDashboards: 5, maxMembers: 3 },
+    monitoring: {
+      maxMonitors: 5,
+      minIntervalSeconds: 60,
+      httpMethodConfigurable: true,
+      customStatusCodes: true,
+      customHeaders: true,
+      keywordValidation: true,
+    },
+    emailReports: { emailReportsEnabled: true },
+    dataRetention: { maxDataRetentionDays: 730 },
+    statusPages: { maxStatusPages: 1, customDomain: true, removeBranding: false },
+  },
+  service: { prioritySupport: false, dedicatedSupport: false, slaGuarantee: false },
+  highlights: [
+    { kind: 'everythingIn', planId: 'free' },
+    { kind: 'sites' },
+    { kind: 'members' },
+    { kind: 'retention' },
+    { kind: 'uptime' },
+    feature('emailReports'),
+    feature('statusPageCustomDomain'),
+  ],
+};
+
+const business: PlanDefinition = {
+  id: 'business',
+  name: 'Business',
+  shortName: 'Business',
+  listed: false,
+  selfServe: true,
+  rank: 3,
+  featured: false,
+  bands: monthlyBands('business', [19, 24, 29, 44, 74, 104, 134, 194, 254]),
+  legacyPrices: [],
+  capabilities: {
+    dashboards: { maxDashboards: 25, maxMembers: 25 },
+    monitoring: {
+      maxMonitors: 50,
+      minIntervalSeconds: 60,
+      httpMethodConfigurable: true,
+      customStatusCodes: true,
+      customHeaders: true,
+      keywordValidation: true,
+    },
+    emailReports: { emailReportsEnabled: true },
+    dataRetention: { maxDataRetentionDays: 1095 },
+    statusPages: { maxStatusPages: 3, customDomain: true, removeBranding: true },
+  },
+  service: { prioritySupport: true, dedicatedSupport: false, slaGuarantee: false },
+  highlights: [
+    { kind: 'everythingIn', planId: 'plus' },
+    { kind: 'sites' },
+    { kind: 'members' },
+    { kind: 'retention' },
+    { kind: 'uptime' },
+    feature('statusPagesPro'),
+    feature('prioritySupport'),
+  ],
+};
+
+export const PLANS: Readonly<Record<PlanId, PlanDefinition>> = {
+  growth,
+  professional,
+  enterprise,
+  free,
+  plus,
+  business,
+};
 
 /** Plan new accounts start on, and accounts return to when a paid subscription lapses, is canceled or is past due. */
 export const FREE_PLAN_ID: PlanId = 'growth';
