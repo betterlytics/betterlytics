@@ -723,7 +723,6 @@
         }
       },
       "consent": {
-        "eyebrow": "Connection request",
         "title": "Connect {client}",
         "lede": "{client} wants to access your Betterlytics account.",
         "facts": {
@@ -731,34 +730,22 @@
           "identity": "Identity",
           "returnsTo": "Returns to",
           "verified": "Verified",
-          "unverified": "Unverified",
-          "thisDevice": "This device",
-          "selfNamed": "Named by the app itself"
+          "unverified": "Unverified"
         },
         "warnings": {
-          "unverifiedTitle": "Unverified app",
-          "unverifiedBody": "{client} registered itself, so we can't confirm who made it.",
-          "loopbackTitle": "Sends access to this device",
-          "loopbackBody": "It goes to <mono>{host}</mono>. Only allow this if you just started the connection from {client}."
-        },
-        "never": {
-          "title": "Never allowed",
-          "secrets": "See your password or payment details",
-          "delete": "Delete dashboards or their data",
-          "role": "Go beyond your role on a dashboard"
+          "unverified": "{client} registered itself, so we can't confirm who made it.",
+          "loopback": "Only allow this if you just started the connection from {client}."
         },
         "permissions": {
           "title": "What {client} can do",
           "read": "Read analytics",
           "readDescription": "Traffic, events, funnels and errors on the dashboards you pick.",
-          "required": "Required",
           "roleNote": "It can never do more than your role allows."
         },
         "dashboards": {
-          "title": "Dashboards",
-          "all": "All dashboards",
-          "allDescription": "Including ones you add later",
-          "included": "{count} included",
+          "title": "Select dashboards",
+          "future": "Include dashboards you add later",
+          "futureHint": "Available when every dashboard is selected.",
           "search": "Search dashboards",
           "selectAll": "Select all",
           "selected": "<b>{selected}</b> of {total} selected",

@@ -3,8 +3,10 @@ import { notFound, redirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getAuthSession } from '@/auth/auth-actions';
 import type { SupportedLanguages } from '@/constants/i18n';
+import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { isMcpOAuthEnabled } from '@/mcp/auth/oauth';
 import { getMcpConsentRequest, signedOAuthQuery } from '@/services/auth/mcpConsent.service';
+import { getPublicEnvironmentVariables } from '@/services/system/environment.service';
 import { AuthAction, AuthPanel } from '@/landing/components/auth/authPanel';
 import { ConsentPanel } from '@/landing/components/auth/consentPanel';
 import { NO_INDEX } from '@/landing/components/auth/metadata';
@@ -16,7 +18,6 @@ type Props = {
 
 export const metadata: Metadata = { title: 'Betterlytics', robots: NO_INDEX };
 
-/** Where the OAuth provider sends a signed-in user to approve an MCP client and pick its dashboards. */
 export default async function ConsentPage({ params, searchParams }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -41,5 +42,9 @@ export default async function ConsentPage({ params, searchParams }: Props) {
     );
   }
 
-  return <ConsentPanel request={request} oauthQuery={oauthQuery} email={session.user.email} />;
+  return (
+    <PublicEnvironmentVariablesProvider publicEnvironmentVariables={getPublicEnvironmentVariables()}>
+      <ConsentPanel request={request} oauthQuery={oauthQuery} email={session.user.email} />
+    </PublicEnvironmentVariablesProvider>
+  );
 }

@@ -723,7 +723,6 @@
         }
       },
       "consent": {
-        "eyebrow": "Forbindelsesanmodning",
         "title": "Forbind {client}",
         "lede": "{client} vil have adgang til din Betterlytics-konto.",
         "facts": {
@@ -731,34 +730,22 @@
           "identity": "Identitet",
           "returnsTo": "Vender tilbage til",
           "verified": "Verificeret",
-          "unverified": "Ikke verificeret",
-          "thisDevice": "Denne enhed",
-          "selfNamed": "Navngivet af appen selv"
+          "unverified": "Ikke verificeret"
         },
         "warnings": {
-          "unverifiedTitle": "Ikke verificeret app",
-          "unverifiedBody": "{client} har registreret sig selv, så vi kan ikke bekræfte, hvem der har lavet den.",
-          "loopbackTitle": "Sender adgang til denne enhed",
-          "loopbackBody": "Den går til <mono>{host}</mono>. Tillad det kun, hvis du lige har startet forbindelsen fra {client}."
-        },
-        "never": {
-          "title": "Aldrig tilladt",
-          "secrets": "Se din adgangskode eller dine betalingsoplysninger",
-          "delete": "Slette dashboards eller deres data",
-          "role": "Gå ud over din rolle på et dashboard"
+          "unverified": "{client} har registreret sig selv, så vi kan ikke bekræfte, hvem der har lavet den.",
+          "loopback": "Tillad det kun, hvis du lige har startet forbindelsen fra {client}."
         },
         "permissions": {
           "title": "Hvad {client} kan",
           "read": "Læse statistik",
           "readDescription": "Trafik, hændelser, tragte og fejl på de dashboards, du vælger.",
-          "required": "Påkrævet",
           "roleNote": "Den kan aldrig mere, end din rolle tillader."
         },
         "dashboards": {
-          "title": "Dashboards",
-          "all": "Alle dashboards",
-          "allDescription": "Også dem, du tilføjer senere",
-          "included": "{count} inkluderet",
+          "title": "Vælg dashboards",
+          "future": "Medtag dashboards, du tilføjer senere",
+          "futureHint": "Kan vælges, når alle dashboards er valgt.",
           "search": "Søg i dashboards",
           "selectAll": "Vælg alle",
           "selected": "<b>{selected}</b> af {total} valgt",

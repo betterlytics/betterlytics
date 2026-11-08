@@ -723,7 +723,6 @@
         }
       },
       "consent": {
-        "eyebrow": "Richiesta di connessione",
         "title": "Connetti {client}",
         "lede": "{client} vuole accedere al tuo account Betterlytics.",
         "facts": {
@@ -731,34 +730,22 @@
           "identity": "Identità",
           "returnsTo": "Ritorna a",
           "verified": "Verificata",
-          "unverified": "Non verificata",
-          "thisDevice": "Questo dispositivo",
-          "selfNamed": "Nome scelto dall'app"
+          "unverified": "Non verificata"
         },
         "warnings": {
-          "unverifiedTitle": "App non verificata",
-          "unverifiedBody": "{client} si è registrata da sola, quindi non possiamo confermare chi l'ha creata.",
-          "loopbackTitle": "Invia l'accesso a questo dispositivo",
-          "loopbackBody": "Va a <mono>{host}</mono>. Consenti solo se hai appena avviato la connessione da {client}."
-        },
-        "never": {
-          "title": "Mai consentito",
-          "secrets": "Vedere la tua password o i dati di pagamento",
-          "delete": "Eliminare dashboard o i loro dati",
-          "role": "Andare oltre il tuo ruolo su una dashboard"
+          "unverified": "{client} si è registrata da sola, quindi non possiamo confermare chi l'ha creata.",
+          "loopback": "Consenti solo se hai appena avviato la connessione da {client}."
         },
         "permissions": {
           "title": "Cosa può fare {client}",
           "read": "Leggere le statistiche",
           "readDescription": "Traffico, eventi, funnel ed errori sulle dashboard che scegli.",
-          "required": "Obbligatorio",
           "roleNote": "Non può mai fare più di quanto consente il tuo ruolo."
         },
         "dashboards": {
-          "title": "Dashboard",
-          "all": "Tutte le dashboard",
-          "allDescription": "Anche quelle che aggiungerai in seguito",
-          "included": "{count} incluse",
+          "title": "Seleziona le dashboard",
+          "future": "Includi le dashboard che aggiungerai in seguito",
+          "futureHint": "Disponibile quando tutte le dashboard sono selezionate.",
           "search": "Cerca dashboard",
           "selectAll": "Seleziona tutte",
           "selected": "<b>{selected}</b> di {total} selezionate",
