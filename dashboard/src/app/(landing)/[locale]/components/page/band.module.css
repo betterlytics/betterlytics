@@ -3,6 +3,7 @@
 @layer components {
   .band {
     position: relative;
+    flex-grow: 1;
     margin-block: 12px;
   }
   .band::before,

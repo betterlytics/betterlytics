@@ -1097,6 +1097,7 @@
       "dpa": "Databehandleraftale",
       "subprocessors": "Underdatabehandlere",
       "documentation": "Dokumentation",
+      "blog": "Blog",
       "changelog": "Ændringslog",
       "pricing": "Priser",
       "status": "Status",
@@ -1303,6 +1304,7 @@
       },
       "resources": {
         "docs": "Dokumentation",
+        "blog": "Blog",
         "changelog": "Changelog",
         "status": "Status"
       },
