@@ -138,7 +138,6 @@ export async function getMcpConsentRequest(userId: string, oauthQuery: string): 
   };
 }
 
-/** Where the provider sends the browser next. */
 async function submitConsent(accept: boolean, oauthQuery: string, requestHeaders: Headers): Promise<string> {
   const response = await auth.api.oauth2Consent({
     headers: requestHeaders,

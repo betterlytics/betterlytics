@@ -1,7 +1,7 @@
 import type { ClientMetadataResourceFetch } from '@better-auth/oauth-provider';
 
 /*
- * DPoP is off: MCP clients don't use it and its MCP profile isn't final (#483). better-auth has no switch for it and
+ * DPoP is off: MCP clients don't use it and its MCP profile isn't final. better-auth has no switch for it and
  * binds a token whenever a request asks, so these strip the asking before the library sees it and the advertising
  * from what it serves. Every token is then a plain Bearer token.
  */

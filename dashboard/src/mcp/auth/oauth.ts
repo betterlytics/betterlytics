@@ -2,7 +2,6 @@ import { env } from '@/lib/env';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { isLoopbackHost } from '@/mcp/auth/redirect-uri';
 
-/** The one scope for now; future write scopes are named after the #60 families. */
 export const MCP_READ_SCOPE = 'dashboards:read';
 
 export const MCP_RESOURCE = `${env.PUBLIC_BASE_URL}/api/mcp`;
@@ -27,7 +26,6 @@ if (isFeatureEnabled('isCloud') && !enabled) {
   console.warn(`MCP OAuth is off: ${MCP_RESOURCE} is neither HTTPS nor a loopback URL`);
 }
 
-/** OAuth for MCP clients is cloud only; self-host keeps `btl_` tokens alone. */
 export function isMcpOAuthEnabled(): boolean {
   return enabled;
 }

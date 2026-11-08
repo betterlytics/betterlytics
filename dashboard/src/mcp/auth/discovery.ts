@@ -5,7 +5,7 @@ type DiscoveryParams = { params: Promise<{ path?: string[] }> };
 
 /**
  * A discovery document at the site root, served by the OAuth plugins. `paths` are the accepted suffixes, each
- * mapped to the path the plugins answer on. Cloud only: self-host has no OAuth, so these are 404s.
+ * mapped to the path the plugins answer on.
  */
 export function discoveryRoute(paths: Record<string, string>) {
   return async (request: Request, { params }: DiscoveryParams): Promise<Response> => {

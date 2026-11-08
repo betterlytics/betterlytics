@@ -770,8 +770,7 @@ model TelemetryInstance {
   createdAt  DateTime  @default(now())
 }
 
-// MCP clients authorize through better-auth's OAuth provider (the jwt, oauth-provider and cimd plugins) on cloud
-// only. The models below are the plugins' own; on self-host the tables exist but stay empty.
+// The models below belong to better-auth's jwt, oauth-provider and cimd plugins.
 model Jwks {
   id         String    @id @default(cuid())
   publicKey  String
@@ -946,8 +945,8 @@ model OauthClientAssertion {
   expiresAt DateTime
 }
 
-// The dashboards an MCP OAuth connection may read, one grant per consent: every dashboard the user is a member of,
-// now or later (allDashboards), or the picked ones as rows. Allowing the consent again replaces the grant.
+// allDashboards covers every dashboard the user is a member of, including ones joined later; otherwise only the
+// dashboards in McpGrantDashboard.
 model McpGrant {
   id            String              @id @default(cuid())
   consentId     String              @unique

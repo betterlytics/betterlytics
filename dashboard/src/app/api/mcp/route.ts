@@ -18,8 +18,6 @@ function extractBearerToken(req: NextRequest): string | null {
   return auth.slice(7);
 }
 
-// On cloud every challenge points to the protected resource metadata, where OAuth clients find our authorization
-// server. Self-host has no OAuth and keeps the plain challenge.
 function challenge(error?: string) {
   const params = [`realm="${MCP_REALM}"`];
   if (isMcpOAuthEnabled()) params.push(`resource_metadata="${MCP_RESOURCE_METADATA_URL}"`);
@@ -40,7 +38,6 @@ export async function POST(req: NextRequest) {
     return unauthorized('Missing Authorization header');
   }
 
-  // Personal tokens keep their own check; on self-host there is nothing else a token could be
   const result =
     token.startsWith(PERSONAL_TOKEN_PREFIX) || !isMcpOAuthEnabled()
       ? await validateToken(token)

@@ -32,7 +32,6 @@ export async function findOauthClient(clientId: string): Promise<OauthClientDeta
   });
 }
 
-/** The user's consent for an enabled client, with the dashboards it grants. */
 export async function findMcpConsentGrant(userId: string, clientId: string): Promise<McpConsentGrant | null> {
   const consent = await prisma.oauthConsent.findFirst({
     where: { userId, clientId, client: { OR: [{ disabled: false }, { disabled: null }] } },
@@ -53,7 +52,6 @@ export async function findMcpConsentGrant(userId: string, clientId: string): Pro
   });
 }
 
-/** Replaces the consent's grant: allowing again never merges with the previous picks. */
 export async function replaceMcpGrant(consentId: string, selection: McpGrantSelection): Promise<void> {
   const { allDashboards, dashboardIds } = McpGrantSelectionSchema.parse(selection);
   const picked = allDashboards ? [] : [...new Set(dashboardIds)];

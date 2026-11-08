@@ -8,7 +8,6 @@ export const DashboardMembershipSchema = z.object({
   role: z.nativeEnum(DashboardRole),
 });
 
-/** Which dashboards an MCP OAuth connection may read: all of the user's, now and later, or the picked ones. */
 export const McpGrantSelectionSchema = z
   .object({
     allDashboards: z.boolean(),
