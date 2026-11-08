@@ -1,6 +1,15 @@
 'use client';
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -63,6 +72,18 @@ function splitHost(host: string): [string, string] {
   const keep = parts.length > 2 && MULTI_PART_SUFFIXES.has(parts.slice(-2).join('.')) ? 3 : 2;
   if (parts.length <= keep) return ['', host];
   return [`${parts.slice(0, -keep).join('.')}.`, parts.slice(-keep).join('.')];
+}
+
+const subscribeNever = () => () => {};
+
+// DomainFavicon reveals its image on onLoad, which a server-rendered image can fire before hydration
+function Favicon({ domain, size }: { domain: string | null; size: number }) {
+  const hydrated = useSyncExternalStore(
+    subscribeNever,
+    () => true,
+    () => false,
+  );
+  return <DomainFavicon domain={hydrated ? domain : null} size={size} className='text-muted' />;
 }
 
 function CheckMark() {
@@ -471,7 +492,7 @@ function DashboardList({
               >
                 <CheckMark />
               </Checkbox.Root>
-              <DomainFavicon domain={dashboard.domain} size={18} className='text-muted' />
+              <Favicon domain={dashboard.domain} size={18} />
               <span className={styles.domain} title={dashboard.domain}>
                 <span>{sub}</span>
                 <span>{base}</span>
