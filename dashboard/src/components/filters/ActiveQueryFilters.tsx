@@ -100,7 +100,7 @@ export function ActiveQueryFilters({ variant = 'row' }: ActiveQueryFiltersProps)
               ? 'max-w-full shrink-0 dark:[--ring:var(--primary-foreground)]'
               : 'max-w-max shrink grow basis-80',
             pillBackground,
-            !initialIds.has(filter.id) && 'animate-filter-pill-added',
+            !initialIds.has(filter.id) && (band ? 'animate-filter-pill-in' : 'animate-filter-pill-added'),
             status.disabled && 'opacity-50',
           )}
         >
