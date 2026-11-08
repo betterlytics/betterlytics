@@ -230,8 +230,14 @@
       filter-pill-flash 0.8s ease-in;
   }
 
+  /* The entrance alone, for the blue filter band where the flash cannot show */
+  .animate-filter-pill-in {
+    animation: filter-pill-in 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .animate-filter-pill-added {
+    .animate-filter-pill-added,
+    .animate-filter-pill-in {
       animation: none;
     }
   }
