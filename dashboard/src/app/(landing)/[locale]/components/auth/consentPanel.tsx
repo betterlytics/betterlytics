@@ -2,10 +2,13 @@
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import * as Checkbox from '@radix-ui/react-checkbox';
+import { User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { DashboardRole } from '@prisma/client';
 import { allowMcpConsentAction, denyMcpConsentAction } from '@/app/actions/auth/mcpConsent.action';
 import { DomainFavicon } from '@/components/domain/DomainFavicon';
+import { Avatar } from '@/components/ui/avatar';
+import { GravatarImage } from '@/components/ui/gravatar-image';
 import { authClient } from '@/lib/auth-client';
 import { MCP_CONSENT_REQUEST_INVALID } from '@/constants/auth';
 import type { McpConsentRequest } from '@/services/auth/mcpConsent.service';
@@ -79,10 +82,12 @@ export function ConsentPanel({
   request,
   oauthQuery,
   email,
+  gravatar,
 }: {
   request: McpConsentRequest;
   oauthQuery: string;
   email: string;
+  gravatar: boolean;
 }) {
   const t = useTranslations('public.auth.consent');
   const id = useId();
@@ -239,9 +244,10 @@ export function ConsentPanel({
         </div>
 
         <div className={cn(styles.account, 'bg-hatch')}>
-          <span className={styles.avatar} aria-hidden>
-            {email[0]?.toUpperCase()}
-          </span>
+          <Avatar className={styles.avatar} aria-hidden>
+            <User />
+            {gravatar ? <GravatarImage email={email} alt='' className='absolute inset-0' /> : null}
+          </Avatar>
           <span className={styles.who}>
             <span>{t('signedInAs')}</span>
             <b title={email}>{email}</b>

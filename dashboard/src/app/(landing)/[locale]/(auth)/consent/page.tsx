@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { AvatarMode } from '@prisma/client';
 import { notFound, redirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getAuthSession } from '@/auth/auth-actions';
@@ -6,6 +7,7 @@ import type { SupportedLanguages } from '@/constants/i18n';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { isMcpOAuthEnabled } from '@/mcp/auth/oauth';
 import { getMcpConsentRequest, signedOAuthQuery } from '@/services/auth/mcpConsent.service';
+import { getCachedUserSettings } from '@/services/account/userSettings.service';
 import { getPublicEnvironmentVariables } from '@/services/system/environment.service';
 import { AuthAction, AuthPanel } from '@/landing/components/auth/authPanel';
 import { ConsentPanel } from '@/landing/components/auth/consentPanel';
@@ -42,9 +44,15 @@ export default async function ConsentPage({ params, searchParams }: Props) {
     );
   }
 
+  const settings = await getCachedUserSettings(session.user.id);
   return (
     <PublicEnvironmentVariablesProvider publicEnvironmentVariables={getPublicEnvironmentVariables()}>
-      <ConsentPanel request={request} oauthQuery={oauthQuery} email={session.user.email} />
+      <ConsentPanel
+        request={request}
+        oauthQuery={oauthQuery}
+        email={session.user.email}
+        gravatar={settings.avatar === AvatarMode.gravatar}
+      />
     </PublicEnvironmentVariablesProvider>
   );
 }
