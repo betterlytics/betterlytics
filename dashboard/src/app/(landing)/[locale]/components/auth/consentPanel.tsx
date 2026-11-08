@@ -171,8 +171,6 @@ export function ConsentPanel({
     }
   };
 
-  const mono = (chunks: ReactNode) => <span className={styles.mono}>{chunks}</span>;
-
   return (
     <InkFrame className={cn(frame.panel, styles.panel)}>
       <Corners persistent />
@@ -183,66 +181,64 @@ export function ConsentPanel({
 
       <div className={styles.grid}>
         <div className={styles.trust}>
-          <div className={styles.trustMain}>
-            <h1 className={styles.title}>{t('title', { client })}</h1>
-            <p className={styles.lede}>{t('lede', { client })}</p>
+          <h1 className={styles.title}>{t('title', { client })}</h1>
+          <p className={styles.lede}>{t('lede', { client })}</p>
 
-            <dl className={styles.facts}>
+          <dl className={styles.facts}>
+            <div>
+              <dt>{t('facts.app')}</dt>
+              <dd>
+                {client}
+                <span className={cn(styles.tag, request.verified ? styles.tagOk : styles.tagWarn)}>
+                  {request.verified ? t('facts.verified') : t('facts.unverified')}
+                </span>
+              </dd>
+            </div>
+            {request.identityHost ? (
               <div>
-                <dt>{t('facts.app')}</dt>
+                <dt>{t('facts.identity')}</dt>
                 <dd>
-                  {client}
-                  <span className={request.verified ? styles.verified : styles.unverified}>
-                    {request.verified ? t('facts.verified') : t('facts.unverified')}
-                  </span>
+                  <span className={styles.mono}>{request.identityHost}</span>
                 </dd>
-              </div>
-              {request.identityHost ? (
-                <div>
-                  <dt>{t('facts.identity')}</dt>
-                  <dd>
-                    <span className={styles.mono}>{request.identityHost}</span>
-                  </dd>
-                </div>
-              ) : null}
-              <div>
-                <dt>{t('facts.returnsTo')}</dt>
-                <dd>
-                  <span className={styles.mono}>{request.redirectHost}</span>
-                </dd>
-              </div>
-            </dl>
-
-            {warnUnverified || warnLoopback ? (
-              <div id={ids.warnings} className={styles.warn} role='note'>
-                {warnUnverified ? (
-                  <p>
-                    <Icon name='triangle' />
-                    {t('warnings.unverified', { client })}
-                  </p>
-                ) : null}
-                {warnLoopback ? (
-                  <p>
-                    <Icon name='laptop' />
-                    {t('warnings.loopback', { client })}
-                  </p>
-                ) : null}
               </div>
             ) : null}
-          </div>
+            <div>
+              <dt>{t('facts.returnsTo')}</dt>
+              <dd>
+                <span className={styles.mono}>{request.redirectHost}</span>
+              </dd>
+            </div>
+          </dl>
 
-          <div className={cn(styles.account, 'bg-hatch')}>
-            <span className={styles.avatar} aria-hidden>
-              {email[0]?.toUpperCase()}
-            </span>
-            <span className={styles.who}>
-              <span>{t('signedInAs')}</span>
-              <b title={email}>{email}</b>
-            </span>
-            <button type='button' className={styles.textLink} onClick={switchAccount} disabled={busy}>
-              {t('switchAccount')}
-            </button>
-          </div>
+          {warnUnverified || warnLoopback ? (
+            <div id={ids.warnings} className={styles.warn} role='note'>
+              {warnUnverified ? (
+                <p>
+                  <Icon name='triangle' />
+                  {t('warnings.unverified', { client })}
+                </p>
+              ) : null}
+              {warnLoopback ? (
+                <p>
+                  <Icon name='laptop' />
+                  {t('warnings.loopback', { client })}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+
+        <div className={cn(styles.account, 'bg-hatch')}>
+          <span className={styles.avatar} aria-hidden>
+            {email[0]?.toUpperCase()}
+          </span>
+          <span className={styles.who}>
+            <span>{t('signedInAs')}</span>
+            <b title={email}>{email}</b>
+          </span>
+          <button type='button' className={styles.textLink} onClick={switchAccount} disabled={busy}>
+            {t('switchAccount')}
+          </button>
         </div>
 
         <div className={styles.choose}>
@@ -346,41 +342,34 @@ export function ConsentPanel({
                 </Checkbox.Root>
                 <span className={styles.rowMain}>
                   <span className={styles.rowTitle}>{t('dashboards.future')}</span>
-                  {allPicked ? null : <span className={styles.rowText}>{t('dashboards.futureHint')}</span>}
+                  <span className={styles.rowText}>{t('dashboards.futureHint')}</span>
                 </span>
               </label>
             </div>
           </fieldset>
 
           {failed ? <Alert id={ids.error}>{t('saveError')}</Alert> : null}
+        </div>
 
-          <div className={styles.actions}>
-            <p className={styles.fine}>
-              {request.redirectIsLoopback
-                ? t('returnToDevice', { client })
-                : t.rich('returnTo', { host: request.redirectHost, mono })}
-            </p>
-            <div className={styles.buttons}>
-              <button type='button' className={form.secondary} onClick={cancel} disabled={busy}>
-                {t('cancel')}
-              </button>
-              <button
-                type='button'
-                className={form.primary}
-                onClick={allow}
-                disabled={busy || !canAllow}
-                aria-busy={pending === 'allow' || undefined}
-                aria-describedby={
-                  [warnUnverified || warnLoopback ? ids.warnings : null, canAllow ? null : ids.hint]
-                    .filter(Boolean)
-                    .join(' ') || undefined
-                }
-              >
-                {pending === 'allow' ? <Spinner className={form.spin} /> : null}
-                {pending === 'allow' ? t('allowing') : t('allow')}
-              </button>
-            </div>
-          </div>
+        <div className={styles.actions}>
+          <button type='button' className={form.secondary} onClick={cancel} disabled={busy}>
+            {t('cancel')}
+          </button>
+          <button
+            type='button'
+            className={form.primary}
+            onClick={allow}
+            disabled={busy || !canAllow}
+            aria-busy={pending === 'allow' || undefined}
+            aria-describedby={
+              [warnUnverified || warnLoopback ? ids.warnings : null, canAllow ? null : ids.hint]
+                .filter(Boolean)
+                .join(' ') || undefined
+            }
+          >
+            {pending === 'allow' ? <Spinner className={form.spin} /> : null}
+            {pending === 'allow' ? t('allowing') : t('allow')}
+          </button>
         </div>
       </div>
     </InkFrame>

@@ -64,18 +64,18 @@
 
   .grid {
     display: grid;
+    grid-template-areas:
+      'trust choose'
+      'account actions';
     grid-template-columns: 400px minmax(0, 1fr);
+    grid-template-rows: 1fr auto;
   }
 
   /* --- trust column --- */
   .trust {
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid var(--color-rule-125);
-  }
-  .trustMain {
-    flex: 1;
+    grid-area: trust;
     padding: 36px 36px 28px;
+    border-right: 1px solid var(--color-rule-125);
   }
   .title {
     font-size: 30px;
@@ -127,16 +127,6 @@
   .facts dd .mono {
     font-size: 13.5px;
   }
-  .verified,
-  .unverified {
-    font-size: 13px;
-  }
-  .verified {
-    color: var(--color-live);
-  }
-  .unverified {
-    color: var(--color-warn);
-  }
 
   .warn {
     display: grid;
@@ -164,12 +154,14 @@
   }
 
   .account {
+    grid-area: account;
     display: flex;
     align-items: center;
     gap: 10px;
     min-width: 0;
     padding: 18px 36px;
     border-top: 1px solid var(--color-rule-125);
+    border-right: 1px solid var(--color-rule-125);
     color: var(--color-muted);
     font-size: 13.5px;
     line-height: 18px;
@@ -235,14 +227,23 @@
   .tagStrong {
     color: var(--color-fg);
   }
+  .tagOk {
+    border-color: color-mix(in srgb, var(--color-live) 40%, transparent);
+    color: var(--color-live);
+  }
+  .tagWarn {
+    border-color: color-mix(in srgb, var(--color-warn) 40%, transparent);
+    color: var(--color-warn);
+  }
 
   /* --- choices column --- */
   .choose {
+    grid-area: choose;
     display: flex;
     flex-direction: column;
     gap: 26px;
     min-width: 0;
-    padding: 36px 36px 32px;
+    padding: 36px 36px 10px;
   }
   .info {
     display: flex;
@@ -525,28 +526,15 @@
 
   /* --- actions --- */
   .actions {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    margin-top: auto;
-    padding-top: 2px;
-  }
-  .fine {
-    color: var(--color-muted);
-    font-size: 13px;
-    line-height: 19px;
-    text-align: center;
-    text-wrap: pretty;
-  }
-  .fine .mono {
-    color: var(--color-fg);
-  }
-  .buttons {
+    grid-area: actions;
     display: grid;
     grid-template-columns: 1fr 1fr;
+    align-content: center;
     gap: 12px;
+    padding: 18px 36px;
+    border-top: 1px solid transparent;
   }
-  .buttons > button {
+  .actions > button {
     width: 100%;
     min-width: 0;
   }
@@ -556,17 +544,21 @@
       display: none;
     }
     .grid {
+      grid-template-areas: 'trust' 'account' 'choose' 'actions';
       grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto;
     }
     .trust {
-      border-right: 0;
-      border-bottom: 1px solid var(--color-rule-125);
-    }
-    .trustMain {
       padding: 26px 20px 22px;
+      border-right: 0;
     }
     .account {
       padding: 16px 20px;
+      border-right: 0;
+      border-bottom: 1px solid var(--color-rule-125);
+    }
+    .actions {
+      padding: 16px 20px 24px;
     }
     .title {
       font-size: 26px;
@@ -582,7 +574,7 @@
       padding: 8px 0;
     }
     .choose {
-      padding: 24px 20px 28px;
+      padding: 24px 20px 8px;
     }
   }
 }

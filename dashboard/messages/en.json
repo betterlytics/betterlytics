@@ -763,8 +763,6 @@
           "title": "{client} is already connected",
           "body": "Your current access is selected below. Allowing replaces it."
         },
-        "returnTo": "You'll go back to <mono>{host}</mono>.",
-        "returnToDevice": "You'll go back to {client} on this device.",
         "cancel": "Cancel",
         "allow": "Allow",
         "allowing": "Allowing…",

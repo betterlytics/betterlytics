@@ -763,8 +763,6 @@
           "title": "{client} er allerede forbundet",
           "body": "Din nuværende adgang er valgt nedenfor. Hvis du tillader, erstatter det den."
         },
-        "returnTo": "Du sendes tilbage til <mono>{host}</mono>.",
-        "returnToDevice": "Du sendes tilbage til {client} på denne enhed.",
         "cancel": "Annuller",
         "allow": "Tillad",
         "allowing": "Tillader…",

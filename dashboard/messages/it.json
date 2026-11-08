@@ -763,8 +763,6 @@
           "title": "{client} è già connesso",
           "body": "Il tuo accesso attuale è selezionato qui sotto. Consentendo lo sostituisci."
         },
-        "returnTo": "Tornerai a <mono>{host}</mono>.",
-        "returnToDevice": "Tornerai a {client} su questo dispositivo.",
         "cancel": "Annulla",
         "allow": "Consenti",
         "allowing": "Consenso in corso…",
