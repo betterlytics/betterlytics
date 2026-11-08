@@ -734,7 +734,7 @@
         },
         "warnings": {
           "unverified": "{client} registrerte seg selv, så vi kan ikke bekrefte hvem som laget den.",
-          "loopback": "Tillat dette bare hvis du nettopp startet tilkoblingen fra {client}."
+          "loopback": "Startet du ikke dette fra {client}? Avbryt."
         },
         "permissions": {
           "title": "Hva {client} kan gjøre",

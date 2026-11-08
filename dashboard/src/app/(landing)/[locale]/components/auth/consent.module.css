@@ -128,29 +128,16 @@
     font-size: 13.5px;
   }
 
-  .warn {
+  .note {
     display: grid;
-    gap: 8px;
+    gap: 6px;
     margin-top: 20px;
-    padding: 12px 14px;
-    border: 1px solid color-mix(in srgb, var(--color-warn) 30%, transparent);
-    border-radius: 8px;
-    background: color-mix(in srgb, var(--color-warn) 6%, transparent);
-    color: color-mix(in srgb, var(--color-warn) 50%, var(--color-fg));
-    font-size: 13.5px;
+    padding: 2px 0 2px 12px;
+    border-left: 2px solid color-mix(in srgb, var(--color-warn) 70%, transparent);
+    color: var(--color-muted);
+    font-size: 13px;
     line-height: 19px;
-  }
-  .warn p {
-    display: flex;
-    gap: 10px;
     text-wrap: pretty;
-  }
-  .warn svg {
-    flex: none;
-    width: 16px;
-    height: 16px;
-    margin-top: 1.5px;
-    color: var(--color-warn);
   }
 
   .account {

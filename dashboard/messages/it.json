@@ -734,7 +734,7 @@
         },
         "warnings": {
           "unverified": "{client} si è registrata da sola, quindi non possiamo confermare chi l'ha creata.",
-          "loopback": "Consenti solo se hai appena avviato la connessione da {client}."
+          "loopback": "Non l'hai avviato da {client}? Annulla."
         },
         "permissions": {
           "title": "Cosa può fare {client}",

@@ -734,7 +734,7 @@
         },
         "warnings": {
           "unverified": "{client} registered itself, so we can't confirm who made it.",
-          "loopback": "Only allow this if you just started the connection from {client}."
+          "loopback": "Didn't start this from {client}? Cancel it."
         },
         "permissions": {
           "title": "What {client} can do",
