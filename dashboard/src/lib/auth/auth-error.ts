@@ -1,7 +1,9 @@
-// Structural subset of better-auth's client error ({ code?, message?, status, statusText }).
-export type AuthClientError = { code?: string; status: number };
+// Structural subset of better-auth's client error ({ code?, message?, status, statusText }), plus `error` for the
+// OAuth provider's errors, which carry an OAuth error code instead of `code`.
+export type AuthClientError = { code?: string; error?: string; status: number };
 
-export type AuthErrorKind = 'originMismatch' | 'accountLocked' | 'accountDisabled' | 'rateLimited' | 'other';
+export type AuthErrorKind =
+  'originMismatch' | 'accountLocked' | 'accountDisabled' | 'rateLimited' | 'connectionRequestInvalid' | 'other';
 
 // Thrown by our session create hook for accounts an admin disabled; OAuth sign-ins get it as ?error=
 export const ACCOUNT_DISABLED_ERROR_CODE = 'ACCOUNT_DISABLED';
@@ -18,5 +20,12 @@ export function classifyAuthError(error: AuthClientError): AuthErrorKind {
   if (error.status === 429 && error.code === 'ACCOUNT_TEMPORARILY_LOCKED') return 'accountLocked';
   // The rate limiter answers a bare 429 without a code
   if (error.status === 429) return 'rateLimited';
+  // Signing in on behalf of an MCP client carries its signed authorization request, which expires after 10 minutes
+  if (error.status === 400 && error.error === 'invalid_signature') return 'connectionRequestInvalid';
   return 'other';
+}
+
+// better-auth rejects a password over maxPasswordLength before comparing it, so that is a wrong password too
+export function isWrongPasswordError(error: AuthClientError): boolean {
+  return error.code === 'INVALID_PASSWORD' || error.code === 'PASSWORD_TOO_LONG';
 }

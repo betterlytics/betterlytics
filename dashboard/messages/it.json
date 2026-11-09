@@ -118,11 +118,11 @@
           },
           "freePlan": {
             "question": "Cosa include il piano gratuito?",
-            "answer": "Il piano Cloud gratuito include fino a 10.000 eventi tracciati, accesso completo alla dashboard e supporto della community. Perfetto per iniziare! Nessuna carta di credito richiesta, nessun vincolo. L'auto-hosting è gratuito senza limite di eventi."
+            "answer": "Il piano Free su Cloud copre {sites, plural, one {# sito} other {# siti}} e fino a {events, number} eventi tracciati al mese. Include analisi web, session replay, tracciamento errori e monitoraggio uptime, oltre al supporto della community. Perfetto per iniziare! Nessuna carta di credito richiesta, nessun vincolo. L'auto-hosting è gratuito senza limite di eventi."
           },
           "cloud": {
             "question": "Come funziona l'hosting cloud?",
-            "answer": "Il nostro hosting cloud fornisce un'istanza Betterlytics completamente gestita con aggiornamenti automatici, backup e SLA di uptime del 99.9%. Nessuna gestione server richiesta!"
+            "answer": "Il nostro hosting cloud fornisce un'istanza Betterlytics completamente gestita con aggiornamenti automatici e backup. Con il piano Enterprise è disponibile uno SLA sull'uptime. Nessuna gestione server richiesta!"
           },
           "support": {
             "question": "Offrite supporto per istanze auto-ospitate?",
@@ -358,7 +358,7 @@
         "freeTierTitle": "Piano gratuito",
         "freeTierBody": "Offriamo un piano gratuito permanente con un limite mensile di eventi come specificato nella nostra pagina dei prezzi. Nessuna carta di credito è richiesta per il piano gratuito. Non vendiamo i tuoi dati — mai, indipendentemente dal piano utilizzato.",
         "billingTitle": "Fatturazione",
-        "billingBody": "Puoi utilizzare il nostro piano gratuito a tempo indeterminato entro i limiti mensili di eventi. Per un utilizzo superiore, devi effettuare l’upgrade a un piano a pagamento e pagare in anticipo. Se superi i limiti del piano senza effettuare l’upgrade, rischi di perdere i dati in eccesso. Se gli account a pagamento diventano insoluti, congeleremo l’account fino al pagamento.",
+        "billingBody": "Puoi utilizzare il nostro piano gratuito a tempo indeterminato entro i limiti mensili di eventi. Per un utilizzo superiore, devi effettuare l’upgrade a un piano a pagamento e pagare in anticipo. Se continui a superare i limiti del piano senza effettuare l’upgrade, potremmo bloccare il tuo account finché non effettui l’upgrade. I tuoi dati vengono conservati. Se gli account a pagamento diventano insoluti, congeleremo l’account fino al pagamento.",
         "limitsTitle": "Limiti di eventi",
         "limitsBody": "Ogni piano include un limite mensile di eventi (visualizzazioni di pagina, eventi personalizzati, ecc.). Gli eventi non utilizzati non vengono trasferiti al mese successivo. Non ti verranno mai addebitati costi extra per picchi occasionali di traffico. Se superi costantemente i limiti del tuo piano per due mesi consecutivi, ti contatteremo per discutere un upgrade.",
         "planChangesTitle": "Modifiche al piano",
@@ -722,6 +722,58 @@
           "back": "Indietro"
         }
       },
+      "consent": {
+        "title": "Connetti {client}",
+        "lede": "{client} vuole accedere al tuo account Betterlytics.",
+        "facts": {
+          "app": "App",
+          "identity": "Identità",
+          "returnsTo": "Ritorna a",
+          "verified": "Verificata",
+          "unverified": "Non verificata"
+        },
+        "warnings": {
+          "unverified": "{client} si è registrata da sola, quindi non possiamo confermare chi l'ha creata.",
+          "loopback": "Non l'hai avviato da {client}? Annulla."
+        },
+        "permissions": {
+          "title": "Cosa può fare {client}",
+          "read": "Leggere le statistiche",
+          "readDescription": "Traffico, eventi, funnel ed errori sulle dashboard che scegli.",
+          "roleNote": "Non può mai fare più di quanto consente il tuo ruolo."
+        },
+        "dashboards": {
+          "title": "Seleziona le dashboard",
+          "modeAll": "Tutte le dashboard",
+          "modeSelected": "Solo selezionate",
+          "allHint": "Include le dashboard che aggiungerai in seguito",
+          "search": "Cerca dashboard",
+          "selectAll": "Seleziona tutte",
+          "selected": "<b>{selected}</b> di {total} selezionate",
+          "pickOne": "Scegli almeno una dashboard",
+          "noMatch": "Nessuna dashboard corrisponde alla ricerca.",
+          "empty": "Non hai ancora nessuna dashboard. <link>Aggiungi un sito</link>"
+        },
+        "roles": {
+          "owner": "Proprietario",
+          "admin": "Admin",
+          "editor": "Editor",
+          "viewer": "Visualizzatore"
+        },
+        "reconnect": {
+          "title": "{client} è già connesso",
+          "body": "Il tuo accesso attuale è selezionato qui sotto. Connettendo lo sostituisci."
+        },
+        "cancel": "Annulla",
+        "connect": "Connetti",
+        "connecting": "Connessione in corso…",
+        "signedInAs": "Accesso effettuato come",
+        "switchAccount": "Cambia account",
+        "saveError": "Non siamo riusciti a salvare le tue scelte. Riprova.",
+        "invalidTitle": "Questa richiesta di connessione non è più valida",
+        "invalidLede": "Avvia di nuovo la connessione dalla tua app.",
+        "goToDashboards": "Vai alle dashboard"
+      },
       "register": {
         "seo": {
           "title": "Crea il tuo account Betterlytics gratuito",
@@ -836,7 +888,8 @@
         "originMismatch": "Questa pagina è aperta su {origin}, che non corrisponde all'indirizzo per cui è configurata questa istanza di Betterlytics, quindi la richiesta è stata bloccata. Apri Betterlytics al suo indirizzo configurato. Se gestisci questa istanza, assicurati che l'URL configurato (schema, host e porta) corrisponda all'indirizzo nel tuo browser.",
         "accountLocked": "Troppi codici errati. L'accesso con autenticazione a due fattori è bloccato per 15 minuti.",
         "accountDisabled": "Questo account è stato disattivato. Contatta il tuo amministratore.",
-        "rateLimited": "Troppi tentativi. Attendi un momento e riprova."
+        "rateLimited": "Troppi tentativi. Attendi un momento e riprova.",
+        "connectionRequestInvalid": "Questa richiesta di connessione non è più valida. Avvia di nuovo la connessione dalla tua app."
       }
     },
     "demo": {
@@ -1097,6 +1150,7 @@
       "termsOfService": "Termini di servizio",
       "dpa": "Accordo elaborazione dati",
       "documentation": "Documentazione",
+      "blog": "Blog",
       "changelog": "Changelog",
       "pricing": "Prezzi",
       "status": "Stato",
@@ -1121,13 +1175,7 @@
       "seo": {
         "title": "Prezzi Betterlytics: inizia gratis, paga per eventi",
         "description": "Ogni piano include analisi web, session replay, tracciamento errori e uptime. Inizia gratis e paga in base agli eventi mensili, o fai self-hosting gratis."
-      },
-      "titleEmphasis": "Prezzi semplici e",
-      "titleRest": "trasparenti",
-      "subtitle": "Inizia gratis, aggiorna quando ne hai bisogno. Nessun costo nascosto, nessuna sorpresa.",
-      "footer": "Inizia con il nostro piano gratuito - nessuna carta di credito richiesta.",
-      "comparisonTitle": "Confronta tutte le funzionalità",
-      "exploreFeaturesLink": "Esplora tutte le funzionalità in dettaglio"
+      }
     },
     "shareImage": {
       "alt": "“You shouldn’t need five tools to understand one website” sopra la dashboard di Betterlytics"
@@ -1249,25 +1297,35 @@
       "rangeLabel": "Volume mensile di eventi",
       "rangeValueText": "{events} eventi",
       "perMonth": "/mese",
-      "free": "Gratuito",
       "custom": "Personalizzato",
-      "growth": {
-        "name": "Growth",
-        "tagline": "Per progetti personali e piccoli siti.",
-        "ctaFree": "Inizia gratis",
-        "cta": "Inizia"
+      "badge": "Consigliato",
+      "ctaFree": "Inizia gratis",
+      "contactCta": "Contattaci",
+      "plans": {
+        "free": {
+          "tagline": "Per progetti personali e piccoli siti."
+        },
+        "plus": {
+          "tagline": "Per progetti personali molto visitati e piccole aziende."
+        },
+        "business": {
+          "tagline": "Per agenzie, freelance e team in crescita."
+        },
+        "enterprise": {
+          "tagline": "Per traffico elevato e organizzazioni con requisiti di sicurezza o conformità."
+        },
+        "growth": {
+          "tagline": "Per progetti personali e piccoli siti."
+        }
       },
-      "professional": {
-        "name": "Professional",
-        "tagline": "Per team che gestiscono più prodotti.",
-        "cta": "Inizia",
-        "badge": "Il più scelto"
-      },
-      "enterprise": {
-        "name": "Enterprise",
-        "tagline": "Per traffico elevato, con SLA e supporto dedicato.",
-        "cta": "Contattaci"
-      }
+      "cta": "Inizia"
+    },
+    "pricingPage": {
+      "compareTitle": "Confronta tutte le funzionalità",
+      "faqTitle": "Domande frequenti",
+      "note": "Inizi gratis, senza carta di credito.",
+      "included": "Incluso",
+      "notIncluded": "Non incluso"
     },
     "cta": {
       "title": "Aggiungi uno script e guarda arrivare il tuo primo visitatore",
@@ -1290,6 +1348,7 @@
         "features": "Funzionalità",
         "uptime": "Monitoraggio uptime",
         "replay": "Session replay",
+        "errors": "Tracciamento errori",
         "pricing": "Prezzi"
       },
       "company": {
@@ -1302,6 +1361,7 @@
       },
       "resources": {
         "docs": "Documentazione",
+        "blog": "Blog",
         "changelog": "Changelog",
         "status": "Stato dei servizi"
       },
@@ -1412,6 +1472,21 @@
           "incident": "1 incidente in corso · Checkout · offline dalle 10:12",
           "commits": "a41f2c9 10:09 Move Stripe keys to env vars",
           "answer": "Il checkout restituisce 503 dalle 10:12, tre minuti dopo che a41f2c9 ha spostato le chiavi Stripe nelle variabili d’ambiente. Vuoi che lo annulli?"
+        },
+        "debugAlt": "Una sessione nel terminale: avvisato che scegliere un piano non ha alcun effetto, un agente elenca gli errori su /pricing tramite il server MCP di Betterlytics, legge lo stack trace e la traccia della sessione del TypeError, apre pricing.js alla riga 142 e propone una correzione. Poi, alla domanda su quali errori correggere per primi, ordina gli errori della settimana per sessioni colpite e sceglie proprio quel TypeError.",
+        "debug": {
+          "question": "dicono che scegliere un piano non fa niente, puoi dare un’occhiata?",
+          "say": "Per prima cosa controllo gli errori su /pricing.",
+          "errors": "1206 TypeError in 318 sessioni",
+          "trace": "selectPlan (pricing.js:142) dopo plan_selected",
+          "code": "142  setPlan(selected.plan)",
+          "answer": "Se si clicca prima che i piani siano caricati, selected è ancora null. Vuoi che disattivi i pulsanti fino ad allora?"
+        },
+        "triage": {
+          "question": "quali errori dovrei sistemare per primi?",
+          "say": "Ordino gli errori di questa settimana.",
+          "groups": "TypeError 318 sessioni · ChunkLoadError 41 · RangeError 6",
+          "answer": "Inizia dal TypeError su 'plan'. Ha colpito 318 sessioni, più di sei volte gli altri due messi insieme."
         }
       }
     },
@@ -1441,7 +1516,7 @@
         },
         "uptime": {
           "title": "Monitoraggio uptime",
-          "body": "Controlli anche ogni minuto, avvisi dove il tuo team già comunica e una pagina di stato."
+          "body": "Controlli anche ogni 30 secondi, avvisi dove il tuo team già comunica e una pagina di stato."
         }
       }
     },
@@ -1453,16 +1528,16 @@
       "hero": {
         "eyebrow": "Monitoraggio uptime",
         "title": "Scopri quando il tuo sito va offline, e quanto ti è costato",
-        "lede": "Controlli anche ogni minuto, avvisi dove il tuo team già comunica, notifiche SSL e una pagina di stato pubblica. Nella dashboard che contiene già il tuo traffico.",
+        "lede": "Controlli anche ogni 30 secondi, avvisi dove il tuo team già comunica, notifiche SSL e una pagina di stato pubblica. Nella dashboard che contiene già il tuo traffico.",
         "primary": "Inizia a monitorare gratis",
         "secondary": "Leggi la documentazione",
         "proof": "La usiamo anche per la nostra pagina di stato"
       },
       "specs": {
         "interval": {
-          "unit": "min",
+          "unit": "sec",
           "label": "Intervallo di controllo",
-          "body": "Controlli anche ogni minuto, o anche solo una volta al giorno."
+          "body": "Controlli anche ogni 30 secondi, o anche solo una volta al giorno."
         },
         "ssl": {
           "unit": "giorni",
@@ -1662,7 +1737,7 @@
           },
           "often": {
             "q": "Ogni quanto Betterlytics controlla il mio sito?",
-            "a": "Anche ogni minuto, o anche solo una volta al giorno. Scegli tu l’intervallo per ciascun monitor."
+            "a": "Anche ogni 30 secondi, o anche solo una volta al giorno. Scegli tu l’intervallo per ciascun monitor, e il piano stabilisce quello più breve."
           },
           "false": {
             "q": "Come evitate i falsi allarmi?",
@@ -1686,7 +1761,7 @@
           },
           "free": {
             "q": "Il monitoraggio uptime è gratuito?",
-            "a": "Il piano gratuito include un monitor per sito, controllato ogni cinque minuti, e una pagina di stato. Il piano Professional sblocca la configurazione avanzata: controlli ogni minuto, header personalizzati, codici di stato accettati e controlli per parola chiave, più monitor e pagine di stato, e il tuo dominio."
+            "a": "Sì. Il piano Free include un monitor, controllato ogni cinque minuti, e una pagina di stato pubblica con il branding Betterlytics. I piani a pagamento aggiungono più monitor, controlli ogni minuto, controlli per parola chiave, header personalizzati e codici di stato accettati, e pagine di stato sul tuo dominio. Business aggiunge controlli ogni 30 secondi e rimuove il branding Betterlytics."
           },
           "internal": {
             "q": "Posso monitorare servizi interni?",
@@ -1932,6 +2007,210 @@
         "primary": "Inizia a registrare gratis",
         "secondary": "Leggi la documentazione sul replay"
       }
+    },
+    "errors": {
+      "seo": {
+        "title": "Tracciamento errori JavaScript con sessioni | Betterlytics",
+        "description": "Error tracking JavaScript: errori non gestiti e promise rifiutate, raggruppati per stack trace, con pagine ed eventi prima e dopo. Gratis in tutti i piani."
+      },
+      "hero": {
+        "eyebrow": "Tracciamento errori",
+        "title": "Cattura gli errori in cui incappano i visitatori, e scopri cosa li ha provocati",
+        "lede": "Individua quali bug colpiscono più visitatori, in quale punto del codice si verificano e cosa ha fatto poi ogni visitatore. Gratis in tutti i piani, nella stessa dashboard del tuo traffico e dei tuoi replay.",
+        "primary": "Inizia a tracciare gli errori gratis",
+        "secondary": "Leggi la documentazione"
+      },
+      "specs": {
+        "leadUp": {
+          "unit": "min",
+          "label": "Replay pre-errore",
+          "body": "Conserva fino a due minuti prima di un errore come replay, anche per le visite che di solito non registri."
+        },
+        "extensions": {
+          "unit": "errori da estensioni",
+          "label": "Solo i tuoi bug",
+          "body": "Gli errori delle estensioni del browser dei visitatori vengono ignorati e i bot vengono scartati prima di salvare qualsiasi cosa."
+        },
+        "script": {
+          "unit": "script",
+          "label": "Un solo script per tutto",
+          "body": "Analytics, errori e session replay si caricano da un unico tag script. Usi già Betterlytics? Basta un attributo."
+        },
+        "thesis": {
+          "unit": "cookie",
+          "label": "Niente cookie, niente IP",
+          "body": "Gli errori vengono salvati senza cookie, indirizzi IP né query string, così la privacy dei tuoi visitatori resta intatta."
+        }
+      },
+      "report": {
+        "title": "Da “non funziona” alla *riga 142*",
+        "lede": "La maggior parte dei visitatori che incappano in un bug se ne va senza dirtelo. Betterlytics mostra la riga che ha generato l’errore, il browser in cui è successo e quanto spesso.",
+        "guess": "Indovinare dalle segnalazioni",
+        "fix": "Correggere con lo stack trace",
+        "alt": "A sinistra scorre un flusso continuo di segnalazioni vaghe sulla pagina dei prezzi: la stessa email sull’upgrade impossibile ricevuta tre volte, qualcuno che scrive che scegliere un piano non fa nulla, una chat con il supporto, uno screenshot sfocato, un’ipotesi sul browser, un post-it con scritto “da me funziona”, un ticket P1 secondo cui gli upgrade falliscono da lunedì e una casella del supporto con 14 messaggi non letti. A destra, lo stesso bug come un unico gruppo di errori: un TypeError lanciato in selectPlan alla riga 142 di pricing.js e chiamato da onClick in plan-card.js, su Chrome per macOS in Danimarca, su /pricing, 1206 volte.",
+        "notes": {
+          "upgrade": "L’upgrade non va??",
+          "pricing": "solo a me la pagina prezzi non fa niente?",
+          "dead": "Il tasto Scegli piano non va",
+          "screenshot": "screenshot.png",
+          "phone": "pure a me, ma dal telefono",
+          "sticky": "Da me funziona",
+          "again": "Re: Re: ancora non va",
+          "chrome": "Uso Chrome, credo?",
+          "ticket": "Upgrade falliti da lunedì",
+          "inbox": "Inbox supporto",
+          "unread": "{count} non letti"
+        },
+        "inApp": "nell’app",
+        "occurrences": "occorrenze"
+      },
+      "trail": {
+        "title": "Scopri cosa hanno fatto *prima e dopo*",
+        "lede": "Lo stack trace mostra dove si è rotto il codice. Il resto della visita mostra cosa ha scatenato l’errore e cosa ha fatto poi il visitatore.",
+        "alt": "Una traccia di sessione con otto eventi. Prima dell’errore il visitatore è arrivato sulla homepage, ha aperto /pricing e ha scelto un piano. Il TypeError è arrivato un secondo dopo, lanciato in selectPlan alla riga 142 di pricing.js su Chrome 129 per macOS, da desktop in Danimarca. Dopo l’errore ha ricaricato /pricing, ha scelto di nuovo un piano, si è imbattuto nello stesso errore e invece di fare l’upgrade è andato su /contact.",
+        "label": "Traccia sessione",
+        "count": "{count} eventi in questa sessione",
+        "before": {
+          "label": "Cosa l’ha preceduto",
+          "body": "È arrivato sulla homepage, ha aperto la pagina prezzi e ha scelto un piano."
+        },
+        "thrown": {
+          "label": "Dove si è rotto",
+          "body": "Lanciato in selectPlan alla riga 142 di pricing.js, con il browser, il sistema operativo e il paese in cui si è verificato.",
+          "stacktrace": "Stack trace",
+          "mechanism": "Non gestito",
+          "inApp": "nell’app",
+          "more": "Mostra altri {count} frame",
+          "desktop": "Desktop"
+        },
+        "after": {
+          "label": "Com’è finita la visita",
+          "body": "Ha ricaricato, ha ritrovato l’errore e invece di fare l’upgrade è andato su /contact."
+        }
+      },
+      "triage": {
+        "title": "Smaltisci la lista *insieme*",
+        "body": "Gli stati sono condivisi con il tuo team, così tutti lavorano sulla stessa lista e nessuno insegue un bug già risolto.",
+        "cta": "Leggi la guida alla dashboard",
+        "items": {
+          "status": {
+            "title": "Risolvi, ignora, segna come non risolto",
+            "body": "Segna come risolti gli errori già corretti e ignora quelli che non contano, così la lista mostra solo i bug ancora da sistemare."
+          },
+          "history": {
+            "title": "Scopri chi colpisce",
+            "body": "Capisci se un errore sta crescendo o calando, e quali browser e dispositivi colpisce di più."
+          },
+          "filter": {
+            "title": "Filtra come nelle tue analytics",
+            "body": "Filtra gli errori per pagina, browser, sistema operativo, paese e altro, come nelle tue analytics, per capire se un bug colpisce solo alcuni visitatori."
+          },
+          "occurrences": {
+            "title": "Scorri le occorrenze",
+            "body": "Sfoglia ogni occorrenza con la sua visita e il suo dispositivo, e individua il pattern, ad esempio un bug che compare solo su iOS."
+          }
+        },
+        "art": {
+          "selected": "<count></count> selezionati",
+          "resolve": "Risolvi",
+          "ignore": "Ignora",
+          "occurrenceOf": "Occorrenza <number></number> di {total}",
+          "mobile": "Mobile",
+          "history": "Cronologia",
+          "days": "{count} giorni",
+          "desktop": "Desktop",
+          "pageIs": "Pagina è <value>/pricing</value>",
+          "browserIs": "Browser è <value>Safari</value>",
+          "addFilter": "Aggiungi filtro"
+        }
+      },
+      "agent": {
+        "title": "Passa il bug *al tuo agente*",
+        "lede": "Il tuo agente di coding può consultare gli errori tramite il server MCP integrato e lavorare alla correzione direttamente accanto al tuo codice.",
+        "lead": "Dalla lamentela alla correzione con una sola domanda",
+        "body": "Riporta la lamentela di un utente a Claude Code, Cursor o a qualsiasi client MCP. L’agente trova l’errore corrispondente, legge lo stack trace e la traccia della sessione e apre il file indicato dallo stack.",
+        "cta": "Configura MCP"
+      },
+      "setup": {
+        "title": "Inizia a catturare errori con *un solo* attributo",
+        "lede": "Scegli cosa catturare e copia lo snippet. Gira nello stesso script delle tue analytics.",
+        "lead": "Scegli cosa catturare",
+        "always": "Sempre attivo",
+        "options": {
+          "errors": {
+            "title": "Errori non gestiti e promise rifiutate",
+            "body": "Tutto ciò che il tuo codice lancia senza catturarlo, e le promise rifiutate senza un handler."
+          },
+          "console": {
+            "title": "Chiamate a console.error",
+            "body": "Invia anche ciò che la tua app scrive nei log come errore. Lascialo disattivato se i tuoi log possono contenere dati personali."
+          },
+          "replay": {
+            "title": "Replay prima dell’errore",
+            "body": "Conserva come replay fino a due minuti prima di ogni errore."
+          }
+        },
+        "snippetLabel": "Configurazione del tracciamento errori",
+        "cta": "Leggi la guida alla configurazione"
+      },
+      "related": {
+        "lede": "Il tracciamento errori è solo una parte di Betterlytics. Tutto ciò che trovi qui sotto condivide lo script, il login e la fattura."
+      },
+      "faq": {
+        "title": "Domande frequenti",
+        "items": {
+          "what": {
+            "q": "Cos’è il tracciamento errori?",
+            "a": "Il tracciamento errori, detto anche monitoraggio degli errori o error tracking, registra gli errori JavaScript in cui si imbattono i tuoi visitatori e raggruppa le ripetizioni dello stesso bug, così vedi quali si verificano più spesso. Betterlytics li cattura con lo stesso script che traccia le tue visualizzazioni di pagina e, per ognuno, conserva la sessione in cui si è verificato."
+          },
+          "free": {
+            "q": "Il tracciamento errori è gratuito?",
+            "a": "Sì. È incluso in tutti i piani, compreso quello gratuito. Ogni errore conta come un evento nel tuo limite mensile, proprio come una visualizzazione di pagina."
+          },
+          "captured": {
+            "q": "Quali errori vengono catturati?",
+            "a": "Le eccezioni non gestite e le promise rifiutate non gestite, ognuna con il suo stack trace e la pagina in cui si è verificata. Puoi catturare anche le chiamate a console.error. Una richiesta fallita viene catturata solo se il tuo codice non ne gestisce l’errore. I caricamenti falliti di immagini e script sono esclusi, perché ad blocker e connessioni instabili ne riempirebbero la tua lista."
+          },
+          "server": {
+            "q": "Cattura anche gli errori lato server?",
+            "a": "No. Copre gli errori frontend, cioè il JavaScript che gira nei browser dei tuoi visitatori. Gli errori nel codice del server, nelle route API o nei job in background non vengono catturati."
+          },
+          "filtered": {
+            "q": "Gli errori di estensioni del browser e bot vengono filtrati?",
+            "a": "Sì. Lo script ignora gli errori il cui stack trace punta a un’estensione del browser, così l’ad blocker o il password manager di un visitatore non compare come un tuo bug. Gli errori di bot, browser headless e strumenti di test come Playwright vengono scartati prima di essere salvati, proprio come le loro visualizzazioni di pagina."
+          },
+          "frameworks": {
+            "q": "Funziona con React, Next.js e Vue?",
+            "a": "Sì. Lo script cattura gli errori su qualsiasi sito, con qualunque framework. Gli errori che un framework intercetta da solo, come in un error boundary di React o nell’error handler di Vue, di solito vengono registrati con console.error invece di essere lanciati, quindi attiva la cattura di console.error per vedere anche quelli."
+          },
+          "grouped": {
+            "q": "Come vengono raggruppati gli errori?",
+            "a": "Tutte le occorrenze dello stesso bug finiscono in un unico gruppo con un conteggio progressivo, così ogni bug compare una sola volta nella tua lista anziché ogni volta che un visitatore lo incontra. Gli errori dello stesso tipo generati nello stesso punto del codice contano come un unico bug, anche quando i messaggi sono diversi."
+          },
+          "sourcemaps": {
+            "q": "Supportate le source map?",
+            "a": "No. Gli stack trace mostrano il codice così come l’ha eseguito il browser, quindi i frame di un bundle minificato puntano al file minificato."
+          },
+          "privacy": {
+            "q": "Il tracciamento errori raccoglie dati personali?",
+            "a": "Come il resto di Betterlytics, non usa cookie. I messaggi vengono conservati così come li ha scritti il tuo codice, quindi tienili privi di dati personali e lascia disattivata la cattura della console se i tuoi log possono contenerne."
+          },
+          "quota": {
+            "q": "Un loop impazzito può esaurire i miei eventi?",
+            "a": "Ogni pagina invia al massimo 10 errori dello stesso tipo ogni 10 secondi, quindi anche un loop che lancia un errore a ogni frame resta contenuto. Ignorare un gruppo lo nasconde dall’elenco, ma le nuove occorrenze continuano a contare come eventi finché non risolvi la causa."
+          },
+          "replay": {
+            "q": "Come funziona con il session replay?",
+            "a": "Se una visita con un errore è stata registrata, l’errore rimanda al suo replay, con un indicatore rosso per ogni errore nella cronologia. Puoi inoltre conservare fino a due minuti prima di ogni errore come replay, anche per le visite che il session replay non registrerebbe."
+          }
+        }
+      },
+      "cta": {
+        "title": "Cattura il tuo primo errore oggi stesso",
+        "lede": "Aggiungi lo script di Betterlytics, o un attributo se lo hai già, e gli errori iniziano ad arrivare nella tua dashboard. Gratis in tutti i piani.",
+        "primary": "Inizia a tracciare gli errori gratis",
+        "secondary": "Leggi la documentazione sugli errori"
+      }
     }
   },
   "pricingSlider": {
@@ -1942,39 +2221,43 @@
   "pricingCards": {
     "periodPerMonth": "/mese",
     "descriptions": {
-      "growth": "Perfetto per piccoli siti web e progetti personali",
-      "professional": "Funzionalità avanzate per aziende in crescita",
-      "enterprise": "Soluzione completa per grandi organizzazioni"
+      "free": "Per progetti personali e piccoli siti",
+      "plus": "Per progetti personali molto visitati e piccole aziende",
+      "business": "Per agenzie, freelance e team in crescita",
+      "enterprise": "Per traffico elevato e organizzazioni con requisiti di sicurezza o conformità",
+      "growth": "Per progetti personali e piccoli siti"
     },
     "features": {
-      "upToEventsPerMonth": "Fino a {events} eventi/mese",
-      "customEventVolume": "Volume eventi personalizzato",
-      "twoSites": "Fino a 2 siti",
-      "upTo50Sites": "Fino a 50 siti",
+      "eventsPerMonth": "{events} eventi/mese",
       "unlimitedSites": "Siti illimitati",
-      "threeTeamMembers": "Fino a 3 membri del team",
-      "upTo50TeamMembers": "Fino a 50 membri del team",
       "unlimitedTeamMembers": "Membri del team illimitati",
-      "retention1PlusYear": "Conservazione dati 1+ anno",
-      "retention3PlusYears": "Conservazione dati 3+ anni",
-      "retention5PlusYears": "Conservazione dati 5+ anni",
       "fullDashboard": "Dashboard di web analytics completa",
       "funnelsJourneys": "Funnel e percorsi utente",
-      "sessionReplay": "Session replay",
       "errorTracking": "Tracciamento errori",
-      "uptime1": "1 monitor uptime e pagina di stato pubblica",
-      "uptime50": "50 monitor uptime con controlli ogni minuto",
+      "advancedChecks": "Controlli uptime avanzati",
+      "replaysPerMonth": "{count, plural, one {# session replay/mese} other {# session replay/mese}}",
       "uptimeUnlimited": "Monitor uptime e pagine di stato illimitati",
-      "statusPagesPro": "Pagine di stato white-label sul tuo dominio",
+      "statusPagesPro": "Pagine di stato white-label",
       "emailReports": "Report email pianificati",
-      "dedicatedSupport": "Supporto dedicato",
-      "slaGuarantee": "Garanzia SLA",
-      "everythingInStarter": "Tutte le funzionalità di Growth, più:",
-      "everythingInProfessional": "Tutte le funzionalità di Professional, più:"
+      "slaGuarantee": "SLA di uptime con supporto prioritario",
+      "sitesCount": "{count, plural, one {# sito} other {# siti}}",
+      "teamMembersCount": "{count, plural, one {# membro del team} other {# membri del team per sito}}",
+      "retentionYears": "{count, plural, one {Conservazione dati # anno} other {Conservazione dati # anni}}",
+      "uptimeMonitors": "{count} monitor uptime, controlli {minutes, plural, one {ogni minuto} other {ogni # minuti}}",
+      "uptimeMonitorsSeconds": "{count} monitor uptime, controlli ogni {seconds} secondi",
+      "everythingIn": "Tutte le funzionalità di {name}, più:",
+      "statusPagesCount": "{count, plural, one {# pagina di stato pubblica} other {# pagine di stato pubbliche}}",
+      "statusPageCustomDomain": "Pagina di stato sul tuo dominio",
+      "prioritySupport": "Supporto prioritario",
+      "moreThanEventsPerMonth": "Oltre {events} eventi/mese",
+      "samlSso": "SAML SSO e SCIM",
+      "auditLog": "Registro di audit",
+      "dpaSecurityReviews": "DPA e revisioni di sicurezza",
+      "customRetention": "Conservazione dati personalizzata",
+      "customContracts": "Contratti annuali, fatturazione e condizioni personalizzate"
     },
     "cta": {
       "getStartedForFree": "Inizia gratis",
-      "contactSales": "Contatta vendite",
       "getStarted": "Inizia",
       "currentPlan": "Piano attuale",
       "changeToThisPlan": "Cambia a questo piano",
@@ -1985,16 +2268,12 @@
       "current": "Attuale"
     },
     "labels": {
-      "free": "Gratuito",
       "custom": "Personalizzato"
     }
   },
   "pricingComparison": {
     "headers": {
-      "features": "Funzionalità",
-      "growth": "Growth",
-      "professional": "Professional",
-      "enterprise": "Enterprise"
+      "features": "Funzionalità"
     },
     "categories": {
       "usageLimits": "Utilizzo e limiti",
@@ -2012,24 +2291,21 @@
       "sites": {
         "name": "Siti",
         "values": {
-          "upTo2": "Fino a 2",
-          "upTo50": "Fino a 50",
+          "count": "{count, number}",
           "unlimited": "Illimitati"
         }
       },
       "dataRetention": {
         "name": "Conservazione dati",
         "values": {
-          "1year": "1+ anno",
-          "3years": "3+ anni",
-          "5years": "5+ anni"
+          "yearsCount": "{count, plural, one {# anno} other {# anni}}",
+          "custom": "Personalizzata"
         }
       },
       "teamMembers": {
-        "name": "Membri del team",
+        "name": "Membri del team per sito",
         "values": {
-          "upTo3": "Fino a 3",
-          "upTo50": "Fino a 50",
+          "count": "{count, number}",
           "unlimited": "Illimitati"
         }
       },
@@ -2037,7 +2313,11 @@
         "name": "Tutte le funzionalità dashboard"
       },
       "sessionReplay": {
-        "name": "Replay sessioni"
+        "name": "Replay sessioni",
+        "values": {
+          "perMonth": "{count, number}/mese",
+          "custom": "Personalizzato"
+        }
       },
       "funnels": {
         "name": "Funnel e conversioni"
@@ -2063,8 +2343,7 @@
       "uptimeMonitoring": {
         "name": "Monitoraggio uptime",
         "values": {
-          "1": "1 monitor",
-          "50": "50 monitor",
+          "monitorsCount": "{count, plural, one {# monitor} other {# monitor}}",
           "unlimited": "Monitor illimitati"
         }
       },
@@ -2074,8 +2353,8 @@
       "checkInterval": {
         "name": "Intervallo minimo di controllo",
         "values": {
-          "5min": "5 min",
-          "1min": "1 min"
+          "minutesCount": "{count} min",
+          "secondsCount": "{count} sec"
         }
       },
       "customHttpMethods": {
@@ -2087,14 +2366,16 @@
       "customStatusCodes": {
         "name": "Codici di stato accettati personalizzati"
       },
+      "keywordChecks": {
+        "name": "Controlli per parola chiave"
+      },
       "notificationIntegrations": {
         "name": "Integrazioni di notifica (Slack, Discord, ecc.)"
       },
       "statusPages": {
         "name": "Pagine di stato pubbliche",
         "values": {
-          "1": "1 pagina di stato",
-          "3": "3 pagine di stato",
+          "statusPagesCount": "{count, plural, one {# pagina di stato} other {# pagine di stato}}",
           "unlimited": "Pagine di stato illimitate"
         }
       },
@@ -2115,27 +2396,6 @@
       },
       "slaGuarantee": {
         "name": "Garanzia SLA"
-      }
-    },
-    "coreFeatures": {
-      "title": "Incluso in tutti i piani",
-      "subtitle": "Ogni piano include la nostra suite completa di analytics",
-      "items": {
-        "realtimeAnalytics": "Analytics in tempo reale",
-        "sessionReplay": "Replay sessioni",
-        "geographicInsights": "Insights geografici",
-        "trafficSources": "Fonti di traffico",
-        "utmCampaigns": "Tracciamento campagne UTM",
-        "customEvents": "Eventi personalizzati",
-        "funnels": "Funnel e conversioni",
-        "userJourneys": "Percorsi utente",
-        "webVitals": "Web Vitals",
-        "botFiltering": "Filtraggio bot",
-        "outboundLinks": "Tracciamento link in uscita",
-        "advancedFiltering": "Filtri avanzati",
-        "cookieFree": "Senza cookie",
-        "gdprCcpa": "Pronto per GDPR e CCPA",
-        "errorTracking": "Monitoraggio errori lato client"
       }
     }
   },
@@ -2162,7 +2422,8 @@
         "observability": "Osservabilità"
       },
       "collapseNav": "Comprimi navigazione",
-      "errorTracking": "Monitoraggio errori"
+      "errorTracking": "Monitoraggio errori",
+      "monitorsDown": "Monitor offline"
     },
     "settings": {
       "sidebar": {
@@ -2230,11 +2491,6 @@
     "createCard": {
       "title": "Crea dashboard",
       "description": "Aggiungi una nuova dashboard"
-    },
-    "upgradeCard": {
-      "title": "Ti servono più dashboard?",
-      "description": "Pro supporta fino a 50 siti",
-      "cta": "Passa a Pro"
     }
   },
   "monitoring": {
@@ -2415,7 +2671,13 @@
       "settings": "Impostazioni",
       "deleteConfirmTitle": "Eliminare il monitor?",
       "deleteConfirmDescription": "Questa azione eliminerà permanentemente il monitor e tutti i suoi dati.",
-      "deleteError": "Impossibile eliminare il monitor"
+      "deleteError": "Impossibile eliminare il monitor",
+      "deleteImpactLoading": "Verifica delle pagine di stato interessate...",
+      "deleteImpactError": "Non è stato possibile verificare quali pagine di stato usano questo monitor.",
+      "deleteImpactUnknownWarning": "Eliminando questo monitor verrà rimosso da tutte le pagine di stato che lo usano. Le pagine pubblicate potrebbero restare pubbliche senza componenti e normalmente mostrare “Stato non disponibile”. Gli incidenti aperti potrebbero comunque alzarne lo stato.",
+      "deleteImpactRetry": "Riprova",
+      "deleteImpactAffectedPages": "Questo monitor verrà rimosso da queste pagine di stato:",
+      "deleteImpactEmptyWarning": "Questa pagina pubblicata resterà pubblica senza componenti e normalmente mostrerà “Stato non disponibile”. Gli incidenti aperti potrebbero comunque alzarne lo stato."
     }
   },
   "monitoringDetailPage": {
@@ -2539,13 +2801,7 @@
       "discard": "Annulla modifiche"
     },
     "delete": {
-      "trigger": "Elimina monitor",
-      "title": "Eliminare questo monitor?",
-      "description": "Questa azione non può essere annullata. Tutti i dati di monitoraggio e la cronologia degli incidenti verranno eliminati definitivamente.",
-      "cancel": "Annulla",
-      "confirm": "Elimina monitor",
-      "deleting": "Eliminazione...",
-      "error": "Impossibile eliminare il monitor"
+      "trigger": "Elimina monitor"
     },
     "sections": {
       "timing": "Tempistiche",
@@ -2591,6 +2847,8 @@
       "title": "Avvisi",
       "enabled": "Attivo",
       "enableAlerts": "Attiva avvisi",
+      "emailRecipients": "Gli avvisi email vengono inviati a {recipients}",
+      "noEmailRecipient": "Nessun destinatario email",
       "description": "Ricevi notifiche quando il monitor va offline, torna online o quando i certificati SSL stanno per scadere.",
       "onDown": "Avviso quando offline",
       "onDownDescription": "Invia un avviso quando il monitor va offline",
@@ -2720,8 +2978,7 @@
       "recommended": "consigliato"
     },
     "proFeature": {
-      "badge": "PRO",
-      "upgradeRequired": "Passa a Pro per sbloccare questa funzione"
+      "upgradeRequired": "Passa a {plan} per sbloccare questa funzione"
     },
     "billing": {
       "navigation": {
@@ -2742,7 +2999,7 @@
           },
           "exceedLimit": {
             "q": "Cosa succede se supero il limite di eventi?",
-            "a": "Continueremo a tracciare i tuoi eventi e riceverai un'email quando superi il limite. Se superi i limiti per più di 30 giorni, i dati in eccesso potrebbero essere eliminati."
+            "a": "Continuiamo a tracciare i tuoi eventi e ti inviamo un'email quando ti avvicini al limite o lo superi. Se il tuo account continua a superare il limite senza un upgrade, potremmo bloccarlo finché non esegui l'upgrade. I tuoi dati vengono comunque conservati."
           },
           "annualBilling": {
             "q": "Offrite la fatturazione annuale?",
@@ -2750,7 +3007,7 @@
           },
           "freeOption": {
             "q": "Esiste un'opzione gratuita?",
-            "a": "Sì! Il nostro piano Growth include 10.000 eventi gratuiti al mese per sempre. Nessuna carta di credito richiesta per iniziare."
+            "a": "Sì! Il nostro piano Free include {events, number} eventi al mese, gratis per sempre. Nessuna carta di credito richiesta per iniziare."
           },
           "cancelAnytime": {
             "q": "Posso annullare in qualsiasi momento?",
@@ -2759,6 +3016,10 @@
           "paymentMethods": {
             "q": "Quali metodi di pagamento accettate?",
             "a": "Accettiamo tutte le principali carte di credito (Visa, MasterCard, American Express) e supportiamo pagamenti sicuri tramite il nostro processore di pagamenti."
+          },
+          "payInEuros": {
+            "q": "Posso pagare in euro?",
+            "a": "Sì. Ogni piano costa lo stesso importo in euro e in dollari, e scegli la valuta quando passi a un piano a pagamento."
           }
         }
       },
@@ -2841,11 +3102,7 @@
         "pastDue": "Scaduto",
         "inactive": "Inattivo"
       },
-      "planNames": {
-        "growth": "Piano Growth",
-        "professional": "Piano Pro",
-        "enterprise": "Enterprise"
-      }
+      "planLabel": "Piano {name}"
     },
     "timeRange": {
       "disabled": "Disattivato",
@@ -3864,16 +4121,17 @@
     "statusPageImageBadType": "L'immagine deve essere un file PNG, JPEG o WebP",
     "statusPageImageSvgUnsafe": "Il file SVG contiene contenuti non supportati o non sicuri",
     "capabilities": {
-      "dashboardLimit": "Hai raggiunto il limite di dashboard. Passa a Pro per crearne di più.",
-      "monitorLimit": "Hai raggiunto il limite di monitor. Passa a Pro per crearne di più.",
-      "minInterval": "Intervalli di monitoraggio più veloci richiedono un piano Professional",
-      "httpMethod": "Metodi HTTP personalizzati richiedono un piano Professional",
-      "statusCodes": "Codici di stato personalizzati richiedono un piano Professional",
-      "customHeaders": "Header di richiesta personalizzati richiedono un piano Professional",
-      "keywordValidation": "La validazione delle parole chiave richiede un piano Professional",
-      "statusPageLimit": "Hai raggiunto il limite di pagine di stato. Esegui l'upgrade a Pro per crearne altre.",
-      "statusPageCustomDomain": "I domini personalizzati richiedono un piano Professional",
-      "statusPageBranding": "La rimozione del branding Betterlytics richiede un piano Professional"
+      "dashboardLimit": "Hai raggiunto il limite di dashboard. Passa a {plan} per crearne di più.",
+      "monitorLimit": "Hai raggiunto il limite di monitor. Passa a {plan} per crearne di più.",
+      "minInterval": "Intervalli di monitoraggio più veloci richiedono il piano {plan}",
+      "httpMethod": "Metodi HTTP personalizzati richiedono il piano {plan}",
+      "statusCodes": "Codici di stato personalizzati richiedono il piano {plan}",
+      "customHeaders": "Header di richiesta personalizzati richiedono il piano {plan}",
+      "keywordValidation": "La validazione delle parole chiave richiede il piano {plan}",
+      "statusPageLimit": "Hai raggiunto il limite di pagine di stato. Esegui l'upgrade a {plan} per crearne altre.",
+      "statusPageCustomDomain": "I domini personalizzati richiedono il piano {plan}",
+      "statusPageBranding": "La rimozione del branding Betterlytics richiede il piano {plan}",
+      "limitReached": "Hai raggiunto il limite del tuo piano. Contattaci se ti serve di più."
     },
     "account": {
       "lastAdminCannotBeDeleted": "L'unico account amministratore di questa istanza non può essere eliminato.",

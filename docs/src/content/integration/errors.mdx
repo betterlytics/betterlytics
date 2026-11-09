@@ -36,7 +36,7 @@ Self-hosting? Load `analytics.js` from your instance and send events to it, with
 | --- | --- | --- | --- |
 | `data-track-errors` | boolean | `false` | Enables error tracking. |
 | `data-track-console-errors` | boolean | `false` | Also captures `console.error()` calls. Requires `data-track-errors="true"`. |
-| `data-replay-on-error` | boolean | `false` | Captures a replay when an error occurs, even for sessions not sampled for regular recording. Requires `data-replay="true"` and consent. See [Error-triggered replay](#error-triggered-replay). |
+| `data-replay-on-error` | boolean | `false` | Captures a replay when an error occurs, even for sessions not sampled for regular recording. Works without `data-replay`, and uses the same consent setting as session replay. See [Error-triggered replay](#error-triggered-replay). |
 
 ### Using the npm package
 
@@ -79,13 +79,14 @@ If a session is already being recorded, errors are linked to it automatically wi
 
 For sessions that are not being recorded, you can enable `data-replay-on-error` to capture a replay anyway. Betterlytics records in the background and only uploads when an error occurs, giving you around **1-2 minutes of context** before the error. Sessions without errors are never uploaded.
 
+It works on its own, without `data-replay`. Add `data-replay="true"` as well if you also want regular sampled recordings. Either way, replay only starts once it has the go-ahead: set `data-consent-replay="true"` on the script tag if you don't need consent, or call `setReplayConsent(true)` when your consent banner resolves. See [Consent](/integration/session-replay#consent) in the Session Replay guide.
+
 ```html
 <script
   async
   src="https://betterlytics.io/analytics.js"
   data-site-id="your-siteid"
   data-track-errors="true"
-  data-replay="true"
   data-consent-replay="true"
   data-replay-on-error="true"
 >
@@ -96,8 +97,8 @@ Or with the npm package:
 
 ```ts
 betterlytics.init('your-site-id', {
-  enableSessionReplay: true,
   trackErrors: true,
+  consentReplay: true,
   replayOnError: true, // true | false (default)
 });
 ```

@@ -52,7 +52,7 @@ const payload = {
     name: 'Betterlytics Status',
     slug: 'betterlytics',
     overallStatus: 'partial_outage',
-    overallUptime: 99.9876,
+    overallUptime: 99.9996,
     lastUpdatedAt: '2026-02-01T10:00:00.000Z',
     monitors: [{ key: '0', publicName: 'API', status: 'down', uptime: 98.7654, days: [] }],
     incidents: [
@@ -102,8 +102,8 @@ describe('executeListStatusPages', () => {
       public_url: 'https://betterlytics.io/status/betterlytics',
       published: true,
       overall_status: 'partial_outage',
-      overall_uptime_percent: 99.988,
-      monitors: [{ monitor_id: 'mon-1', public_name: 'API', status: 'down', uptime_percent: 98.765 }],
+      overall_uptime_percent: 99.99,
+      monitors: [{ monitor_id: 'mon-1', public_name: 'API', status: 'down', uptime_percent: 98.76 }],
     });
     expect(result.status_pages[0].incidents[0]).toMatchObject({
       title: 'API is unreachable',

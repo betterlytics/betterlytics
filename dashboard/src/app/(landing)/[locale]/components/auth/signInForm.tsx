@@ -5,6 +5,7 @@ import * as OTP from '@radix-ui/react-one-time-password-field';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuthErrorMessage } from '@/hooks/use-auth-error-message';
+import { isWrongPasswordError } from '@/lib/auth/auth-error';
 import { inviteTokenFromCallback, signInPath, twoFactorAttemptEnded } from '@/lib/auth/auth-page-state';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/landing/lib/cn';
@@ -27,6 +28,15 @@ import styles from './authForm.module.css';
 const OTP_LENGTH = 6;
 // Backup codes are `xxxxx-xxxxx`: ten characters plus the hyphen.
 const BACKUP_CODE_LENGTH = 11;
+
+/**
+ * Signing in on behalf of an MCP client's authorization request continues it: better-auth answers with the next
+ * page (consent, or back to the client) and its client is already on the way there.
+ */
+function continuesAuthorization(data: unknown): boolean {
+  const next = data as { redirect?: unknown; url?: unknown } | null;
+  return next?.redirect === true && typeof next.url === 'string';
+}
 
 /** Case is kept: backup codes are mixed case and compared exactly. */
 function formatBackupCode(value: string) {
@@ -90,8 +100,9 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
         const shared = authErrorMessage(signInError);
         if (shared) fail(shared);
         else if (signInError.status === 429) fail(tFields('errors.tooManyRequests'));
-        // only a 401 is a wrong password: an outage mustn't send someone off to reset a correct one
-        else if (signInError.status === 401) fail(t('errors.invalidCredentials'), 'both');
+        // only wrong credentials, never an outage: that mustn't send someone off to reset a correct password
+        else if (signInError.status === 401 || isWrongPasswordError(signInError))
+          fail(t('errors.invalidCredentials'), 'both');
         else fail(t('errors.generic'));
         return;
       }
@@ -100,6 +111,7 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
         setStep('twoFactor');
         return;
       }
+      if (continuesAuthorization(data)) return;
       // the app is another root layout, so this is a full load either way
       window.location.assign(redirectTo);
     } catch {
@@ -254,7 +266,7 @@ function TwoFactorStep({
     setError(null);
     setPending(true);
     try {
-      const { error: verifyError } =
+      const { data, error: verifyError } =
         mode === 'backup'
           ? await authClient.twoFactor.verifyBackupCode({ code: value })
           : await authClient.twoFactor.verifyTotp({ code: value });
@@ -276,6 +288,7 @@ function TwoFactorStep({
         );
         return;
       }
+      if (continuesAuthorization(data)) return;
       window.location.assign(redirectTo);
     } catch {
       setPending(false);

@@ -1,18 +1,13 @@
 import { clickhouse } from '@/lib/clickhouse';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { toDateTimeString } from '@/utils/dateFormatters';
 import {
-  MonitorDailyUptimeSchema,
   MonitorResultSchema,
   MonitorTlsResultSchema,
   MonitorUptimeBucketSchema,
   MonitorLatencyStatsSchema,
   MonitorLatencyPointSchema,
-  UptimeStatsSchema,
   LatestCheckInfoSchema,
-  type UptimeStats,
   type MonitorUptimeBucket,
-  type MonitorDailyUptime,
   type MonitorResult,
   type MonitorTlsResult,
   type LatestCheckInfo,
@@ -28,9 +23,9 @@ import {
 } from '@/entities/analytics/monitoring.entities';
 import { parseClickHouseDate, toIsoUtc } from '@/utils/dateHelpers';
 import { groupByKey } from '@/utils/collections';
-import { formatDayKey } from '@/utils/timezone';
+import { uptimeRatio } from '@/entities/analytics/monitoring.helpers';
 
-type UptimeBucketRow = { date: string; uptime_seconds: number | null; total_seconds: number };
+type UptimeBucketRow = { check_id: string; date: string; monitored_seconds: number; down_seconds: number };
 type IncidentSegmentRow = {
   state: string;
   reason_code: string | null;
@@ -40,10 +35,14 @@ type IncidentSegmentRow = {
 };
 
 function parseUptimeBucketRow(row: UptimeBucketRow): MonitorUptimeBucket {
+  const totals = {
+    monitoredSeconds: row.monitored_seconds,
+    upSeconds: Math.max(0, row.monitored_seconds - row.down_seconds),
+  };
   return MonitorUptimeBucketSchema.parse({
     bucket: toIsoUtc(row.date) ?? row.date,
-    upRatio: row.uptime_seconds != null && row.total_seconds > 0 ? row.uptime_seconds / row.total_seconds : null,
-    totalSeconds: row.total_seconds,
+    upRatio: uptimeRatio(totals),
+    ...totals,
   });
 }
 
@@ -61,149 +60,53 @@ function parseIncidentSegmentRow(row: IncidentSegmentRow): MonitorIncidentSegmen
   });
 }
 
-// Unified uptime bucket calculation supporting hour or day granularity
-export async function getMonitorUptimeBuckets(
-  checkId: string,
-  siteId: string,
-  createdAt: Date,
-  timezone: string,
-  rangeStart: string,
-  rangeEnd: string,
-  buckets: number,
-  granularity: 'day' | 'hour',
-): Promise<MonitorUptimeBucket[]> {
-  const createdAtStr = toDateTimeString(createdAt);
+// The wait before the next check may run up to the interval (backoff included) plus 20% for jitter,
+// in permille so that interval seconds times it gives milliseconds. Intervals never exceed 24 hours.
+const PROBE_COVERAGE_PERMILLE = 1200;
+// Far enough back to reach the probe whose coverage runs into the range, with room for its duration
+const COVERAGE_LOOKBACK_MS = 24 * 60 * 60 * PROBE_COVERAGE_PERMILLE + 10 * 60 * 1000;
+// Far enough past the range to see a next check that started inside it but finished after it
+const COVERAGE_LOOKAHEAD_MS = 10 * 60 * 1000;
 
-  // Granularity-specific SQL fragments
-  const interval = granularity === 'day' ? safeSql`DAY` : safeSql`HOUR`;
-  const granularityStr = granularity === 'day' ? safeSql`'day'` : safeSql`'hour'`;
-  const toStartOfInterval = (name: ReturnType<typeof safeSql>) =>
-    granularity === 'day'
-      ? safeSql`toStartOfDay(${name}, {timezone:String})`
-      : safeSql`toStartOfHour(${name}, {timezone:String})`;
-
-  const toStartOfStartedAt = toStartOfInterval(safeSql`started_at`);
-  const toStartOfRange = toStartOfInterval(SQL.DateTime({ rangeStart }));
-  const toStartOfTS = toStartOfInterval(safeSql`ts`);
-
-  // Used for calculating bucket end in seconds
-  const bucketSizeSeconds = safeSql`
-    least(
-      abs(
-        dateDiff(
-          'second',
-          bucket_start,
-          bucket_start + INTERVAL 1 ${interval}
-        )
-      ),
-      abs(dateDiff('second', bucket_start, now())),
-      abs(dateDiff('second', ${SQL.DateTime({ createdAt: createdAtStr })}, now()))
-    )
-  `;
-
-  const query = safeSql`
-    WITH incident_buckets AS (
-      SELECT
-        started_at,
-        coalesce(resolved_at, now() + INTERVAL 1 ${interval}) AS effective_resolved_at,
-        arrayJoin(
-          arrayMap(
-            i -> ${toStartOfStartedAt} + INTERVAL i ${interval},
-            range(
-              0,
-              toUInt32(dateDiff(${granularityStr}, ${toStartOfStartedAt}, coalesce(resolved_at, now() + INTERVAL 1 ${interval}), {timezone:String})) + 1
-            )
-          )
-        ) AS bucket_key
-      FROM analytics.monitor_incidents FINAL
-      WHERE check_id = {check_id:String}
-        AND site_id = {site_id:String}
-        AND kind != 'tls'
-        AND started_at < ${SQL.DateTime({ rangeEnd })}
-        AND (resolved_at IS NULL OR resolved_at > ${SQL.DateTime({ rangeStart })})
-    ),
-    monitor_presence AS (
-      SELECT
-        ${toStartOfTS} AS mp_bucket_start,
-        1 AS has_data
-      FROM analytics.monitor_results
-      WHERE check_id = {check_id:String}
-        AND site_id = {site_id:String}
-        AND kind != 'tls'
-        AND ts >= ${SQL.DateTime({ rangeStart })}
-        AND ts < ${SQL.DateTime({ rangeEnd })}
-      GROUP BY mp_bucket_start
-    )
-    SELECT
-      toTimeZone(bucket_start, 'UTC') AS date,
-      IF(
-        mp.has_data = 0,
-        NULL,
-        IF(
-          ${SQL.DateTime({ createdAt: createdAtStr })} >= bucket_start + INTERVAL 1 ${interval},
-          NULL,
-          ${bucketSizeSeconds} - sum(
-            greatest(
-              0,
-              dateDiff(
-                'second',
-                greatest(ib.started_at, bucket_start),
-                least(ib.effective_resolved_at, bucket_start + INTERVAL 1 ${interval}, now())
-              )
-            )
-          )
-        )
-      ) AS uptime_seconds,
-      ${bucketSizeSeconds} AS total_seconds
-    FROM (
-      SELECT arrayJoin(
-        arrayMap(
-          i -> ${toStartOfRange} + INTERVAL i ${interval},
-          range(0, {buckets:UInt32})
-        )
-      ) AS bucket_start
-    ) AS buckets
-    LEFT JOIN incident_buckets ib ON ib.bucket_key = buckets.bucket_start
-    LEFT JOIN monitor_presence mp ON mp.mp_bucket_start = buckets.bucket_start
-    GROUP BY bucket_start, mp.has_data
-    ORDER BY bucket_start
-  `;
-
-  const rows = (await clickhouse
-    .query(query.taggedSql, {
-      params: { ...query.taggedParams, check_id: checkId, site_id: siteId, timezone, buckets },
-    })
-    .toPromise()) as UptimeBucketRow[];
-
-  return rows.map(parseUptimeBucketRow);
-}
+export type UptimeMonitorRef = { checkId: string; createdAt: Date };
 
 /**
- * Batched variant of {@link getMonitorUptimeBuckets} for the public status page: computes the daily
- * uptime buckets for ALL monitors of a page in a single ClickHouse query instead of one query per
- * monitor (the page can show up to {@link STATUS_PAGE_LIMITS.MONITORS_MAX} monitors). Each monitor's
- * `createdAt` is zipped in and looked up per row, so the per-bucket math is identical to the
- * single-monitor version. Day granularity only. Returns a map keyed by check_id; each monitor's
- * buckets are oldest-first. Monitors with no data still get a full set of null-uptime buckets.
+ * Monitored and up seconds per hour or day bucket, for many monitors in one query.
+ *
+ * Each non-TLS probe result covers the time from its check until the next check, as long as the
+ * next check started within its recorded interval plus 20%; otherwise it covers only that capped
+ * interval. The next check's start is its timestamp minus its latency, since a result is stamped
+ * when its probe finishes, so a slow or timing out probe doesn't eat into the allowance. Downtime is incident time inside that coverage, so unmonitored time
+ * (paused, not yet created, our own probing down) counts on neither side of the ratio. Coverage
+ * is split across bucket boundaries and clipped to [rangeStart, rangeEnd), to the monitor's
+ * creation and to now, so summing the buckets gives the exact range. Only buckets with monitored
+ * time are returned, oldest first, keyed by check_id.
  */
-export async function getUptimeBucketsForMonitors(
-  monitors: Array<{ checkId: string; createdAt: Date }>,
+export async function getUptimeBuckets(
+  monitors: UptimeMonitorRef[],
   siteId: string,
-  timezone: string,
-  rangeStart: string,
-  rangeEnd: string,
-  buckets: number,
+  options: { rangeStart: Date; rangeEnd: Date; granularity: 'hour' | 'day'; timezone: string },
 ): Promise<Map<string, MonitorUptimeBucket[]>> {
   if (!monitors.length) return new Map();
 
-  const checkIds = monitors.map((monitor) => monitor.checkId);
-  const createdAts = monitors.map((monitor) => toDateTimeString(monitor.createdAt));
-
-  const bucketSizeSeconds = safeSql`
-    least(
-      abs(dateDiff('second', grid.bucket_start, grid.bucket_start + INTERVAL 1 DAY)),
-      abs(dateDiff('second', grid.bucket_start, now())),
-      abs(dateDiff('second', grid.created_at, now()))
+  const unit = options.granularity === 'day' ? safeSql`DAY` : safeSql`HOUR`;
+  const unitName = options.granularity === 'day' ? safeSql`'day'` : safeSql`'hour'`;
+  const toBucketStart = (ms: ReturnType<typeof safeSql>) =>
+    options.granularity === 'day'
+      ? safeSql`toStartOfDay(fromUnixTimestamp64Milli(${ms}, 'UTC'), {timezone:String})`
+      : safeSql`toStartOfHour(fromUnixTimestamp64Milli(${ms}, 'UTC'), {timezone:String})`;
+  // Every bucket a [fromMs, toMs) span touches, one row each
+  const bucketsOf = (fromMs: ReturnType<typeof safeSql>, toMs: ReturnType<typeof safeSql>) => safeSql`
+    arrayJoin(
+      arrayMap(
+        i -> ${toBucketStart(fromMs)} + INTERVAL i ${unit},
+        range(toUInt32(dateDiff(
+          ${unitName},
+          ${toBucketStart(fromMs)},
+          fromUnixTimestamp64Milli(${toMs} - 1, 'UTC'),
+          {timezone:String}
+        )) + 1)
+      )
     )
   `;
 
@@ -211,198 +114,115 @@ export async function getUptimeBucketsForMonitors(
     WITH
       monitors AS (
         SELECT
-          tupleElement(pair, 1) AS check_id,
-          tupleElement(pair, 2) AS created_at
+          tupleElement(m, 1) AS check_id,
+          tupleElement(m, 2) AS created_ms
         FROM (
-          SELECT arrayJoin(arrayZip({check_ids:Array(String)}, {created_ats:Array(DateTime)})) AS pair
+          SELECT arrayJoin(arrayZip({check_ids:Array(String)}, {created_ms:Array(Int64)})) AS m
         )
       ),
-      incident_buckets AS (
+      probes AS (
         SELECT
           check_id,
-          started_at,
-          coalesce(resolved_at, now() + INTERVAL 1 DAY) AS effective_resolved_at,
-          arrayJoin(
-            arrayMap(
-              i -> toStartOfDay(started_at, {timezone:String}) + INTERVAL i DAY,
-              range(
-                0,
-                toUInt32(dateDiff('day', toStartOfDay(started_at, {timezone:String}), coalesce(resolved_at, now() + INTERVAL 1 DAY), {timezone:String})) + 1
-              )
-            )
-          ) AS bucket_key
-        FROM analytics.monitor_incidents FINAL
-        WHERE check_id IN ({check_ids:Array(String)})
-          AND site_id = {site_id:String}
-          AND kind != 'tls'
-          AND started_at < ${SQL.DateTime({ rangeEnd })}
-          AND (resolved_at IS NULL OR resolved_at > ${SQL.DateTime({ rangeStart })})
-      ),
-      monitor_presence AS (
-        SELECT
-          check_id,
-          toStartOfDay(ts, {timezone:String}) AS mp_bucket_start,
-          1 AS has_data
+          toUnixTimestamp64Milli(ts) AS probe_ms,
+          leadInFrame(toNullable(toUnixTimestamp64Milli(ts))) OVER (
+            PARTITION BY check_id ORDER BY ts ROWS BETWEEN CURRENT ROW AND 1 FOLLOWING
+          ) AS next_probe_ms,
+          leadInFrame(toNullable(toInt64(ifNull(latency_ms, 0)))) OVER (
+            PARTITION BY check_id ORDER BY ts ROWS BETWEEN CURRENT ROW AND 1 FOLLOWING
+          ) AS next_latency_ms,
+          effective_interval_seconds
         FROM analytics.monitor_results
-        WHERE check_id IN ({check_ids:Array(String)})
+        WHERE check_id IN {check_ids:Array(String)}
           AND site_id = {site_id:String}
           AND kind != 'tls'
-          AND ts >= ${SQL.DateTime({ rangeStart })}
-          AND ts < ${SQL.DateTime({ rangeEnd })}
-        GROUP BY check_id, mp_bucket_start
+          AND ts >= fromUnixTimestamp64Milli({lookback_start_ms:Int64}, 'UTC')
+          AND ts < fromUnixTimestamp64Milli({lookahead_end_ms:Int64}, 'UTC')
+      ),
+      coverage AS (
+        SELECT
+          p.check_id AS check_id,
+          p.probe_ms + toInt64(p.effective_interval_seconds * {coverage_permille:UInt32}) AS capped_ms,
+          greatest(p.probe_ms, m.created_ms, {range_start_ms:Int64}) AS covered_from_ms,
+          least(
+            if(
+              ifNull(p.next_probe_ms - p.next_latency_ms <= capped_ms, 0),
+              assumeNotNull(p.next_probe_ms),
+              capped_ms
+            ),
+            {range_end_ms:Int64},
+            toUnixTimestamp64Milli(now64(3))
+          ) AS covered_to_ms
+        FROM probes AS p
+        INNER JOIN monitors AS m ON m.check_id = p.check_id
+        WHERE covered_to_ms > covered_from_ms
+      ),
+      incidents AS (
+        SELECT
+          check_id,
+          greatest(toUnixTimestamp64Milli(started_at), {range_start_ms:Int64}) AS down_from_ms,
+          least(
+            ifNull(toUnixTimestamp64Milli(resolved_at), toUnixTimestamp64Milli(now64(3))),
+            {range_end_ms:Int64}
+          ) AS down_to_ms
+        FROM analytics.monitor_incidents FINAL
+        WHERE check_id IN {check_ids:Array(String)}
+          AND site_id = {site_id:String}
+          AND kind != 'tls'
+          AND started_at < fromUnixTimestamp64Milli({range_end_ms:Int64}, 'UTC')
+          AND (resolved_at IS NULL OR resolved_at > fromUnixTimestamp64Milli({range_start_ms:Int64}, 'UTC'))
+      ),
+      -- Incident spans per bucket, so each coverage segment only meets its own bucket's incidents
+      downtime AS (
+        SELECT
+          check_id,
+          ${bucketsOf(safeSql`down_from_ms`, safeSql`down_to_ms`)} AS bucket_start,
+          groupArray((down_from_ms, down_to_ms)) AS spans
+        FROM incidents
+        WHERE down_to_ms > down_from_ms
+        GROUP BY check_id, bucket_start
+      ),
+      segments AS (
+        SELECT
+          check_id,
+          ${bucketsOf(safeSql`covered_from_ms`, safeSql`covered_to_ms`)} AS bucket_start,
+          greatest(covered_from_ms, toInt64(toUnixTimestamp(bucket_start)) * 1000) AS from_ms,
+          least(covered_to_ms, toInt64(toUnixTimestamp(bucket_start + INTERVAL 1 ${unit})) * 1000) AS to_ms
+        FROM coverage
       )
     SELECT
-      grid.check_id AS check_id,
-      grid.bucket_start AS date,
-      IF(
-        mp.has_data = 0,
-        NULL,
-        IF(
-          grid.created_at >= grid.bucket_start + INTERVAL 1 DAY,
-          NULL,
-          ${bucketSizeSeconds} - sum(
-            greatest(
-              0,
-              dateDiff(
-                'second',
-                greatest(ib.started_at, grid.bucket_start),
-                least(ib.effective_resolved_at, grid.bucket_start + INTERVAL 1 DAY, now())
-              )
-            )
-          )
-        )
-      ) AS uptime_seconds,
-      ${bucketSizeSeconds} AS total_seconds
-    FROM (
-      SELECT
-        m.check_id AS check_id,
-        m.created_at AS created_at,
-        b.bucket_start AS bucket_start
-      FROM monitors AS m
-      CROSS JOIN (
-        SELECT arrayJoin(
-          arrayMap(
-            i -> toStartOfDay(${SQL.DateTime({ rangeStart })}, {timezone:String}) + INTERVAL i DAY,
-            range(0, {buckets:UInt32})
-          )
-        ) AS bucket_start
-      ) AS b
-    ) AS grid
-    LEFT JOIN incident_buckets ib ON ib.check_id = grid.check_id AND ib.bucket_key = grid.bucket_start
-    LEFT JOIN monitor_presence mp ON mp.check_id = grid.check_id AND mp.mp_bucket_start = grid.bucket_start
-    GROUP BY grid.check_id, grid.created_at, grid.bucket_start, mp.has_data
-    ORDER BY grid.check_id, grid.bucket_start
+      s.check_id AS check_id,
+      toTimeZone(s.bucket_start, 'UTC') AS date,
+      sum(s.to_ms - s.from_ms) / 1000 AS monitored_seconds,
+      sum(least(
+        s.to_ms - s.from_ms,
+        arraySum(span -> greatest(0, least(s.to_ms, span.2) - greatest(s.from_ms, span.1)), d.spans)
+      )) / 1000 AS down_seconds
+    FROM segments AS s
+    LEFT JOIN downtime AS d ON d.check_id = s.check_id AND d.bucket_start = s.bucket_start
+    WHERE s.to_ms > s.from_ms
+    GROUP BY s.check_id, s.bucket_start
+    ORDER BY s.check_id, s.bucket_start
   `;
 
+  const rangeStartMs = options.rangeStart.getTime();
   const rows = (await clickhouse
     .query(query.taggedSql, {
       params: {
         ...query.taggedParams,
-        check_ids: checkIds,
-        created_ats: createdAts,
+        check_ids: monitors.map((monitor) => monitor.checkId),
+        created_ms: monitors.map((monitor) => monitor.createdAt.getTime()),
         site_id: siteId,
-        timezone,
-        buckets,
+        timezone: options.timezone,
+        range_start_ms: rangeStartMs,
+        range_end_ms: options.rangeEnd.getTime(),
+        lookahead_end_ms: options.rangeEnd.getTime() + COVERAGE_LOOKAHEAD_MS,
+        lookback_start_ms: rangeStartMs - COVERAGE_LOOKBACK_MS,
+        coverage_permille: PROBE_COVERAGE_PERMILLE,
       },
     })
-    .toPromise()) as (UptimeBucketRow & { check_id: string })[];
+    .toPromise()) as UptimeBucketRow[];
 
   return groupByKey(rows, (row) => row.check_id, parseUptimeBucketRow);
-}
-
-// Convenience wrapper for 24h hourly buckets
-export async function getUptimeBuckets24h(
-  checkId: string,
-  siteId: string,
-  createdAt: Date,
-  timezone: string,
-  rangeStart: string,
-  rangeEnd: string,
-): Promise<MonitorUptimeBucket[]> {
-  return getMonitorUptimeBuckets(checkId, siteId, createdAt, timezone, rangeStart, rangeEnd, 24, 'hour');
-}
-
-// Convenience wrapper for daily uptime buckets
-export async function getMonitorDailyUptime(
-  checkId: string,
-  siteId: string,
-  createdAt: Date,
-  timezone: string,
-  rangeStart: string,
-  rangeEnd: string,
-  days: number,
-): Promise<MonitorDailyUptime[]> {
-  const buckets = await getMonitorUptimeBuckets(
-    checkId,
-    siteId,
-    createdAt,
-    timezone,
-    rangeStart,
-    rangeEnd,
-    days,
-    'day',
-  );
-
-  return buckets
-    .filter((b) => b.upRatio != null)
-    .map((b) =>
-      MonitorDailyUptimeSchema.parse({
-        date: formatDayKey(new Date(b.bucket), timezone),
-        upRatio: b.upRatio,
-        totalSeconds: b.totalSeconds,
-      }),
-    );
-}
-
-// Get uptime stats for 24h period using array expansion
-export async function getUptime24h(
-  checkId: string,
-  siteId: string,
-  createdAt: Date,
-  rangeStart: string,
-  rangeEnd: string,
-): Promise<UptimeStats> {
-  const createdAtStr = toDateTimeString(createdAt);
-
-  const query = safeSql`
-    SELECT
-      greatest(0, dateDiff(
-        'second',
-        greatest(${SQL.DateTime({ createdAt: createdAtStr })}, ${SQL.DateTime({ rangeStart })}),
-        least(now(), ${SQL.DateTime({ rangeEnd })})
-      )) AS total_seconds,
-      sum(
-        greatest(
-          0,
-          dateDiff(
-            'second',
-            greatest(started_at, ${SQL.DateTime({ rangeStart })}),
-            least(coalesce(resolved_at, now()), ${SQL.DateTime({ rangeEnd })})
-          )
-        )
-      ) AS downtime_seconds
-    FROM analytics.monitor_incidents FINAL
-    WHERE check_id = {check_id:String}
-      AND site_id = {site_id:String}
-      AND kind != 'tls'
-      AND started_at < ${SQL.DateTime({ rangeEnd })}
-      AND (resolved_at IS NULL OR resolved_at > ${SQL.DateTime({ rangeStart })})
-  `;
-
-  const [row] = (await clickhouse
-    .query(query.taggedSql, {
-      params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
-    })
-    .toPromise()) as { total_seconds: number; downtime_seconds: number }[];
-
-  const totalSeconds = row?.total_seconds ?? 0;
-  const downtimeSeconds = row?.downtime_seconds ?? 0;
-  const uptimeSeconds = Math.max(0, totalSeconds - downtimeSeconds);
-
-  return UptimeStatsSchema.parse({
-    uptimeSeconds,
-    totalSeconds,
-  });
 }
 
 export async function getRecentMonitorResults(
@@ -562,82 +382,6 @@ export async function getIncidentSegmentsForMonitors(
     .toPromise()) as (IncidentSegmentRow & { check_id: string })[];
 
   return groupByKey(rows, (row) => row.check_id, parseIncidentSegmentRow);
-}
-
-export async function getUptimeStatsForMonitors(
-  monitors: Array<{ checkId: string; createdAt: Date }>,
-  siteId: string,
-  rangeStart: string,
-  rangeEnd: string,
-): Promise<Map<string, UptimeStats>> {
-  if (!monitors.length) return new Map();
-
-  const checkIds = monitors.map((monitor) => monitor.checkId);
-  const createdAts = monitors.map((monitor) => toDateTimeString(monitor.createdAt));
-
-  const query = safeSql`
-    WITH
-      monitors AS (
-        SELECT
-          tupleElement(pair, 1) AS check_id,
-          tupleElement(pair, 2) AS created_at
-        FROM (
-          SELECT arrayJoin(arrayZip({check_ids:Array(String)}, {created_ats:Array(DateTime)})) AS pair
-        )
-      ),
-      downtime AS (
-        SELECT
-          check_id,
-          sum(
-            greatest(
-              0,
-              dateDiff(
-                'second',
-                greatest(started_at, ${SQL.DateTime({ rangeStart })}),
-                least(coalesce(resolved_at, now()), ${SQL.DateTime({ rangeEnd })})
-              )
-            )
-          ) AS downtime_seconds
-        FROM analytics.monitor_incidents FINAL
-        WHERE check_id IN ({check_ids:Array(String)})
-          AND site_id = {site_id:String}
-          AND kind != 'tls'
-          AND started_at < ${SQL.DateTime({ rangeEnd })}
-          AND (resolved_at IS NULL OR resolved_at > ${SQL.DateTime({ rangeStart })})
-        GROUP BY check_id
-      )
-    SELECT
-      m.check_id AS check_id,
-      greatest(0, dateDiff(
-        'second',
-        greatest(m.created_at, ${SQL.DateTime({ rangeStart })}),
-        least(now(), ${SQL.DateTime({ rangeEnd })})
-      )) AS total_seconds,
-      coalesce(d.downtime_seconds, 0) AS downtime_seconds
-    FROM monitors AS m
-    LEFT JOIN downtime AS d ON d.check_id = m.check_id
-  `;
-
-  const rows = (await clickhouse
-    .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        check_ids: checkIds,
-        created_ats: createdAts,
-        site_id: siteId,
-      },
-    })
-    .toPromise()) as { check_id: string; total_seconds: number; downtime_seconds: number }[];
-
-  return new Map(
-    rows.map((row) => [
-      row.check_id,
-      UptimeStatsSchema.parse({
-        uptimeSeconds: Math.max(0, row.total_seconds - row.downtime_seconds),
-        totalSeconds: row.total_seconds,
-      }),
-    ]),
-  );
 }
 
 export async function getLatencyStatsForMonitors(
