@@ -29,6 +29,15 @@ const OTP_LENGTH = 6;
 // Backup codes are `xxxxx-xxxxx`: ten characters plus the hyphen.
 const BACKUP_CODE_LENGTH = 11;
 
+/**
+ * Signing in on behalf of an MCP client's authorization request continues it: better-auth answers with the next
+ * page (consent, or back to the client) and its client is already on the way there.
+ */
+function continuesAuthorization(data: unknown): boolean {
+  const next = data as { redirect?: unknown; url?: unknown } | null;
+  return next?.redirect === true && typeof next.url === 'string';
+}
+
 /** Case is kept: backup codes are mixed case and compared exactly. */
 function formatBackupCode(value: string) {
   const chars = value.replace(/[^A-Za-z0-9]/g, '').slice(0, 10);
@@ -102,6 +111,7 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
         setStep('twoFactor');
         return;
       }
+      if (continuesAuthorization(data)) return;
       // the app is another root layout, so this is a full load either way
       window.location.assign(redirectTo);
     } catch {
@@ -256,7 +266,7 @@ function TwoFactorStep({
     setError(null);
     setPending(true);
     try {
-      const { error: verifyError } =
+      const { data, error: verifyError } =
         mode === 'backup'
           ? await authClient.twoFactor.verifyBackupCode({ code: value })
           : await authClient.twoFactor.verifyTotp({ code: value });
@@ -278,6 +288,7 @@ function TwoFactorStep({
         );
         return;
       }
+      if (continuesAuthorization(data)) return;
       window.location.assign(redirectTo);
     } catch {
       setPending(false);

@@ -32,7 +32,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
       betterlytics:
         'Sei proprietario dei tuoi dati. Mai condivisi o venduti. Hosting in UE con conservazione fino a 5 anni.',
       competitor:
-        'Google può utilizzare dati aggregati per migliorare servizi pubblicitari e correlati. Conservazione limitata a 14 mesi.',
+        'Google può utilizzare dati aggregati per migliorare servizi pubblicitari e correlati. Esplorazioni e report sui funnel risalgono solo a 14 mesi.',
     },
   ],
   comparison: {
@@ -43,7 +43,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
           { name: 'Tracciamento senza cookie', betterlytics: true, competitor: false },
           { name: 'Pronto per il GDPR di default', betterlytics: true, competitor: false },
           { name: 'Nessun banner cookie necessario', betterlytics: true, competitor: false },
-          { name: 'Hosting dei dati in UE', betterlytics: true, competitor: 'Opzionale' },
+          { name: 'Hosting dei dati in UE', betterlytics: true, competitor: false },
           { name: 'Privacy-first di default', betterlytics: true, competitor: false },
           { name: 'Nessun cross-site tracking', betterlytics: true, competitor: false },
           { name: 'Piena proprietà dei dati', betterlytics: true, competitor: false },
@@ -67,7 +67,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
           { name: 'Analisi dei funnel', betterlytics: true, competitor: true },
           { name: 'Tracciamento dei percorsi utente', betterlytics: true, competitor: true },
           { name: 'Tracciamento campagne (UTM)', betterlytics: true, competitor: true },
-          { name: 'Tracciamento link in uscita', betterlytics: true, competitor: 'Richiede config' },
+          { name: 'Tracciamento link in uscita', betterlytics: true, competitor: true },
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Monitoring delle performance', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
@@ -83,7 +83,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
           { name: 'Curva di apprendimento', betterlytics: 'Bassa', competitor: 'Ripida' },
           { name: 'Interfaccia semplice e intuitiva', betterlytics: true, competitor: false },
           { name: 'Nessuna configurazione complessa', betterlytics: true, competitor: false },
-          { name: 'Conservazione dei dati', betterlytics: 'Fino a 5 anni', competitor: '14 mesi' },
+          { name: 'Conservazione dei dati', betterlytics: 'Fino a 5 anni', competitor: '14 mesi (esplorazioni)' },
         ],
       },
       {
@@ -116,7 +116,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'I tuoi dati restano tuoi',
-      content: `Quando utilizzi Google Analytics, Google agisce come responsabile del trattamento e può usare dati aggregati per migliorare i propri servizi. I dati di traffico contribuiscono ai loro algoritmi e alla pubblicità.\n\nCon Betterlytics i dati sono tuoi. Non li condividiamo, non li vendiamo e non li usiamo per altro. Non siamo nel business della pubblicità. Tu paghi un servizio, noi lo forniamo.`,
+      content: `Quando utilizzi Google Analytics, Google agisce come responsabile del trattamento e può usare dati aggregati per migliorare i propri servizi. Se la condivisione dei dati è attiva, i dati di traffico aiutano anche a migliorare gli strumenti pubblicitari di Google.\n\nCon Betterlytics i dati sono tuoi. Non li condividiamo, non li vendiamo e non li usiamo per altro. Non siamo nel business della pubblicità. Tu paghi un servizio, noi lo forniamo.`,
       icon: 'lock',
     },
     {
@@ -126,7 +126,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'Nessun costo nascosto',
-      content: `Google Analytics è “gratuito”, ma il costo nascosto è cedere i tuoi dati a Google. Le funzionalità enterprise? I prezzi di GA360 partono spesso da decine di migliaia di dollari all’anno.\n\nBetterlytics è trasparente. Parte da $7/mese con un piano gratuito. Session replay, monitoring e tutte le funzionalità incluse. Nessuna sorpresa, nessun compromesso sui dati.`,
+      content: `Google Analytics è “gratuito”, ma il costo nascosto è cedere i tuoi dati a Google. Le funzionalità enterprise? GA360 non ha un prezzo pubblico: bisogna contattare il team commerciale di Google.\n\nBetterlytics è trasparente. Parte da $9/mese con un piano gratuito. Session replay, monitoring e tutti gli altri moduli inclusi in ogni piano. Nessuna sorpresa, nessun compromesso sui dati.`,
       icon: 'dollar',
     },
     {

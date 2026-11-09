@@ -29,7 +29,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
       title: 'Your Data, Forever',
       betterlytics: 'You own your data. Never shared or sold. EU-hosted with up to 5 years retention.',
       competitor:
-        'Google may use aggregated data to improve advertising and related services. Limited to 14 months retention.',
+        'Google may use aggregated data to improve advertising and related services. Explorations and funnel reports only go back 14 months.',
     },
   ],
   comparison: {
@@ -40,7 +40,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
           { name: 'Cookieless tracking', betterlytics: true, competitor: false },
           { name: 'GDPR-ready by default', betterlytics: true, competitor: false },
           { name: 'No cookie banner needed', betterlytics: true, competitor: false },
-          { name: 'EU data hosting', betterlytics: true, competitor: 'Optional' },
+          { name: 'EU data hosting', betterlytics: true, competitor: false },
           { name: 'Privacy-first by default', betterlytics: true, competitor: false },
           { name: 'No cross-site tracking', betterlytics: true, competitor: false },
           { name: 'Full data ownership', betterlytics: true, competitor: false },
@@ -64,7 +64,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
           { name: 'Funnel analysis', betterlytics: true, competitor: true },
           { name: 'User journey tracking', betterlytics: true, competitor: true },
           { name: 'Campaign tracking (UTM)', betterlytics: true, competitor: true },
-          { name: 'Outbound link tracking', betterlytics: true, competitor: 'Requires config' },
+          { name: 'Outbound link tracking', betterlytics: true, competitor: true },
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Client-side error tracking', betterlytics: true, competitor: false },
           { name: 'Performance monitoring', betterlytics: true, competitor: false },
@@ -81,7 +81,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
           { name: 'Learning curve', betterlytics: 'Gentle', competitor: 'Steep' },
           { name: 'Simple, intuitive interface', betterlytics: true, competitor: false },
           { name: 'No complex configuration', betterlytics: true, competitor: false },
-          { name: 'Data retention', betterlytics: 'Up to 5 years', competitor: '14 months' },
+          { name: 'Data retention', betterlytics: 'Up to 5 years', competitor: '14 months (explorations)' },
         ],
       },
       {
@@ -114,7 +114,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'Your Data Stays Yours',
-      content: `When you use Google Analytics, Google acts as a data processor and may use aggregated data to improve its services. Your traffic data feeds their algorithms and ad targeting.\n\nWith Betterlytics, your data is yours. We never share, sell, or use it for anything other than your analytics. We're not in the ad business. You pay for a service, we provide it.`,
+      content: `When you use Google Analytics, Google acts as a data processor and may use aggregated data to improve its services. If data sharing is on, your traffic data also helps improve Google's ad tools.\n\nWith Betterlytics, your data is yours. We never share, sell, or use it for anything other than your analytics. We're not in the ad business. You pay for a service, we provide it.`,
       icon: 'lock',
     },
     {
@@ -124,7 +124,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'No Hidden Costs',
-      content: `Google Analytics is "free" but the hidden cost is giving Google your data. Enterprise features? GA360 pricing typically starts in the tens of thousands per year.\n\nBetterlytics is transparent. Starts at $7/month with a free tier. Session replay, monitoring, all features included. No surprise bills, no data trade-offs.`,
+      content: `Google Analytics is "free" but the hidden cost is giving Google your data. Enterprise features? GA360 has no public price; you have to talk to Google's sales team.\n\nBetterlytics is transparent. Starts at $9/month with a free tier. Session replay, monitoring and every other module included on every plan. No surprise bills, no data trade-offs.`,
       icon: 'dollar',
     },
     {

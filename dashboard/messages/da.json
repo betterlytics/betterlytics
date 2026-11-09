@@ -118,11 +118,11 @@
           },
           "freePlan": {
             "question": "Hvad er inkluderet i den gratis plan?",
-            "answer": "Den gratis Cloud-plan inkluderer op til 10.000 sporede events, fuld adgang til dashboardet og community-support. Perfekt til at komme i gang! Ingen kreditkort krævet, ingen bindinger. Self-hosting er gratis uden grænse for events."
+            "answer": "Free-planen på Cloud dækker {sites, plural, one {# hjemmeside} other {# hjemmesider}} og op til {events, number} sporede events pr. måned. Den inkluderer webanalyse, session replay, fejlsporing og oppetidsovervågning samt community-support. Perfekt til at komme i gang! Ingen kreditkort krævet, ingen bindinger. Self-hosting er gratis uden grænse for events."
           },
           "cloud": {
             "question": "Hvordan fungerer cloud-hosting?",
-            "answer": "Vores cloud-hosting giver en fuldt administreret Betterlytics-instans med automatiske opdateringer, backups og 99,9% oppetid. Ingen serveradministration krævet!"
+            "answer": "Vores cloud-hosting giver en fuldt administreret Betterlytics-instans med automatiske opdateringer og backups. En SLA for oppetid er tilgængelig på Enterprise-planen. Ingen serveradministration krævet!"
           },
           "support": {
             "question": "Tilbyder I support til self-hosted installationer?",
@@ -358,7 +358,7 @@
         "freeTierTitle": "Gratis plan",
         "freeTierBody": "Vi tilbyder en permanent gratis plan med en månedlig begivenhedsgrænse som angivet på vores prisside. Ingen kreditkort er påkrævet for den gratis plan. Vi sælger aldrig dine data — uanset hvilken plan du bruger.",
         "billingTitle": "Fakturering",
-        "billingBody": "Du kan bruge vores gratis plan på ubestemt tid inden for de månedlige begivenhedsgrænser. For højere forbrug skal du opgradere til en betalt plan og betale forud. Hvis du overskrider plangrænser uden at opgradere, risikerer du at miste overskydende data. Hvis betalte konti bliver forfaldne, fryser vi kontoen, indtil betalingen er foretaget.",
+        "billingBody": "Du kan bruge vores gratis plan på ubestemt tid inden for de månedlige begivenhedsgrænser. For højere forbrug skal du opgradere til en betalt plan og betale forud. Hvis du bliver ved med at overskride plangrænserne uden at opgradere, kan vi låse din konto, indtil du opgraderer. Dine data bevares. Hvis betalte konti bliver forfaldne, fryser vi kontoen, indtil betalingen er foretaget.",
         "limitsTitle": "Begivenhedsgrænser",
         "limitsBody": "Hver plan inkluderer en månedlig grænse for begivenheder (sidevisninger, brugerdefinerede hændelser osv.). Ubrugte begivenheder overføres ikke til næste måned. Du vil aldrig blive opkrævet ekstra for lejlighedsvise trafikspidser. Hvis du konsekvent overskrider dine plangrænser i to på hinanden følgende måneder, kontakter vi dig for at drøfte en opgradering.",
         "planChangesTitle": "Planændringer",
@@ -722,6 +722,58 @@
           "back": "Tilbage"
         }
       },
+      "consent": {
+        "title": "Forbind {client}",
+        "lede": "{client} vil have adgang til din Betterlytics-konto.",
+        "facts": {
+          "app": "App",
+          "identity": "Identitet",
+          "returnsTo": "Vender tilbage til",
+          "verified": "Verificeret",
+          "unverified": "Ikke verificeret"
+        },
+        "warnings": {
+          "unverified": "{client} har registreret sig selv, så vi kan ikke bekræfte, hvem der har lavet den.",
+          "loopback": "Har du ikke startet dette fra {client}? Annuller."
+        },
+        "permissions": {
+          "title": "Hvad {client} kan",
+          "read": "Læse statistik",
+          "readDescription": "Trafik, hændelser, tragte og fejl på de dashboards, du vælger.",
+          "roleNote": "Den kan aldrig mere, end din rolle tillader."
+        },
+        "dashboards": {
+          "title": "Vælg dashboards",
+          "modeAll": "Alle dashboards",
+          "modeSelected": "Kun valgte",
+          "allHint": "Inkluderer dashboards, du tilføjer senere",
+          "search": "Søg i dashboards",
+          "selectAll": "Vælg alle",
+          "selected": "<b>{selected}</b> af {total} valgt",
+          "pickOne": "Vælg mindst ét dashboard",
+          "noMatch": "Ingen dashboards matcher din søgning.",
+          "empty": "Du har ingen dashboards endnu. <link>Tilføj et site</link>"
+        },
+        "roles": {
+          "owner": "Ejer",
+          "admin": "Admin",
+          "editor": "Redaktør",
+          "viewer": "Læser"
+        },
+        "reconnect": {
+          "title": "{client} er allerede forbundet",
+          "body": "Din nuværende adgang er valgt nedenfor. Hvis du forbinder, erstatter det den."
+        },
+        "cancel": "Annuller",
+        "connect": "Forbind",
+        "connecting": "Forbinder…",
+        "signedInAs": "Logget ind som",
+        "switchAccount": "Skift konto",
+        "saveError": "Vi kunne ikke gemme dine valg. Prøv igen.",
+        "invalidTitle": "Denne forbindelsesanmodning er ikke længere gyldig",
+        "invalidLede": "Start forbindelsen igen fra din app.",
+        "goToDashboards": "Gå til dashboards"
+      },
       "register": {
         "seo": {
           "title": "Opret din gratis Betterlytics-konto",
@@ -836,7 +888,8 @@
         "originMismatch": "Denne side er åbnet på {origin}, som ikke passer med den adresse, denne Betterlytics-instans er konfigureret til, så anmodningen blev blokeret. Åbn Betterlytics på den konfigurerede adresse. Hvis du driver instansen, så sørg for, at den konfigurerede URL (protokol, vært og port) svarer til adressen i din browser.",
         "accountLocked": "For mange forkerte koder. Login med totrinsbekræftelse er låst i 15 minutter.",
         "accountDisabled": "Denne konto er deaktiveret. Kontakt din administrator.",
-        "rateLimited": "For mange forsøg. Vent et øjeblik, og prøv igen."
+        "rateLimited": "For mange forsøg. Vent et øjeblik, og prøv igen.",
+        "connectionRequestInvalid": "Denne forbindelsesanmodning er ikke længere gyldig. Start forbindelsen igen fra din app."
       }
     },
     "demo": {
@@ -1097,6 +1150,7 @@
       "dpa": "Databehandleraftale",
       "subprocessors": "Underdatabehandlere",
       "documentation": "Dokumentation",
+      "blog": "Blog",
       "changelog": "Ændringslog",
       "pricing": "Priser",
       "status": "Status",
@@ -1121,13 +1175,7 @@
       "seo": {
         "title": "Betterlytics-priser: start gratis, betal efter events",
         "description": "Alle planer inkluderer webanalyse, session replay, fejlsporing og oppetidsovervågning. Start gratis og betal efter events pr. måned, eller host det selv gratis."
-      },
-      "titleEmphasis": "Simple, gennemsigtige",
-      "titleRest": "priser",
-      "subtitle": "Start gratis, opgrader når du har brug for mere. Ingen skjulte gebyrer, ingen overraskelser.",
-      "footer": "Start med vores gratis plan – intet kreditkort krævet.",
-      "comparisonTitle": "Sammenlign alle funktioner",
-      "exploreFeaturesLink": "Udforsk alle funktioner i detaljer"
+      }
     },
     "shareImage": {
       "alt": "“You shouldn’t need five tools to understand one website” over Betterlytics-dashboardet"
@@ -1249,25 +1297,35 @@
       "rangeLabel": "Antal events pr. måned",
       "rangeValueText": "{events} events",
       "perMonth": "/måned",
-      "free": "Gratis",
       "custom": "Efter aftale",
-      "growth": {
-        "name": "Growth",
-        "tagline": "Til sideprojekter og små websites.",
-        "ctaFree": "Kom i gang gratis",
-        "cta": "Kom i gang"
+      "badge": "Anbefalet",
+      "ctaFree": "Kom i gang gratis",
+      "contactCta": "Kontakt os",
+      "plans": {
+        "free": {
+          "tagline": "Til sideprojekter og personlige websites."
+        },
+        "plus": {
+          "tagline": "Til sideprojekter med meget trafik og små virksomheder."
+        },
+        "business": {
+          "tagline": "Til bureauer, freelancere og voksende teams."
+        },
+        "enterprise": {
+          "tagline": "Til høj trafik og organisationer med krav til sikkerhed eller compliance."
+        },
+        "growth": {
+          "tagline": "Til sideprojekter og personlige websites."
+        }
       },
-      "professional": {
-        "name": "Professional",
-        "tagline": "Til teams med flere produkter.",
-        "cta": "Kom i gang",
-        "badge": "Mest populær"
-      },
-      "enterprise": {
-        "name": "Enterprise",
-        "tagline": "Til høj trafik, med SLA og dedikeret support.",
-        "cta": "Kontakt salg"
-      }
+      "cta": "Kom i gang"
+    },
+    "pricingPage": {
+      "compareTitle": "Sammenlign alle funktioner",
+      "faqTitle": "Ofte stillede spørgsmål",
+      "note": "Gratis at starte, intet kreditkort nødvendigt.",
+      "included": "Inkluderet",
+      "notIncluded": "Ikke inkluderet"
     },
     "cta": {
       "title": "Tilføj ét script og se din første besøgende dukke op",
@@ -1290,6 +1348,7 @@
         "features": "Funktioner",
         "uptime": "Oppetidsovervågning",
         "replay": "Session replay",
+        "errors": "Fejlsporing",
         "pricing": "Priser"
       },
       "company": {
@@ -1302,6 +1361,7 @@
       },
       "resources": {
         "docs": "Dokumentation",
+        "blog": "Blog",
         "changelog": "Changelog",
         "status": "Status"
       },
@@ -1412,6 +1472,21 @@
           "incident": "1 igangværende hændelse · Checkout · nede siden 10:12",
           "commits": "a41f2c9 10:09 Move Stripe keys to env vars",
           "answer": "Checkout har svaret med 503 siden 10:12, tre minutter efter at a41f2c9 flyttede Stripe-nøglerne til env vars. Skal jeg rulle det tilbage?"
+        },
+        "debugAlt": "En terminalsession: En agent får at vide, at der ikke sker noget, når man vælger en plan. Den henter fejlene på /pricing via Betterlytics’ MCP-server, læser stack trace og sessionsforløb for en TypeError, åbner pricing.js på linje 142 og foreslår en rettelse. Bagefter bliver den spurgt, hvilke fejl der skal rettes først, sorterer ugens fejl efter, hvor mange sessioner de har ramt, og peger på den samme TypeError.",
+        "debug": {
+          "question": "folk siger der ikke sker noget når de vælger en plan, kan du kigge på det?",
+          "say": "Jeg tjekker først fejlene på /pricing.",
+          "errors": "1.206 TypeErrors i 318 sessioner",
+          "trace": "selectPlan (pricing.js:142) efter plan_selected",
+          "code": "142  setPlan(selected.plan)",
+          "answer": "Klikker man, før planerne er indlæst, er selected stadig null. Skal jeg deaktivere knapperne, til de er indlæst?"
+        },
+        "triage": {
+          "question": "hvilke fejl skal jeg rette først?",
+          "say": "Jeg rangordner ugens fejl.",
+          "groups": "TypeError 318 sessioner · ChunkLoadError 41 · RangeError 6",
+          "answer": "Start med den TypeError, der handler om 'plan'. Den ramte 318 sessioner, over seks gange så mange som de to andre tilsammen."
         }
       }
     },
@@ -1441,7 +1516,7 @@
         },
         "uptime": {
           "title": "Oppetidsovervågning",
-          "body": "Tjek helt ned til hvert minut, alarmer der hvor dit team taler sammen, og en statusside."
+          "body": "Tjek helt ned til hvert 30. sekund, alarmer der hvor dit team taler sammen, og en statusside."
         }
       }
     },
@@ -1453,16 +1528,16 @@
       "hero": {
         "eyebrow": "Oppetidsovervågning",
         "title": "Få besked når dit website går ned, og se hvad det kostede dig",
-        "lede": "Tjek helt ned til hvert minut, alarmer der hvor dit team taler sammen, SSL-advarsler og en offentlig statusside. I det dashboard, der allerede rummer din trafik.",
+        "lede": "Tjek helt ned til hvert 30. sekund, alarmer der hvor dit team taler sammen, SSL-advarsler og en offentlig statusside. I det dashboard, der allerede rummer din trafik.",
         "primary": "Start gratis overvågning",
         "secondary": "Læs dokumentationen",
         "proof": "Vores egen statusside kører på det"
       },
       "specs": {
         "interval": {
-          "unit": "min",
+          "unit": "sek.",
           "label": "Tjekinterval",
-          "body": "Tjek så ofte som hvert minut eller så sjældent som én gang i døgnet."
+          "body": "Tjek så ofte som hvert 30. sekund eller så sjældent som én gang i døgnet."
         },
         "ssl": {
           "unit": "dage",
@@ -1662,7 +1737,7 @@
           },
           "often": {
             "q": "Hvor ofte tjekker Betterlytics mit website?",
-            "a": "Så ofte som hvert minut eller så sjældent som én gang i døgnet. Du vælger intervallet for hver monitor."
+            "a": "Så ofte som hvert 30. sekund eller så sjældent som én gang i døgnet. Du vælger intervallet for hver monitor, og din plan bestemmer det korteste."
           },
           "false": {
             "q": "Hvordan undgår I falske alarmer?",
@@ -1686,7 +1761,7 @@
           },
           "free": {
             "q": "Er oppetidsovervågning gratis?",
-            "a": "Den gratis plan omfatter én monitor pr. site, tjekket hvert femte minut, og én statusside. Professional-planen åbner for mere avanceret opsætning: tjek hvert minut, egne headers, accepterede statuskoder og nøgleordstjek, flere monitorer og statussider samt dit eget domæne."
+            "a": "Ja. Free-planen omfatter én monitor, der tjekkes hvert femte minut, og én offentlig statusside med Betterlytics-branding. Betalte planer giver flere monitorer, tjek hvert minut, nøgleordstjek, egne headers og accepterede statuskoder samt statussider på dit eget domæne. Business giver tjek hvert 30. sekund og fjerner Betterlytics-brandingen."
           },
           "internal": {
             "q": "Kan jeg overvåge interne tjenester?",
@@ -1932,6 +2007,210 @@
         "primary": "Begynd at optage gratis",
         "secondary": "Læs dokumentationen om session replay"
       }
+    },
+    "errors": {
+      "seo": {
+        "title": "JavaScript-fejlsporing med sessionskontekst | Betterlytics",
+        "description": "Fejlsporing for uhåndterede fejl og afviste promises i browseren, grupperet efter stack trace, med siderne og events omkring dem. Gratis i alle planer."
+      },
+      "hero": {
+        "eyebrow": "Fejlsporing",
+        "title": "Fang de fejl dine besøgende støder på, og se hvad der førte til dem",
+        "lede": "Find ud af, hvilke bugs der rammer flest besøgende, hvor i koden de opstår, og hvad hver besøgende gjorde bagefter. Gratis i alle planer og samlet i ét dashboard med din trafik og dine replays.",
+        "primary": "Start gratis fejlsporing",
+        "secondary": "Læs dokumentationen"
+      },
+      "specs": {
+        "leadUp": {
+          "unit": "min",
+          "label": "Replay-optakt",
+          "body": "Gem op til to minutter før en fejl som et replay, også for besøg, du normalt ikke optager."
+        },
+        "extensions": {
+          "unit": "udvidelsesfejl",
+          "label": "Kun dine egne bugs",
+          "body": "Fejl fra de besøgendes browserudvidelser springes over, og bots sorteres fra, før noget bliver gemt."
+        },
+        "script": {
+          "unit": "script",
+          "label": "Ét script til det hele",
+          "body": "Webanalyse, fejl og session replay indlæses fra ét script-tag. Bruger du allerede Betterlytics? Tilføj én attribut."
+        },
+        "thesis": {
+          "unit": "cookies",
+          "label": "Ingen cookies, ingen IP’er",
+          "body": "Fejl gemmes uden cookies, IP-adresser eller query strings, så dine besøgendes privatliv er i behold."
+        }
+      },
+      "report": {
+        "title": "Fra »det virker ikke« til *linje 142*",
+        "lede": "De fleste besøgende, der rammer en bug, går uden at sige noget til dig. Betterlytics viser, hvilken linje der kastede fejlen, i hvilken browser og hvor ofte.",
+        "guess": "Gætværk ud fra fejlrapporter",
+        "fix": "Rettelser ud fra stack trace",
+        "alt": "Til venstre strømmer vage meldinger om prissiden forbi: tre ens mails om, at man ikke kan opgradere, en melding om, at der ikke sker noget, når man vælger en plan, en supportchat, et sløret skærmbillede, et gæt på browseren, en seddel med »virker på min maskine«, en P1-ticket om, at opgraderinger har fejlet siden mandag, og en supportindbakke med 14 ulæste. Til højre ses den samme bug som én fejlgruppe: en TypeError kastet i selectPlan på linje 142 i pricing.js og kaldt fra onClick i plan-card.js, i Chrome på macOS i Danmark, på /pricing, 1.206 gange.",
+        "notes": {
+          "upgrade": "Kan ikke opgradere??",
+          "pricing": "nogen andre hvor prissiden ikke reagerer?",
+          "dead": "Vælg plan gør ingenting",
+          "screenshot": "skærmbillede.png",
+          "phone": "samme her, bare på min mobil",
+          "sticky": "Virker på min maskine",
+          "again": "SV: SV: stadig i stykker",
+          "chrome": "Det er Chrome, tror jeg?",
+          "ticket": "Fejl ved opgradering siden mandag",
+          "inbox": "Supportindbakke",
+          "unread": "{count} ulæste"
+        },
+        "inApp": "i app",
+        "occurrences": "forekomster"
+      },
+      "trail": {
+        "title": "Se hvad de gjorde *før og efter*",
+        "lede": "En stack trace viser, hvor koden fejlede. Besøget omkring fejlen viser, hvad der udløste den, og hvad den besøgende gjorde bagefter.",
+        "alt": "Et sessionsforløb med otte hændelser. Før fejlen landede den besøgende på forsiden, åbnede /pricing og valgte en plan. Et sekund senere kom fejlen, en TypeError kastet i selectPlan på linje 142 i pricing.js i Chrome 129 på macOS, på en computer i Danmark. Bagefter genindlæste den besøgende /pricing, valgte en plan igen, ramte den samme fejl og gik videre til /contact i stedet for at opgradere.",
+        "label": "Sessionsforløb",
+        "count": "{count} hændelser i denne session",
+        "before": {
+          "label": "Optakten",
+          "body": "Landede på forsiden, åbnede prissiden og valgte en plan."
+        },
+        "thrown": {
+          "label": "Her gik det galt",
+          "body": "Kastet i selectPlan på linje 142 i pricing.js, med den browser, det operativsystem og det land, den skete i.",
+          "stacktrace": "Stack trace",
+          "mechanism": "Uncaught",
+          "inApp": "i app",
+          "more": "Vis {count} flere frames",
+          "desktop": "Computer"
+        },
+        "after": {
+          "label": "Følgerne for besøget",
+          "body": "Genindlæste, ramte fejlen igen og gik så til /contact i stedet for at opgradere."
+        }
+      },
+      "triage": {
+        "title": "Gå listen igennem *sammen*",
+        "body": "Fejlenes status deles med dit team, så alle arbejder ud fra den samme liste, og ingen jagter en bug, der allerede er rettet.",
+        "cta": "Læs guiden til dashboardet",
+        "items": {
+          "status": {
+            "title": "Løs, ignorér, fjern som løst",
+            "body": "Markér rettede fejl som løst, og ignorér dem, der ikke betyder noget, så listen kun viser de bugs, der stadig skal fikses."
+          },
+          "history": {
+            "title": "Se hvem den rammer",
+            "body": "Opdag, om en fejl tager til eller aftager, og hvilke browsere og enheder den rammer mest."
+          },
+          "filter": {
+            "title": "Filtrér som i din webanalyse",
+            "body": "Filtrér fejl på side, browser, operativsystem, land og meget mere, ligesom i din webanalyse, og se, om en bug kun rammer nogle besøgende."
+          },
+          "occurrences": {
+            "title": "Gå gennem forekomster",
+            "body": "Bladr gennem hver forekomst med sit eget besøg og sin egen enhed, og find mønsteret, fx en bug, der kun dukker op på iOS."
+          }
+        },
+        "art": {
+          "selected": "<count></count> valgt",
+          "resolve": "Løs",
+          "ignore": "Ignorér",
+          "occurrenceOf": "Forekomst <number></number> af {total}",
+          "mobile": "Mobil",
+          "history": "Historik",
+          "days": "{count} dage",
+          "desktop": "Computer",
+          "pageIs": "Side er <value>/pricing</value>",
+          "browserIs": "Browser er <value>Safari</value>",
+          "addFilter": "Tilføj filter"
+        }
+      },
+      "agent": {
+        "title": "Overlad fejlen *til din agent*",
+        "lede": "Din kodeagent kan slå fejl op via den indbyggede MCP-server og arbejde på rettelsen lige ved siden af din kode.",
+        "lead": "Fra klage til rettelse med ét spørgsmål",
+        "body": "Spørg Claude Code, Cursor eller enhver anden MCP-klient om en klage. Den finder den tilhørende fejl, læser stack trace og sessionsforløb og åbner den fil, stacken peger på.",
+        "cta": "Sæt MCP op"
+      },
+      "setup": {
+        "title": "Begynd at fange fejl med *én* attribut",
+        "lede": "Vælg, hvad der skal fanges, og kopiér kodestykket. Det kører i samme script som din webanalyse.",
+        "lead": "Vælg hvad der skal fanges",
+        "always": "Altid aktiv",
+        "options": {
+          "errors": {
+            "title": "Uhåndterede fejl og afviste promises",
+            "body": "Alt, hvad din kode kaster uden at fange det, og promises, der bliver afvist uden en handler."
+          },
+          "console": {
+            "title": "console.error-kald",
+            "body": "Send også det, din app logger som fejl. Lad det være slået fra, hvis dine logs kan indeholde persondata."
+          },
+          "replay": {
+            "title": "Replay af optakten",
+            "body": "Gem op til to minutter før hver fejl som et replay."
+          }
+        },
+        "snippetLabel": "Opsætning af fejlsporing",
+        "cta": "Læs opsætningsguiden"
+      },
+      "related": {
+        "lede": "Fejlsporing er én del af Betterlytics. Alt nedenfor deler script, login og regning."
+      },
+      "faq": {
+        "title": "Ofte stillede spørgsmål",
+        "items": {
+          "what": {
+            "q": "Hvad er fejlsporing?",
+            "a": "Fejlsporing, også kaldet fejlovervågning eller error tracking, registrerer de JavaScript-fejl, dine besøgende støder på, og samler gentagelser af den samme bug, så du kan se, hvilke der sker oftest. Betterlytics fanger dem med det samme script, der registrerer dine sidevisninger, og gemmer den session, hver fejl opstod i."
+          },
+          "free": {
+            "q": "Er fejlsporing gratis?",
+            "a": "Ja. Det er med i alle planer, også den gratis. Hver fejl tæller som ét event i din månedlige kvote, ligesom en sidevisning."
+          },
+          "captured": {
+            "q": "Hvilke fejl bliver fanget?",
+            "a": "Uhåndterede exceptions og afviste promises uden handler, hver med sin stack trace og den side, den skete på. Du kan også fange console.error-kald. En mislykket forespørgsel bliver kun fanget, hvis din kode ikke håndterer fejlen. Fejl ved indlæsning af billeder og scripts udelades, fordi adblockere og ustabile forbindelser ellers ville oversvømme din liste med dem."
+          },
+          "server": {
+            "q": "Fanger det fejl på serversiden?",
+            "a": "Nej. Det dækker frontendfejl, altså den JavaScript, der kører i dine besøgendes browsere. Fejl i din serverkode, dine API-ruter eller baggrundsjobs bliver ikke fanget."
+          },
+          "filtered": {
+            "q": "Bliver fejl fra browserudvidelser og bots filtreret fra?",
+            "a": "Ja. Scriptet springer fejl over, når deres stack trace peger ind i en browserudvidelse, så en besøgendes adblocker eller password manager ikke dukker op som din bug. Fejl fra bots, headless browsere og testværktøjer som Playwright bliver smidt væk, før de gemmes, ligesom deres sidevisninger."
+          },
+          "frameworks": {
+            "q": "Virker det med React, Next.js og Vue?",
+            "a": "Ja. Scriptet fanger fejl på ethvert site, uanset hvilket framework det kører på. Fejl, som et framework selv fanger, fx i en React error boundary eller Vues error handler, bliver som regel logget med console.error i stedet for at blive kastet, så slå opsamling af console.error til, hvis du også vil se dem."
+          },
+          "grouped": {
+            "q": "Hvordan bliver fejl grupperet?",
+            "a": "Alle forekomster af den samme bug havner i én gruppe med en løbende optælling, så hver bug kun står én gang på din liste i stedet for at dukke op, hver gang en besøgende rammer den. Fejl af samme type, der bliver kastet samme sted i din kode, tæller som én bug, selv når beskederne er forskellige."
+          },
+          "sourcemaps": {
+            "q": "Understøtter I source maps?",
+            "a": "Nej. Stack traces viser koden, som browseren kørte den, så frames fra et minificeret bundle peger ind i den minificerede fil."
+          },
+          "privacy": {
+            "q": "Indsamler fejlsporing persondata?",
+            "a": "Fejlsporing bruger ingen cookies, ligesom resten af Betterlytics. Fejlbeskeder gemmes præcis, som din kode skrev dem, så hold persondata ude af dem, og lad opsamling af console.error være slået fra, hvis dine logs kan indeholde persondata."
+          },
+          "quota": {
+            "q": "Kan et loop, der løber løbsk, bruge alle mine events op?",
+            "a": "Hver side sender højst 10 fejl af samme type hvert 10. sekund, så et loop, der kaster en fejl i hver frame, ikke fylder ret meget. Ignorerer du en gruppe, forsvinder den fra listen, men nye forekomster tæller stadig som events, indtil du retter årsagen."
+          },
+          "replay": {
+            "q": "Hvordan spiller det sammen med session replay?",
+            "a": "Hvis et besøg med en fejl blev optaget, linker fejlen til replayet, med en rød markør ved hver fejl på tidslinjen. Du kan desuden gemme op til to minutter før hver fejl som et replay, også for besøg, som session replay ellers ikke ville optage."
+          }
+        }
+      },
+      "cta": {
+        "title": "Fang din første fejl i dag",
+        "lede": "Tilføj Betterlytics-scriptet, eller én attribut, hvis du allerede har det, så begynder fejlene at dukke op i dit dashboard. Gratis i alle planer.",
+        "primary": "Start gratis fejlsporing",
+        "secondary": "Læs dokumentationen om fejlsporing"
+      }
     }
   },
   "pricingSlider": {
@@ -1942,39 +2221,43 @@
   "pricingCards": {
     "periodPerMonth": "/måned",
     "descriptions": {
-      "growth": "Perfekt til små websites og personlige projekter",
-      "professional": "Avancerede funktioner til voksende virksomheder",
-      "enterprise": "Komplet løsning til store organisationer"
+      "free": "Til sideprojekter og personlige websites",
+      "plus": "Til sideprojekter med meget trafik og små virksomheder",
+      "business": "Til bureauer, freelancere og voksende teams",
+      "enterprise": "Til høj trafik og organisationer med krav til sikkerhed eller compliance",
+      "growth": "Til sideprojekter og personlige websites"
     },
     "features": {
-      "upToEventsPerMonth": "Op til {events} events/måned",
-      "customEventVolume": "Tilpasset event-mængde",
-      "twoSites": "Op til 2 hjemmesider",
-      "upTo50Sites": "Op til 50 hjemmesider",
+      "eventsPerMonth": "{events} events/måned",
       "unlimitedSites": "Ubegrænsede hjemmesider",
-      "threeTeamMembers": "Op til 3 team-medlemmer",
-      "upTo50TeamMembers": "Op til 50 team-medlemmer",
       "unlimitedTeamMembers": "Ubegrænset antal team-medlemmer",
-      "retention1PlusYear": "1+ års dataopbevaring",
-      "retention3PlusYears": "3+ års dataopbevaring",
-      "retention5PlusYears": "5+ års dataopbevaring",
       "fullDashboard": "Komplet web-analytics dashboard",
       "funnelsJourneys": "Funnels og brugerrejser",
-      "sessionReplay": "Session replay",
       "errorTracking": "Fejlsporing",
-      "uptime1": "1 uptime-monitor og offentlig statusside",
-      "uptime50": "50 uptime-monitorer med 1-minuts tjek",
+      "advancedChecks": "Avancerede uptime-tjek",
+      "replaysPerMonth": "{count, plural, one {# session replay/måned} other {# session replays/måned}}",
       "uptimeUnlimited": "Ubegrænset antal uptime-monitorer og statussider",
-      "statusPagesPro": "White-label statussider på dit eget domæne",
+      "statusPagesPro": "White-label statussider",
       "emailReports": "Planlagte e-mailrapporter",
-      "dedicatedSupport": "Dedikeret support",
-      "slaGuarantee": "SLA-garanti",
-      "everythingInStarter": "Alt i Growth, plus:",
-      "everythingInProfessional": "Alt i Professional, plus:"
+      "slaGuarantee": "Oppetids-SLA med prioriteret support",
+      "sitesCount": "{count, plural, one {# hjemmeside} other {# hjemmesider}}",
+      "teamMembersCount": "{count, plural, one {# team-medlem} other {# team-medlemmer pr. hjemmeside}}",
+      "retentionYears": "{count, plural, other {# års dataopbevaring}}",
+      "uptimeMonitors": "{count, plural, one {# uptime-monitor} other {# uptime-monitorer}}, {minutes}-minuts tjek",
+      "uptimeMonitorsSeconds": "{count, plural, one {# uptime-monitor} other {# uptime-monitorer}}, {seconds}-sekunders tjek",
+      "everythingIn": "Alt i {name}, plus:",
+      "statusPagesCount": "{count, plural, one {# offentlig statusside} other {# offentlige statussider}}",
+      "statusPageCustomDomain": "Statusside på dit eget domæne",
+      "prioritySupport": "Prioriteret support",
+      "moreThanEventsPerMonth": "Mere end {events} events/måned",
+      "samlSso": "SAML SSO og SCIM",
+      "auditLog": "Revisionslog",
+      "dpaSecurityReviews": "DPA og sikkerhedsgennemgange",
+      "customRetention": "Tilpasset dataopbevaring",
+      "customContracts": "Årsaftaler, fakturering og tilpassede vilkår"
     },
     "cta": {
       "getStartedForFree": "Kom i gang gratis",
-      "contactSales": "Kontakt salg",
       "getStarted": "Kom i gang",
       "currentPlan": "Nuværende plan",
       "changeToThisPlan": "Skift til denne plan",
@@ -1985,16 +2268,12 @@
       "current": "Nuværende"
     },
     "labels": {
-      "free": "Gratis",
       "custom": "Tilpasset"
     }
   },
   "pricingComparison": {
     "headers": {
-      "features": "Funktioner",
-      "growth": "Growth",
-      "professional": "Professional",
-      "enterprise": "Enterprise"
+      "features": "Funktioner"
     },
     "categories": {
       "usageLimits": "Forbrug og grænser",
@@ -2012,24 +2291,21 @@
       "sites": {
         "name": "Hjemmesider",
         "values": {
-          "upTo2": "Op til 2",
-          "upTo50": "Op til 50",
+          "count": "{count, number}",
           "unlimited": "Ubegrænsede"
         }
       },
       "dataRetention": {
         "name": "Dataopbevaring",
         "values": {
-          "1year": "1+ år",
-          "3years": "3+ år",
-          "5years": "5+ år"
+          "yearsCount": "{count, plural, one {# år} other {# år}}",
+          "custom": "Tilpasset"
         }
       },
       "teamMembers": {
-        "name": "Team-medlemmer",
+        "name": "Team-medlemmer pr. hjemmeside",
         "values": {
-          "upTo3": "Op til 3",
-          "upTo50": "Op til 50",
+          "count": "{count, number}",
           "unlimited": "Ubegrænset"
         }
       },
@@ -2037,7 +2313,11 @@
         "name": "Alle dashboard-funktioner"
       },
       "sessionReplay": {
-        "name": "Sessionsafspilning"
+        "name": "Sessionsafspilning",
+        "values": {
+          "perMonth": "{count, number}/måned",
+          "custom": "Tilpasset"
+        }
       },
       "funnels": {
         "name": "Tragter og konverteringer"
@@ -2063,8 +2343,7 @@
       "uptimeMonitoring": {
         "name": "Oppetidsovervågning",
         "values": {
-          "1": "1 overvågning",
-          "50": "50 overvågninger",
+          "monitorsCount": "{count, plural, one {# overvågning} other {# overvågninger}}",
           "unlimited": "Ubegrænset overvågning"
         }
       },
@@ -2074,8 +2353,8 @@
       "checkInterval": {
         "name": "Minimum tjekinterval",
         "values": {
-          "5min": "5 min",
-          "1min": "1 min"
+          "minutesCount": "{count} min",
+          "secondsCount": "{count} sek."
         }
       },
       "customHttpMethods": {
@@ -2087,14 +2366,16 @@
       "customStatusCodes": {
         "name": "Brugerdefinerede statuskoder"
       },
+      "keywordChecks": {
+        "name": "Nøgleordstjek"
+      },
       "notificationIntegrations": {
         "name": "Notifikationsintegrationer (Slack, Discord osv.)"
       },
       "statusPages": {
         "name": "Offentlige statussider",
         "values": {
-          "1": "1 statusside",
-          "3": "3 statussider",
+          "statusPagesCount": "{count, plural, one {# statusside} other {# statussider}}",
           "unlimited": "Ubegrænsede statussider"
         }
       },
@@ -2115,27 +2396,6 @@
       },
       "slaGuarantee": {
         "name": "SLA-garanti"
-      }
-    },
-    "coreFeatures": {
-      "title": "Inkluderet i alle planer",
-      "subtitle": "Hver plan inkluderer vores fulde analysepakke",
-      "items": {
-        "realtimeAnalytics": "Realtidsanalyse",
-        "sessionReplay": "Sessionsafspilning",
-        "geographicInsights": "Geografiske indsigter",
-        "trafficSources": "Trafikkilder",
-        "utmCampaigns": "UTM-kampagnesporing",
-        "customEvents": "Brugerdefinerede hændelser",
-        "funnels": "Tragter og konverteringer",
-        "userJourneys": "Brugerrejser",
-        "webVitals": "Web Vitals",
-        "botFiltering": "Bot-filtrering",
-        "outboundLinks": "Udgående linksporing",
-        "advancedFiltering": "Avanceret filtrering",
-        "cookieFree": "Cookie-fri",
-        "gdprCcpa": "GDPR og CCPA klar",
-        "errorTracking": "Klientside-fejlsporing"
       }
     }
   },
@@ -2231,11 +2491,6 @@
     "createCard": {
       "title": "Opret dashboard",
       "description": "Tilføj et nyt dashboard"
-    },
-    "upgradeCard": {
-      "title": "Brug for flere dashboards?",
-      "description": "Pro understøtter op til 50 sites",
-      "cta": "Opgrader til Pro"
     }
   },
   "monitoring": {
@@ -2723,8 +2978,7 @@
       "recommended": "anbefalet"
     },
     "proFeature": {
-      "badge": "PRO",
-      "upgradeRequired": "Opgrader til Pro for at låse denne funktion op"
+      "upgradeRequired": "Opgrader til {plan} for at låse denne funktion op"
     },
     "billing": {
       "navigation": {
@@ -2745,7 +2999,7 @@
           },
           "exceedLimit": {
             "q": "Hvad sker der, hvis jeg overskrider min event-grænse?",
-            "a": "Vi fortsætter med at spore dine events og sender en e-mail, når du overskrider din grænse. Hvis du overskrider grænsen i mere end 30 dage, kan overskydende data blive slettet."
+            "a": "Vi fortsætter med at spore dine events og sender dig en e-mail, når du nærmer dig din grænse, eller når du overskrider den. Hvis din konto bliver ved med at overskride grænsen uden en opgradering, kan vi låse den, indtil du opgraderer. Dine data bevares under alle omstændigheder."
           },
           "annualBilling": {
             "q": "Tilbyder I årlig fakturering?",
@@ -2753,7 +3007,7 @@
           },
           "freeOption": {
             "q": "Er der en gratis mulighed?",
-            "a": "Ja! Vores Growth-plan inkluderer 10.000 gratis events pr. måned for altid. Intet kreditkort krævet for at komme i gang."
+            "a": "Ja! Vores Free-plan inkluderer {events, number} events pr. måned, gratis for altid. Intet kreditkort krævet for at komme i gang."
           },
           "cancelAnytime": {
             "q": "Kan jeg opsige når som helst?",
@@ -2762,6 +3016,10 @@
           "paymentMethods": {
             "q": "Hvilke betalingsmetoder accepterer I?",
             "a": "Vi accepterer alle større kreditkort (Visa, MasterCard, American Express) og understøtter sikre betalinger via vores betalingsudbyder."
+          },
+          "payInEuros": {
+            "q": "Kan jeg betale i euro?",
+            "a": "Ja. Alle planer koster det samme beløb i euro som i dollars, og du vælger valuta, når du opgraderer."
           }
         }
       },
@@ -2844,11 +3102,7 @@
         "pastDue": "Forfalden",
         "inactive": "Inaktiv"
       },
-      "planNames": {
-        "growth": "Growth-plan",
-        "professional": "Pro-plan",
-        "enterprise": "Enterprise"
-      }
+      "planLabel": "{name}-plan"
     },
     "timeRange": {
       "disabled": "Deaktiveret",
@@ -3867,16 +4121,17 @@
     "statusPageImageBadType": "Billedet skal være et PNG-, JPEG- eller WebP-billede",
     "statusPageImageSvgUnsafe": "SVG-filen indeholder indhold, der ikke understøttes eller er usikkert",
     "capabilities": {
-      "dashboardLimit": "Du har nået din dashboard-grænse. Opgrader til Pro for at oprette flere dashboards.",
-      "monitorLimit": "Du har nået din monitor-grænse. Opgrader til Pro for at oprette flere monitorer.",
-      "minInterval": "Hurtigere overvågningsintervaller kræver en Professional plan",
-      "httpMethod": "Brugerdefinerede HTTP-metoder kræver en Professional plan",
-      "statusCodes": "Brugerdefinerede statuskoder kræver en Professional plan",
-      "customHeaders": "Brugerdefinerede request headers kræver en Professional plan",
-      "keywordValidation": "Nøgleordsvalidering kræver en Professional plan",
-      "statusPageLimit": "Du har nået din grænse for statussider. Opgrader til Pro for at oprette flere statussider.",
-      "statusPageCustomDomain": "Eget domæne kræver en Professional plan",
-      "statusPageBranding": "Fjernelse af Betterlytics-branding kræver en Professional plan"
+      "dashboardLimit": "Du har nået din dashboard-grænse. Opgrader til {plan} for at oprette flere dashboards.",
+      "monitorLimit": "Du har nået din monitor-grænse. Opgrader til {plan} for at oprette flere monitorer.",
+      "minInterval": "Hurtigere overvågningsintervaller kræver {plan}-planen",
+      "httpMethod": "Brugerdefinerede HTTP-metoder kræver {plan}-planen",
+      "statusCodes": "Brugerdefinerede statuskoder kræver {plan}-planen",
+      "customHeaders": "Brugerdefinerede request headers kræver {plan}-planen",
+      "keywordValidation": "Nøgleordsvalidering kræver {plan}-planen",
+      "statusPageLimit": "Du har nået din grænse for statussider. Opgrader til {plan} for at oprette flere statussider.",
+      "statusPageCustomDomain": "Eget domæne kræver {plan}-planen",
+      "statusPageBranding": "Fjernelse af Betterlytics-branding kræver {plan}-planen",
+      "limitReached": "Du har nået grænsen for din plan. Kontakt os, hvis du har brug for mere."
     },
     "account": {
       "lastAdminCannotBeDeleted": "Den eneste administratorkonto på denne instans kan ikke slettes.",

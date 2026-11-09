@@ -23,7 +23,7 @@ use crate::error_fingerprint::generate_error_fingerprint;
 
 // Keyed on the full tuple, not a hash: the verdict gates an enforcing 403, so a
 // hash collision must not transfer one visitor's verdict to another
-static REPLAY_VERDICTS: Lazy<Cache<(String, String, String), bool>> = Lazy::new(|| {
+static REPLAY_VERDICTS: Lazy<Cache<(String, String, String, String, String), bool>> = Lazy::new(|| {
     Cache::builder()
         .time_to_live(Duration::from_secs(600))
         .max_capacity(100_000)
@@ -202,7 +202,13 @@ impl EventProcessor {
         screen_resolution: &str,
         prefetch: bool,
     ) -> bool {
-        let key = (site_id.to_string(), ip_address.to_string(), user_agent.to_string());
+        let key = (
+            site_id.to_string(),
+            ip_address.to_string(),
+            user_agent.to_string(),
+            sec_ch_ua.to_string(),
+            screen_resolution.to_string(),
+        );
         if let Some(reject) = REPLAY_VERDICTS.get(&key) {
             return reject;
         }

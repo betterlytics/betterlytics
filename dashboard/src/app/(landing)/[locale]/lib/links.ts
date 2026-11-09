@@ -3,6 +3,8 @@ export const LINKS = {
   mcpDocs: 'https://betterlytics.io/docs/dashboard/mcp',
   monitoringDocs: 'https://betterlytics.io/docs/dashboard/monitoring',
   replayDocs: 'https://betterlytics.io/docs/integration/session-replay',
+  errorsDocs: 'https://betterlytics.io/docs/integration/errors',
+  errorsDashboardDocs: 'https://betterlytics.io/docs/dashboard/errors',
   integrationsDocs: 'https://betterlytics.io/docs/dashboard/integrations',
   github: 'https://github.com/betterlytics/betterlytics',
   license: 'https://github.com/betterlytics/betterlytics/blob/main/LICENSE',

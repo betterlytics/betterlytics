@@ -197,7 +197,7 @@ function UpgradePlanEntry() {
 
   return (
     <DropdownMenuItem
-      onClick={openPlanPicker}
+      onClick={() => openPlanPicker()}
       className={cn(
         'cursor-pointer',
         !isPaid &&

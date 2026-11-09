@@ -8,9 +8,27 @@ import {
   SubscriptionEndingSoonCandidateSchema,
   UpsertSubscriptionData,
   UpsertSubscriptionSchema,
-  buildStarterSubscription,
+  buildFreeSubscription,
 } from '@/entities/billing/billing.entities';
 import { addMonths, startOfDay } from 'date-fns';
+import type { z } from 'zod';
+
+/** Batch reads skip a malformed row instead of failing every account's scan. */
+function parseEachRow<T>(
+  schema: z.ZodType<T, z.ZodTypeDef, unknown>,
+  rows: { userId: string }[],
+  context: string,
+): T[] {
+  return rows.flatMap((row) => {
+    const parsed = schema.safeParse(row);
+    if (parsed.success) return [parsed.data];
+    console.error(
+      `${context}: skipped subscription of user ${row.userId}`,
+      parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`),
+    );
+    return [];
+  });
+}
 
 export async function findActiveSubscriptionsWithOwnedSites(): Promise<SubscriptionWithOwnedSites[]> {
   const subs = await prisma.subscription.findMany({
@@ -20,7 +38,7 @@ export async function findActiveSubscriptionsWithOwnedSites(): Promise<Subscript
     },
     select: {
       userId: true,
-      tier: true,
+      planId: true,
       eventLimit: true,
       currentPeriodStart: true,
       currentPeriodEnd: true,
@@ -38,18 +56,20 @@ export async function findActiveSubscriptionsWithOwnedSites(): Promise<Subscript
     },
   });
 
-  return subs.map((s) =>
-    SubscriptionWithOwnedSitesSchema.parse({
+  return parseEachRow(
+    SubscriptionWithOwnedSitesSchema,
+    subs.map((s) => ({
       userId: s.userId,
       userEmail: s.user.email,
       userName: s.user.name,
-      tier: s.tier,
+      planId: s.planId,
       eventLimit: s.eventLimit,
       currentPeriodStart: s.currentPeriodStart,
       currentPeriodEnd: s.currentPeriodEnd,
       paymentSubscriptionId: s.paymentSubscriptionId,
       siteIds: s.user.dashboardAccess.map((ud) => ud.dashboard.siteId),
-    }),
+    })),
+    'findActiveSubscriptionsWithOwnedSites',
   );
 }
 
@@ -67,13 +87,13 @@ export async function updateSubscriptionPeriod(
 
 export async function getUserSubscription(userId: string): Promise<Subscription | null> {
   try {
-    const starterSubscription = buildStarterSubscription();
+    const freeSubscription = buildFreeSubscription();
 
     const subscription = await prisma.subscription.upsert({
       where: { userId },
       create: {
         user: { connect: { id: userId } },
-        ...starterSubscription,
+        ...freeSubscription,
       },
       update: {},
     });
@@ -130,7 +150,7 @@ export async function setSubscriptionPaymentCustomerId(userId: string, paymentCu
     where: { userId },
     create: {
       user: { connect: { id: userId } },
-      ...buildStarterSubscription(),
+      ...buildFreeSubscription(),
       paymentCustomerId,
     },
     update: { paymentCustomerId },
@@ -170,20 +190,22 @@ export async function findSubscriptionsEndingSoon(endingBefore: Date): Promise<S
       },
       select: {
         userId: true,
-        tier: true,
+        planId: true,
         currentPeriodEnd: true,
         user: { select: { email: true, name: true } },
       },
     });
 
-    return subs.map((s) =>
-      SubscriptionEndingSoonCandidateSchema.parse({
+    return parseEachRow(
+      SubscriptionEndingSoonCandidateSchema,
+      subs.map((s) => ({
         userId: s.userId,
         userEmail: s.user.email,
         userName: s.user.name,
-        tier: s.tier,
+        planId: s.planId,
         currentPeriodEnd: s.currentPeriodEnd,
-      }),
+      })),
+      'findSubscriptionsEndingSoon',
     );
   } catch (error) {
     console.error('Failed to find subscriptions ending soon:', error);
