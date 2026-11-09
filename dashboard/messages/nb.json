@@ -888,7 +888,8 @@
         "originMismatch": "Denne siden er åpnet på {origin}, som ikke samsvarer med adressen denne Betterlytics-instansen er konfigurert for, så forespørselen ble blokkert. Åpne Betterlytics på den konfigurerte adressen. Hvis du drifter denne instansen, sørg for at den konfigurerte URL-en (protokoll, vert og port) samsvarer med adressen i nettleseren.",
         "accountLocked": "For mange feil koder. Innlogging med tofaktorautentisering er låst i 15 minutter.",
         "accountDisabled": "Denne kontoen er deaktivert. Kontakt administratoren din.",
-        "rateLimited": "For mange forsøk. Vent litt og prøv igjen."
+        "rateLimited": "For mange forsøk. Vent litt og prøv igjen.",
+        "connectionRequestInvalid": "Denne tilkoblingsforespørselen er ikke lenger gyldig. Start tilkoblingen på nytt fra appen din."
       }
     },
     "demo": {

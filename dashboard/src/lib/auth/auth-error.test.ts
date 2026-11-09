@@ -30,6 +30,12 @@ describe('classifyAuthError', () => {
     expect(classifyAuthError({ status: 500 })).toBe('other');
   });
 
+  it("treats the OAuth provider's invalid_signature as an MCP connection request that is no longer valid", () => {
+    expect(classifyAuthError({ status: 400, error: 'invalid_signature' })).toBe('connectionRequestInvalid');
+    expect(classifyAuthError({ status: 401, error: 'invalid_signature' })).toBe('other');
+    expect(classifyAuthError({ status: 400, error: 'invalid_request' })).toBe('other');
+  });
+
   it('requires the 403 status alongside the INVALID_ORIGIN code', () => {
     expect(classifyAuthError({ status: 400, code: 'INVALID_ORIGIN' })).toBe('other');
   });
