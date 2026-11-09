@@ -130,9 +130,7 @@ export async function findAllUserDashboards(userId: string): Promise<DashboardWi
           },
         },
       },
-      orderBy: {
-        joinedAt: 'desc',
-      },
+      orderBy: [{ joinedAt: 'desc' }, { dashboardId: 'desc' }],
     });
 
     return prismaUserDashboards.map((userDashboard) =>
@@ -152,7 +150,7 @@ export async function findUserMemberships(userId: string): Promise<DashboardMemb
   const rows = await prisma.userDashboard.findMany({
     where: { userId, deletedAt: null, dashboard: { deletedAt: null } },
     select: { role: true, dashboard: { select: { id: true, siteId: true, domain: true } } },
-    orderBy: { joinedAt: 'desc' },
+    orderBy: [{ joinedAt: 'desc' }, { dashboardId: 'desc' }],
   });
 
   return rows.map((row) =>
@@ -177,9 +175,7 @@ export async function findOwnedDashboards(userId: string): Promise<Dashboard[]> 
       include: {
         dashboard: true,
       },
-      orderBy: {
-        joinedAt: 'desc',
-      },
+      orderBy: [{ joinedAt: 'desc' }, { dashboardId: 'desc' }],
     });
 
     return prismaUserDashboards.map((userDashboard) => DashboardSchema.parse(userDashboard.dashboard));
@@ -450,7 +446,7 @@ export async function findDashboardMembers(dashboardId: string): Promise<Dashboa
           },
         },
       },
-      orderBy: [{ role: 'asc' }, { joinedAt: 'asc' }],
+      orderBy: [{ role: 'asc' }, { joinedAt: 'asc' }, { userId: 'asc' }],
     });
 
     return members.map((m) => DashboardMemberSchema.parse(m));

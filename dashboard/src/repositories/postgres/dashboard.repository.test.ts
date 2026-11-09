@@ -133,12 +133,12 @@ describe('membership date ordering', () => {
     const [member] = await findDashboardMembers('dash-1');
 
     expect(prismaMock.userDashboard.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ orderBy: [{ role: 'asc' }, { joinedAt: 'asc' }] }),
+      expect.objectContaining({ orderBy: [{ role: 'asc' }, { joinedAt: 'asc' }, { userId: 'asc' }] }),
     );
     expect(member.joinedAt).toEqual(memberRow.joinedAt);
   });
 
-  it('orders the dashboard list, owned dashboards and memberships by joined date', async () => {
+  it('orders the dashboard list, owned dashboards and memberships by joined date, then dashboard', async () => {
     prismaMock.userDashboard.findMany.mockResolvedValue([]);
 
     await findAllUserDashboards('user-1');
@@ -147,15 +147,15 @@ describe('membership date ordering', () => {
 
     expect(prismaMock.userDashboard.findMany).toHaveBeenNthCalledWith(
       1,
-      expect.objectContaining({ orderBy: { joinedAt: 'desc' } }),
+      expect.objectContaining({ orderBy: [{ joinedAt: 'desc' }, { dashboardId: 'desc' }] }),
     );
     expect(prismaMock.userDashboard.findMany).toHaveBeenNthCalledWith(
       2,
-      expect.objectContaining({ orderBy: { joinedAt: 'desc' } }),
+      expect.objectContaining({ orderBy: [{ joinedAt: 'desc' }, { dashboardId: 'desc' }] }),
     );
     expect(prismaMock.userDashboard.findMany).toHaveBeenNthCalledWith(
       3,
-      expect.objectContaining({ orderBy: { joinedAt: 'desc' } }),
+      expect.objectContaining({ orderBy: [{ joinedAt: 'desc' }, { dashboardId: 'desc' }] }),
     );
   });
 });

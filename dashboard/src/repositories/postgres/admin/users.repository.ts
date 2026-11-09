@@ -102,7 +102,7 @@ export async function findAdminUserDetail(userId: string): Promise<AdminUserDeta
       dashboardAccess: {
         where: { deletedAt: null, dashboard: { deletedAt: null } },
         select: { role: true, dashboard: { select: { id: true, domain: true } } },
-        orderBy: { joinedAt: 'asc' },
+        orderBy: [{ joinedAt: 'asc' }, { dashboardId: 'asc' }],
       },
     },
   });
