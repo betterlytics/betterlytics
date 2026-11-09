@@ -63,7 +63,7 @@ vi.mock('@/services/account/userSettings.service', () => ({
   createDefaultUserSettings: vi.fn(),
   getUserSettings: vi.fn(),
 }));
-vi.mock('@/services/billing/subscription.service', () => ({ createStarterSubscriptionForUser: vi.fn() }));
+vi.mock('@/services/billing/subscription.service', () => ({ createFreeSubscriptionForUser: vi.fn() }));
 vi.mock('@/services/account/verification.service', () => ({
   sendVerificationEmail: vi.fn(),
   VERIFICATION_LINK_EXPIRY_SECONDS: 86400,
