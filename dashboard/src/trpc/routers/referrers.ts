@@ -74,28 +74,17 @@ export const referrersRouter = createRouter({
 
   summary: analyticsProcedure.query(async ({ ctx }) => {
     const { main } = ctx;
-    const raw = await getReferrerSummaryWithChartsForSite(main);
-    const dateRange = { start: main.startDate, end: main.endDate };
+    const { chartData, ...summary } = await getReferrerSummaryWithChartsForSite(main);
+    const seriesBase = {
+      data: chartData,
+      granularity: main.granularity,
+      dateRange: { start: main.startDate, end: main.endDate },
+    };
     return {
-      ...raw,
-      referralSessionsChartData: toSparklineSeries({
-        data: raw.referralSessionsChartData,
-        granularity: main.granularity,
-        dataKey: 'referralSessions',
-        dateRange,
-      }),
-      referralPercentageChartData: toSparklineSeries({
-        data: raw.referralPercentageChartData,
-        granularity: main.granularity,
-        dataKey: 'referralPercentage',
-        dateRange,
-      }),
-      avgSessionDurationChartData: toSparklineSeries({
-        data: raw.avgSessionDurationChartData,
-        granularity: main.granularity,
-        dataKey: 'avgSessionDuration',
-        dateRange,
-      }),
+      ...summary,
+      referralSessionsChartData: toSparklineSeries({ ...seriesBase, dataKey: 'referralSessions' }),
+      referralPercentageChartData: toSparklineSeries({ ...seriesBase, dataKey: 'referralPercentage' }),
+      avgSessionDurationChartData: toSparklineSeries({ ...seriesBase, dataKey: 'avgSessionDuration' }),
     };
   }),
 

@@ -5,10 +5,6 @@ import {
   ReferrerTrafficBySourceRowSchema,
   TopChannel,
   TopChannelSchema,
-  DailyReferralSummaryMetricsRow,
-  DailyReferralSummaryMetricsRowSchema,
-  ReferralRangeMetrics,
-  ReferralRangeMetricsSchema,
   ReferrerUrlRollupRow,
   ReferrerUrlRollupRowSchema,
 } from '@/entities/analytics/referrers.entities';
@@ -16,8 +12,6 @@ import { clickhouse } from '@/lib/clickhouse';
 import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
-import { BASessionQuery } from '@/lib/ba-session-query';
-import { SessionMetricSql } from '@/lib/session-metrics-sql';
 
 /**
  * Get the distribution of referrers by source type using unique sessions
@@ -259,82 +253,6 @@ export async function getTopChannels(siteQuery: BASiteQuery, limit: number = 10)
     .toPromise()) as any[];
 
   return TopChannelSchema.array().parse(result);
-}
-
-const isReferralSession = safeSql`referrer_source_effective NOT IN ('direct', 'internal')`;
-const isMultiPageReferralSession = safeSql`${isReferralSession} AND pageview_count > 1`;
-// Mirrors SessionMetricSql.avgVisitDuration, limited to referral sessions
-const referralSessionDuration = safeSql`if(countIf(${isMultiPageReferralSession}) > 0, sumIf(dateDiff('second', session_start, session_end), ${isReferralSession}) / countIf(${isMultiPageReferralSession}), 0)`;
-
-/**
- * Referral summary over the whole range from session records, so each session counts once.
- * Duration divides by multi-pageview sessions, like the Overview's avg visit duration.
- */
-export async function getReferralRangeMetrics(siteQuery: BASiteQuery): Promise<ReferralRangeMetrics> {
-  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
-
-  const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
-    ['session_start', 'session_end', 'pageview_count', 'referrer_source_effective'],
-    queryFilters,
-    siteId,
-    startDateTime,
-    endDateTime,
-  );
-
-  const query = safeSql`
-    SELECT
-      countIf(${isReferralSession}) AS referralSessions,
-      ${SessionMetricSql.sessions} AS totalSessions,
-      round(${referralSessionDuration}) AS avgSessionDuration
-    FROM ${sessionSubQuery}
-  `;
-
-  const result = await clickhouse.query(query.taggedSql, { params: query.taggedParams }).toPromise();
-
-  return ReferralRangeMetricsSchema.parse(result[0]);
-}
-
-/**
- * Referral sparkline series from session records, each session placed in the bucket it started in
- */
-export async function getDailyReferralSummaryMetrics(
-  siteQuery: BASiteQuery,
-): Promise<DailyReferralSummaryMetricsRow[]> {
-  const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
-  const { fill, timeWrapper, granularityFunc } = BASessionQuery.getSessionStartRange(
-    granularity,
-    timezone,
-    startDateTime,
-    endDateTime,
-  );
-
-  const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
-    ['session_created_at', 'session_start', 'session_end', 'pageview_count', 'referrer_source_effective'],
-    queryFilters,
-    siteId,
-    startDateTime,
-    endDateTime,
-  );
-
-  const query = timeWrapper(
-    safeSql`
-      SELECT
-        ${granularityFunc('session_created_at')} AS date,
-        countIf(${isReferralSession}) AS referralSessions,
-        if(${SessionMetricSql.sessions} > 0, round(100 * referralSessions / ${SessionMetricSql.sessions}, 1), 0) AS referralPercentage,
-        round(${referralSessionDuration}) AS avgSessionDuration
-      FROM ${sessionSubQuery}
-      GROUP BY date
-      ORDER BY date ASC ${fill}
-      LIMIT 10080
-    `,
-  );
-
-  const result = (await clickhouse
-    .query(query.taggedSql, { params: query.taggedParams })
-    .toPromise()) as unknown[];
-
-  return DailyReferralSummaryMetricsRowSchema.array().parse(result);
 }
 
 /**
