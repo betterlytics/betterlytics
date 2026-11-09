@@ -56,7 +56,6 @@ import { inspectStatusPageImage } from '@/lib/statusPageImage';
 import { slugifyDomain } from '@/entities/system/publicSlug.entities';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { getMonitorChecksWithStatus } from '@/services/analytics/monitoring.service';
-import { weightedUptimePercent } from '@/entities/analytics/monitoring.helpers';
 import { getUserTimezone } from '@/lib/cookies';
 import { UserException } from '@/lib/exceptions';
 
@@ -271,7 +270,7 @@ export const suggestStatusPageDefaultsAction = withDashboardAuthContext(async (c
       url: monitor.url,
       publicName: defaultPublicMonitorName(monitor),
       operationalState: monitor.operationalState,
-      uptimePercent: weightedUptimePercent(monitor.uptimeBuckets),
+      uptimePercent: monitor.uptimePercent,
     })),
   };
 });

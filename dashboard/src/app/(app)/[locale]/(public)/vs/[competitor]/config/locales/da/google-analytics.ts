@@ -31,7 +31,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
       betterlytics:
         'Du ejer dine data. De deles eller sælges aldrig. Hostet i EU med op til 5 års dataopbevaring.',
       competitor:
-        'Google kan bruge aggregerede data til at forbedre annoncering og relaterede services. Begrænset til 14 måneders dataopbevaring.',
+        'Google kan bruge aggregerede data til at forbedre annoncering og relaterede services. Explorations og funnel-rapporter går kun 14 måneder tilbage.',
     },
   ],
   comparison: {
@@ -42,7 +42,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
           { name: 'Cookieless tracking', betterlytics: true, competitor: false },
           { name: 'GDPR-klar som standard', betterlytics: true, competitor: false },
           { name: 'Ingen cookie-banner nødvendig', betterlytics: true, competitor: false },
-          { name: 'EU-hosting af data', betterlytics: true, competitor: 'Valgfrit' },
+          { name: 'EU-hosting af data', betterlytics: true, competitor: false },
           { name: 'Privacy-first som standard', betterlytics: true, competitor: false },
           { name: 'Ingen cross-site tracking', betterlytics: true, competitor: false },
           { name: 'Fuld dataejerskab', betterlytics: true, competitor: false },
@@ -66,7 +66,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
           { name: 'Funnel-analyse', betterlytics: true, competitor: true },
           { name: 'User journey tracking', betterlytics: true, competitor: true },
           { name: 'Campaign tracking (UTM)', betterlytics: true, competitor: true },
-          { name: 'Udgående link tracking', betterlytics: true, competitor: 'Kræver konfiguration' },
+          { name: 'Udgående link tracking', betterlytics: true, competitor: true },
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Performance monitoring', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
@@ -82,7 +82,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
           { name: 'Indlæringskurve', betterlytics: 'Lav', competitor: 'Stejl' },
           { name: 'Simpelt og intuitivt interface', betterlytics: true, competitor: false },
           { name: 'Ingen kompleks konfiguration', betterlytics: true, competitor: false },
-          { name: 'Dataopbevaring', betterlytics: 'Op til 5 år', competitor: '14 måneder' },
+          { name: 'Dataopbevaring', betterlytics: 'Op til 5 år', competitor: '14 måneder (explorations)' },
         ],
       },
       {
@@ -115,7 +115,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'Din data forbliver din',
-      content: `Når du bruger Google Analytics, fungerer Google som databehandler og kan anvende aggregerede data til at forbedre sine services. Din trafik bidrager til deres algoritmer og annonceoptimering.\n\nMed Betterlytics er din data din. Vi hverken deler, sælger eller bruger dem til andet end dine analytics. Vi er ikke i annoncebranchen. Du betaler for en service, og vi leverer den.`,
+      content: `Når du bruger Google Analytics, fungerer Google som databehandler og kan anvende aggregerede data til at forbedre sine services. Hvis datadeling er slået til, hjælper din trafik også med at forbedre Googles annonceværktøjer.\n\nMed Betterlytics er din data din. Vi hverken deler, sælger eller bruger dem til andet end dine analytics. Vi er ikke i annoncebranchen. Du betaler for en service, og vi leverer den.`,
       icon: 'lock',
     },
     {
@@ -125,7 +125,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'Ingen skjulte omkostninger',
-      content: `Google Analytics er "gratis", men den skjulte pris er din data. Enterprise-funktioner? GA360 starter typisk i titusindvis af dollars om året.\n\nBetterlytics er transparent og starter fra $7/måned med en gratis plan. Session replay, monitoring og alle funktioner er inkluderet. Ingen overraskelser og ingen datamæssige kompromiser.`,
+      content: `Google Analytics er "gratis", men den skjulte pris er din data. Enterprise-funktioner? GA360 har ingen offentlig pris; du skal kontakte Googles salgsteam.\n\nBetterlytics er transparent og starter fra $9/måned med en gratis plan. Session replay, monitoring og alle andre moduler er inkluderet i alle planer. Ingen overraskelser og ingen datamæssige kompromiser.`,
       icon: 'dollar',
     },
     {

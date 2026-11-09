@@ -186,7 +186,7 @@ export async function findOwnedDashboardDomainsExceedingRetention(
         dataRetentionDays: { gt: maxDays },
         dashboard: {
           deletedAt: null,
-          userAccess: { some: { userId, role: 'owner' } },
+          userAccess: { some: { userId, role: 'owner', deletedAt: null } },
         },
       },
       select: { dashboard: { select: { domain: true } } },
@@ -206,7 +206,7 @@ export async function findOwnedDashboardDomainsWithActiveRetentionGrace(userId: 
         retentionGraceRestoreDays: { not: null },
         dashboard: {
           deletedAt: null,
-          userAccess: { some: { userId, role: 'owner' } },
+          userAccess: { some: { userId, role: 'owner', deletedAt: null } },
         },
       },
       select: { dashboard: { select: { domain: true } } },
@@ -227,7 +227,7 @@ export async function findOwnerSettingsForRetentionSync(
       where: {
         dashboard: {
           deletedAt: null,
-          userAccess: { some: { userId, role: 'owner' } },
+          userAccess: { some: { userId, role: 'owner', deletedAt: null } },
         },
         OR: [
           { dataRetentionDays: { gt: newMaxDays } },

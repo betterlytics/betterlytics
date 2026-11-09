@@ -1,7 +1,6 @@
 export async function register() {
   await registerOpenTelemetry();
   await registerRetiredRetentionEnvWarning();
-  await registerAuthBootstrap();
   await registerTelemetryNotice();
   await registerBackgroundJobs();
 }
@@ -30,17 +29,6 @@ async function registerRetiredRetentionEnvWarning() {
       `[instrumentation] DATA_RETENTION_DAYS=${value} is ignored. Retention is set per dashboard under Settings > Data. ` +
         'It was carried over once, on upgrade, as the minimum retention of every dashboard. Remove DATA_RETENTION_DAYS from .env.',
     );
-  }
-}
-
-async function registerAuthBootstrap() {
-  if (process.env.NEXT_RUNTIME === 'nodejs') {
-    try {
-      const { resetLegacyTwoFactor } = await import('@/services/auth/bootstrap.service');
-      await resetLegacyTwoFactor();
-    } catch (error) {
-      console.error('[instrumentation] Auth bootstrap failed:', error);
-    }
   }
 }
 
@@ -78,12 +66,7 @@ export async function registerOpenTelemetry() {
     const { env } = await import('@/lib/env');
     if (!env.ENABLE_MONITORING) return;
     if (!env.OTEL_SERVICE_NAME) throw new Error('OTEL_SERVICE_NAME is not set');
-    const { registerOTel } = await import('@vercel/otel');
-    registerOTel({
-      serviceName: env.OTEL_SERVICE_NAME,
-      attributesFromHeaders: {
-        'next.prefetch': 'Next-Router-Prefetch',
-      },
-    });
+    const { registerTracing } = await import('@/observability/otel');
+    await registerTracing(env.OTEL_SERVICE_NAME);
   }
 }

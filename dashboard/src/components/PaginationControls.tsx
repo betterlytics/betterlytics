@@ -63,7 +63,7 @@ export const PaginationControls = memo(
         )}
 
         <nav
-          aria-label='Pagination'
+          aria-label={t('navigation')}
           className={cn(
             'ml-auto flex items-center justify-end gap-0.5 sm:ml-0',
             showPageSizeControls && 'border-border/40 sm:border-l sm:pl-4',
@@ -75,7 +75,7 @@ export const PaginationControls = memo(
             className='hidden h-8 w-8 cursor-pointer sm:inline-flex'
             disabled={isFirstPage}
             onClick={() => onPageChange(0)}
-            aria-label='First page'
+            aria-label={t('firstPage')}
           >
             <ChevronsLeft className='h-4 w-4' />
           </Button>
@@ -85,7 +85,7 @@ export const PaginationControls = memo(
             className='h-8 w-8 cursor-pointer'
             disabled={isFirstPage}
             onClick={() => onPageChange(pageIndex - 1)}
-            aria-label='Previous page'
+            aria-label={t('previousPage')}
           >
             <ChevronLeft className='h-4 w-4' />
           </Button>
@@ -115,7 +115,7 @@ export const PaginationControls = memo(
             className='h-8 w-8 cursor-pointer'
             disabled={isLastPage}
             onClick={() => onPageChange(pageIndex + 1)}
-            aria-label='Next page'
+            aria-label={t('nextPage')}
           >
             <ChevronRight className='h-4 w-4' />
           </Button>
@@ -125,7 +125,7 @@ export const PaginationControls = memo(
             className='hidden h-8 w-8 cursor-pointer sm:inline-flex'
             disabled={isLastPage}
             onClick={() => onPageChange(totalPages - 1)}
-            aria-label='Last page'
+            aria-label={t('lastPage')}
           >
             <ChevronsRight className='h-4 w-4' />
           </Button>

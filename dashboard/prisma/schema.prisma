@@ -21,12 +21,6 @@ enum AvatarMode {
   gravatar
 }
 
-enum SubscriptionTier {
-  growth
-  professional
-  enterprise
-}
-
 enum DashboardRole {
   owner
   admin
@@ -119,6 +113,9 @@ model Session {
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  oauthRefreshTokens OauthRefreshToken[]
+  oauthAccessTokens  OauthAccessToken[]
+
   @@index([userId])
 }
 
@@ -135,8 +132,6 @@ model User {
   sessions      Session[]
 
   twoFactorEnabled Boolean @default(false)
-  // Legacy secret superseded by TwoFactor - to be removed once all users are migrated to TwoFactor
-  totpSecret String?
   twofactors TwoFactor[]
   role UserRole?
 
@@ -148,7 +143,8 @@ model User {
 
   githubStarPromptState GithubStarPromptState @default(pending)
 
-  dashboardAccess UserDashboard[]
+  dashboardAccess UserDashboard[] @relation("DashboardAccess")
+  revokedDashboardAccess UserDashboard[] @relation("DashboardAccessRevokedBy")
   settings UserSettings?
   subscription Subscription?
   bugReports BugReport[]
@@ -156,6 +152,10 @@ model User {
   sentInvitations DashboardInvitation[]
   mcpTokens McpToken[]
   statusPageIncidents StatusPageIncident[]
+  oauthClients OauthClient[]
+  oauthRefreshTokens OauthRefreshToken[]
+  oauthAccessTokens OauthAccessToken[]
+  oauthConsents OauthConsent[]
 
   lastActiveAt DateTime?
   disabledAt   DateTime?
@@ -238,6 +238,7 @@ model Dashboard {
   mcpTokens McpToken[]
   integrations DashboardIntegration[]
   errorGroups ErrorGroup[]
+  mcpGrants McpGrantDashboard[]
 
   @@index([createdAt])
 }
@@ -258,10 +259,14 @@ model ErrorGroup {
   @@index([dashboardId])
 }
 
+// Ended memberships are kept (deletedAt + deletedById) as an access audit trail, so a user can have
+// several rows per dashboard over time. One live row per user and dashboard is enforced by a partial
+// unique index (userId, dashboardId WHERE deletedAt IS NULL) created in the migration. Prisma can't
+// express partial indexes, so there is no @@unique here; every read must filter deletedAt: null.
 model UserDashboard {
   id String @id @default(cuid())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation("DashboardAccess", fields: [userId], references: [id], onDelete: Cascade)
   userId String
 
   dashboard Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
@@ -274,7 +279,9 @@ model UserDashboard {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, dashboardId])
+  deletedAt   DateTime?
+  deletedBy   User?     @relation("DashboardAccessRevokedBy", fields: [deletedById], references: [id], onDelete: SetNull)
+  deletedById String?
 }
 
 model Funnel {
@@ -486,7 +493,7 @@ model StatusPage {
 
   // Branding (structured only — no custom CSS)
   theme       String  @default("system") // 'light' | 'dark' | 'system'
-  accentColor String? @default("#4845d8") // null = transparent header (page background)
+  accentColor String? @default("#304870") // null = transparent header (page background)
   // Present iff an uploaded logo/favicon exists. sha256 prefix of the bytes: doubles as the "has image" flag
   // and as a cache-bust token.
   logoHash    String?
@@ -601,7 +608,7 @@ model Subscription {
   userId String @unique
   
   // Plan configuration
-  tier SubscriptionTier // "growth", "professional", "enterprise"
+  planId String // Plan id from the billing catalog (dashboard/src/lib/billing/catalog)
   eventLimit Int // Selected event limit: 10_000, 50_000, 100_000, etc.
   pricePerMonth Int // Price in cents
   currency Currency @default(USD)
@@ -767,4 +774,201 @@ model TelemetryInstance {
   instanceId String    @unique @db.Uuid
   lastSentAt DateTime?
   createdAt  DateTime  @default(now())
+}
+
+// The models below belong to better-auth's jwt, oauth-provider and cimd plugins.
+model Jwks {
+  id         String    @id @default(cuid())
+  publicKey  String
+  privateKey String
+  createdAt  DateTime  @default(now())
+  expiresAt  DateTime?
+  alg        String?
+  crv        String?
+}
+
+model OauthClient {
+  id                               String    @id @default(cuid())
+  clientId                         String    @unique
+  clientSecret                     String?
+  clientDiscoveryId                String?
+  disabled                         Boolean?  @default(false)
+  skipConsent                      Boolean?
+  enableEndSession                 Boolean?
+  subjectType                      String?
+  scopes                           Json?
+  clientCredentialsScopes          Json?
+  userId                           String?
+  user                             User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt                        DateTime?
+  updatedAt                        DateTime?
+  name                             String?
+  uri                              String?
+  icon                             String?
+  contacts                         Json?
+  tos                              String?
+  policy                           String?
+  softwareId                       String?
+  softwareVersion                  String?
+  softwareStatement                String?
+  redirectUris                     String[]
+  postLogoutRedirectUris           Json?
+  backchannelLogoutUri             String?
+  backchannelLogoutSessionRequired Boolean?
+  tokenEndpointAuthMethod          String?
+  applicationType                  String?
+  jwks                             String?
+  jwksUri                          String?
+  grantTypes                       Json?
+  responseTypes                    Json?
+  requirePKCE                      Boolean?
+  dpopBoundAccessTokens            Boolean?  @default(false)
+  referenceId                      String?
+  metadata                         Json?
+
+  resources     OauthClientResource[]
+  refreshTokens OauthRefreshToken[]
+  accessTokens  OauthAccessToken[]
+  consents      OauthConsent[]
+
+  @@index([userId])
+}
+
+model OauthResource {
+  id                            String    @id @default(cuid())
+  identifier                    String    @unique
+  name                          String
+  accessTokenTtl                Int?
+  refreshTokenTtl               Int?
+  signingAlgorithm              String?
+  signingKeyId                  String?
+  allowedScopes                 Json?
+  customClaims                  Json?
+  dpopBoundAccessTokensRequired Boolean?  @default(false)
+  disabled                      Boolean?  @default(false)
+  createdAt                     DateTime?
+  updatedAt                     DateTime?
+  policyVersion                 Int?      @default(1)
+  metadata                      Json?
+
+  clients OauthClientResource[]
+}
+
+model OauthClientResource {
+  id         String        @id @default(cuid())
+  clientId   String
+  client     OauthClient   @relation(fields: [clientId], references: [clientId], onDelete: Cascade)
+  resourceId String
+  resource   OauthResource @relation(fields: [resourceId], references: [identifier], onDelete: Cascade)
+  metadata   Json?
+  createdAt  DateTime?
+
+  @@unique([clientId, resourceId])
+  @@index([clientId])
+  @@index([resourceId])
+}
+
+model OauthRefreshToken {
+  id                      String      @id @default(cuid())
+  token                   String      @unique
+  clientId                String
+  client                  OauthClient @relation(fields: [clientId], references: [clientId], onDelete: Cascade)
+  sessionId               String?
+  session                 Session?    @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  userId                  String
+  user                    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referenceId             String?
+  authorizationCodeId     String?
+  resources               Json?
+  requestedUserInfoClaims Json?
+  expiresAt               DateTime?
+  createdAt               DateTime?
+  revoked                 DateTime?
+  rotatedAt               DateTime?
+  rotationReplayResponse  String?
+  rotationReplayExpiresAt DateTime?
+  authTime                DateTime?
+  confirmation            Json?
+  scopes                  String[]
+
+  accessTokens OauthAccessToken[]
+
+  @@index([clientId])
+  @@index([sessionId])
+  @@index([userId])
+  @@index([authorizationCodeId])
+}
+
+model OauthAccessToken {
+  id                      String             @id @default(cuid())
+  token                   String?            @unique
+  clientId                String
+  client                  OauthClient        @relation(fields: [clientId], references: [clientId], onDelete: Cascade)
+  sessionId               String?
+  session                 Session?           @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  userId                  String?
+  user                    User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referenceId             String?
+  authorizationCodeId     String?
+  resources               Json?
+  requestedUserInfoClaims Json?
+  refreshId               String?
+  refreshToken            OauthRefreshToken? @relation(fields: [refreshId], references: [id], onDelete: Cascade)
+  expiresAt               DateTime?
+  createdAt               DateTime?
+  revoked                 DateTime?
+  confirmation            Json?
+  scopes                  String[]
+
+  @@index([clientId])
+  @@index([sessionId])
+  @@index([userId])
+  @@index([authorizationCodeId])
+  @@index([refreshId])
+}
+
+model OauthConsent {
+  id                      String      @id @default(cuid())
+  clientId                String
+  client                  OauthClient @relation(fields: [clientId], references: [clientId], onDelete: Cascade)
+  userId                  String?
+  user                    User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referenceId             String?
+  resources               Json?
+  requestedUserInfoClaims Json?
+  scopes                  String[]
+  createdAt               DateTime?
+  updatedAt               DateTime?
+
+  grant McpGrant?
+
+  @@index([clientId])
+  @@index([userId])
+}
+
+model OauthClientAssertion {
+  id        String   @id
+  expiresAt DateTime
+}
+
+// allDashboards covers every dashboard the user is a member of, including ones joined later; otherwise only the
+// dashboards in McpGrantDashboard.
+model McpGrant {
+  id            String              @id @default(cuid())
+  consentId     String              @unique
+  consent       OauthConsent        @relation(fields: [consentId], references: [id], onDelete: Cascade)
+  allDashboards Boolean
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  dashboards    McpGrantDashboard[]
+}
+
+model McpGrantDashboard {
+  grantId     String
+  grant       McpGrant  @relation(fields: [grantId], references: [id], onDelete: Cascade)
+  dashboardId String
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+
+  @@id([grantId, dashboardId])
+  @@index([dashboardId])
 }

@@ -43,6 +43,7 @@ describe('deleteUser', () => {
     expect(UserRepository.deleteUserAccount).toHaveBeenCalledWith('user-1', {
       guard: true,
       ownedDashboards: { mode: 'delete' },
+      removedById: 'user-1',
     });
   });
 
@@ -52,6 +53,7 @@ describe('deleteUser', () => {
     expect(UserRepository.deleteUserAccount).toHaveBeenCalledWith('user-1', {
       guard: true,
       ownedDashboards: { mode: 'transfer', toUserId: 'user-2' },
+      removedById: 'user-1',
     });
   });
 
@@ -63,6 +65,17 @@ describe('deleteUser', () => {
     expect(UserRepository.deleteUserAccount).toHaveBeenCalledWith('user-1', {
       guard: false,
       ownedDashboards: { mode: 'delete' },
+      removedById: 'user-1',
+    });
+  });
+
+  it('records whoever ran the deletion as the remover of the memberships', async () => {
+    await deleteUser('user-1', { ownedDashboards: { mode: 'delete' }, removedById: 'admin-1' });
+
+    expect(UserRepository.deleteUserAccount).toHaveBeenCalledWith('user-1', {
+      guard: true,
+      ownedDashboards: { mode: 'delete' },
+      removedById: 'admin-1',
     });
   });
 

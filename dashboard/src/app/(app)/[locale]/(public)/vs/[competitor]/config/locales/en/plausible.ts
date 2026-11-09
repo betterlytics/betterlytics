@@ -6,13 +6,13 @@ export const plausible: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Plausible: More Features, Same Privacy',
     description:
-      'Compare Betterlytics to Plausible. Same privacy-first approach, plus session replay, user journeys, and monitoring. Free tier available, starting at $7/month.',
+      'Compare Betterlytics to Plausible. Same privacy focus, plus session replay, uptime monitoring and user journeys on every plan. Free tier, paid plans from $9/month.',
   },
   hero: {
     title: 'Looking for a Plausible Alternative?',
     titleHighlight: 'Alternative',
     subtitle:
-      'Everything Plausible offers, plus session replay, user journeys, monitoring, and more. Same privacy-first approach, deeper insights.',
+      'Same privacy-first approach as Plausible, plus session replay, uptime monitoring, and user journeys on every plan.',
   },
   keyDifferentiators: [
     {
@@ -22,8 +22,8 @@ export const plausible: ComparisonLocaleContent = {
     },
     {
       title: 'User Journey Tracking',
-      betterlytics: 'Visualize how users navigate through your site page by page.',
-      competitor: 'Funnel analysis only. No individual user journey visualization.',
+      betterlytics: 'Visualize how users navigate through your site page by page. Included on every plan.',
+      competitor: 'User journeys and funnels need the Business plan, from $19/month.',
     },
     {
       title: 'Built-in Monitoring',
@@ -48,7 +48,7 @@ export const plausible: ComparisonLocaleContent = {
       {
         name: 'Performance & Speed',
         features: [
-          { name: 'Script size', betterlytics: '~3.5KB', competitor: '<2KB' },
+          { name: 'Script size', betterlytics: '~3.5KB', competitor: '~2.5KB' },
           { name: 'Page load impact', betterlytics: 'Minimal', competitor: 'Minimal' },
           { name: 'Works with ad blockers', betterlytics: true, competitor: 'Partial' },
         ],
@@ -62,14 +62,18 @@ export const plausible: ComparisonLocaleContent = {
           { name: 'Funnel analysis', betterlytics: true, competitor: true },
           { name: 'Campaign tracking (UTM)', betterlytics: true, competitor: true },
           { name: 'Outbound link tracking', betterlytics: true, competitor: true },
-          { name: 'User journey tracking', betterlytics: true, competitor: false },
-          { name: 'Annotations', betterlytics: true, competitor: false },
+          { name: 'User journey tracking', betterlytics: true, competitor: 'Business plan only' },
+          { name: 'Annotations', betterlytics: true, competitor: true },
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Client-side error tracking', betterlytics: true, competitor: false },
           { name: 'Performance monitoring', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
           { name: 'Public status pages', betterlytics: true, competitor: false },
-          { name: 'Notification integrations (Slack, Discord, etc.)', betterlytics: true, competitor: false },
+          {
+            name: 'Notification integrations (Slack, Discord, etc.)',
+            betterlytics: true,
+            competitor: 'Email/Slack reports',
+          },
         ],
       },
       {
@@ -102,7 +106,7 @@ export const plausible: ComparisonLocaleContent = {
   detailedComparison: [
     {
       title: 'Same Values, Different Toolsets',
-      content: `Plausible and Betterlytics share the same DNA: privacy-first, lightweight, no cookies, GDPR-ready out of the box. Both are great alternatives to Google Analytics if privacy matters to you.\n\nThe difference? Betterlytics includes session replay, user journey tracking, and monitoring. Plausible keeps things minimal on purpose. If you need behavioral insights beyond pageviews and conversions, we've got you covered.`,
+      content: `Plausible and Betterlytics share the same DNA: privacy-first, lightweight, no cookies, GDPR-ready out of the box. Both are great alternatives to Google Analytics if privacy matters to you.\n\nThe difference? Betterlytics includes session replay and monitoring, plus user journeys on every plan. Plausible keeps things minimal on purpose. If you need behavioral insights beyond pageviews and conversions, we've got you covered.`,
       icon: 'shield',
     },
     {
@@ -117,12 +121,12 @@ export const plausible: ComparisonLocaleContent = {
     },
     {
       title: 'Pricing Breakdown',
-      content: `Plausible starts at $9/month for 10,000 pageviews. No free tier on hosted, though self-hosting is free if you handle the infrastructure.\n\nBetterlytics starts at $7/month with a free tier for smaller sites. You get session replay, monitoring, user journeys included. More features, lower starting price.`,
+      content: `Plausible starts at $9/month for 10,000 pageviews. No free tier on hosted, though self-hosting is free if you handle the infrastructure.\n\nBetterlytics paid plans also start at $9/month, and there's a free tier for smaller sites. You get session replay, monitoring, user journeys included. More features for the same price.`,
       icon: 'dollar',
     },
     {
       title: 'When Plausible Fits Better',
-      content: `Plausible keeps its scope intentionally narrow: privacy-first traffic analytics with a famously minimalist UI. If you just need pageviews, referrers, and conversion goals with zero extra surface area, Plausible's focused product and established brand might be the more comfortable choice.\n\nBetterlytics adds session replay, journeys, performance insights, and monitoring without abandoning that privacy baseline. If you're ready for deeper behavior insight and fewer vendors, the extra capability is already built in; no extra tools to stitch together.`,
+      content: `Plausible keeps its scope intentionally narrow: privacy-first traffic analytics with a famously minimalist UI. If you just need pageviews, referrers, and conversion goals with zero extra surface area, Plausible's focused product and established brand might be the more comfortable choice.\n\nBetterlytics adds session replay, performance insights, and monitoring without abandoning that privacy baseline. User journeys come with every plan. If you're ready for deeper behavior insight and fewer vendors, the extra capability is already built in; no extra tools to stitch together.`,
       icon: 'target',
     },
   ],

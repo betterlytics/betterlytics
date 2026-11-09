@@ -81,15 +81,20 @@ export async function getAccountDeletionBlocker(userId: string): Promise<Account
   return resolveAccountDeletionBlocker(user, { activeAdmins, activeUsers });
 }
 
+/** `removedById` is whoever ran the deletion; it defaults to the user deleting their own account. */
 export async function deleteUser(
   userId: string,
-  options: { ownedDashboards: OwnedDashboardsDisposal } = { ownedDashboards: { mode: 'delete' } },
+  options: { ownedDashboards: OwnedDashboardsDisposal; removedById?: string } = { ownedDashboards: { mode: 'delete' } },
 ): Promise<void> {
   const guard = !isFeatureEnabled('isCloud');
 
   let outcome: AccountDeletionOutcome = null;
   try {
-    outcome = await UserRepository.deleteUserAccount(userId, { guard, ownedDashboards: options.ownedDashboards });
+    outcome = await UserRepository.deleteUserAccount(userId, {
+      guard,
+      ownedDashboards: options.ownedDashboards,
+      removedById: options.removedById ?? userId,
+    });
   } catch (error) {
     console.error(`Error deleting user ${userId}:`, error);
     throw new Error('Failed to delete user account and associated data');

@@ -1,5 +1,205 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v153ChangelogEntryIt: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.3',
+    releasedAt: '2026-11-08',
+    title: 'Miglioramenti al monitoraggio e alla mappa',
+    summary:
+      "La barra laterale ora segnala quando un monitor è offline, e le percentuali di uptime sono più precise e coincidono ovunque compaiano. Questa versione blocca anche un'ondata di referrer spam, perfeziona la mappa geografica e corregge alcuni problemi nel monitoraggio e nel report Siti di riferimento.",
+  },
+  sections: [
+    {
+      id: 'v153-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'La voce Monitoraggio nella barra laterale ora mostra un pallino rosso finché uno dei tuoi monitor è offline.',
+            'Il tempo in cui un monitor non veniva controllato non conta più né come uptime né come downtime.',
+            'Quando elimini un monitor, ora ricevi un avviso se è usato in una pagina di stato.',
+            'I controlli di uptime sono ora più affidabili.',
+            "Il filtro anti-bot ora blocca un'ondata di referrer spam che compariva come visite false tra i tuoi siti di riferimento.",
+            'I popup e i filtri della mappa geografica non finiscono più nascosti dietro altri elementi della pagina.',
+            'Vari miglioramenti di usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v153-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Risolto un problema per cui le percentuali di uptime potevano differire leggermente da una schermata all'altra.",
+            'I visitatori dalle Svalbard vengono ora attribuiti correttamente alla Norvegia.',
+            'Le impostazioni degli avvisi di un monitor ora mostrano correttamente a chi vengono inviati gli avvisi via email.',
+            'I filtri per sorgente referrer ora mostrano correttamente il nome della categoria, ad esempio "AI" o "Ricerca".',
+            'Nella tabella dei siti di riferimento, le righe "Sconosciuto" non mostrano più il valore di confronto relativo al traffico diretto.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v153ChangelogModalIt: ChangelogEntryData = {
+  metadata: v153ChangelogEntryIt.metadata,
+  sections: [
+    {
+      id: 'v153-modal-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Un pallino rosso nella barra laterale segnala quando un monitor è offline.',
+            "L'uptime non conta più il tempo in cui un monitor non veniva controllato.",
+            'Quando elimini un monitor, ricevi un avviso se è usato in una pagina di stato.',
+            'Controlli di uptime più affidabili.',
+            "Un'ondata di referrer spam ora viene bloccata.",
+            'I popup e i filtri della mappa geografica non finiscono più nascosti.',
+            'Vari miglioramenti di usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v153-modal-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Le percentuali di uptime ora coincidono ovunque.',
+            'I visitatori dalle Svalbard vengono attribuiti correttamente alla Norvegia.',
+            'Le impostazioni degli avvisi dei monitor mostrano il destinatario email corretto.',
+            'I filtri per sorgente referrer mostrano il nome di categoria corretto.',
+            'I referrer sconosciuti non mostrano più il valore di confronto del traffico diretto.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v152ChangelogEntryIt: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.2',
+    releasedAt: '2026-10-28',
+    title: 'Traffico AI e rilevamento dei rage click',
+    summary:
+      'Le visite provenienti da assistenti AI come ChatGPT e Claude hanno ora una categoria di traffico dedicata, e il session replay può rilevare i rage click per aiutarti a individuare i visitatori frustrati. Questa versione porta anche suggerimenti più intelligenti nei filtri, un nuovo strumento MCP per le metriche delle sessioni, avvisi SSL più chiari e una serie di correzioni legate al fuso orario.',
+  },
+  sections: [
+    {
+      id: 'v152-new-features',
+      title: 'Nuove funzionalità',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Le visite provenienti da assistenti AI come ChatGPT, Claude, Gemini, Perplexity e Copilot sono state spostate in una categoria AI dedicata.',
+            'Il session replay ora rileva i rage click (clic di frustrazione), che si verificano quando un visitatore clicca ripetutamente sullo stesso punto in rapida successione.',
+            'Ora puoi mostrare o nascondere le annotazioni sul grafico della Panoramica.',
+            "Le pagine di stato possono ora usare un'intestazione trasparente che si fonde con la pagina.",
+            'Un nuovo strumento MCP permette al tuo assistente AI di analizzare frequenza di rimbalzo, durata della visita, pagine per sessione e pagine di ingresso e di uscita, suddivise per dispositivo, area geografica, sito di riferimento o campagna.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'I suggerimenti dei filtri ora mostrano fino a 200 valori, a partire da quelli più comuni.',
+            'I session replay non salvano più la query string né il frammento # degli URL delle pagine.',
+            "Il session replay ora registra in modo più affidabile quando i visitatori passano rapidamente da una pagina all'altra.",
+            'Il player del session replay ha un aspetto rinnovato, con un nuovo cursore e animazioni dei clic.',
+            'Quando un monitor va in errore per un problema con il certificato SSL, i relativi avvisi e incidenti ora indicano con precisione di quale problema si tratta.',
+            "Dopo l'accesso ora torni direttamente alla pagina che stavi cercando di aprire.",
+            'Vari miglioramenti di usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'I grafici ora seguono in modo più coerente il fuso orario selezionato.',
+            'I filtri ora trattano % e _ come caratteri normali. In precedenza questi simboli potevano fungere da caratteri wildcard nascosti e trovare corrispondenze che andavano oltre il testo digitato. Usa * come carattere wildcard.',
+            'Con la cattura degli errori della console attivata, gli errori registrati con console.error ora mostrano il messaggio effettivo e lo stack trace invece di {}.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v152ChangelogModalIt: ChangelogEntryData = {
+  metadata: v152ChangelogEntryIt.metadata,
+  sections: [
+    {
+      id: 'v152-modal-new-features',
+      title: 'Nuove funzionalità',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Le visite provenienti da assistenti AI hanno ora una categoria AI dedicata.',
+            'Il session replay ora rileva i rage click (clic di frustrazione).',
+            'Mostra o nascondi le annotazioni sul grafico della Panoramica.',
+            "Le pagine di stato possono usare un'intestazione trasparente.",
+            'Un nuovo strumento MCP fornisce metriche delle sessioni come frequenza di rimbalzo e durata della visita.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-modal-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'I suggerimenti dei filtri mostrano prima i valori più comuni.',
+            'I session replay non salvano più le query string né i frammenti degli URL.',
+            'Il session replay registra in modo più affidabile durante la navigazione rapida tra le pagine.',
+            'Il player del session replay ha un aspetto rinnovato.',
+            'Gli avvisi SSL ora indicano con precisione il problema del certificato.',
+            "Dopo l'accesso torni direttamente alla pagina che stavi cercando di aprire.",
+            'Vari miglioramenti di usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-modal-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'I grafici seguono in modo più coerente il fuso orario selezionato.',
+            'I filtri trattano % e _ come caratteri normali.',
+            'Gli errori della console catturati ora mostrano il messaggio effettivo e lo stack trace.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v151ChangelogEntryIt: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.1',
@@ -688,9 +888,11 @@ const v144ChangelogEntryIt: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalIt = v151ChangelogModalIt;
+export const latestChangelogModalIt = v153ChangelogModalIt;
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  v153ChangelogEntryIt,
+  v152ChangelogEntryIt,
   v151ChangelogEntryIt,
   v150ChangelogEntryIt,
   v149ChangelogEntryIt,

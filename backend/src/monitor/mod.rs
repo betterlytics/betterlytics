@@ -1,5 +1,6 @@
 pub mod alert;
 pub mod backoff;
+mod backoff_store;
 pub mod cache;
 pub mod clickhouse_writer;
 pub mod guard;
@@ -17,7 +18,7 @@ pub use init::spawn_monitoring;
 pub use rate_limiter::DomainRateLimiter;
 
 pub use service::{IncidentContext, IncidentOrchestrator, IncidentOrchestratorConfig};
-pub use backoff::{BackoffController, BackoffPolicy};
+pub use backoff::{BackoffController, BackoffPolicy, BackoffSeed, BackoffSeeds};
 pub use cache::{MonitorCache, RefreshConfig as MonitorCacheConfig};
 pub use clickhouse_writer::{MonitorWriter, new_monitor_writer};
 pub use models::{

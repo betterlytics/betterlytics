@@ -1,5 +1,205 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v153ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.3',
+    releasedAt: '2026-11-08',
+    title: 'Monitoring Improvements & Map Polish',
+    summary:
+      'The sidebar now shows when a monitor is down, and uptime percentages are more accurate and match everywhere you see them. This release also blocks a wave of referral spam, polishes the geography map and fixes a handful of issues in monitoring and the referrers report.',
+  },
+  sections: [
+    {
+      id: 'v153-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'The Monitoring item in the sidebar now shows a red dot while any of your monitors is down.',
+            'Time when a monitor was not being checked no longer counts as uptime or downtime.',
+            "Deleting a monitor now warns you when it's used on a status page.",
+            'Improved the reliability of uptime checks.',
+            'The bot filter now blocks a wave of referral spam that showed up as fake visits in your referrers.',
+            'Popups and filters on the geography map no longer get hidden behind other parts of the page.',
+            'Various usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v153-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Fixed an issue where uptime percentages could differ slightly from place to place.',
+            'Visitors from Svalbard are now correctly counted as Norway.',
+            'The alert settings on a monitor now properly show who email alerts are sent to.',
+            'Referrer source filters now correctly show the category name, such as "AI" or "Search".',
+            'Unknown rows in the referrers table no longer show the comparison value that belongs to Direct traffic.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v153ChangelogModalEn: ChangelogEntryData = {
+  metadata: v153ChangelogEntryEn.metadata,
+  sections: [
+    {
+      id: 'v153-modal-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'A red dot in the sidebar shows when a monitor is down.',
+            'Uptime no longer counts time when a monitor was not being checked.',
+            "Deleting a monitor warns you when it's used on a status page.",
+            'More reliable uptime checks.',
+            'Blocked a wave of referral spam.',
+            'Geography map popups and filters no longer get hidden.',
+            'Various usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v153-modal-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Uptime percentages now match everywhere.',
+            'Svalbard visitors are correctly counted as Norway.',
+            'Monitor alert settings show the right email recipient.',
+            'Referrer source filters show the right category name.',
+            'Unknown referrers no longer show the Direct comparison value.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v152ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.2',
+    releasedAt: '2026-10-28',
+    title: 'AI Traffic & Rage Click Detection',
+    summary:
+      'Visits from AI assistants like ChatGPT and Claude now have their own traffic category, and session replay can detect rage clicks to help you find frustrated visitors. This release also brings smarter filter suggestions, a new MCP tool for session metrics, clearer SSL alerts and a round of timezone fixes.',
+  },
+  sections: [
+    {
+      id: 'v152-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Visits from AI assistants such as ChatGPT, Claude, Gemini, Perplexity and Copilot have now been moved into their own AI category.',
+            'Session replay now detects rage clicks, when a visitor clicks the same spot again and again in quick succession.',
+            'Annotations on the overview chart can now be hidden and shown.',
+            'Status pages can now use a transparent header that blends into the page.',
+            'A new MCP tool lets your AI assistant report on bounce rate, visit duration, pages per session, and landing and exit pages, split by device, location, referrer or campaign.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Filter suggestions now list the most common values first and show up to 200 values.',
+            'Session replays no longer store the query string or # fragment of page URLs.',
+            'Session replay now records more reliably when visitors move quickly between pages.',
+            'The replay player has refreshed visuals, including a new cursor and click animations.',
+            'When a monitor fails because of an SSL certificate problem, its alerts and incidents now name the exact problem.',
+            "After signing in, you're taken back to the page you were trying to open.",
+            'Various usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Charts now follow your selected timezone more consistently.',
+            'Filters now treat % and _ as regular characters. Previously they could act as hidden wildcards and match more than you typed. Use * for wildcard matching.',
+            'With console error capture turned on, errors logged with console.error now show their real message and stack trace instead of {}.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v152ChangelogModalEn: ChangelogEntryData = {
+  metadata: v152ChangelogEntryEn.metadata,
+  sections: [
+    {
+      id: 'v152-modal-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Visits from AI assistants now have their own AI category.',
+            'Session replay now detects rage clicks.',
+            'Show or hide annotations on the overview chart.',
+            'Status pages can use a transparent header.',
+            'A new MCP tool for session metrics like bounce rate and visit duration.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-modal-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Filter suggestions list the most common values first.',
+            'Session replays no longer store URL query strings or fragments.',
+            'Session replay records more reliably during fast page navigation.',
+            'Refreshed replay player visuals.',
+            'SSL alerts now name the exact certificate problem.',
+            'Signing in takes you back to the page you were trying to open.',
+            'Various usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-modal-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Charts follow your selected timezone more consistently.',
+            'Filters treat % and _ as regular characters.',
+            'Captured console errors show their real message and stack trace.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v151ChangelogEntryEn: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.1',
@@ -684,9 +884,11 @@ const v144ChangelogEntryEn: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalEn = v151ChangelogModalEn;
+export const latestChangelogModalEn = v153ChangelogModalEn;
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  v153ChangelogEntryEn,
+  v152ChangelogEntryEn,
   v151ChangelogEntryEn,
   v150ChangelogEntryEn,
   v149ChangelogEntryEn,

@@ -10,6 +10,10 @@ const workerOnlyEnvSchema = z.object({
   WORKER_CLICKHOUSE_WRITE_PASSWORD: z.string().optional().default(''),
   WORKER_HEALTH_PORT: z.coerce.number().int().positive().optional().default(9090),
   ENABLE_MONITORING: zStringBoolean,
+  WORKER_OTEL_SERVICE_NAME: z.preprocess(
+    (value) => (value === '' ? undefined : value),
+    z.string().optional().default('worker'),
+  ),
   BACKGROUND_JOBS_ENABLED: z
     .enum(['true', 'false'])
     .optional()

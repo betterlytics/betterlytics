@@ -1,5 +1,205 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v153ChangelogEntryDa: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.3',
+    releasedAt: '2026-11-08',
+    title: 'Forbedret overvågning & finpudset kort',
+    summary:
+      'Sidemenuen viser nu, når en monitor er nede, og oppetidsprocenterne er mere præcise og ens, uanset hvor du ser dem. Denne udgivelse blokerer også en bølge af referrer spam, finpudser geografikortet og retter en håndfuld fejl i overvågningen og under Henvisninger.',
+  },
+  sections: [
+    {
+      id: 'v153-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Menupunktet Overvågning i sidemenuen viser nu en rød prik, så længe en af dine monitorer er nede.',
+            'Perioder, hvor en monitor ikke blev tjekket, tæller ikke længere med som oppetid eller nedetid.',
+            'Når du sletter en monitor, får du nu en advarsel, hvis den bruges på en statusside.',
+            'Uptime-tjek er nu mere pålidelige.',
+            'Bot-filteret blokerer nu en bølge af referrer spam, der dukkede op som falske besøg blandt dine henvisninger.',
+            'Pop op-vinduer og filtre på geografikortet bliver ikke længere skjult bag andre dele af siden.',
+            'Diverse forbedringer af brugervenligheden på tværs af dashboardet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v153-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Rettet et problem, hvor oppetidsprocenterne kunne variere en smule fra sted til sted.',
+            'Besøgende fra Svalbard tælles nu korrekt med under Norge.',
+            'Alarmindstillingerne på en monitor viser nu korrekt, hvem e-mailalarmerne sendes til.',
+            'Filtre på henvisningskilde viser nu korrekt kategoriens navn, f.eks. "AI" eller "Søgning".',
+            'Rækker med "Ukendt" i tabellen under Henvisninger viser ikke længere den sammenligningsværdi, der hører til direkte trafik.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v153ChangelogModalDa: ChangelogEntryData = {
+  metadata: v153ChangelogEntryDa.metadata,
+  sections: [
+    {
+      id: 'v153-modal-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'En rød prik i sidemenuen viser, når en monitor er nede.',
+            'Perioder, hvor en monitor ikke blev tjekket, tæller ikke længere med i oppetiden.',
+            'Sletter du en monitor, får du en advarsel, hvis den bruges på en statusside.',
+            'Mere pålidelige uptime-tjek.',
+            'En bølge af referrer spam bliver nu blokeret.',
+            'Pop op-vinduer og filtre på geografikortet bliver ikke længere skjult.',
+            'Diverse forbedringer af brugervenligheden på tværs af dashboardet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v153-modal-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Oppetidsprocenterne er nu ens overalt.',
+            'Besøgende fra Svalbard tælles korrekt med under Norge.',
+            'Alarmindstillingerne på monitorer viser den rigtige e-mailmodtager.',
+            'Filtre på henvisningskilde viser det rigtige kategorinavn.',
+            'Ukendte henvisninger viser ikke længere sammenligningsværdien for direkte trafik.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v152ChangelogEntryDa: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.2',
+    releasedAt: '2026-10-28',
+    title: 'AI-trafik & registrering af rage clicks',
+    summary:
+      'Besøg fra AI-assistenter som ChatGPT og Claude har nu deres egen trafikkategori, og session replay kan registrere rage clicks, så du nemmere kan finde frustrerede besøgende. Denne udgivelse indeholder også smartere filterforslag, et nyt MCP-værktøj til nøgletal for sessioner, tydeligere SSL-alarmer og en række tidszonerettelser.',
+  },
+  sections: [
+    {
+      id: 'v152-new-features',
+      title: 'Nye funktioner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Besøg fra AI-assistenter som ChatGPT, Claude, Gemini, Perplexity og Copilot er nu flyttet til deres egen AI-kategori.',
+            'Session replay registrerer nu rage clicks (raseriklik), når en besøgende klikker på det samme sted igen og igen i hurtig rækkefølge.',
+            'Du kan nu skjule og vise annotationer på oversigtsgrafen.',
+            'Statussider kan nu bruge en gennemsigtig header, der går i ét med siden.',
+            'Med et nyt MCP-værktøj kan din AI-assistent rapportere om afvisningsprocent, besøgstid, sider pr. session samt indgangs- og udgangssider, opdelt efter enhed, placering, henvisningskilde eller kampagne.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Filterforslag viser nu op til 200 værdier med de hyppigste øverst.',
+            "Session replays gemmer ikke længere query-strengen eller #-fragmentet i sidernes URL'er.",
+            'Session replay optager nu mere pålideligt, når besøgende hurtigt skifter mellem sider.',
+            'Afspilleren til session replay har fået et opfrisket udseende med blandt andet en ny markør og klikanimationer.',
+            'Når en monitor fejler på grund af et problem med SSL-certifikatet, angiver dens alarmer og hændelser nu præcis, hvad der er galt.',
+            'Når du logger ind, kommer du nu tilbage til den side, du prøvede at åbne.',
+            'Diverse forbedringer af brugervenligheden på tværs af dashboardet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Grafer følger nu din valgte tidszone mere konsekvent.',
+            'Filtre behandler nu % og _ som almindelige tegn. Tidligere kunne tegnene fungere som skjulte wildcards og matche mere end det, du havde skrevet. Brug * som wildcard.',
+            'Når opsamling af konsolfejl er slået til, vises fejl fra console.error nu med deres rigtige besked og stack trace i stedet for {}.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v152ChangelogModalDa: ChangelogEntryData = {
+  metadata: v152ChangelogEntryDa.metadata,
+  sections: [
+    {
+      id: 'v152-modal-new-features',
+      title: 'Nye funktioner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Besøg fra AI-assistenter har nu deres egen AI-kategori.',
+            'Session replay registrerer nu rage clicks.',
+            'Du kan nu skjule og vise annotationer på oversigtsgrafen.',
+            'Statussider kan bruge en gennemsigtig header.',
+            'Et nyt MCP-værktøj giver din AI-assistent adgang til nøgletal for sessioner, f.eks. afvisningsprocent og besøgstid.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-modal-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Filterforslag viser de hyppigste værdier først.',
+            "Session replays gemmer ikke længere query-strenge eller fragmenter fra URL'er.",
+            'Session replay optager mere pålideligt ved hurtig navigation mellem sider.',
+            'Afspilleren til session replay har fået et opfrisket udseende.',
+            'SSL-alarmer angiver nu præcis, hvad der er galt med certifikatet.',
+            'Når du logger ind, kommer du tilbage til den side, du prøvede at åbne.',
+            'Diverse forbedringer af brugervenligheden på tværs af dashboardet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-modal-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Grafer følger din valgte tidszone mere konsekvent.',
+            'Filtre behandler % og _ som almindelige tegn.',
+            'Opsamlede konsolfejl viser deres rigtige besked og stack trace.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v151ChangelogEntryDa: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.1',
@@ -686,9 +886,11 @@ const v144ChangelogEntryDa: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalDa = v151ChangelogModalDa;
+export const latestChangelogModalDa = v153ChangelogModalDa;
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  v153ChangelogEntryDa,
+  v152ChangelogEntryDa,
   v151ChangelogEntryDa,
   v150ChangelogEntryDa,
   v149ChangelogEntryDa,

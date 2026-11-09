@@ -14,14 +14,15 @@ const THEME_ICONS: Record<Theme, LucideIcon> = {
 interface UserThemeSelectorProps {
   value: Theme | undefined;
   onUpdate: (theme: Theme) => void;
+  id?: string;
 }
 
-export default function UserThemeSelector({ value, onUpdate }: UserThemeSelectorProps) {
+export default function UserThemeSelector({ value, onUpdate, id }: UserThemeSelectorProps) {
   const t = useTranslations('components.userSettings.preferences.appearance');
 
   return (
     <Select value={value} onValueChange={(v) => onUpdate(v as Theme)}>
-      <SelectTrigger className='w-32 cursor-pointer'>
+      <SelectTrigger id={id} className='w-32 cursor-pointer'>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

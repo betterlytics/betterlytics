@@ -1,5 +1,7 @@
 import { MetadataRoute } from 'next';
+import { getBlogPosts } from '@/content/blog';
 import { env } from '@/lib/env';
+import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
 import { getCompetitorSlugs } from './(app)/[locale]/(public)/vs/[competitor]/config';
 
@@ -22,6 +24,8 @@ const STATIC_PAGES: PageCfg[] = [
   { path: '/pricing', changeFrequency: 'monthly', priority: 0.8, localized: true },
   { path: '/features', changeFrequency: 'monthly', priority: 0.8, localized: true },
   { path: '/features/uptime-monitoring', changeFrequency: 'monthly', priority: 0.8, localized: true },
+  { path: '/features/session-replay', changeFrequency: 'monthly', priority: 0.8, localized: true },
+  { path: '/features/error-tracking', changeFrequency: 'monthly', priority: 0.8, localized: true },
   { path: '/subprocessors', changeFrequency: 'monthly', priority: 0.3, localized: true },
 
   /****************** PUBLIC PAGES ******************/
@@ -122,6 +126,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
         alternates: { languages },
       });
     }
+  }
+
+  const posts = isClientFeatureEnabled('isCloud') ? getBlogPosts() : [];
+  if (posts.length > 0) {
+    entries.push({
+      url: `${baseUrl}/blog`,
+      lastModified: posts[0].publishedAt,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    });
+  }
+  for (const post of posts) {
+    entries.push({
+      url: `${baseUrl}/blog/${post.slug}`,
+      lastModified: post.updatedAt ?? post.publishedAt,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    });
   }
 
   return entries;

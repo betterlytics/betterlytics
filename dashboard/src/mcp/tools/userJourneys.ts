@@ -4,7 +4,7 @@ import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
 import { buildSiteQuery } from '@/mcp/utils/buildSiteQuery';
 import { getUserJourneyForSankeyDiagram } from '@/services/analytics/userJourney.service';
 
-export const McpUserJourneysInputBaseSchema = McpDateRangeSchema.extend({
+const McpUserJourneysInputBaseSchema = McpDateRangeSchema.extend({
   filters: McpFiltersSchema,
   maxSteps: z
     .number()
