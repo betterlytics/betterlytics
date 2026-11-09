@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useImmediateTimeRange } from '@/components/TimeRange/hooks/useImmediateTimeRange';
 import { getZoomWindow } from '@/utils/chartZoom';
+import { getBucketEnd } from '@/lib/ba-timerange';
 
 // Shorter drags are clicks, so tooltips and annotation clicks keep working
 const DRAG_THRESHOLD_PX = 5;
@@ -18,11 +19,10 @@ const isDrag = (selection: Selection) => Math.abs(selection.endX - selection.sta
 
 /**
  * Drag across a time series chart to zoom the dashboard range to the selected buckets. Spread `handlers`
- * on the Recharts chart and draw `previewArea` as a ReferenceArea. `points` holds every series' points, so
- * the bucket edges include the incomplete buckets drawn separately.
+ * on the Recharts chart and draw `previewArea` as a ReferenceArea.
  */
-export function useChartDragZoom(points: ReadonlyArray<{ date: ChartLabel }>, enabled: boolean) {
-  const { resolvedMainRange } = useTimeRangeContext();
+export function useChartDragZoom(enabled: boolean) {
+  const { resolvedMainRange, resolvedGranularity, timeZone } = useTimeRangeContext();
   const { zoomToRange } = useImmediateTimeRange();
   const [selection, setSelection] = useState<Selection | null>(null);
   const selectionRef = useRef<Selection | null>(null);
@@ -35,13 +35,13 @@ export function useChartDragZoom(points: ReadonlyArray<{ date: ChartLabel }>, en
   const commit = useCallback(
     ({ startLabel, endLabel }: Selection) => {
       const { start, end } = getZoomWindow(
-        points.map((point) => toMs(point.date)),
         [toMs(startLabel), toMs(endLabel)],
         { start: resolvedMainRange.start.getTime(), endExclusive: resolvedMainRange.end.getTime() + 1000 },
+        (bucketStart) => getBucketEnd(new Date(bucketStart), resolvedGranularity, timeZone).getTime(),
       );
       zoomToRange(new Date(start), new Date(end));
     },
-    [points, resolvedMainRange, zoomToRange],
+    [resolvedMainRange, resolvedGranularity, timeZone, zoomToRange],
   );
 
   const onMouseDown = useCallback(

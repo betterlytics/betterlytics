@@ -59,6 +59,11 @@ function ceilToGranularity(d: moment.Moment, g: GranularityRangeValues): moment.
   return GRANULARITY_CONFIG[g].floor(d.add(step, unit));
 }
 
+// Where the bucket starting at bucketStart ends, which is where the next one starts
+export function getBucketEnd(bucketStart: Date, granularity: GranularityRangeValues, timezone: string): Date {
+  return ceilToGranularity(moment.tz(bucketStart, timezone), granularity).toDate();
+}
+
 function snapCeilToGranularity(d: moment.Moment, g: GranularityRangeValues): moment.Moment {
   const floored = floorToGranularity(d.clone(), g);
   if (floored.isSame(d)) return d.clone();

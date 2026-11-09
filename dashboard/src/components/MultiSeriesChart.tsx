@@ -109,7 +109,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
       };
     }, [formatValue, locale]);
     const isMobile = useIsMobile();
-    const zoom = useChartDragZoom(data, dragZoom);
+    const zoom = useChartDragZoom(dragZoom);
 
     return (
       <Card className={cn('px-3 pt-2 pb-4 sm:px-2 sm:pt-4 sm:pb-5', className)}>

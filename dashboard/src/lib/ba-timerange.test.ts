@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import moment from 'moment-timezone';
-import { getResolvedRanges } from './ba-timerange';
+import { getBucketEnd, getResolvedRanges } from './ba-timerange';
 
 const at = (date: string, tz: string) => moment.tz(date, tz).toDate();
 
@@ -90,5 +90,21 @@ describe('getResolvedRanges compare for a range that is not whole buckets', () =
 
     expect(result.main).toEqual({ start: at('2026-09-20 14:15', tz), end: at('2026-09-20 17:59:59', tz) });
     expect(result.compare).toEqual({ start: at('2026-09-20 10:30', tz), end: at('2026-09-20 14:14:59', tz) });
+  });
+});
+
+describe('getBucketEnd', () => {
+  const end = (start: string, granularity: Parameters<typeof getBucketEnd>[1], timezone: string) =>
+    moment.tz(getBucketEnd(moment.tz(start, timezone).toDate(), granularity, timezone), timezone).format();
+
+  it('ends a bucket where the next one starts', () => {
+    expect(end('2026-10-24T14:00', 'hour', 'Europe/Copenhagen')).toBe('2026-10-24T15:00:00+02:00');
+    expect(end('2026-10-24T14:45', 'minute_15', 'Pacific/Chatham')).toBe('2026-10-24T15:00:00+13:45');
+    expect(end('2026-10-19T00:00', 'week', 'Asia/Kolkata')).toBe('2026-10-26T00:00:00+05:30');
+    expect(end('2026-10-01T00:00', 'month', 'UTC')).toBe('2026-11-01T00:00:00Z');
+  });
+
+  it('ends a day bucket at the next midnight across a DST change', () => {
+    expect(end('2026-11-01T00:00', 'day', 'America/Los_Angeles')).toBe('2026-11-02T00:00:00-08:00');
   });
 });
