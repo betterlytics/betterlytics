@@ -85,7 +85,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
         'border-input dark:bg-input/30 dark:hover:bg-input/50 hover:bg-accent min-w-[200px] cursor-pointer justify-between border bg-transparent shadow-xs transition-[color,box-shadow]'
       }
     >
-      <div className='flex items-center gap-2'>
+      <div className='flex flex-1 items-center gap-2'>
         <FilterIcon className='h-4 w-4' />
         <span>{t('selector.triggerLabel')}</span>
         {activeFilterCount > 0 && (
