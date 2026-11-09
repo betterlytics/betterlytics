@@ -4,6 +4,7 @@ import {
   findDashboardMembers,
   findOwnedDashboards,
   findUserDashboardOrNull,
+  findUserMemberships,
   removeMember,
   updateMemberRole,
 } from '@/repositories/postgres/dashboard.repository';
@@ -137,11 +138,12 @@ describe('membership date ordering', () => {
     expect(member.joinedAt).toEqual(memberRow.joinedAt);
   });
 
-  it('orders the dashboard list and owned dashboards by joined date', async () => {
+  it('orders the dashboard list, owned dashboards and memberships by joined date', async () => {
     prismaMock.userDashboard.findMany.mockResolvedValue([]);
 
     await findAllUserDashboards('user-1');
     await findOwnedDashboards('user-1');
+    await findUserMemberships('user-1');
 
     expect(prismaMock.userDashboard.findMany).toHaveBeenNthCalledWith(
       1,
@@ -149,6 +151,10 @@ describe('membership date ordering', () => {
     );
     expect(prismaMock.userDashboard.findMany).toHaveBeenNthCalledWith(
       2,
+      expect.objectContaining({ orderBy: { joinedAt: 'desc' } }),
+    );
+    expect(prismaMock.userDashboard.findMany).toHaveBeenNthCalledWith(
+      3,
       expect.objectContaining({ orderBy: { joinedAt: 'desc' } }),
     );
   });

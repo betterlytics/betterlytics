@@ -152,7 +152,7 @@ export async function findUserMemberships(userId: string): Promise<DashboardMemb
   const rows = await prisma.userDashboard.findMany({
     where: { userId, deletedAt: null, dashboard: { deletedAt: null } },
     select: { role: true, dashboard: { select: { id: true, siteId: true, domain: true } } },
-    orderBy: { createdAt: 'desc' },
+    orderBy: { joinedAt: 'desc' },
   });
 
   return rows.map((row) =>
