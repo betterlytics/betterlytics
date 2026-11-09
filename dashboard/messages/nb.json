@@ -722,6 +722,58 @@
           "back": "Tilbake"
         }
       },
+      "consent": {
+        "title": "Koble til {client}",
+        "lede": "{client} vil ha tilgang til Betterlytics-kontoen din.",
+        "facts": {
+          "app": "App",
+          "identity": "Identitet",
+          "returnsTo": "Går tilbake til",
+          "verified": "Verifisert",
+          "unverified": "Ikke verifisert"
+        },
+        "warnings": {
+          "unverified": "{client} registrerte seg selv, så vi kan ikke bekrefte hvem som laget den.",
+          "loopback": "Startet du ikke dette fra {client}? Avbryt."
+        },
+        "permissions": {
+          "title": "Hva {client} kan gjøre",
+          "read": "Lese statistikk",
+          "readDescription": "Trafikk, hendelser, trakter og feil på dashbordene du velger.",
+          "roleNote": "Den kan aldri gjøre mer enn rollen din tillater."
+        },
+        "dashboards": {
+          "title": "Velg dashbord",
+          "modeAll": "Alle dashbord",
+          "modeSelected": "Bare valgte",
+          "allHint": "Inkluderer dashbord du legger til senere",
+          "search": "Søk i dashbord",
+          "selectAll": "Velg alle",
+          "selected": "<b>{selected}</b> av {total} valgt",
+          "pickOne": "Velg minst ett dashbord",
+          "noMatch": "Ingen dashbord samsvarer med søket.",
+          "empty": "Du har ingen dashbord ennå. <link>Legg til et nettsted</link>"
+        },
+        "roles": {
+          "owner": "Eier",
+          "admin": "Admin",
+          "editor": "Redaktør",
+          "viewer": "Leser"
+        },
+        "reconnect": {
+          "title": "{client} er allerede koblet til",
+          "body": "Den nåværende tilgangen din er valgt nedenfor. Hvis du kobler til, erstattes den."
+        },
+        "cancel": "Avbryt",
+        "connect": "Koble til",
+        "connecting": "Kobler til…",
+        "signedInAs": "Logget inn som",
+        "switchAccount": "Bytt konto",
+        "saveError": "Vi kunne ikke lagre valgene dine. Prøv igjen.",
+        "invalidTitle": "Denne tilkoblingsforespørselen er ikke lenger gyldig",
+        "invalidLede": "Start tilkoblingen på nytt fra appen din.",
+        "goToDashboards": "Gå til dashbord"
+      },
       "register": {
         "seo": {
           "title": "Opprett din gratis Betterlytics-konto",
@@ -836,7 +888,8 @@
         "originMismatch": "Denne siden er åpnet på {origin}, som ikke samsvarer med adressen denne Betterlytics-instansen er konfigurert for, så forespørselen ble blokkert. Åpne Betterlytics på den konfigurerte adressen. Hvis du drifter denne instansen, sørg for at den konfigurerte URL-en (protokoll, vert og port) samsvarer med adressen i nettleseren.",
         "accountLocked": "For mange feil koder. Innlogging med tofaktorautentisering er låst i 15 minutter.",
         "accountDisabled": "Denne kontoen er deaktivert. Kontakt administratoren din.",
-        "rateLimited": "For mange forsøk. Vent litt og prøv igjen."
+        "rateLimited": "For mange forsøk. Vent litt og prøv igjen.",
+        "connectionRequestInvalid": "Denne tilkoblingsforespørselen er ikke lenger gyldig. Start tilkoblingen på nytt fra appen din."
       }
     },
     "demo": {

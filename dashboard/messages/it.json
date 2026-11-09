@@ -722,6 +722,58 @@
           "back": "Indietro"
         }
       },
+      "consent": {
+        "title": "Connetti {client}",
+        "lede": "{client} vuole accedere al tuo account Betterlytics.",
+        "facts": {
+          "app": "App",
+          "identity": "Identità",
+          "returnsTo": "Ritorna a",
+          "verified": "Verificata",
+          "unverified": "Non verificata"
+        },
+        "warnings": {
+          "unverified": "{client} si è registrata da sola, quindi non possiamo confermare chi l'ha creata.",
+          "loopback": "Non l'hai avviato da {client}? Annulla."
+        },
+        "permissions": {
+          "title": "Cosa può fare {client}",
+          "read": "Leggere le statistiche",
+          "readDescription": "Traffico, eventi, funnel ed errori sulle dashboard che scegli.",
+          "roleNote": "Non può mai fare più di quanto consente il tuo ruolo."
+        },
+        "dashboards": {
+          "title": "Seleziona le dashboard",
+          "modeAll": "Tutte le dashboard",
+          "modeSelected": "Solo selezionate",
+          "allHint": "Include le dashboard che aggiungerai in seguito",
+          "search": "Cerca dashboard",
+          "selectAll": "Seleziona tutte",
+          "selected": "<b>{selected}</b> di {total} selezionate",
+          "pickOne": "Scegli almeno una dashboard",
+          "noMatch": "Nessuna dashboard corrisponde alla ricerca.",
+          "empty": "Non hai ancora nessuna dashboard. <link>Aggiungi un sito</link>"
+        },
+        "roles": {
+          "owner": "Proprietario",
+          "admin": "Admin",
+          "editor": "Editor",
+          "viewer": "Visualizzatore"
+        },
+        "reconnect": {
+          "title": "{client} è già connesso",
+          "body": "Il tuo accesso attuale è selezionato qui sotto. Connettendo lo sostituisci."
+        },
+        "cancel": "Annulla",
+        "connect": "Connetti",
+        "connecting": "Connessione in corso…",
+        "signedInAs": "Accesso effettuato come",
+        "switchAccount": "Cambia account",
+        "saveError": "Non siamo riusciti a salvare le tue scelte. Riprova.",
+        "invalidTitle": "Questa richiesta di connessione non è più valida",
+        "invalidLede": "Avvia di nuovo la connessione dalla tua app.",
+        "goToDashboards": "Vai alle dashboard"
+      },
       "register": {
         "seo": {
           "title": "Crea il tuo account Betterlytics gratuito",
@@ -836,7 +888,8 @@
         "originMismatch": "Questa pagina è aperta su {origin}, che non corrisponde all'indirizzo per cui è configurata questa istanza di Betterlytics, quindi la richiesta è stata bloccata. Apri Betterlytics al suo indirizzo configurato. Se gestisci questa istanza, assicurati che l'URL configurato (schema, host e porta) corrisponda all'indirizzo nel tuo browser.",
         "accountLocked": "Troppi codici errati. L'accesso con autenticazione a due fattori è bloccato per 15 minuti.",
         "accountDisabled": "Questo account è stato disattivato. Contatta il tuo amministratore.",
-        "rateLimited": "Troppi tentativi. Attendi un momento e riprova."
+        "rateLimited": "Troppi tentativi. Attendi un momento e riprova.",
+        "connectionRequestInvalid": "Questa richiesta di connessione non è più valida. Avvia di nuovo la connessione dalla tua app."
       }
     },
     "demo": {

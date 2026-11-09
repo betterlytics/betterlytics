@@ -21,6 +21,8 @@ export function useAuthErrorMessage() {
           return t('accountDisabled');
         case 'rateLimited':
           return t('rateLimited');
+        case 'connectionRequestInvalid':
+          return t('connectionRequestInvalid');
         case 'other':
           return null;
       }

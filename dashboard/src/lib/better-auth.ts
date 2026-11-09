@@ -1,9 +1,12 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { twoFactor } from 'better-auth/plugins';
+import { jwt, twoFactor } from 'better-auth/plugins';
+import { mcp } from '@better-auth/mcp';
+import { cimd } from '@better-auth/cimd';
+import { fetchClientMetadataResource } from '@better-auth/cimd/node';
 import { APIError, createAuthMiddleware, getSessionFromCtx, isAPIError } from 'better-auth/api';
 import { nextCookies } from 'better-auth/next-js';
-import prisma from '@/lib/postgres';
+import { authPrisma } from '@/lib/better-auth-prisma';
 import { hashPassword, verifyPasswordHash } from '@/lib/password';
 import { env } from '@/lib/env';
 import { SESSION_MAX_AGE_SECONDS, SESSION_UPDATE_AGE_SECONDS } from '@/services/session.service';
@@ -36,6 +39,10 @@ import {
   deleteUserResetTokens,
   findResetTokenUserId,
 } from '@/repositories/postgres/resetToken.repository';
+import { isMcpOAuthEnabled, MCP_CONSENT_PATH, MCP_READ_SCOPE, MCP_RESOURCE } from '@/mcp/auth/oauth';
+import { acceptMcpRedirectUri } from '@/mcp/auth/redirect-uri';
+import { withMcpAuthorizationDefaults } from '@/mcp/auth/authorize-request';
+import { withoutDpopClientMetadata, withoutDpopInput } from '@/mcp/auth/dpop';
 
 // better-auth only enforces password length; these body fields get our full policy.
 const PASSWORD_POLICY_FIELDS: Record<string, string> = {
@@ -66,6 +73,34 @@ function signupLanguage(body: unknown): SupportedLanguages | undefined {
     : undefined;
 }
 
+// The OAuth authorization server MCP clients connect through: discovery, registration (CIMD, or open DCR behind
+// the library's per-IP rate limit), sign-in, consent and JWT access tokens bound to the MCP endpoint.
+function mcpOAuthPlugins() {
+  return [
+    // The OAuth provider signs access tokens with it; the session JWT it would also hand out isn't used
+    jwt({ disableSettingJwtHeader: true }),
+    mcp({
+      resource: MCP_RESOURCE,
+      loginPage: '/signin',
+      consentPage: MCP_CONSENT_PATH,
+      scopes: [MCP_READ_SCOPE, 'offline_access'],
+      grantTypes: ['authorization_code', 'refresh_token'],
+      allowDynamicClientRegistration: true,
+      allowUnauthenticatedClientRegistration: true,
+      // Cursor and Claude Code register loopback redirects without saying they are native apps
+      clientRegistrationDefaultApplicationType: 'infer',
+      validateRedirectUri: acceptMcpRedirectUri,
+      // Clients come only from DCR and CIMD: nobody manages clients or resources through the API
+      clientPrivileges: () => false,
+      resourcePrivileges: () => false,
+    }),
+    cimd({
+      fetchClientMetadataResource: withoutDpopClientMetadata(fetchClientMetadataResource),
+      metadataProfile: 'mcp-2026-07-28',
+    }),
+  ];
+}
+
 export const auth = betterAuth({
   appName: 'Betterlytics',
   baseURL: env.AUTH_URL,
@@ -73,7 +108,9 @@ export const auth = betterAuth({
   // OAuth failures that carry no errorCallbackURL of their own (a lost state cookie) land on sign-in, which says what
   // went wrong, rather than better-auth's unbranded error page
   onAPIError: { errorURL: '/signin' },
-  database: prismaAdapter(prisma, { provider: 'postgresql', transaction: true }),
+  // the JWT plugin's session token endpoint; OAuth clients use /oauth2/token
+  disabledPaths: isMcpOAuthEnabled() ? ['/token'] : [],
+  database: prismaAdapter(authPrisma, { provider: 'postgresql', transaction: true }),
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
@@ -158,6 +195,18 @@ export const auth = betterAuth({
       // Account mutations run through our server actions
       if (ctx.path === '/update-user') {
         throw new APIError('NOT_FOUND');
+      }
+
+      if (ctx.path === '/oauth2/authorize' && isMcpOAuthEnabled()) {
+        withoutDpopInput(ctx.method === 'POST' ? ctx.body : ctx.query, 'dpop_jkt');
+        if (ctx.method === 'POST') {
+          return { context: { body: withMcpAuthorizationDefaults(ctx.body ?? {}) } };
+        }
+        return { context: { query: withMcpAuthorizationDefaults(ctx.query ?? {}) } };
+      }
+
+      if (ctx.path === '/oauth2/register' && isMcpOAuthEnabled()) {
+        withoutDpopInput(ctx.body, 'dpop_bound_access_tokens');
       }
 
       // OAuth-only and disabled accounts get no reset token; the response must match the unknown-email case
@@ -366,7 +415,11 @@ export const auth = betterAuth({
       },
     },
   },
-  plugins: [twoFactor({ issuer: 'Betterlytics' }), nextCookies()],
+  plugins: [
+    twoFactor({ issuer: 'Betterlytics' }),
+    ...(isMcpOAuthEnabled() ? mcpOAuthPlugins() : []),
+    nextCookies(),
+  ],
 });
 
 export function getEnabledOAuthProviders(): { google: boolean; github: boolean } {
