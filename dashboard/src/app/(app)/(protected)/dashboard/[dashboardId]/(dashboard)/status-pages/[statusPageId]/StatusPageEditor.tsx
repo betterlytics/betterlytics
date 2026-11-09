@@ -255,7 +255,7 @@ export function StatusPageEditor({
                 onClick={() => setShowStudio(true)}
                 className='h-9 cursor-pointer'
               >
-                <Pencil className='mr-1.5 h-3.5 w-3.5' />
+                <Pencil />
                 {t('editPage')}
               </Button>
             )}
@@ -272,7 +272,7 @@ export function StatusPageEditor({
                       onClick={() => publishMutation.mutate({ statusPageId: statusPage.id, isPublished: true })}
                       className='h-9 cursor-pointer'
                     >
-                      {publishMutation.isPending && <Spinner size='sm' className='mr-1.5 border-current' />}
+                      {publishMutation.isPending && <Spinner size='sm' className='border-current' />}
                       {tActions('publish')}
                     </Button>
                   )}
@@ -353,7 +353,7 @@ export function StatusPageEditor({
                       onClick={handleSave}
                       className='cursor-pointer'
                     >
-                      {saveMutation.isPending && <Spinner size='sm' className='mr-1.5 border-current' />}
+                      {saveMutation.isPending && <Spinner size='sm' className='border-current' />}
                       {t('save')}
                     </Button>
                   )}
@@ -409,7 +409,7 @@ export function StatusPageEditor({
                 onClick={handleSave}
                 className='cursor-pointer'
               >
-                {saveMutation.isPending && <Spinner size='sm' className='mr-1.5 border-current' />}
+                {saveMutation.isPending && <Spinner size='sm' className='border-current' />}
                 {t('save')}
               </Button>
             )}

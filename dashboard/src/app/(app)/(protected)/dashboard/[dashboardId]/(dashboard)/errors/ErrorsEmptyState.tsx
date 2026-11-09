@@ -151,7 +151,7 @@ export function ErrorsEmptyState() {
                 target='_blank'
                 rel='noopener noreferrer'
               >
-                <ExternalLinkIcon className='mr-2 h-4 w-4' />
+                <ExternalLinkIcon />
                 {t('emptyState.learnMore')}
               </ExternalLink>
             </Button>

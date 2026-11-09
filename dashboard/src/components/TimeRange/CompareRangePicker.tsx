@@ -154,7 +154,7 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
               <ScaleIcon className='h-4 w-4' />
               <span className='truncate'>{label()}</span>
             </div>
-            <ChevronDownIcon className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+            <ChevronDownIcon className='shrink-0 opacity-50' />
           </Button>
         </DialogTrigger>
         <DialogContent className='bg-popover max-h-[85vh] w-[calc(100vw-2rem)] max-w-[420px] overflow-y-auto px-3 py-4'>
@@ -183,7 +183,7 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
             <ScaleIcon className='h-4 w-4' />
             <span className='truncate'>{label()}</span>
           </div>
-          <ChevronDownIcon className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+          <ChevronDownIcon className='shrink-0 opacity-50' />
         </Button>
       </PopoverTrigger>
       <PopoverContent className='w-[200px] max-w-[calc(100svw-48px)] space-y-6 border p-1 shadow-2xl' align='end'>
