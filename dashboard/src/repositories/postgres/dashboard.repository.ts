@@ -18,6 +18,7 @@ import {
 import { DEFAULT_DASHBOARD_SETTINGS } from '@/entities/dashboard/dashboardSettings.entities';
 import { DEFAULT_SITE_CONFIG_VALUES } from '@/entities/dashboard/siteConfig.entities';
 import { DashboardMember, DashboardMemberSchema } from '@/entities/dashboard/invitation.entities';
+import { DashboardMembership, DashboardMembershipSchema } from '@/entities/dashboard/mcpOAuth.entities';
 import { DashboardRole } from '@prisma/client';
 
 export async function findDashboardById(dashboardId: string): Promise<Dashboard> {
@@ -144,6 +145,24 @@ export async function findAllUserDashboards(userId: string): Promise<DashboardWi
     console.error("Error while finding user's dashboards:", error);
     throw new Error('Failed to find user dashboards');
   }
+}
+
+/** The user's live memberships on dashboards that aren't deleted, newest membership first. */
+export async function findUserMemberships(userId: string): Promise<DashboardMembership[]> {
+  const rows = await prisma.userDashboard.findMany({
+    where: { userId, deletedAt: null, dashboard: { deletedAt: null } },
+    select: { role: true, dashboard: { select: { id: true, siteId: true, domain: true } } },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return rows.map((row) =>
+    DashboardMembershipSchema.parse({
+      dashboardId: row.dashboard.id,
+      siteId: row.dashboard.siteId,
+      domain: row.dashboard.domain,
+      role: row.role,
+    }),
+  );
 }
 
 export async function findOwnedDashboards(userId: string): Promise<Dashboard[]> {

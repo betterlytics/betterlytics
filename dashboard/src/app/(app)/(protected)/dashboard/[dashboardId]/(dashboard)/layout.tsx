@@ -1,6 +1,7 @@
 import BASidebarProvider from '@/components/sidebar/BASidebarProvider';
 import BASidebar from '@/components/sidebar/BASidebar';
 import BAMobileSidebarTrigger from '@/components/sidebar/BAMobileSidebarTrigger';
+import { SidebarAlertSummaryDot } from '@/components/sidebar/SidebarAlertDot';
 import { BannerProvider } from '@/contexts/BannerProvider';
 import { Suspense } from 'react';
 import UsageAlertBanner from '@/components/billing/UsageAlertBanner';
@@ -12,7 +13,7 @@ import { TimezoneFallbackBanner } from '../TimezoneFallbackBanner';
 import { TermsRequiredModal } from '@/components/account/TermsRequiredModal';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { getUserBillingData } from '@/actions/billing.action';
-import { requireAuth } from '@/auth/auth-actions';
+import { requireAuth, resolveDashboardContext } from '@/auth/auth-actions';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { RealtimeQuerySync } from '@/components/dashboard/RealtimeQuerySync';
 import GithubStarCard from '@/components/githubStar/GithubStarCard';
@@ -26,6 +27,9 @@ type DashboardSidebarLayoutProps = {
 export default async function DashboardSidebarLayout({ params, children }: DashboardSidebarLayoutProps) {
   const { dashboardId } = await params;
   const session = await requireAuth();
+  // The sidebar starts dashboard requests before awaiting translations, so access is settled first to keep a
+  // redirect out of an unhandled promise.
+  await resolveDashboardContext(dashboardId);
 
   const billingEnabled = isClientFeatureEnabled('enableBilling');
 
@@ -43,7 +47,9 @@ export default async function DashboardSidebarLayout({ params, children }: Dashb
   return (
     <BASidebarProvider>
       <BASidebar dashboardId={dashboardId} isDemo={false} />
-      <BAMobileSidebarTrigger />
+      <BAMobileSidebarTrigger
+        indicator={isFeatureEnabled('enableUptimeMonitoring') && <SidebarAlertSummaryDot />}
+      />
       <BannerProvider>
         {/* Bottom padding below md keeps page content clear of the floating mobile menu button */}
         <div className='flex w-full justify-center pb-20 md:pb-0'>

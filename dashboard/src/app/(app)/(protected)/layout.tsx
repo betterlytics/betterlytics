@@ -6,6 +6,7 @@ import { isUserInvitedDashboardMemberAction } from '@/app/actions/index.actions'
 import { env } from '@/lib/env';
 import { DevWidget } from '@/components/dev/DevWidget';
 import { getUserSubscription } from '@/repositories/postgres/subscription.repository';
+import { freePlan } from '@/lib/billing/catalog';
 import { getCachedUserSettings } from '@/services/account/userSettings.service';
 import { UserSettingsProvider } from '@/contexts/UserSettingsProvider';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
@@ -42,5 +43,5 @@ export default async function ProtectedLayout({ children }: { children: React.Re
 
 async function DevWidgetLoader({ userId }: { userId: string }) {
   const subscription = await getUserSubscription(userId);
-  return <DevWidget initialTier={subscription?.tier ?? 'growth'} />;
+  return <DevWidget initialPlanId={subscription?.planId ?? freePlan().id} />;
 }

@@ -4,7 +4,7 @@ import { getIP } from 'better-auth/api';
 import { auth, getEnabledOAuthProviders } from '@/lib/better-auth';
 import { env } from '@/lib/env';
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
-import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
+import { createFreeSubscriptionForUser } from '@/services/billing/subscription.service';
 import { sendVerificationEmail } from '@/services/account/verification.service';
 import { enqueueEmail } from '@/services/email/email.service';
 import { setLocaleCookie } from '@/constants/cookies';
@@ -22,6 +22,7 @@ import { resetTokenStoredIdentifier } from '@/services/auth/passwordReset.servic
 import { deleteUserResetTokens, findResetTokenUserId } from '@/repositories/postgres/resetToken.repository';
 import { getSignupAllowance } from '@/services/auth/signupGate.service';
 import { APIError, getSessionFromCtx } from 'better-auth/api';
+import { isMcpOAuthEnabled } from '@/mcp/auth/oauth';
 
 vi.mock('@/lib/env', () => ({
   env: {
@@ -38,6 +39,9 @@ vi.mock('@/lib/env', () => ({
 }));
 vi.mock('@/lib/postgres', () => ({
   default: {},
+}));
+vi.mock('@/lib/better-auth-prisma', () => ({
+  authPrisma: {},
 }));
 vi.mock('@/repositories/postgres/session.repository', () => ({
   deleteOtherUserSessions: vi.fn(),
@@ -62,7 +66,7 @@ vi.mock('@/services/account/userSettings.service', () => ({
   getUserSettings: vi.fn(),
 }));
 vi.mock('@/services/billing/subscription.service', () => ({
-  createStarterSubscriptionForUser: vi.fn(),
+  createFreeSubscriptionForUser: vi.fn(),
 }));
 vi.mock('@/services/account/verification.service', () => ({
   sendVerificationEmail: vi.fn(),
@@ -83,6 +87,10 @@ vi.mock('@/constants/cookies', () => ({
 }));
 vi.mock('@/lib/feature-flags', () => ({
   isFeatureEnabled: vi.fn(),
+}));
+vi.mock('@/mcp/auth/oauth', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/mcp/auth/oauth')>()),
+  isMcpOAuthEnabled: vi.fn(() => false),
 }));
 
 beforeEach(() => {
@@ -300,7 +308,7 @@ describe('user create hook (onboarding side effects)', () => {
 
     await runCreateHook();
 
-    expect(createStarterSubscriptionForUser).not.toHaveBeenCalled();
+    expect(createFreeSubscriptionForUser).not.toHaveBeenCalled();
     expect(createDefaultUserSettings).not.toHaveBeenCalled();
     expect(sendVerificationEmail).not.toHaveBeenCalled();
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('rolled back'), { userId: 'user-1' });
@@ -312,7 +320,7 @@ describe('user create hook (onboarding side effects)', () => {
 
     await runCreateHook();
 
-    expect(createStarterSubscriptionForUser).toHaveBeenCalledWith('user-1');
+    expect(createFreeSubscriptionForUser).toHaveBeenCalledWith('user-1');
     expect(createDefaultUserSettings).toHaveBeenCalledWith('user-1', undefined);
   });
 
@@ -334,7 +342,7 @@ describe('user create hook (onboarding side effects)', () => {
 
   it('swallows side-effect failures (user creation must not fail)', async () => {
     vi.mocked(isFeatureEnabled).mockReturnValue(false);
-    vi.mocked(createStarterSubscriptionForUser).mockRejectedValue(new Error('db down'));
+    vi.mocked(createFreeSubscriptionForUser).mockRejectedValue(new Error('db down'));
 
     await expect(runCreateHook()).resolves.toBeUndefined();
     expect(createDefaultUserSettings).toHaveBeenCalled();
@@ -808,5 +816,45 @@ describe('user update hook (2FA change notifications)', () => {
     await expect(
       runUpdateHook(makeUser({ twoFactorEnabled: true }), '/two-factor/verify-totp'),
     ).resolves.toBeUndefined();
+  });
+});
+
+describe('before hook (DPoP inputs on cloud)', () => {
+  type OAuthBeforeHook = (ctx: {
+    path: string;
+    method: string;
+    body?: Record<string, unknown>;
+    query?: Record<string, unknown>;
+    json: (data: unknown) => unknown;
+  }) => Promise<unknown>;
+  const runBeforeHook = (ctx: Omit<Parameters<OAuthBeforeHook>[0], 'json'>) =>
+    (auth.options.hooks!.before as unknown as OAuthBeforeHook)({ ...ctx, json: (data) => data });
+  const dpopJkt = 'a'.repeat(43);
+
+  beforeEach(() => {
+    vi.mocked(isMcpOAuthEnabled).mockReturnValue(true);
+  });
+
+  it('drops dpop_jkt from an authorization request, by query or by form', async () => {
+    const query: Record<string, unknown> = { client_id: 'c', dpop_jkt: dpopJkt };
+    await runBeforeHook({ path: '/oauth2/authorize', method: 'GET', query });
+    expect(query).not.toHaveProperty('dpop_jkt');
+
+    const body: Record<string, unknown> = { client_id: 'c', dpop_jkt: dpopJkt };
+    await runBeforeHook({ path: '/oauth2/authorize', method: 'POST', body });
+    expect(body).not.toHaveProperty('dpop_jkt');
+  });
+
+  it('drops dpop_bound_access_tokens from a client registration', async () => {
+    const body: Record<string, unknown> = { client_name: 'Agent', dpop_bound_access_tokens: true };
+    await runBeforeHook({ path: '/oauth2/register', method: 'POST', body });
+    expect(body).toEqual({ client_name: 'Agent' });
+  });
+
+  it('leaves both alone when OAuth is off', async () => {
+    vi.mocked(isMcpOAuthEnabled).mockReturnValue(false);
+    const body: Record<string, unknown> = { dpop_bound_access_tokens: true };
+    await runBeforeHook({ path: '/oauth2/register', method: 'POST', body });
+    expect(body).toEqual({ dpop_bound_access_tokens: true });
   });
 });

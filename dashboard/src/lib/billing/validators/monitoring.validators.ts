@@ -7,27 +7,36 @@ import { CapabilityValidator, LazyValue, TranslationFn } from './base.validator'
 class MonitoringCapabilityValidator extends CapabilityValidator {
   constructor(
     private readonly caps: MonitoringCapabilities,
-    private readonly t: TranslationFn,
+    t: TranslationFn,
   ) {
-    super();
+    super(t);
   }
 
   monitorLimit(currentCount: LazyValue<number>): this {
-    this.addCheck(async () => {
-      const count = await this.resolveLazy(currentCount);
-      return count < this.caps.maxMonitors;
-    }, this.t('capabilities.monitorLimit'));
+    this.addCheck(
+      async () => {
+        const count = await this.resolveLazy(currentCount);
+        return count < this.caps.maxMonitors;
+      },
+      this.upgradeMessage('capabilities.monitorLimit', (c) => c.monitoring.maxMonitors > this.caps.maxMonitors),
+    );
     return this;
   }
 
   minInterval(intervalSeconds: number): this {
-    this.addCheck(intervalSeconds >= this.caps.minIntervalSeconds, this.t('capabilities.minInterval'));
+    this.addCheck(
+      intervalSeconds >= this.caps.minIntervalSeconds,
+      this.upgradeMessage('capabilities.minInterval', (c) => c.monitoring.minIntervalSeconds <= intervalSeconds),
+    );
     return this;
   }
 
   httpMethod(method: string | undefined): this {
     if (method !== undefined && method !== 'HEAD') {
-      this.addCheck(this.caps.httpMethodConfigurable, this.t('capabilities.httpMethod'));
+      this.addCheck(
+        this.caps.httpMethodConfigurable,
+        this.upgradeMessage('capabilities.httpMethod', (c) => c.monitoring.httpMethodConfigurable),
+      );
     }
     return this;
   }
@@ -36,7 +45,10 @@ class MonitoringCapabilityValidator extends CapabilityValidator {
     if (codes !== undefined) {
       const isDefault = codes.length === 1 && codes[0] === '2xx';
       if (!isDefault) {
-        this.addCheck(this.caps.customStatusCodes, this.t('capabilities.statusCodes'));
+        this.addCheck(
+          this.caps.customStatusCodes,
+          this.upgradeMessage('capabilities.statusCodes', (c) => c.monitoring.customStatusCodes),
+        );
       }
     }
     return this;
@@ -46,7 +58,10 @@ class MonitoringCapabilityValidator extends CapabilityValidator {
     if (headers != null) {
       const hasCustomHeaders = headers.some((h) => h.key.trim() !== '' || h.value.trim() !== '');
       if (hasCustomHeaders) {
-        this.addCheck(this.caps.customHeaders, this.t('capabilities.customHeaders'));
+        this.addCheck(
+          this.caps.customHeaders,
+          this.upgradeMessage('capabilities.customHeaders', (c) => c.monitoring.customHeaders),
+        );
       }
     }
     return this;
@@ -54,7 +69,10 @@ class MonitoringCapabilityValidator extends CapabilityValidator {
 
   expectedKeyword(keyword: string | null | undefined, httpMethod: string | undefined): this {
     if (keyword != null && keyword.trim() !== '' && httpMethod === 'GET') {
-      this.addCheck(this.caps.keywordValidation, this.t('capabilities.keywordValidation'));
+      this.addCheck(
+        this.caps.keywordValidation,
+        this.upgradeMessage('capabilities.keywordValidation', (c) => c.monitoring.keywordValidation),
+      );
     }
     return this;
   }

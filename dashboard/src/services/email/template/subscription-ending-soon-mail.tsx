@@ -50,7 +50,7 @@ export function SubscriptionEndingSoonEmail({
   const affectedDescription = describeAffectedDashboards(affectedDashboards);
 
   return (
-    <EmailLayout preview={`After ${endDate}, your account moves to the free Growth plan.`} campaign={CAMPAIGN}>
+    <EmailLayout preview={`After ${endDate}, your account moves to the free plan.`} campaign={CAMPAIGN}>
       <H1>Your subscription ends soon</H1>
 
       <Greeting userName={userName} />
@@ -59,7 +59,7 @@ export function SubscriptionEndingSoonEmail({
 
       <P>
         Your subscription is scheduled to end on <strong>{endDate}</strong>. After that, your account will be moved
-        to the free Growth plan ({freeEventLimit.toLocaleString()} events/month).
+        to the free plan ({freeEventLimit.toLocaleString()} events/month).
       </P>
 
       {affectedDashboards.length > 0 && (

@@ -1,0 +1,74 @@
+import type { PlanCapabilities } from '@/lib/billing/capabilities';
+
+export const PLAN_IDS = ['free', 'plus', 'business', 'enterprise', 'growth'] as const;
+export type PlanId = (typeof PLAN_IDS)[number];
+
+export const PLAN_CURRENCIES = ['USD', 'EUR'] as const;
+export type PlanCurrency = (typeof PLAN_CURRENCIES)[number];
+
+export type BillingInterval = 'month';
+
+/** Amounts in cents, one per supported currency. */
+export type BandPrice = Record<PlanCurrency, number>;
+
+export type PriceBand = {
+  events: number;
+  prices: Partial<Record<BillingInterval, BandPrice>>;
+  lookupKeys: Partial<Record<BillingInterval, string>>;
+};
+
+/** A retired Stripe price: it still bills existing subscriptions but can't be bought. */
+export type LegacyPrice = {
+  lookupKey: string;
+  events: number;
+  interval: BillingInterval;
+};
+
+export type PlanService = {
+  prioritySupport: boolean;
+  dedicatedSupport: boolean;
+  slaGuarantee: boolean;
+};
+
+/** Limit lines are worded from the plan's capabilities; `feature` lines are keys under `pricingCards.features`. */
+export type PlanHighlight =
+  | { kind: 'everythingIn'; planId: PlanId }
+  | { kind: 'sites' }
+  | { kind: 'members' }
+  | { kind: 'retention' }
+  | { kind: 'uptime' }
+  | { kind: 'statusPages' }
+  | { kind: 'replays' }
+  | {
+      kind: 'feature';
+      key:
+        | 'fullDashboard'
+        | 'funnelsJourneys'
+        | 'errorTracking'
+        | 'advancedChecks'
+        | 'statusPagesPro'
+        | 'statusPageCustomDomain'
+        | 'prioritySupport'
+        | 'emailReports'
+        | 'samlSso'
+        | 'auditLog'
+        | 'slaGuarantee'
+        | 'dpaSecurityReviews'
+        | 'customRetention'
+        | 'customContracts';
+    };
+
+export type PlanDefinition = {
+  id: PlanId;
+  /** Brand name, shown untranslated in every locale, emails and Stripe. */
+  name: string;
+  listed: boolean;
+  selfServe: boolean;
+  rank: number;
+  featured: boolean;
+  bands: readonly PriceBand[];
+  legacyPrices: readonly LegacyPrice[];
+  capabilities: PlanCapabilities;
+  service: PlanService;
+  highlights: readonly PlanHighlight[];
+};

@@ -22,6 +22,7 @@ function MapLegendComponent({ maxVisitors = 1, className }: MapLegendProps) {
 
   return (
     <div
+      data-map-overlay='bottom'
       className={cn(
         'border-border bg-card rounded-md border p-2.5 text-xs leading-normal shadow-md dark:bg-(--card-interactive)',
         className,

@@ -1,5 +1,91 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v153ChangelogEntryIt: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.3',
+    releasedAt: '2026-11-08',
+    title: 'Miglioramenti al monitoraggio e alla mappa',
+    summary:
+      "La barra laterale ora segnala quando un monitor è offline, e le percentuali di uptime sono più precise e coincidono ovunque compaiano. Questa versione blocca anche un'ondata di referrer spam, perfeziona la mappa geografica e corregge alcuni problemi nel monitoraggio e nel report Siti di riferimento.",
+  },
+  sections: [
+    {
+      id: 'v153-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'La voce Monitoraggio nella barra laterale ora mostra un pallino rosso finché uno dei tuoi monitor è offline.',
+            'Il tempo in cui un monitor non veniva controllato non conta più né come uptime né come downtime.',
+            'Quando elimini un monitor, ora ricevi un avviso se è usato in una pagina di stato.',
+            'I controlli di uptime sono ora più affidabili.',
+            "Il filtro anti-bot ora blocca un'ondata di referrer spam che compariva come visite false tra i tuoi siti di riferimento.",
+            'I popup e i filtri della mappa geografica non finiscono più nascosti dietro altri elementi della pagina.',
+            'Vari miglioramenti di usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v153-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Risolto un problema per cui le percentuali di uptime potevano differire leggermente da una schermata all'altra.",
+            'I visitatori dalle Svalbard vengono ora attribuiti correttamente alla Norvegia.',
+            'Le impostazioni degli avvisi di un monitor ora mostrano correttamente a chi vengono inviati gli avvisi via email.',
+            'I filtri per sorgente referrer ora mostrano correttamente il nome della categoria, ad esempio "AI" o "Ricerca".',
+            'Nella tabella dei siti di riferimento, le righe "Sconosciuto" non mostrano più il valore di confronto relativo al traffico diretto.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v153ChangelogModalIt: ChangelogEntryData = {
+  metadata: v153ChangelogEntryIt.metadata,
+  sections: [
+    {
+      id: 'v153-modal-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Un pallino rosso nella barra laterale segnala quando un monitor è offline.',
+            "L'uptime non conta più il tempo in cui un monitor non veniva controllato.",
+            'Quando elimini un monitor, ricevi un avviso se è usato in una pagina di stato.',
+            'Controlli di uptime più affidabili.',
+            "Un'ondata di referrer spam ora viene bloccata.",
+            'I popup e i filtri della mappa geografica non finiscono più nascosti.',
+            'Vari miglioramenti di usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v153-modal-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Le percentuali di uptime ora coincidono ovunque.',
+            'I visitatori dalle Svalbard vengono attribuiti correttamente alla Norvegia.',
+            'Le impostazioni degli avvisi dei monitor mostrano il destinatario email corretto.',
+            'I filtri per sorgente referrer mostrano il nome di categoria corretto.',
+            'I referrer sconosciuti non mostrano più il valore di confronto del traffico diretto.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v152ChangelogEntryIt: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.2',
@@ -802,9 +888,10 @@ const v144ChangelogEntryIt: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalIt = v152ChangelogModalIt;
+export const latestChangelogModalIt = v153ChangelogModalIt;
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  v153ChangelogEntryIt,
   v152ChangelogEntryIt,
   v151ChangelogEntryIt,
   v150ChangelogEntryIt,
