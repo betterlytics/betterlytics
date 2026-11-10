@@ -13,22 +13,27 @@ import { AuthContext } from '@/entities/auth/authContext.entities';
 import { BATimeZone } from '@/entities/analytics/analyticsQuery.entities';
 import { type ErrorGroupRow, ErrorGroupStatusValueSchema } from '@/entities/analytics/errors.entities';
 
+const STATIC_DEMO = { demoCache: false };
+
 export const fetchErrorGroupAction = withDashboardAuthContext(
   async (ctx: AuthContext, fingerprint: string): Promise<ErrorGroupRow | null> => {
     return getErrorGroupForSite(ctx, fingerprint);
   },
+  STATIC_DEMO,
 );
 
 export const fetchErrorGroupSidebarAction = withDashboardAuthContext(
   async (ctx: AuthContext, fingerprint: string, timezone: string): Promise<ErrorGroupSidebarData> => {
     return getErrorGroupSidebarDataForSite(ctx, fingerprint, BATimeZone.parse(timezone));
   },
+  STATIC_DEMO,
 );
 
 export const findReplaySessionForErrorAction = withDashboardAuthContext(
   async (ctx: AuthContext, fingerprint: string): Promise<string | null> => {
     return findReplaySessionForErrorGroup(ctx, fingerprint);
   },
+  STATIC_DEMO,
 );
 
 export const upsertErrorGroupAction = withDashboardMutationAuthContext(

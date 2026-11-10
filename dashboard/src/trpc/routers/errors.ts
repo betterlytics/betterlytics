@@ -12,9 +12,10 @@ import {
 import { toGroupedTimeSeries } from '@/presenters/toTimeSeries';
 
 const INITIAL_PAGE_SIZE = 10;
+const STATIC_DEMO = { demoCache: false };
 
 export const errorsRouter = createRouter({
-  errorGroups: analyticsProcedure.query(async ({ ctx }) => {
+  errorGroups: analyticsProcedure.meta(STATIC_DEMO).query(async ({ ctx }) => {
     const { main } = ctx;
     const [hasAnyErrors, errorGroups] = await Promise.all([
       hasAnyErrorsForSite(ctx.authContext),
@@ -38,6 +39,7 @@ export const errorsRouter = createRouter({
   }),
 
   errorGroupVolumes: analyticsProcedure
+    .meta(STATIC_DEMO)
     .input(z.object({ fingerprints: z.array(z.string()) }))
     .query(async ({ ctx, input }) => {
       const { main } = ctx;
@@ -46,18 +48,21 @@ export const errorsRouter = createRouter({
     }),
 
   errorOccurrence: dashboardProcedure
+    .meta(STATIC_DEMO)
     .input(z.object({ fingerprint: z.string(), offset: z.number() }))
     .query(async ({ ctx, input }) => {
       return getErrorOccurrenceForSite(ctx.authContext, input.fingerprint, Math.max(0, input.offset));
     }),
 
   checkSessionReplay: dashboardProcedure
+    .meta(STATIC_DEMO)
     .input(z.object({ sessionId: z.string().regex(/^\d+$/) }))
     .query(async ({ ctx, input }) => {
       return hasSessionReplayForSite(ctx.authContext, input.sessionId);
     }),
 
   sessionTrail: dashboardProcedure
+    .meta(STATIC_DEMO)
     .input(z.object({ sessionId: z.string().regex(/^\d+$/) }))
     .query(async ({ ctx, input }) => {
       return getSessionTrailForSite(ctx.authContext, input.sessionId);
