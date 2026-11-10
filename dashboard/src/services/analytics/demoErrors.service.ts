@@ -1,7 +1,13 @@
 import 'server-only';
 
 import moment from 'moment-timezone';
-import { DEMO_ERROR_GROUPS, type DemoErrorGroup, type DemoErrorOccurrence } from '@/constants/demoErrors';
+import {
+  DEMO_ERROR_GROUPS,
+  type DemoErrorGroup,
+  type DemoErrorOccurrence,
+  type DemoErrorReplayLink,
+} from '@/constants/demoErrors';
+import { DEMO_SESSION_REPLAYS } from '@/constants/demoSessionReplays';
 import type {
   ErrorGroupEnvironmentRow,
   ErrorGroupRow,
@@ -19,12 +25,11 @@ import { toDateTimeString } from '@/utils/dateFormatters';
 type DemoOccurrence = {
   timestamp: Date;
   sessionId: string;
-  template: DemoErrorOccurrence;
+  template: Omit<DemoErrorOccurrence, 'weight'>;
 };
 
 const MINUTE_MS = 60_000;
 const SESSION_INDEX_DIGITS = 5;
-const REPLAY_EVERY_NTH_SESSION = 3;
 const ENVIRONMENT_LIMIT = 5;
 
 const BUCKET_STEP: Record<string, { amount: number; unit: moment.unitOfTime.DurationConstructor }> = {
@@ -72,10 +77,18 @@ function pickTemplate(group: DemoErrorGroup, index: number): DemoErrorOccurrence
   return group.occurrences[0];
 }
 
+// The moment of the error inside the recording, re-dated the way the demo replay list dates it
+function replayErrorTime(replay: DemoErrorReplayLink, now: number): number {
+  const recording = DEMO_SESSION_REPLAYS.find((candidate) => candidate.session_id === replay.sessionId);
+  if (!recording) throw new Error(`Unknown demo replay ${replay.sessionId}`);
+  const startedAt = now - recording.endedMinutesAgo * MINUTE_MS - recording.duration * 1000;
+  return startedAt + replay.secondsIntoRecording * 1000;
+}
+
 // Every occurrence of a group, newest first, re-dated relative to now
 function buildOccurrences(group: DemoErrorGroup, now: number): DemoOccurrence[] {
-  const newest = now - group.lastSeenMinutesAgo * MINUTE_MS;
-  const span = (group.firstSeenMinutesAgo - group.lastSeenMinutesAgo) * MINUTE_MS;
+  const newest = group.replay ? replayErrorTime(group.replay, now) : now - group.lastSeenMinutesAgo * MINUTE_MS;
+  const span = newest - (now - group.firstSeenMinutesAgo * MINUTE_MS);
   const last = group.count - 1;
   const ages = Array.from({ length: group.count }, (_, index) => {
     if (index === 0 || index === last) return index === 0 ? 0 : 1;
@@ -83,11 +96,16 @@ function buildOccurrences(group: DemoErrorGroup, now: number): DemoOccurrence[] 
     return shapeAge(Math.min(1, Math.max(0, jittered)), group.trend);
   }).sort((a, b) => a - b);
 
-  return ages.map((age, index) => ({
-    timestamp: new Date(newest - Math.round((age * span) / 1000) * 1000),
-    sessionId: group.sessionIdPrefix + String(index).padStart(SESSION_INDEX_DIGITS, '0'),
-    template: pickTemplate(group, index),
-  }));
+  return ages.map((age, index) => {
+    if (index === 0 && group.replay) {
+      return { timestamp: new Date(newest), sessionId: group.replay.sessionId, template: group.replay.occurrence };
+    }
+    return {
+      timestamp: new Date(newest - Math.round((age * span) / 1000) * 1000),
+      sessionId: group.sessionIdPrefix + String(index).padStart(SESSION_INDEX_DIGITS, '0'),
+      template: pickTemplate(group, index),
+    };
+  });
 }
 
 function findGroup(fingerprint: string): DemoErrorGroup | undefined {
@@ -96,11 +114,14 @@ function findGroup(fingerprint: string): DemoErrorGroup | undefined {
 
 function findSession(sessionId: string): { group: DemoErrorGroup; index: number } | null {
   for (const group of DEMO_ERROR_GROUPS) {
+    if (group.replay?.sessionId === sessionId) return { group, index: 0 };
     if (!sessionId.startsWith(group.sessionIdPrefix)) continue;
     const suffix = sessionId.slice(group.sessionIdPrefix.length);
     if (suffix.length !== SESSION_INDEX_DIGITS) continue;
     const index = Number(suffix);
-    if (Number.isInteger(index) && index < group.count) return { group, index };
+    // A linked group's first occurrence carries the recording's session id instead
+    const firstIndex = group.replay ? 1 : 0;
+    if (Number.isInteger(index) && index >= firstIndex && index < group.count) return { group, index };
   }
   return null;
 }
@@ -289,13 +310,11 @@ export function getDemoSessionTrailEvents(sessionId: string): SessionTrailEvent[
   return [...before, error, ...after];
 }
 
+// Only recordings that exist: the replay page silently opens another recording for an unknown session id
 export function hasDemoSessionReplay(sessionId: string): boolean {
-  const session = findSession(sessionId);
-  return !!session && session.group.hasReplay && session.index % REPLAY_EVERY_NTH_SESSION === 0;
+  return DEMO_ERROR_GROUPS.some((group) => group.replay?.sessionId === sessionId);
 }
 
 export function findDemoReplaySessionForError(fingerprint: string): string | null {
-  const group = findGroup(fingerprint);
-  if (!group?.hasReplay) return null;
-  return buildOccurrences(group, demoNow())[0].sessionId;
+  return findGroup(fingerprint)?.replay?.sessionId ?? null;
 }

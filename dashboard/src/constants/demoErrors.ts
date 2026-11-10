@@ -19,7 +19,15 @@ export type DemoErrorOccurrence = {
   trail: DemoTrailStep[];
 };
 
-export type DemoErrorGroup = {
+export type DemoErrorReplayLink = {
+  /** A recording in DEMO_SESSION_REPLAYS; it holds a client_error event at the same offset */
+  sessionId: string;
+  secondsIntoRecording: number;
+  /** The group's newest occurrence, matching the recording */
+  occurrence: Omit<DemoErrorOccurrence, 'weight'>;
+};
+
+type DemoErrorGroupBase = {
   error_fingerprint: string;
   error_type: string;
   error_message: string;
@@ -28,14 +36,16 @@ export type DemoErrorGroup = {
   /** All-time occurrences, one session each */
   count: number;
   firstSeenMinutesAgo: number;
-  lastSeenMinutesAgo: number;
   /** Where the occurrences cluster between first and last seen */
   trend: 'steady' | 'rising' | 'fading';
   /** Occurrence session ids are this prefix followed by the 5-digit occurrence index */
   sessionIdPrefix: string;
-  hasReplay: boolean;
   occurrences: DemoErrorOccurrence[];
 };
+
+// A group linked to a replay is last seen in that recording
+export type DemoErrorGroup = DemoErrorGroupBase &
+  ({ lastSeenMinutesAgo: number; replay?: never } | { replay: DemoErrorReplayLink; lastSeenMinutesAgo?: never });
 
 const HOUR = 60;
 const DAY = 24 * HOUR;
@@ -51,10 +61,26 @@ export const DEMO_ERROR_GROUPS: DemoErrorGroup[] = [
     status: 'unresolved',
     count: 214,
     firstSeenMinutesAgo: 26 * DAY,
-    lastSeenMinutesAgo: 7,
     trend: 'rising',
     sessionIdPrefix: '58210473916640',
-    hasReplay: true,
+    replay: {
+      sessionId: '13515586274288279664',
+      secondsIntoRecording: 20,
+      occurrence: {
+        url: '/',
+        browser: 'Edge',
+        os: 'Windows',
+        device_type: 'desktop',
+        country_code: 'SE',
+        stack: [
+          "TypeError: Cannot read properties of undefined (reading 'getBoundingClientRect')",
+          '    at measureHeroCard (/_next/static/chunks/app/(marketing)/page-6f3b1e0a9c2d4f87.js:1:18342)',
+          '    at onScroll (/_next/static/chunks/app/(marketing)/page-6f3b1e0a9c2d4f87.js:1:19015)',
+          '    at throttled (/_next/static/chunks/8217-2c4d9e1f7a6b3058.js:1:4471)',
+        ].join('\n'),
+        trail: [{ secondsFromError: -20, event_type: 'pageview', url: '/' }],
+      },
+    },
     occurrences: [
       {
         weight: 6,
@@ -124,7 +150,6 @@ export const DEMO_ERROR_GROUPS: DemoErrorGroup[] = [
     lastSeenMinutesAgo: 19,
     trend: 'steady',
     sessionIdPrefix: '71394028561173',
-    hasReplay: false,
     occurrences: [
       {
         weight: 5,
@@ -171,7 +196,6 @@ export const DEMO_ERROR_GROUPS: DemoErrorGroup[] = [
     lastSeenMinutesAgo: 3 * HOUR + 12,
     trend: 'fading',
     sessionIdPrefix: '30482915573306',
-    hasReplay: false,
     occurrences: [
       {
         weight: 3,
@@ -221,46 +245,66 @@ export const DEMO_ERROR_GROUPS: DemoErrorGroup[] = [
     status: 'unresolved',
     count: 38,
     firstSeenMinutesAgo: 19 * DAY,
-    lastSeenMinutesAgo: 52,
     trend: 'steady',
     sessionIdPrefix: '64027739184520',
-    hasReplay: true,
+    replay: {
+      sessionId: '18267387105860719827',
+      secondsIntoRecording: 9,
+      occurrence: {
+        url: '/pricing',
+        browser: 'Chrome',
+        os: 'macOS',
+        device_type: 'desktop',
+        country_code: 'DE',
+        stack: [
+          'TypeError: Failed to fetch',
+          '    at loadPlanPrices (/_next/static/chunks/app/(marketing)/pricing/page-9d2f6b8a1c4e7053.js:1:3486)',
+          '    at onBillingIntervalChange (/_next/static/chunks/app/(marketing)/pricing/page-9d2f6b8a1c4e7053.js:1:4012)',
+          '    at HTMLButtonElement.handleClick (/_next/static/chunks/framework-0c7d3f5a9e1b2846.js:1:72510)',
+        ].join('\n'),
+        trail: [
+          { secondsFromError: -9, event_type: 'pageview', url: '/pricing' },
+          { secondsFromError: 44, event_type: 'pageview', url: '/vs/google-analytics' },
+          { secondsFromError: 59, event_type: 'pageview', url: '/pricing' },
+        ],
+      },
+    },
     occurrences: [
       {
         weight: 2,
-        url: '/contact',
+        url: '/pricing',
         browser: 'Chrome',
         os: 'macOS',
         device_type: 'desktop',
         country_code: 'US',
         stack: [
           'TypeError: Failed to fetch',
-          '    at submitContactForm (/_next/static/chunks/app/(marketing)/contact/page-a41e7c9d2b0f6385.js:1:2934)',
-          '    at onSubmit (/_next/static/chunks/app/(marketing)/contact/page-a41e7c9d2b0f6385.js:1:3311)',
-          '    at HTMLFormElement.handleSubmit (/_next/static/chunks/framework-0c7d3f5a9e1b2846.js:1:72510)',
+          '    at loadPlanPrices (/_next/static/chunks/app/(marketing)/pricing/page-9d2f6b8a1c4e7053.js:1:3486)',
+          '    at onBillingIntervalChange (/_next/static/chunks/app/(marketing)/pricing/page-9d2f6b8a1c4e7053.js:1:4012)',
+          '    at HTMLButtonElement.handleClick (/_next/static/chunks/framework-0c7d3f5a9e1b2846.js:1:72510)',
         ].join('\n'),
         trail: [
-          { secondsFromError: -150, event_type: 'pageview', url: '/pricing' },
-          { secondsFromError: -84, event_type: 'pageview', url: '/contact' },
-          { secondsFromError: -1, event_type: 'custom', custom_event_name: 'contact_form_submit' },
-          { secondsFromError: 19, event_type: 'custom', custom_event_name: 'contact_form_submit' },
+          { secondsFromError: -150, event_type: 'pageview', url: '/' },
+          { secondsFromError: -84, event_type: 'pageview', url: '/pricing' },
+          { secondsFromError: -1, event_type: 'custom', custom_event_name: 'pricing_toggle_yearly' },
+          { secondsFromError: 19, event_type: 'custom', custom_event_name: 'pricing_toggle_yearly' },
         ],
       },
       {
         weight: 1,
-        url: '/contact',
+        url: '/pricing',
         browser: 'Firefox',
         os: 'Windows',
         device_type: 'desktop',
         country_code: 'PL',
         stack: [
           'TypeError: Failed to fetch',
-          '    at submitContactForm (/_next/static/chunks/app/(marketing)/contact/page-a41e7c9d2b0f6385.js:1:2934)',
-          '    at onSubmit (/_next/static/chunks/app/(marketing)/contact/page-a41e7c9d2b0f6385.js:1:3311)',
+          '    at loadPlanPrices (/_next/static/chunks/app/(marketing)/pricing/page-9d2f6b8a1c4e7053.js:1:3486)',
+          '    at onBillingIntervalChange (/_next/static/chunks/app/(marketing)/pricing/page-9d2f6b8a1c4e7053.js:1:4012)',
         ].join('\n'),
         trail: [
-          { secondsFromError: -60, event_type: 'pageview', url: '/contact' },
-          { secondsFromError: -1, event_type: 'custom', custom_event_name: 'contact_form_submit' },
+          { secondsFromError: -60, event_type: 'pageview', url: '/pricing' },
+          { secondsFromError: -1, event_type: 'custom', custom_event_name: 'pricing_toggle_yearly' },
           {
             secondsFromError: 22,
             event_type: 'outbound_link',
@@ -281,7 +325,6 @@ export const DEMO_ERROR_GROUPS: DemoErrorGroup[] = [
     lastSeenMinutesAgo: 34,
     trend: 'steady',
     sessionIdPrefix: '45913307628841',
-    hasReplay: false,
     occurrences: [
       {
         weight: 3,
@@ -332,7 +375,6 @@ export const DEMO_ERROR_GROUPS: DemoErrorGroup[] = [
     lastSeenMinutesAgo: 4 * DAY + 5 * HOUR,
     trend: 'steady',
     sessionIdPrefix: '82750164339027',
-    hasReplay: false,
     occurrences: [
       {
         weight: 2,
@@ -382,7 +424,6 @@ export const DEMO_ERROR_GROUPS: DemoErrorGroup[] = [
     lastSeenMinutesAgo: 5 * HOUR + 40,
     trend: 'steady',
     sessionIdPrefix: '27164590835512',
-    hasReplay: false,
     occurrences: [
       {
         weight: 1,
@@ -428,7 +469,6 @@ export const DEMO_ERROR_GROUPS: DemoErrorGroup[] = [
     lastSeenMinutesAgo: 2 * HOUR + 25,
     trend: 'rising',
     sessionIdPrefix: '93608251147736',
-    hasReplay: true,
     occurrences: [
       {
         weight: 1,

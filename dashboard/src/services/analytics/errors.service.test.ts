@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   findReplaySessionForErrorGroup,
@@ -12,13 +14,16 @@ import {
   hasSessionReplayForSite,
   type ErrorsContext,
 } from '@/services/analytics/errors.service';
+import { getSessionReplaysForSite } from '@/services/analytics/sessionReplays.service';
 import * as errorsRepository from '@/repositories/clickhouse/errors.repository';
 import * as sessionReplaysRepository from '@/repositories/clickhouse/sessionReplays.repository';
 import * as errorGroupRepository from '@/repositories/postgres/errorGroup.repository';
 import { DEMO_ERROR_GROUPS } from '@/constants/demoErrors';
+import { DEMO_SESSION_REPLAYS } from '@/constants/demoSessionReplays';
 import { getResolvedRanges } from '@/lib/ba-timerange';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import type { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+import type { AuthContext } from '@/entities/auth/authContext.entities';
 import type { GranularityRangeValues } from '@/utils/granularityRanges';
 
 vi.mock('@/repositories/clickhouse/errors.repository', () => ({
@@ -36,7 +41,13 @@ vi.mock('@/repositories/clickhouse/errors.repository', () => ({
 vi.mock('@/repositories/clickhouse/sessionReplays.repository', () => ({
   hasSessionReplay: vi.fn(async () => false),
   findReplaySessionForError: vi.fn(async () => null),
+  getReplaySessionMeta: vi.fn(async () => null),
 }));
+vi.mock('@/repositories/clickhouse/index.repository', () => ({
+  getSessionReplays: vi.fn(async () => []),
+}));
+vi.mock('@/repositories/replaySegments.repository', () => ({ readerFor: vi.fn() }));
+vi.mock('@/lib/env', () => ({ replayStorage: 'clickhouse' }));
 vi.mock('@/repositories/postgres/errorGroup.repository', () => ({
   getTrackedErrorGroups: vi.fn(async () => ({})),
   upsertErrorGroup: vi.fn(),
@@ -203,7 +214,11 @@ describe('error tracking on the public demo', () => {
       expect(sidebar.browsers.length).toBeGreaterThan(0);
       expect(sidebar.deviceTypes.length).toBeGreaterThan(0);
       expect(sidebar.dailyVolume).toHaveLength(30);
-      const browsers = new Set(group.occurrences.map((occurrence) => occurrence.browser));
+      const browsers = new Set(
+        [...group.occurrences, ...(group.replay ? [group.replay.occurrence] : [])].map(
+          (occurrence) => occurrence.browser,
+        ),
+      );
       expect(sidebar.browsers).toHaveLength(browsers.size);
       expect(oldest!.timestamp).toEqual(row!.first_seen);
       expect(await getErrorOccurrenceForSite(DEMO, group.error_fingerprint, group.count)).toBeNull();
@@ -234,18 +249,6 @@ describe('error tracking on the public demo', () => {
     expect(await findReplaySessionForErrorGroup(DEMO, REAL_FINGERPRINT)).toBeNull();
   });
 
-  it('points the replay card at a session with a replay only for errors marked as having one', async () => {
-    for (const group of DEMO_ERROR_GROUPS) {
-      const sessionId = await findReplaySessionForErrorGroup(DEMO, group.error_fingerprint);
-      if (!group.hasReplay) {
-        expect(sessionId).toBeNull();
-        continue;
-      }
-      expect(sessionId).toMatch(/^\d+$/);
-      expect(await hasSessionReplayForSite(DEMO, sessionId!)).toBe(true);
-    }
-  });
-
   it('contains no dashboard or share id, query string or customer domain', async () => {
     const strings: string[] = [];
     for (const group of DEMO_ERROR_GROUPS) {
@@ -273,6 +276,114 @@ describe('error tracking on the public demo', () => {
       for (const occurrence of group.occurrences) {
         expect(occurrence.url).toMatch(/^\/[a-z0-9/-]*$/);
       }
+    }
+  });
+});
+
+describe('demo errors linked to demo session replays', () => {
+  const DEMO_AUTH: AuthContext = { ...DEMO, userId: 'visitor', role: 'viewer' };
+  const linked = DEMO_ERROR_GROUPS.filter((group) => group.replay);
+
+  type RecordedEvent = {
+    type: number;
+    timestamp: number;
+    data: { tag?: string; payload?: Record<string, unknown> };
+  };
+
+  function readRecording(sessionId: string): RecordedEvent[] {
+    return readFileSync(path.join('public', 'demo-replays', `${sessionId}.ndjson`), 'utf8')
+      .split('\n')
+      .filter(Boolean)
+      .flatMap((line) => JSON.parse(line) as RecordedEvent[]);
+  }
+
+  it('links the getBoundingClientRect and Failed to fetch errors to the Edge and Chrome recordings', async () => {
+    expect(linked.map((group) => [group.error_message, group.replay!.sessionId])).toEqual([
+      ["Cannot read properties of undefined (reading 'getBoundingClientRect')", '13515586274288279664'],
+      ['Failed to fetch', '18267387105860719827'],
+    ]);
+    for (const group of DEMO_ERROR_GROUPS) {
+      expect(await findReplaySessionForErrorGroup(DEMO, group.error_fingerprint)).toBe(
+        group.replay?.sessionId ?? null,
+      );
+    }
+    expectNoRepositoryCalls();
+  });
+
+  it('offers a replay only for the linked occurrences', async () => {
+    for (const group of DEMO_ERROR_GROUPS) {
+      for (let offset = 0; offset < Math.min(group.count, 30); offset++) {
+        const occurrence = await getErrorOccurrenceForSite(DEMO, group.error_fingerprint, offset);
+        expect(await hasSessionReplayForSite(DEMO, occurrence!.session_id)).toBe(offset === 0 && !!group.replay);
+      }
+    }
+    for (const group of linked) {
+      const madeUpId = `${group.sessionIdPrefix}00000`;
+      expect(await hasSessionReplayForSite(DEMO, madeUpId)).toBe(false);
+      expect(await getSessionTrailForSite(DEMO, madeUpId)).toEqual([]);
+    }
+  });
+
+  it.each([0, 59])(
+    'matches each linked occurrence to its recording %i seconds into the minute',
+    async (seconds) => {
+      vi.setSystemTime(new Date(NOW.getTime() + seconds * 1000));
+      const replays = await getSessionReplaysForSite(DEMO_AUTH, siteQueryFor('24h', 'hour'), 10, 0);
+
+      for (const group of linked) {
+        const { sessionId, secondsIntoRecording } = group.replay!;
+        const replay = replays.find((candidate) => candidate.session_id === sessionId)!;
+        const occurrence = (await getErrorOccurrenceForSite(DEMO, group.error_fingerprint, 0))!;
+        const row = (await getErrorGroupForSite(DEMO, group.error_fingerprint))!;
+
+        expect(replay.error_count).toBe(1);
+        expect(occurrence).toMatchObject({
+          session_id: sessionId,
+          url: replay.start_url,
+          browser: replay.browser,
+          os: replay.os,
+          device_type: replay.device_type,
+          country_code: replay.country_code,
+        });
+        const errorInReplay = replay.started_at.getTime() + secondsIntoRecording * 1000;
+        expect(Math.abs(occurrence.timestamp.getTime() - errorInReplay)).toBeLessThan(60_000);
+        expect(row.last_seen).toEqual(occurrence.timestamp);
+
+        const recording = readRecording(sessionId);
+        const recordedPageviews = recording
+          .filter((event) => event.type === 5 && event.data.tag === 'Pageview')
+          .map((event) => ({
+            url: event.data.payload?.url,
+            secondsFromError: Math.round((event.timestamp - recording[0].timestamp) / 1000) - secondsIntoRecording,
+          }));
+        const trail = await getSessionTrailForSite(DEMO, sessionId);
+        expect(trail.map(({ event }) => event.event_type).sort()).toEqual(
+          [...recordedPageviews.map(() => 'pageview'), 'client_error'].sort(),
+        );
+        expect(
+          trail
+            .filter(({ event }) => event.event_type === 'pageview')
+            .map(({ event }) => ({
+              url: event.url,
+              secondsFromError: (event.timestamp.getTime() - occurrence.timestamp.getTime()) / 1000,
+            })),
+        ).toEqual(recordedPageviews);
+      }
+    },
+  );
+
+  it('marks the moment of each linked error in its recording', () => {
+    for (const group of linked) {
+      const { sessionId, secondsIntoRecording } = group.replay!;
+      const recording = readRecording(sessionId);
+      const errors = recording.filter((event) => event.type === 5 && event.data.tag === 'client_error');
+
+      expect(errors).toHaveLength(1);
+      expect(errors[0].data.payload).toEqual({ type: group.error_type, message: group.error_message });
+      expect(errors[0].timestamp - recording[0].timestamp).toBe(secondsIntoRecording * 1000);
+      expect(DEMO_SESSION_REPLAYS.find((replay) => replay.session_id === sessionId)!.event_count).toBe(
+        recording.length,
+      );
     }
   });
 });
