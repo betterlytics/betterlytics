@@ -45,14 +45,14 @@ export function TrackingSilentEmail({
       <Greeting userName={userName} />
 
       <P>
-        We haven't received any events from <strong>{domain}</strong> since <strong>{lastReceived}</strong>. Until
-        then it was sending data every day, so something has likely changed: a deploy that removed the tracking
-        snippet, a new Content Security Policy, or the site itself being down.
+        We haven't received any events from <strong>{domain}</strong> since <strong>{lastReceived}</strong>. If
+        this is expected, you can safely ignore this email.
       </P>
 
       <P>
-        Every day without tracking is data you can't get back. Check your installation and use the "Verify
-        installation" button to confirm events are arriving again.
+        Common issues may be that a deploy removed the tracking snippet, a new Content Security Policy is blocking
+        it, or the site itself is down. Check your installation and use the "Verify installation" button to confirm
+        events are arriving again.
       </P>
 
       <EmailButton href={withEmailUtm(installGuideUrl, CAMPAIGN, 'primary_cta')}>Check installation</EmailButton>
