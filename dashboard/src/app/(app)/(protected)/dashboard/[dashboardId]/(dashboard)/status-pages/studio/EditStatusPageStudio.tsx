@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
@@ -104,7 +105,7 @@ function StudioBody({
                 onClick={onSave}
                 className='cursor-pointer'
               >
-                {saving && <Spinner size='sm' className='mr-1.5 border-current' />}
+                {saving && <Loader2 className='animate-spin' aria-hidden />}
                 {t('save')}
               </Button>
             )}

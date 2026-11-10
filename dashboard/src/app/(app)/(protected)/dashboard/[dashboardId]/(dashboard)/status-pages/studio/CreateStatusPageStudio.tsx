@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -114,7 +115,7 @@ function StudioForm({
         onClick={() => commitMutation.mutate(false)}
         className='cursor-pointer'
       >
-        {submittingDraft && <Spinner size='sm' className='mr-1.5 border-current' />}
+        {submittingDraft && <Loader2 className='animate-spin' aria-hidden />}
         {t('wizard.saveDraft')}
       </Button>
       <PermissionGate permission='canPublishStatusPages'>
@@ -138,7 +139,7 @@ function StudioForm({
               onClick={() => commitMutation.mutate(true)}
               className='cursor-pointer'
             >
-              {submittingPublish && <Spinner size='sm' className='mr-1.5 border-current' />}
+              {submittingPublish && <Loader2 className='animate-spin' aria-hidden />}
               {t('publish')}
             </Button>
           )

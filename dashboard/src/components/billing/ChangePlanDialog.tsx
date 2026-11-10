@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -141,7 +142,7 @@ export function ChangePlanDialog({
                 disabled={planChange.isPending || previewQuery.isLoading || previewQuery.isError || !targetPlan}
                 className='cursor-pointer'
               >
-                {planChange.isPending && <Spinner size='sm' className='mr-2 border-current' />}
+                {planChange.isPending && <Loader2 className='animate-spin' aria-hidden />}
                 {t('confirm')}
               </Button>
             </div>
@@ -212,13 +213,13 @@ function FailureBody({ failure, isAuthRequired, isCardDeclined, isBusy, onRetryA
         </Button>
         {isAuthRequired && (
           <Button onClick={onRetryAuth} disabled={isBusy} className='cursor-pointer'>
-            {isBusy && <Spinner size='sm' className='mr-2 border-current' />}
+            {isBusy && <Loader2 className='animate-spin' aria-hidden />}
             {t('tryAgain')}
           </Button>
         )}
         {isCardDeclined && (
           <Button onClick={handleOpenPortal} disabled={openingPortal} className='cursor-pointer'>
-            {openingPortal && <Spinner size='sm' className='mr-2 border-current' />}
+            {openingPortal && <Loader2 className='animate-spin' aria-hidden />}
             {t('updatePaymentMethod')}
           </Button>
         )}

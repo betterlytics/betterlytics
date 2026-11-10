@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, ExternalLink, Maximize2, Pencil } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Loader2, Maximize2, Pencil } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -272,7 +272,7 @@ export function StatusPageEditor({
                       onClick={() => publishMutation.mutate({ statusPageId: statusPage.id, isPublished: true })}
                       className='h-9 cursor-pointer'
                     >
-                      {publishMutation.isPending && <Spinner size='sm' className='mr-1.5 border-current' />}
+                      {publishMutation.isPending && <Loader2 className='animate-spin' aria-hidden />}
                       {tActions('publish')}
                     </Button>
                   )}
@@ -353,7 +353,7 @@ export function StatusPageEditor({
                       onClick={handleSave}
                       className='cursor-pointer'
                     >
-                      {saveMutation.isPending && <Spinner size='sm' className='mr-1.5 border-current' />}
+                      {saveMutation.isPending && <Loader2 className='animate-spin' aria-hidden />}
                       {t('save')}
                     </Button>
                   )}
@@ -409,7 +409,7 @@ export function StatusPageEditor({
                 onClick={handleSave}
                 className='cursor-pointer'
               >
-                {saveMutation.isPending && <Spinner size='sm' className='mr-1.5 border-current' />}
+                {saveMutation.isPending && <Loader2 className='animate-spin' aria-hidden />}
                 {t('save')}
               </Button>
             )}
