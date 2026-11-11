@@ -11,21 +11,17 @@ import { Heading } from '@/landing/components/ui/text';
 import { TrackedAnchor } from '@/landing/components/ui/trackedLink';
 import { vars } from '@/landing/lib/cssVars';
 import { LINKS } from '@/landing/lib/links';
-import { ScoreBadge } from './scoreBadge';
 import { BREAKDOWN, scoreRow } from './vitalsData';
 import styles from './priorityChart.module.css';
 
-/* The plot shows share 0–32% across and score 40–100 up; every page sits inside that window. */
+/* The plot shows share 0–32% across and score 40–100 up; every page sits inside that window, with room for its label on the right. */
 const MAX_SHARE = 0.32;
 const MIN_SCORE = 40;
 const ISO = [2, 4, 6];
-/** Labels that would collide with a neighbour's sit on the dot's left. */
-const LABEL_LEFT = new Set(['/about', '/']);
 const RECIPE: CoreWebVitalName[] = ['LCP', 'INP', 'CLS', 'FCP', 'TTFB'];
-const HEAVIEST = Math.max(...RECIPE.map((metric) => PERFORMANCE_SCORE_WEIGHTS[metric]));
 
 const PAGES = BREAKDOWN.pages
-  .map((row) => ({ ...row, ...scoreRow(row, 'p75') }))
+  .map((row) => ({ ...row, ...scoreRow(row) }))
   .sort((a, b) => b.opportunity - a.opportunity);
 
 const x = (share: number) => (share / MAX_SHARE) * 100;
@@ -43,7 +39,6 @@ function isoPath(level: number) {
 
 export function PriorityChart() {
   const t = useTranslations('landing.vitals.priority');
-  const tBadges = useTranslations('landing.vitals.breakdown.badges');
   const locale = useLocale();
   const [hot, setHot] = useState<string | null>(null);
   const percent = new Intl.NumberFormat(locale, { style: 'percent' });
@@ -68,19 +63,10 @@ export function PriorityChart() {
                 );
               })}
             </svg>
-            <span className={styles.legend}>{t('legend')}</span>
-            {ISO.map((level) => (
-              <span
-                key={level}
-                className={styles.isoLabel}
-                style={vars({ '--y': `${y(100 - level / MAX_SHARE)}%` })}
-              >
-                {decimal(0).format(level)}
-              </span>
-            ))}
+            <span className={styles.zone}>{t('highest')}</span>
             {[PERFORMANCE_SCORE_THRESHOLDS.greatMin, PERFORMANCE_SCORE_THRESHOLDS.okayMin].map((score) => (
               <span key={score} className={styles.threshold} style={vars({ '--y': `${y(score)}%` })}>
-                <b data-grade={getPerformanceGrade(score)}>{tBadges(getPerformanceGrade(score))}</b>
+                <b data-grade={getPerformanceGrade(score)}>{t(`grades.${getPerformanceGrade(score)}`)}</b>
                 {score}
               </span>
             ))}
@@ -92,7 +78,6 @@ export function PriorityChart() {
                   className={styles.dot}
                   data-rank={rank}
                   data-hot={hot === page.key || undefined}
-                  data-left={LABEL_LEFT.has(page.key) || undefined}
                   style={vars({
                     '--x': `${x(page.share)}%`,
                     '--y': `${y(page.score)}%`,
@@ -120,30 +105,40 @@ export function PriorityChart() {
       </div>
 
       <div className={styles.aside}>
-        <Heading as='h3' size='title'>
-          {t('list')}
-        </Heading>
+        <div className={styles.ranksHead}>
+          <Heading as='h3' size='title'>
+            {t('list')}
+          </Heading>
+          <span aria-hidden>{t('score')}</span>
+          <span aria-hidden>{t('opportunity')}</span>
+        </div>
         <ol className={styles.ranks}>
-          {top.map((page, i) => (
-            <li
-              key={page.key}
-              data-hot={hot === page.key || undefined}
-              onMouseEnter={() => setHot(page.key)}
-              onMouseLeave={() => setHot(null)}
-            >
-              <i aria-hidden>{i + 1}</i>
-              <span className={styles.rankText}>
-                <b>{page.key}</b>
-                <span>
-                  {t('share', { share: percent.format(page.share) })}
-                  <ScoreBadge score={page.score} />
+          {top.map((page, i) => {
+            const grade = getPerformanceGrade(page.score);
+            return (
+              <li
+                key={page.key}
+                data-hot={hot === page.key || undefined}
+                onMouseEnter={() => setHot(page.key)}
+                onMouseLeave={() => setHot(null)}
+              >
+                <i aria-hidden>{i + 1}</i>
+                <span className={styles.rankText}>
+                  <b>{page.key}</b>
+                  <span>{t('share', { share: percent.format(page.share) })}</span>
                 </span>
-              </span>
-              <span className={styles.opportunity}>
-                {t('opportunity', { value: decimal(2).format(page.opportunity) })}
-              </span>
-            </li>
-          ))}
+                <span className={styles.score} data-grade={grade}>
+                  <span className='sr-only'>{t('score')} </span>
+                  {decimal(1).format(page.score)}
+                  <span className='sr-only'>, {t(`grades.${grade}`)}</span>
+                </span>
+                <span className={styles.opportunity}>
+                  <span className='sr-only'>{t('opportunity')} </span>
+                  {decimal(2).format(page.opportunity)}
+                </span>
+              </li>
+            );
+          })}
         </ol>
 
         <div className={styles.recipe}>
@@ -152,13 +147,7 @@ export function PriorityChart() {
           </Heading>
           <span className={styles.weights} aria-hidden>
             {RECIPE.map((metric) => (
-              <i
-                key={metric}
-                style={vars({
-                  '--w': PERFORMANCE_SCORE_WEIGHTS[metric],
-                  '--of': PERFORMANCE_SCORE_WEIGHTS[metric] / HEAVIEST,
-                })}
-              >
+              <i key={metric} style={vars({ '--w': PERFORMANCE_SCORE_WEIGHTS[metric] })}>
                 <b>{metric}</b>
                 {percent.format(PERFORMANCE_SCORE_WEIGHTS[metric])}
               </i>

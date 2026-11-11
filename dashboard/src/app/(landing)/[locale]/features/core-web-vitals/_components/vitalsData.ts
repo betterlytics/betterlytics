@@ -1,8 +1,8 @@
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import type { FlagCode } from '@/landing/components/illustrations/flags';
-import { getPerformanceScore, type PercentileKey } from '@/utils/coreWebVitals';
+import { getPerformanceScore } from '@/utils/coreWebVitals';
 
-/* A made-up shop's numbers, deliberately untranslated. Each row holds its 75th percentiles; the others are spread from them. */
+/* A made-up shop's numbers, deliberately untranslated. Each row holds its 75th percentiles. */
 
 export type Vitals = Record<CoreWebVitalName, number | null>;
 
@@ -30,11 +30,11 @@ export const OVERALL: Vitals = v(2900, 230, 0.08, 1700, 640);
 export const BREAKDOWN: Record<Dimension, BreakdownRow[]> = {
   pages: [
     { key: '/shop/espresso-beans', share: 0.22, p75: v(4400, 280, 0.16, 2300, 760) },
-    { key: '/checkout', share: 0.12, p75: v(3300, 520, 0.05, 2000, 980) },
+    { key: '/checkout', share: 0.12, p75: v(3300, 520, 0.05, 2000, 640) },
     { key: '/blog/brewing-guide', share: 0.17, p75: v(2900, 130, 0.24, 1750, 600) },
     { key: '/', share: 0.3, p75: v(2350, 160, 0.04, 1450, 520) },
-    { key: '/subscriptions', share: 0.11, p75: v(2150, 190, 0.03, 1300, 480) },
-    { key: '/about', share: 0.08, p75: v(1650, 90, 0.01, 1100, 440) },
+    { key: '/subscriptions', share: 0.14, p75: v(2150, 190, 0.03, 1300, 480) },
+    { key: '/about', share: 0.05, p75: v(1650, 90, 0.01, 1100, 440) },
   ],
   devices: [
     { key: 'mobile', share: 0.62, p75: v(3500, 290, 0.11, 2100, 760), icon: { kind: 'device', device: 'mobile' } },
@@ -120,41 +120,7 @@ export const BREAKDOWN: Record<Dimension, BreakdownRow[]> = {
   ],
 };
 
-/** How far each percentile sits from the 75th; slow tails are long, so P99 is a multiple of it. */
-const SPREAD: Record<CoreWebVitalName, Record<PercentileKey, number>> = {
-  LCP: { p50: 0.72, p75: 1, p90: 1.42, p99: 2.1 },
-  FCP: { p50: 0.74, p75: 1, p90: 1.38, p99: 2 },
-  TTFB: { p50: 0.7, p75: 1, p90: 1.5, p99: 2.4 },
-  INP: { p50: 0.6, p75: 1, p90: 1.75, p99: 3.1 },
-  CLS: { p50: 0.5, p75: 1, p90: 1.9, p99: 3.4 },
-};
-
-function scale(metric: CoreWebVitalName, value: number | null, by: number | null) {
-  if (value === null || by === null) return null;
-  const scaled = value * by;
-  return metric === 'CLS' ? Math.round(scaled * 100) / 100 : Math.round(scaled / 10) * 10;
-}
-
-const each = (fn: (metric: CoreWebVitalName) => number | null): Vitals => ({
-  LCP: fn('LCP'),
-  INP: fn('INP'),
-  CLS: fn('CLS'),
-  FCP: fn('FCP'),
-  TTFB: fn('TTFB'),
-});
-
-export const atPercentile = (p75: Vitals, percentile: PercentileKey) =>
-  each((metric) => scale(metric, p75[metric], SPREAD[metric][percentile]));
-
-/** A row under a filter on another dimension: moved by as much as the filtered slice differs from the whole. */
-export const within = (p75: Vitals, slice: Vitals) =>
-  each((metric) => {
-    const part = slice[metric];
-    const whole = OVERALL[metric];
-    return scale(metric, p75[metric], part === null || whole === null ? null : part / whole);
-  });
-
-export function scoreRow(row: BreakdownRow, percentile: PercentileKey) {
-  const score = getPerformanceScore(atPercentile(row.p75, percentile));
+export function scoreRow(row: BreakdownRow) {
+  const score = getPerformanceScore(row.p75);
   return { score, opportunity: row.share * (100 - score) };
 }

@@ -10,15 +10,17 @@
   }
 
   .stage {
-    padding: 30px 34px 26px 26px;
+    display: grid;
+    padding: 30px 30px 26px 26px;
     border-right: 1px solid var(--color-rule-08);
     @apply bg-hatch;
     @variant max-xl {
       border-right: 0;
       border-bottom: 1px solid var(--color-rule-08);
     }
+    /* the axis titles bring their own space, so left and bottom take less */
     @variant max-sm {
-      padding: 22px calc(var(--pad) + 4px) 18px var(--pad);
+      padding: 22px var(--pad) 11px 10px;
     }
   }
   .plotWrap {
@@ -37,13 +39,14 @@
     rotate: 180deg;
   }
 
+  /* at least this tall, and as tall as the list beside it */
   .plot {
     position: relative;
-    height: 340px;
+    min-height: 340px;
     border-left: 1px solid var(--color-rule-22);
     border-bottom: 1px solid var(--color-rule-22);
     @variant max-sm {
-      height: 260px;
+      min-height: 260px;
     }
   }
   .heat {
@@ -56,29 +59,20 @@
   .area {
     fill: --alpha(var(--color-volt-lift) / 9%);
   }
-  .legend {
-    position: absolute;
-    right: -14px;
-    top: -22px;
-    font-size: 10.5px;
-    line-height: 14px;
-    white-space: nowrap;
-    color: var(--color-volt-soft);
-  }
   .iso {
     fill: none;
     stroke: --alpha(var(--color-volt-soft) / 45%);
     stroke-width: 1;
     stroke-dasharray: 3 4;
   }
-  .isoLabel {
+  .zone {
     position: absolute;
-    right: -6px;
-    top: var(--y);
-    translate: 100% -50%;
+    right: 10px;
+    bottom: 8px;
     font-size: 10.5px;
     line-height: 14px;
-    color: var(--color-volt-soft);
+    white-space: nowrap;
+    color: --alpha(var(--color-fg) / 75%);
   }
 
   .threshold {
@@ -99,12 +93,17 @@
     left: 8px;
     bottom: 4px;
     font-weight: 500;
+    color: var(--grade);
   }
-  .threshold b[data-grade='great'] {
-    color: rgb(110 231 183);
+  /* the dashboard's dark-theme performance grade colours */
+  .priority [data-grade='great'] {
+    --grade: rgb(110 231 183);
   }
-  .threshold b[data-grade='okay'] {
-    color: rgb(252 211 77);
+  .priority [data-grade='okay'] {
+    --grade: rgb(252 211 77);
+  }
+  .priority [data-grade='poor'] {
+    --grade: rgb(252 165 165);
   }
 
   .dot {
@@ -155,10 +154,6 @@
   .dot[data-rank] b {
     color: var(--color-fg);
   }
-  .dot[data-left] {
-    flex-direction: row-reverse;
-    translate: calc(-100% + var(--size) / 2) -50%;
-  }
   .dot[data-hot] i {
     scale: 1.15;
     box-shadow: 0 0 0 6px --alpha(var(--color-volt-lift) / 30%);
@@ -185,9 +180,11 @@
   }
   .axisX em {
     position: absolute;
-    right: 0;
+    left: 50%;
     top: 24px;
+    translate: -50% 0;
     font-style: normal;
+    white-space: nowrap;
   }
 
   .aside {
@@ -198,21 +195,49 @@
       padding: 24px var(--pad) 26px;
     }
   }
-  .ranks {
-    display: grid;
-    margin-top: 14px;
-  }
+  /* the column heads and each row share one set of columns, so the figures line up under their names */
+  .ranksHead,
   .ranks li {
     display: grid;
-    grid-template-columns: 26px minmax(0, 1fr) auto;
-    align-items: start;
-    gap: 2px 12px;
+    grid-template-columns: 26px minmax(0, 1fr) 52px 82px;
+    column-gap: 12px;
+    @variant max-sm {
+      grid-template-columns: 22px minmax(0, 1fr) 44px 76px;
+      column-gap: 10px;
+    }
+  }
+  /* the title takes the path's columns, so the column names sit on its line */
+  .ranksHead {
+    align-items: baseline;
+    padding-bottom: 6px;
+  }
+  .ranksHead > :first-child {
+    grid-column: 1 / 3;
+  }
+  .ranksHead > span {
+    font-size: 12px;
+    line-height: 16px;
+    text-align: right;
+    color: var(--color-muted);
+  }
+  .ranks {
+    display: grid;
+  }
+  .ranks li {
+    position: relative;
+    align-items: baseline;
     padding: 12px 10px;
     margin-inline: -10px;
     border-radius: 9px;
     transition: background-color 0.3s ease;
   }
-  .ranks li + li {
+  /* a straight rule as wide as the text: a border would bend round the rows' rounded hover corners */
+  .ranks li + li::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10px;
+    right: 10px;
     border-top: 1px solid var(--color-rule-08);
   }
   .ranks li[data-hot] {
@@ -244,19 +269,42 @@
     text-overflow: ellipsis;
   }
   .rankText > span {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 10px;
     font-size: 12.5px;
     color: var(--color-muted);
   }
+  .score,
   .opportunity {
-    padding-top: 1px;
-    font-size: 12.5px;
+    font-size: var(--text-body-sm);
     font-weight: 500;
+    text-align: right;
     white-space: nowrap;
-    color: var(--color-volt-soft);
+  }
+  .score {
+    color: var(--grade);
+  }
+  .opportunity {
+    color: var(--color-fg);
+  }
+  /* on phones the path takes the whole first line, and its figures move down beside its share */
+  @variant max-sm {
+    .ranks li {
+      row-gap: 4px;
+    }
+    .rankText {
+      display: contents;
+    }
+    .rankText b {
+      grid-column: 2 / -1;
+    }
+    .rankText > span {
+      grid-area: 2 / 2;
+    }
+    .score {
+      grid-area: 2 / 3;
+    }
+    .opportunity {
+      grid-area: 2 / 4;
+    }
   }
 
   .recipe {
@@ -276,6 +324,7 @@
     height: 44px;
   }
   .weights i {
+    --fill: color-mix(in oklab, var(--color-volt-lift) calc(14% + var(--w) * 60%), transparent);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -284,7 +333,7 @@
     flex: var(--w) 1 0;
     overflow: hidden;
     border-radius: 6px;
-    background: color-mix(in oklab, var(--color-volt-lift) calc(14% + var(--w) * 60%), transparent);
+    background: var(--fill);
     font-size: 11px;
     line-height: 14px;
     font-style: normal;
@@ -296,21 +345,24 @@
     font-weight: 600;
     color: var(--color-fg);
   }
-  /* a 10% slice of a narrow bar can't hold "TTFB", so narrow columns list the weights as bars scaled to the heaviest */
+  /* a 10% slice of a narrow bar can't hold "TTFB", so there the bar goes thin and each name sits under its slice */
   @container (width < 400px) {
     .weights {
-      flex-direction: column;
-      align-items: start;
       height: auto;
     }
     .weights i {
-      flex: none;
-      flex-direction: row;
       justify-content: start;
-      align-items: baseline;
-      gap: 6px;
-      width: calc(var(--of) * 100%);
-      padding-block: 6px;
+      padding: 0;
+      overflow: visible;
+      border-radius: 0;
+      background: none;
+    }
+    .weights i::before {
+      content: '';
+      height: 10px;
+      margin-bottom: 8px;
+      border-radius: 3px;
+      background: var(--fill);
     }
   }
   .recipeBody {
@@ -336,9 +388,6 @@
     .priority:not([data-in]) .dot {
       opacity: 0;
       translate: calc(var(--size) / -2) calc(-50% + 14px);
-    }
-    .priority:not([data-in]) .dot[data-left] {
-      translate: calc(-100% + var(--size) / 2) calc(-50% + 14px);
     }
     .dot {
       transition:
