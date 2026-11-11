@@ -10,6 +10,10 @@ import { BLACK_FRIDAY_2026 } from '../src/lib/billing/promo';
 // a checkout session lives 30 minutes, so one opened just before the end can still be paid
 const REDEEM_GRACE_SECONDS = 60 * 60;
 
+function isMissing(error: unknown): boolean {
+  return error instanceof Stripe.errors.StripeInvalidRequestError && error.code === 'resource_missing';
+}
+
 async function main() {
   const argv = process.argv.slice(2);
   const apply = argv.includes('--apply');
@@ -32,7 +36,10 @@ async function main() {
     redeem_by: Math.floor(promo.endsAt.getTime() / 1000) + REDEEM_GRACE_SECONDS,
   } satisfies Stripe.CouponCreateParams;
 
-  const existing = await stripe.coupons.retrieve(promo.couponId).catch(() => null);
+  const existing = await stripe.coupons.retrieve(promo.couponId).catch((error: unknown) => {
+    if (isMissing(error)) return null;
+    throw error;
+  });
   if (existing) {
     const wrong = (['percent_off', 'duration', 'duration_in_months', 'redeem_by'] as const).filter(
       (field) => existing[field] !== params[field],
