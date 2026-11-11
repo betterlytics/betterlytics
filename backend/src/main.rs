@@ -23,6 +23,7 @@ mod db;
 mod error_fingerprint;
 mod geoip;
 mod geoip_updater;
+mod heatmap;
 mod metrics;
 mod jobqueue;
 mod monitor;
@@ -51,6 +52,7 @@ use client_request::ClientRequest;
 use db::{Database, SharedDatabase};
 use geoip::GeoIpService;
 use geoip_updater::GeoIpUpdater;
+use heatmap::HeatmapCtx;
 use metrics::MetricsCollector;
 use postgres::PostgresPool;
 use config::ReplayStorage;
@@ -143,13 +145,13 @@ async fn main() {
         None
     };
 
-    let (db, event_tx, bot_event_tx, inserter_handle, bot_inserter_handle) =
+    let (db, channels, inserters) =
         Database::new(Arc::clone(&clickhouse), metrics_collector.clone())
             .await
             .expect("Failed to initialize database");
 
     if let Some(metrics) = metrics_collector.clone() {
-        spawn_pressure_sampler(metrics, event_tx.downgrade());
+        spawn_pressure_sampler(metrics, channels.events.downgrade());
     }
     db.validate_schema().await.expect("Invalid database schema");
 
@@ -172,8 +174,8 @@ async fn main() {
     let processor = Arc::new(EventProcessor::new(
         geoip_service,
         asn_service,
-        event_tx,
-        bot_event_tx,
+        channels.events,
+        channels.bot_events,
         metrics_collector.clone(),
         config.is_development,
         config.enable_bot_event_log,
@@ -272,10 +274,24 @@ async fn main() {
         })
     });
 
+    // Always on, unlike replay: heatmaps must work with replay off and on self-host
+    let heatmap_ctx = Arc::new(HeatmapCtx {
+        processor: Arc::clone(&processor),
+        metrics: metrics_collector.clone(),
+        site_cfg_cache: site_cfg_cache.clone(),
+        click_tx: channels.heatmap_clicks,
+    });
+
 	let mut router = Router::new()
 		.route("/health", get(health_check))
 		.route("/event", post(track_event))
 		.route("/track", post(track_event)) // Deprecated: use /event instead
+		.route(
+			"/heatmap/clicks",
+			post(heatmap::upload_clicks)
+				.with_state(heatmap_ctx)
+				.layer(DefaultBodyLimit::max(heatmap::MAX_BATCH_BYTES)),
+		)
 		.route("/site-id", get(generate_site_id_handler))
 		.route("/metrics", get(metrics_handler));
 
@@ -320,8 +336,7 @@ async fn main() {
 
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     info!("Listening on {}", addr);
-    let mut inserter_handle = inserter_handle;
-    let mut bot_inserter_handle = bot_inserter_handle;
+    let mut inserters = inserters;
     tokio::select! {
         result = axum::serve(
             listener,
@@ -331,25 +346,33 @@ async fn main() {
         // The inserters only return once their ingest channels close, so reaching
         // here means one panicked. Exit non-zero rather than keep acking events
         // into a dead channel; the container restart policy brings us back.
-        result = &mut inserter_handle => {
+        result = &mut inserters.events => {
             error!(?result, "Inserter task exited while the server is running, exiting");
             std::process::exit(1);
         }
-        result = &mut bot_inserter_handle => {
+        result = &mut inserters.bot_events => {
             error!(?result, "Bot event inserter task exited while the server is running, exiting");
+            std::process::exit(1);
+        }
+        result = &mut inserters.heatmap_clicks => {
+            error!(?result, "Heatmap click inserter task exited while the server is running, exiting");
             std::process::exit(1);
         }
     }
 
     info!("HTTP server stopped, draining buffered data");
     let drain = async {
-        match inserter_handle.await {
+        match inserters.events.await {
             Ok(()) => info!("Ingest pipeline drained, buffered events committed"),
             Err(e) => error!("Inserter task failed during drain: {}", e),
         }
-        match bot_inserter_handle.await {
+        match inserters.bot_events.await {
             Ok(()) => info!("Bot event pipeline drained"),
             Err(e) => error!("Bot event inserter task failed during drain: {}", e),
+        }
+        match inserters.heatmap_clicks.await {
+            Ok(()) => info!("Heatmap click pipeline drained"),
+            Err(e) => error!("Heatmap click inserter task failed during drain: {}", e),
         }
         monitor::clickhouse_writer::flush_all_writers().await;
     };

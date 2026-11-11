@@ -13,10 +13,11 @@ use crate::metrics::MetricsCollector;
 use crate::processing::{BotEvent, ProcessedEvent};
 
 mod models;
-pub use models::{ActiveSessionRow, BotEventRow, EventRow, ReferrerSourceCategoryRow, SessionReplayMetaRow, SessionReplayRow, SessionReplaySegmentRow, TelemetryPingRow};
+pub use models::{ActiveSessionRow, BotEventRow, EventRow, HeatmapClickRow, ReferrerSourceCategoryRow, SessionReplayMetaRow, SessionReplayRow, SessionReplaySegmentRow, TelemetryPingRow};
 
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
 const BOT_CHANNEL_CAPACITY: usize = 10_000;
+const HEATMAP_CHANNEL_CAPACITY: usize = 100_000;
 const INSERTER_TIMEOUT_SECS: u64 = 5;
 /// Cap on awaiting the insert acknowledgement, so a black-hole connection
 /// surfaces as a retryable timeout instead of hanging the flush.
@@ -37,14 +38,28 @@ pub struct Database {
 
 pub type SharedDatabase = Arc<Database>;
 
+pub struct IngestChannels {
+    pub events: Sender<ProcessedEvent>,
+    pub bot_events: Sender<BotEvent>,
+    pub heatmap_clicks: Sender<HeatmapClickRow>,
+}
+
+/// The inserter tasks only return once their ingest channel closes
+pub struct InserterHandles {
+    pub events: JoinHandle<()>,
+    pub bot_events: JoinHandle<()>,
+    pub heatmap_clicks: JoinHandle<()>,
+}
+
 impl Database {
-    /// Creates the database handle plus the event and bot-event ingest channels
+    /// Creates the database handle plus the event, bot-event and heatmap-click ingest channels
     pub async fn new(
         clickhouse: Arc<ClickHouseClient>,
         metrics: Option<Arc<MetricsCollector>>,
-    ) -> Result<(Self, Sender<ProcessedEvent>, Sender<BotEvent>, JoinHandle<()>, JoinHandle<()>)> {
+    ) -> Result<(Self, IngestChannels, InserterHandles)> {
         let (event_tx, event_rx) = mpsc::channel(EVENT_CHANNEL_CAPACITY);
         let (bot_event_tx, bot_event_rx) = mpsc::channel(BOT_CHANNEL_CAPACITY);
+        let (heatmap_click_tx, heatmap_click_rx) = mpsc::channel(HEATMAP_CHANNEL_CAPACITY);
 
         let client = clickhouse.inner().clone();
         let inserter_handle = tokio::spawn(run_inserter(
@@ -55,14 +70,33 @@ impl Database {
             metrics.clone(),
         ));
         let bot_inserter_handle = tokio::spawn(run_inserter(
-            client,
+            client.clone(),
             "analytics.bot_events",
             bot_event_rx,
             |event: BotEvent| Some(BotEventRow::from_bot(event)),
+            metrics.clone(),
+        ));
+        let heatmap_inserter_handle = tokio::spawn(run_inserter(
+            client,
+            "analytics.heatmap_clicks",
+            heatmap_click_rx,
+            Some,
             metrics,
         ));
 
-        Ok((Self { clickhouse }, event_tx, bot_event_tx, inserter_handle, bot_inserter_handle))
+        Ok((
+            Self { clickhouse },
+            IngestChannels {
+                events: event_tx,
+                bot_events: bot_event_tx,
+                heatmap_clicks: heatmap_click_tx,
+            },
+            InserterHandles {
+                events: inserter_handle,
+                bot_events: bot_inserter_handle,
+                heatmap_clicks: heatmap_inserter_handle,
+            },
+        ))
     }
 
     /// Fetch the current session of every visitor active within `window`, from `analytics.sessions`
