@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
-import { ArrowUpRight, KeyRound } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { PathIcon } from '@/landing/components/ui/pathIcon';
 import { TrackedAnchor } from '@/landing/components/ui/trackedLink';
 import { rovingTabKeys } from '@/landing/lib/rovingTabs';
-import { SETUP_CLIENTS as CLIENTS, type SetupClientName } from './clients';
+import { SETUP_CLIENTS as CLIENTS, type SetupClient, type SetupClientName } from './clients';
 import { CodeView } from './codeView';
 import { CopyButton } from './copyButton';
 import styles from './connectSetup.module.css';
@@ -36,10 +36,14 @@ const VS_CODE_INSTALL = `https://vscode.dev/redirect/mcp/install?${[
 type ClientId = 'claude' | 'claude-code' | 'cursor' | 'vs-code' | 'windsurf' | 'antigravity' | 'codex';
 
 /* Same snippets as the docs' McpSetup, with the placeholder token; Claude Desktop shows the macOS and Linux one. */
-const SETUP: Record<SetupClientName, { id: ClientId; label?: string; file: string; code: string }> = {
+const SETUP: Record<
+  SetupClientName,
+  { id: ClientId; label?: string; note?: 'claude' | 'antigravity'; file: string; code: string }
+> = {
   Claude: {
     id: 'claude',
     label: 'Claude Desktop',
+    note: 'claude',
     file: 'claude_desktop_config.json',
     code: `{
   "mcpServers": {
@@ -98,6 +102,7 @@ const SETUP: Record<SetupClientName, { id: ClientId; label?: string; file: strin
   },
   Antigravity: {
     id: 'antigravity',
+    note: 'antigravity',
     file: '~/.gemini/config/mcp_config.json',
     code: `{
   "mcpServers": {
@@ -117,14 +122,61 @@ http_headers = { "Authorization" = "Bearer ${TOKEN}" }`,
   },
 };
 
+/* Every pane renders in one grid cell, so the panel keeps the tallest pane's height and switching never moves the page. */
+function Pane({ client, active }: { client: SetupClient; active: boolean }) {
+  const t = useTranslations('landing.mcpServer.setup');
+  const setup = SETUP[client.name];
+  const install = setup.id === 'vs-code' || setup.id === 'cursor' ? setup.id : null;
+  const note = install ? t(`installNote.${install}`) : setup.note ? t(`notes.${setup.note}`) : null;
+
+  return (
+    <div
+      className={styles.pane}
+      data-active={active || undefined}
+      aria-hidden={!active || undefined}
+      inert={!active}
+    >
+      <p className={styles.body}>{t(`clients.${setup.id}`)}</p>
+      <div className={styles.code}>
+        <div className={styles.codeBar}>
+          <span className={styles.file}>{setup.file}</span>
+          <CopyButton text={setup.code} label={t('copy')} done={t('copied')} className={styles.copy} />
+        </div>
+        <CodeView code={setup.code} mark={TOKEN} label={setup.file} className={styles.snippet} />
+      </div>
+      <div className={styles.footer}>
+        {install === 'vs-code' && (
+          <a className={buttonStyles({ variant: 'volt', size: 'sm' })} href={VS_CODE_INSTALL} rel='noopener'>
+            {t('install.vs-code')}
+            <ArrowUpRight className='size-3.5' aria-hidden />
+          </a>
+        )}
+        {install === 'cursor' && (
+          <TrackedAnchor
+            className={buttonStyles({ variant: 'volt', size: 'sm' })}
+            href={client.href}
+            placement='setup'
+            destination='mcp-docs'
+          >
+            {t('install.cursor')}
+            <ArrowUpRight className='size-3.5' aria-hidden />
+          </TrackedAnchor>
+        )}
+        {note && <p className={styles.note}>{note}</p>}
+        <TrackedAnchor className={styles.guide} href={client.href} placement='setup' destination='mcp-docs'>
+          {t('guide')}
+          <ArrowUpRight className='size-3.5' aria-hidden />
+        </TrackedAnchor>
+      </div>
+    </div>
+  );
+}
+
 export function ConnectSetup() {
   const t = useTranslations('landing.mcpServer.setup');
   const [index, setIndex] = useState(() => CLIENTS.findIndex((client) => client.name === 'VS Code'));
   const panelId = useId();
   const listRef = useRef<HTMLDivElement>(null);
-  const client = CLIENTS[index];
-  const setup = SETUP[client.name];
-  const install = setup.id === 'vs-code' || setup.id === 'cursor' ? setup.id : null;
 
   useEffect(() => {
     const list = listRef.current;
@@ -133,75 +185,72 @@ export function ConnectSetup() {
     list.scrollLeft = tab.offsetLeft - 16;
   }, [index]);
 
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const update = () => {
+      const end = list.scrollWidth - list.clientWidth;
+      list.toggleAttribute('data-more-left', list.scrollLeft > 1);
+      list.toggleAttribute('data-more-right', list.scrollLeft < end - 1);
+    };
+    update();
+    list.addEventListener('scroll', update, { passive: true });
+    const observer = new ResizeObserver(update);
+    observer.observe(list);
+    return () => {
+      list.removeEventListener('scroll', update);
+      observer.disconnect();
+    };
+  }, []);
+
   return (
     <div className={styles.setup}>
-      <div
-        ref={listRef}
-        role='tablist'
-        aria-label={t('label')}
-        aria-orientation='vertical'
-        className={styles.clients}
-        onKeyDown={(event) => {
-          rovingTabKeys(index, CLIENTS.length, setIndex, 'vertical')(event);
-          if (!event.defaultPrevented) rovingTabKeys(index, CLIENTS.length, setIndex)(event);
-        }}
-      >
-        {CLIENTS.map((entry, i) => (
-          <button
-            key={entry.name}
-            type='button'
-            role='tab'
-            id={`${panelId}-tab-${i}`}
-            aria-selected={i === index}
-            aria-controls={panelId}
-            tabIndex={i === index ? 0 : -1}
-            className={styles.client}
-            onClick={() => setIndex(i)}
+      <div className={styles.side}>
+        <div
+          ref={listRef}
+          role='tablist'
+          aria-label={t('label')}
+          aria-orientation='vertical'
+          className={styles.clients}
+          onKeyDown={(event) => {
+            rovingTabKeys(index, CLIENTS.length, setIndex, 'vertical')(event);
+            if (!event.defaultPrevented) rovingTabKeys(index, CLIENTS.length, setIndex)(event);
+          }}
+        >
+          {CLIENTS.map((entry, i) => (
+            <button
+              key={entry.name}
+              type='button'
+              role='tab'
+              id={`${panelId}-tab-${i}`}
+              aria-selected={i === index}
+              aria-controls={panelId}
+              tabIndex={i === index ? 0 : -1}
+              className={styles.client}
+              onClick={() => setIndex(i)}
+            >
+              <PathIcon icon={entry.icon} className={styles.clientIcon} />
+              <span className={styles.clientName}>{SETUP[entry.name].label ?? entry.name}</span>
+            </button>
+          ))}
+        </div>
+        <p className={styles.other}>{t('other')}</p>
+        <div className={styles.docs}>
+          <TrackedAnchor
+            className={buttonStyles({ variant: 'line', size: 'sm' })}
+            href={CLIENTS[index].href}
+            placement='setup'
+            destination='mcp-docs'
           >
-            <PathIcon icon={entry.icon} className={styles.clientIcon} />
-            <span className={styles.clientName}>{SETUP[entry.name].label ?? entry.name}</span>
-          </button>
-        ))}
+            {t('cta')}
+          </TrackedAnchor>
+        </div>
       </div>
 
-      <div role='tabpanel' id={panelId} aria-labelledby={`${panelId}-tab-${index}`} className={styles.detail}>
-        {install && (
-          <div className={styles.install}>
-            {install === 'vs-code' ? (
-              <a className={buttonStyles({ variant: 'volt', size: 'sm' })} href={VS_CODE_INSTALL} rel='noopener'>
-                {t('install.vs-code')}
-                <ArrowUpRight className='size-3.5' aria-hidden />
-              </a>
-            ) : (
-              <TrackedAnchor
-                className={buttonStyles({ variant: 'volt', size: 'sm' })}
-                href={client.href}
-                placement='setup'
-                destination='mcp-docs'
-              >
-                {t('install.cursor')}
-                <ArrowUpRight className='size-3.5' aria-hidden />
-              </TrackedAnchor>
-            )}
-            <p className={styles.installNote}>{t(`installNote.${install}`)}</p>
-          </div>
-        )}
-        <p className={styles.body}>{t(`clients.${setup.id}`)}</p>
-        <div className={styles.code}>
-          <div className={styles.codeBar}>
-            <span className={styles.file}>{setup.file}</span>
-            <CopyButton text={setup.code} label={t('copy')} done={t('copied')} className={styles.copy} />
-          </div>
-          <CodeView code={setup.code} className={styles.snippet} />
-        </div>
-        <p className={styles.token}>
-          <KeyRound className='size-3.5 flex-none' aria-hidden />
-          {t('token')}
-        </p>
-        <TrackedAnchor className={styles.guide} href={client.href} placement='setup' destination='mcp-docs'>
-          {t('guide')}
-          <ArrowUpRight className='size-3.5' aria-hidden />
-        </TrackedAnchor>
+      <div role='tabpanel' id={panelId} aria-labelledby={`${panelId}-tab-${index}`} className={styles.panes}>
+        {CLIENTS.map((entry, i) => (
+          <Pane key={entry.name} client={entry} active={i === index} />
+        ))}
       </div>
     </div>
   );

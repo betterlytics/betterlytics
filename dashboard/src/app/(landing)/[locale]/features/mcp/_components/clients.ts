@@ -13,4 +13,5 @@ const ANTIGRAVITY = {
 
 export const SETUP_CLIENTS = [...MCP_CLIENTS.slice(0, -1), ANTIGRAVITY, ...MCP_CLIENTS.slice(-1)];
 
-export type SetupClientName = (typeof SETUP_CLIENTS)[number]['name'];
+export type SetupClient = (typeof SETUP_CLIENTS)[number];
+export type SetupClientName = SetupClient['name'];
