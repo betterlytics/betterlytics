@@ -5267,7 +5267,7 @@
     "monitorsUp": "oppe"
   },
   "promo": {
-    "bar": "Black Friday: {percent} % rabat på Plus og Business de første {months} måneder, til og med {date}",
+    "bar": "{percent} % rabat på Plus og Business de første {months} måneder · Slutter {date}",
     "barCta": "Se priser",
     "callout": "Black Friday-priser uden rabatkode, til og med {date}",
     "banner": {
@@ -5275,6 +5275,8 @@
       "description": "Plus og Business de første {months} måneder, til og med {date}",
       "action": "Se planer"
     },
-    "then": "De første {months} måneder, derefter {price}/måned"
+    "then": "De første {months} måneder, derefter {price}/måned",
+    "barTag": "Black Friday",
+    "tag": "−{percent} %"
   }
 }

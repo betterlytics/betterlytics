@@ -57,6 +57,7 @@ type PlanProps = {
   promoRow?: boolean;
   /** Cents before a promo discount, shown struck through. */
   listPrice?: number;
+  promoTag?: string;
   promoNote?: string;
   period?: string;
   volumeLabel: VolumeLabel;
@@ -74,6 +75,7 @@ function Plan({
   price,
   promoRow,
   listPrice,
+  promoTag,
   promoNote,
   period,
   volumeLabel,
@@ -110,6 +112,11 @@ function Plan({
         {promoRow ? (
           <p className='h-5 text-body leading-5 tracking-ui text-muted tabular-nums'>
             {listPrice !== undefined ? <s>{formatListPrice(listPrice, locale)}</s> : null}
+            {listPrice !== undefined && promoTag ? (
+              <span className='ml-2 inline-block rounded-[4px] bg-volt-lift/22 px-1.5 align-[1px] text-[12.5px] leading-[18px] font-medium text-volt-soft'>
+                {promoTag}
+              </span>
+            ) : null}
           </p>
         ) : null}
         {/* fixed height so swapping a figure for a word doesn't shift the plans */}
@@ -271,6 +278,7 @@ export function PricingPanel() {
                 price={promoPrice ?? listCents ?? (offer.kind === 'free' ? 0 : t('custom'))}
                 promoRow={promo !== null}
                 listPrice={promoPrice !== undefined ? listCents : undefined}
+                promoTag={promo ? tPromo('tag', { percent: promo.percentOff }) : undefined}
                 promoNote={
                   promo && promoPrice !== undefined && listCents !== undefined
                     ? tPromo('then', { months: promo.months, price: formatListPrice(listCents, locale) })

@@ -5267,7 +5267,7 @@
     "monitorsUp": "up"
   },
   "promo": {
-    "bar": "Black Friday: {percent}% off Plus and Business for your first {months} months. Ends {date}.",
+    "bar": "{percent}% off Plus and Business for your first {months} months · Ends {date}",
     "barCta": "See pricing",
     "callout": "Black Friday prices until {date}, no code needed.",
     "banner": {
@@ -5275,6 +5275,8 @@
       "description": "Plus and Business for your first {months} months, until {date}.",
       "action": "See plans"
     },
-    "then": "First {months} months, then {price}/month"
+    "then": "First {months} months, then {price}/month",
+    "barTag": "Black Friday",
+    "tag": "−{percent}%"
   }
 }
