@@ -12,7 +12,7 @@ export const BODY = 1900;
 export const SHIFT = 0.12;
 
 /** `done` is when a metric's value is known, if later than when it starts. */
-type Moment = { metric: CoreWebVitalName; at: number; value: number; done?: number };
+export type Moment = { metric: CoreWebVitalName; at: number; value: number; done?: number };
 
 export const MOMENTS: Moment[] = [
   { metric: 'TTFB', at: AT.TTFB, value: AT.TTFB },

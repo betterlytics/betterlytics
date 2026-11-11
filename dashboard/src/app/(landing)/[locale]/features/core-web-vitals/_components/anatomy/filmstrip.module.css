@@ -50,16 +50,13 @@
     flex-direction: column;
     gap: 7px;
     min-width: 0;
-    transition: opacity 0.25s ease;
   }
-  .frame[data-owned] {
+  .frame[data-pick] {
     cursor: pointer;
   }
-  .reel[data-picked] .frame:not([data-current]) {
+  /* a pick dims the other frames, but not their stretch of the axis */
+  .reel[data-picked] .frame:not([data-current]) > :is(.shot, .callout) {
     opacity: 0.4;
-  }
-  .reel[data-picked] .frame[data-owned]:not([data-current]):hover {
-    opacity: 0.75;
   }
 
   .shot {
@@ -71,7 +68,10 @@
     border: 1px solid var(--color-rule-22);
     border-radius: 7px;
     background: var(--color-canvas);
-    transition: box-shadow 0.25s ease;
+    transition:
+      box-shadow 0.25s ease,
+      border-color 0.2s ease,
+      opacity 0.25s ease;
   }
   .frame[data-current] .shot {
     box-shadow:
@@ -284,12 +284,14 @@
     translate: -50% -50%;
   }
 
-  /* a line from the element into the slot beside its frame, and the label there */
+  /* a line from the element into the slot beside its frame, and the label there; the box is the shot's */
   .callout {
     --ink: color-mix(in oklab, var(--level, var(--color-volt-soft)) 80%, transparent);
     position: absolute;
-    inset: 0;
+    inset: 0 0 auto;
+    aspect-ratio: 10 / 18;
     pointer-events: none;
+    transition: opacity 0.25s ease;
   }
   .callout i {
     position: absolute;
@@ -398,6 +400,7 @@
     border-radius: 50%;
     background: var(--color-panel);
     box-shadow: inset 0 0 0 4.5px var(--level);
+    transition: scale 0.2s ease;
   }
   .mark[data-spot]::before {
     scale: 1.35;
@@ -467,12 +470,6 @@
     text-align: left;
     color: var(--color-fg);
   }
-  /* stretched over the card, so the whole card is the button's target */
-  .copy button::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-  }
   .copy p {
     margin-top: 5px;
     max-width: 48ch;
@@ -481,38 +478,154 @@
     color: var(--color-muted);
   }
 
-  /* narrower: rows of five, then three, and the axis runs under them on its own */
+  /* hovering something that picks a metric hints at the pick: a frame's edge and its number's dot, a card's line */
+  @media (hover: hover) {
+    .frame[data-pick]:hover .shot {
+      border-color: --alpha(var(--color-fg) / 40%);
+    }
+    .reel[data-picked] .frame[data-pick]:not([data-current]):hover > :is(.shot, .callout) {
+      opacity: 0.75;
+    }
+    .reel:has(.frame[data-pick='TTFB']:hover) .mark[data-metric='TTFB']::before,
+    .reel:has(.frame[data-pick='FCP']:hover) .mark[data-metric='FCP']::before,
+    .reel:has(.frame[data-pick='LCP']:hover) .mark[data-metric='LCP']::before,
+    .reel:has(.frame[data-pick='CLS']:hover) .mark[data-metric='CLS']::before,
+    .reel:has(.frame[data-pick='INP']:hover) .mark[data-metric='INP']::before {
+      scale: 1.35;
+    }
+    .card:not([data-active]):hover::before {
+      opacity: 0.35;
+    }
+  }
+
+  /*
+   * As the strip comes into view, the labels draw out from what they mark, one after another: a line from its dot, or a
+   * bracket opening from its middle, then the word.
+   */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .callout i {
+      animation: callout-line 0.4s var(--ease-out-expo) calc(var(--k) * 0.16s) backwards;
+    }
+    .callout[data-span] i {
+      animation-name: callout-bracket;
+    }
+    .callout b {
+      animation: callout-word 0.3s ease calc(var(--k) * 0.16s + 0.15s) backwards;
+    }
+    .reel:not([data-in]) .callout > * {
+      animation-play-state: paused;
+    }
+  }
+  @keyframes callout-line {
+    from {
+      clip-path: inset(-4px calc(100% + 4px) -4px -4px);
+    }
+    to {
+      clip-path: inset(-4px -1px -4px -4px);
+    }
+  }
+  @keyframes callout-bracket {
+    from {
+      clip-path: inset(50% -6px 50% -1px);
+    }
+    to {
+      clip-path: inset(-1px -6px -1px -1px);
+    }
+  }
+  @keyframes callout-word {
+    from {
+      opacity: 0;
+    }
+  }
+
+  .stamp {
+    display: none;
+  }
+
+  /*
+   * narrower: rows of five, then three. One axis under all the rows would line up with none of them, so each frame
+   * carries its own stretch of it, and every number sits under the frame where it's taken.
+   */
   @container strip (width < 900px) {
+    /* each frame keeps a label slot on its right, so the rows hug the left edge: move them over by half a slot */
     .reel {
       --gap: 40px;
-      --x0: 26px;
-      --span: calc(100cqw - 52px);
+      margin-inline: calc(var(--gap) / 2) calc(var(--gap) / -2);
     }
     .frames {
       grid-template-columns: repeat(5, minmax(0, 1fr));
+      row-gap: 24px;
     }
     .lane {
-      clip-path: none;
+      display: none;
+    }
+    .stamp {
+      --line: 9px;
+      --mid: calc((100% - var(--gap)) / 2);
+      position: relative;
+      display: block;
+      height: 36px;
+      margin-right: calc(-1 * var(--gap));
+    }
+    /* a tick under each frame, and a line from it to the next frame's: each row's line ends under its last frame */
+    .stamp::before,
+    .stamp::after {
+      content: '';
+      position: absolute;
+      background: var(--color-rule-30);
+    }
+    .stamp::before {
+      top: var(--line);
+      left: var(--mid);
+      right: calc(-1 * var(--mid));
+      height: 1px;
+    }
+    .frame:is(:nth-child(5n), :last-child) .stamp::before {
+      content: none;
+    }
+    /* the load starts before the first frame, so the first row's line fades in from its start, as on desktop */
+    .frame:first-child .stamp::before {
+      left: 0;
+      mask-image: linear-gradient(to right, transparent, #000 28px);
+    }
+    .stamp::after {
+      top: calc(var(--line) - 3px);
+      left: var(--mid);
+      width: 1px;
+      height: 7px;
+    }
+    .stamp:has(.mark)::after {
+      content: none;
+    }
+    .stamp .mark {
+      left: var(--mid);
+      translate: none;
+    }
+    .stamp .span {
+      left: var(--mid);
+      width: calc(var(--steps) * 100%);
+      translate: none;
+    }
+    /* TTFB's wait starts before the first frame, so it fades in from the row's start */
+    .stamp .span[data-from-start] {
+      left: 0;
+      width: var(--mid);
+      mask-image: linear-gradient(to right, transparent, #000 75%);
     }
   }
   @container strip (width < 560px) {
+    /* in rows of three the right column's labels need most of their slot, so only a quarter moves */
+    .reel {
+      margin-inline: calc(var(--gap) / 4) calc(var(--gap) / -4);
+    }
     .frames {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-  }
-  /* where frames are narrow, the labels beside LCP's drop to a second row */
-  @container strip (width < 620px) {
-    .mark:is([data-metric='FCP'], [data-metric='CLS']) > span {
-      top: 33px;
-    }
-    .mark:is([data-metric='FCP'], [data-metric='CLS']) > span::before {
+    .frame:nth-child(5n) .stamp::before {
       content: '';
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      width: 1px;
-      height: 20px;
-      background: var(--color-rule-22);
+    }
+    .frame:nth-child(3n) .stamp::before {
+      content: none;
     }
   }
 

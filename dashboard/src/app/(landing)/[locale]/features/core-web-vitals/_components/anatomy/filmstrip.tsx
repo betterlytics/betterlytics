@@ -1,13 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { type Dispatch, useCallback, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import { formatCWV } from '@/utils/coreWebVitals';
 import levels from '@/landing/components/ui/vitalLevels.module.css';
+import { useDismiss } from '@/landing/hooks/useDismiss';
+import { useInView } from '@/landing/hooks/useInView';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
-import { AT, BODY, END, FRAMES, type Frame, MOMENTS, SHIFT, SPANS, STEP, levelOf, momentOf } from './timeline';
+import {
+  AT,
+  BODY,
+  END,
+  FRAMES,
+  type Frame,
+  MOMENTS,
+  type Moment,
+  SHIFT,
+  SPANS,
+  STEP,
+  levelOf,
+  momentOf,
+} from './timeline';
 import styles from './filmstrip.module.css';
 
 /**
@@ -21,6 +36,8 @@ const CALLOUTS: Partial<Record<number, { label: CoreWebVitalName | 'shift' | 'ta
   [4000]: { label: 'tap', y: 0.908 },
   [4500]: { label: 'INP', y: 0.908 },
 };
+/** The order the labels draw in: the order the load reaches them. */
+const DRAW_ORDER = Object.keys(CALLOUTS).map(Number);
 
 /** The metrics a frame shows: what it's marked with, the tap that starts INP, and the first byte, which arrives with nothing on screen. */
 const owners = (frame: Frame): CoreWebVitalName[] => [
@@ -74,13 +91,42 @@ function Page({ t }: { t: number }) {
   );
 }
 
-function Cards({
-  picked,
-  onPick,
-}: {
-  picked: CoreWebVitalName | null;
-  onPick: (metric: CoreWebVitalName) => void;
-}) {
+/** A metric's dot on the axis, with its name and value under it. */
+function Mark({ moment, spot }: { moment: Moment; spot: boolean }) {
+  const locale = useLocale();
+  return (
+    <span
+      className={styles.mark}
+      data-level={levelOf(moment)}
+      data-spot={spot || undefined}
+      data-metric={moment.metric}
+      style={vars({ '--f': moment.at / END })}
+    >
+      <span>
+        <b>{moment.metric}</b> {formatCWV(moment.metric, moment.value, locale)}
+      </span>
+    </span>
+  );
+}
+
+/** A wait a metric times, as a bar from its start to when its number is known. */
+function Span({ span, spot }: { span: (typeof SPANS)[number]; spot: boolean }) {
+  return (
+    <i
+      className={styles.span}
+      data-level={levelOf(momentOf(span.metric))}
+      data-spot={spot || undefined}
+      data-from-start={span.from === 0 || undefined}
+      style={vars({
+        '--f': span.from / END,
+        '--len': (span.to - span.from) / END,
+        '--steps': (span.to - span.from) / STEP,
+      })}
+    />
+  );
+}
+
+function Cards({ picked, onPick }: { picked: CoreWebVitalName | null; onPick: Dispatch<CoreWebVitalName> }) {
   const t = useTranslations('landing.vitals.anatomy');
   return (
     <div className={styles.deck}>
@@ -88,7 +134,16 @@ function Cards({
         {MOMENTS.map(({ metric }) => {
           const on = picked === metric;
           return (
-            <li key={metric} className={styles.card} data-active={on || undefined}>
+            <li
+              key={metric}
+              className={styles.card}
+              data-active={on || undefined}
+              data-pick={metric}
+              onClick={(event) => {
+                if ((event.target as Element).closest('button') || window.getSelection()?.toString()) return;
+                onPick(metric);
+              }}
+            >
               <div className={styles.copy}>
                 <h3>
                   <button type='button' aria-pressed={on} onClick={() => onPick(metric)}>
@@ -111,6 +166,10 @@ export function LoadFilmstrip() {
   const locale = useLocale();
   const [picked, setPicked] = useState<CoreWebVitalName | null>(null);
   const pick = (metric: CoreWebVitalName) => setPicked((current) => (current === metric ? null : metric));
+  const clear = useCallback(() => setPicked(null), []);
+  useDismiss(picked !== null, '[data-pick]', clear);
+  const reel = useRef<HTMLDivElement>(null);
+  const seen = useInView(reel, 'draw');
   const spoken = (unit: 'second' | 'millisecond', amount: number) =>
     new Intl.NumberFormat(locale, { style: 'unit', unit, unitDisplay: 'long' }).format(amount);
   const at = (ms: number) => spoken('second', ms / 1000);
@@ -132,12 +191,14 @@ export function LoadFilmstrip() {
         </p>
 
         <div className={styles.strip}>
-          <div className={styles.reel} data-picked={picked ?? undefined}>
+          <div ref={reel} className={styles.reel} data-picked={picked ?? undefined} data-in={seen || undefined}>
             <ol className={styles.frames} aria-hidden>
               {FRAMES.slice(1).map((frame) => {
                 const shows = owners(frame);
                 const callout = CALLOUTS[frame.t];
                 const level = frame.moment ? levelOf(frame.moment) : undefined;
+                const mark = MOMENTS.find((moment) => moment.at === frame.t);
+                const span = mark && SPANS.find((wait) => wait.metric === mark.metric);
                 return (
                   <li
                     key={frame.t}
@@ -146,7 +207,7 @@ export function LoadFilmstrip() {
                     data-changed={frame.changed || undefined}
                     data-tap={frame.tap || undefined}
                     data-for={frame.moment?.metric}
-                    data-owned={shows.length > 0 || undefined}
+                    data-pick={shows[0]}
                     onClick={shows.length > 0 ? () => pick(shows[0]) : undefined}
                   >
                     <span className={styles.shot} data-level={level}>
@@ -157,7 +218,11 @@ export function LoadFilmstrip() {
                         className={styles.callout}
                         data-level={level}
                         data-span={callout.to !== undefined || undefined}
-                        style={vars({ '--y': callout.y, '--to': callout.to ?? callout.y })}
+                        style={vars({
+                          '--y': callout.y,
+                          '--to': callout.to ?? callout.y,
+                          '--k': DRAW_ORDER.indexOf(frame.t),
+                        })}
                       >
                         <i />
                         <b>
@@ -167,6 +232,10 @@ export function LoadFilmstrip() {
                         </b>
                       </span>
                     )}
+                    <span className={styles.stamp}>
+                      {span && <Span span={span} spot={picked === span.metric} />}
+                      {mark && <Mark moment={mark} spot={picked === mark.metric} />}
+                    </span>
                   </li>
                 );
               })}
@@ -177,28 +246,10 @@ export function LoadFilmstrip() {
                 <i key={frame.t} className={styles.tick} style={vars({ '--f': frame.t / END })} />
               ))}
               {SPANS.map((span) => (
-                <i
-                  key={span.metric}
-                  className={styles.span}
-                  data-level={levelOf(momentOf(span.metric))}
-                  data-spot={picked === span.metric || undefined}
-                  data-from-start={span.from === 0 || undefined}
-                  style={vars({ '--f': span.from / END, '--len': (span.to - span.from) / END })}
-                />
+                <Span key={span.metric} span={span} spot={picked === span.metric} />
               ))}
               {MOMENTS.map((moment) => (
-                <span
-                  key={moment.metric}
-                  className={styles.mark}
-                  data-level={levelOf(moment)}
-                  data-spot={picked === moment.metric || undefined}
-                  data-metric={moment.metric}
-                  style={vars({ '--f': moment.at / END })}
-                >
-                  <span>
-                    <b>{moment.metric}</b> {formatCWV(moment.metric, moment.value, locale)}
-                  </span>
-                </span>
+                <Mark key={moment.metric} moment={moment} spot={picked === moment.metric} />
               ))}
             </div>
           </div>
