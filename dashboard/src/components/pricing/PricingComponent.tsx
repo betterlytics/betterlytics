@@ -107,8 +107,8 @@ export function PricingComponent({
         )}
 
         {promo && (
-          <p className='text-primary mb-6 text-center text-sm font-medium text-balance'>
-            {tPromo('callout', { percent: promo.percentOff, months: promo.months, date: promoLastDay })}
+          <p className='text-muted-foreground mb-6 text-center text-sm'>
+            {tPromo('callout', { date: promoLastDay })}
           </p>
         )}
 

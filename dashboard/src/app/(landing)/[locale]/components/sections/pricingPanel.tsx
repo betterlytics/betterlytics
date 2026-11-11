@@ -27,6 +27,10 @@ const PROMO_PRICE_FORMAT = { style: 'currency', currency: CURRENCY } as const;
 // tabular figures give the decimal point a digit's width
 const NARROW_DECIMAL = '[&::part(decimal)]:[font-variant-numeric:proportional-nums]';
 
+function formatListPrice(cents: number, locale: string): string {
+  return new Intl.NumberFormat(locale, PRICE_FORMAT).format(cents / 100);
+}
+
 function Check() {
   return (
     <svg className='mt-[3px] size-3.5 flex-none text-volt-soft' viewBox='0 0 16 16' fill='none' aria-hidden>
@@ -104,19 +108,18 @@ function Plan({
       <p className='mb-4 text-body-sm leading-[22px] text-muted'>{tagline}</p>
       <div className={cn('mb-2.5', promoRow && '@container')}>
         {promoRow ? (
-          <p className='h-6 text-[18px] leading-6 tracking-[-0.3px] text-muted tabular-nums'>
-            {listPrice !== undefined ? (
-              <s>{new Intl.NumberFormat(locale, PRICE_FORMAT).format(listPrice / 100)}</s>
-            ) : null}
+          <p className='h-5 text-body leading-5 tracking-ui text-muted tabular-nums'>
+            {listPrice !== undefined ? <s>{formatListPrice(listPrice, locale)}</s> : null}
           </p>
         ) : null}
         {/* fixed height so swapping a figure for a word doesn't shift the plans */}
         <div className='flex h-11 items-baseline gap-1.5'>
           <b
             className={cn(
-              'leading-11 font-medium tracking-[-1.5px] tabular-nums',
               // promo prices carry cents, so narrow four-column cards scale them down to keep the period beside them
               promoRow ? 'text-[length:min(42px,18cqi)]' : 'text-[42px]',
+              // after the size: tailwind-merge drops a leading that comes before a font size
+              'leading-11 font-medium tracking-[-1.5px] tabular-nums',
             )}
           >
             {typeof price === 'number' ? (
@@ -137,7 +140,7 @@ function Plan({
         <p className='mt-1.5 text-body-sm tracking-ui text-muted'>
           <EventCountText {...volumeLabel} />
         </p>
-        {promoNote ? <p className='mt-1 text-body-sm tracking-ui text-volt-soft'>{promoNote}</p> : null}
+        {promoNote ? <p className='mt-1 text-body-sm tracking-ui text-muted'>{promoNote}</p> : null}
       </div>
       <div>
         <ul className='mt-3 mb-[26px] border-t border-rule-08 pt-[22px] transition-ink'>
@@ -175,7 +178,6 @@ export function PricingPanel() {
   const tPromo = useTranslations('promo');
   const locale = useLocale();
   const promo = usePromo();
-  const promoNote = promo ? tPromo('offer', { percent: promo.percentOff, months: promo.months }) : undefined;
   const [rangeIndex, setRangeIndex] = useState(0);
   const sliderRef = useRef<HTMLSpanElement>(null);
   // drives the phone thumb nudge in the module
@@ -269,7 +271,11 @@ export function PricingPanel() {
                 price={promoPrice ?? listCents ?? (offer.kind === 'free' ? 0 : t('custom'))}
                 promoRow={promo !== null}
                 listPrice={promoPrice !== undefined ? listCents : undefined}
-                promoNote={promoPrice !== undefined ? promoNote : undefined}
+                promoNote={
+                  promo && promoPrice !== undefined && listCents !== undefined
+                    ? tPromo('then', { months: promo.months, price: formatListPrice(listCents, locale) })
+                    : undefined
+                }
                 period={offer.kind === 'quoted' ? undefined : t('perMonth')}
                 volumeLabel={volumeLabel}
                 features={features}

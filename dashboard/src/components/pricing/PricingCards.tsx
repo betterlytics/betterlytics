@@ -87,6 +87,12 @@ export function PricingCards({ promo, volume, currency, onPlanSelect, billingDat
       {cards.map((card) => {
         const { plan, offer } = card;
         const promoPrice = promo && offer.kind === 'paid' ? promoCents(offer.cents, promo) : undefined;
+        const listLabel =
+          offer.kind === 'paid'
+            ? new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(
+                offer.cents / 100,
+              )
+            : null;
         return (
           <div
             key={plan.id}
@@ -117,16 +123,8 @@ export function PricingCards({ promo, volume, currency, onPlanSelect, billingDat
             <div className='mt-6'>
               {/* reserved on every card so prices stay level */}
               {promo && (
-                <p className='text-muted-foreground h-6 text-base leading-6 tabular-nums'>
-                  {promoPrice !== undefined && offer.kind === 'paid' && (
-                    <s>
-                      {new Intl.NumberFormat('en-US', {
-                        style: 'currency',
-                        currency,
-                        maximumFractionDigits: 0,
-                      }).format(offer.cents / 100)}
-                    </s>
-                  )}
+                <p className='text-muted-foreground h-5 text-sm leading-5 tabular-nums'>
+                  {promoPrice !== undefined && listLabel && <s>{listLabel}</s>}
                 </p>
               )}
               <div className='flex h-11 items-baseline gap-1.5'>
@@ -156,9 +154,9 @@ export function PricingCards({ promo, volume, currency, onPlanSelect, billingDat
               <p className='text-foreground/80 mt-2.5 text-sm'>
                 <EventCountText {...card.volumeLabel} />
               </p>
-              {promoPrice !== undefined && promo && (
-                <p className='text-primary mt-1 text-sm font-medium'>
-                  {tPromo('offer', { percent: promo.percentOff, months: promo.months })}
+              {promoPrice !== undefined && promo && listLabel && (
+                <p className='text-muted-foreground mt-1 text-sm'>
+                  {tPromo('then', { months: promo.months, price: listLabel })}
                 </p>
               )}
             </div>

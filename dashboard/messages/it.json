@@ -5267,14 +5267,14 @@
     "monitorsUp": "attivi"
   },
   "promo": {
-    "offer": "{percent}% di sconto sui primi {months} mesi",
     "bar": "Black Friday: {percent}% di sconto su Plus e Business per i primi {months} mesi. Termina il {date}.",
     "barCta": "Vedi i prezzi",
-    "callout": "Black Friday: {percent}% di sconto sui primi {months} mesi, applicato al pagamento. Termina il {date}.",
+    "callout": "Prezzi Black Friday fino al {date}, senza codice.",
     "banner": {
       "title": "Black Friday – {percent}% di sconto",
       "description": "Plus e Business per i primi {months} mesi, fino al {date}.",
       "action": "Vedi i piani"
-    }
+    },
+    "then": "Per i primi {months} mesi, poi {price}/mese"
   }
 }
