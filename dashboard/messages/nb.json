@@ -5271,8 +5271,7 @@
     "barCta": "Se priser",
     "callout": "Black Friday-priser til og med {date} Ingen rabattkode nødvendig.",
     "banner": {
-      "title": "{percent} % Black Friday-rabatt",
-      "description": "Plus og Business de første {months} månedene. Slutter {date}",
+      "short": "{percent} % rabatt på Plus og Business",
       "action": "Se planer"
     },
     "then": "De første {months} månedene, deretter {price}/mnd",

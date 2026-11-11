@@ -5271,8 +5271,7 @@
     "barCta": "See pricing",
     "callout": "Black Friday prices until {date}. No code needed.",
     "banner": {
-      "title": "{percent}% off for Black Friday",
-      "description": "Plus and Business for your first {months} months. Ends {date}.",
+      "short": "{percent}% off Plus and Business",
       "action": "See plans"
     },
     "then": "First {months} months, then {price}/month",
