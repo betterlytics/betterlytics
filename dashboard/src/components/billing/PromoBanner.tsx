@@ -26,8 +26,8 @@ export default function PromoBanner({ billingDataPromise }: PromoBannerProps) {
     addBanner({
       id: promo.id,
       level: 'info',
-      title: t('title'),
-      description: t('description', { percent: promo.percentOff, months: promo.months, date: lastDay }),
+      title: t('title', { percent: promo.percentOff }),
+      description: t('description', { months: promo.months, date: lastDay }),
       action: (
         <Button
           variant='default'
