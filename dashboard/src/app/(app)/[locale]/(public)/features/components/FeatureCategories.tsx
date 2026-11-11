@@ -50,7 +50,7 @@ import { MCPIcon } from '@/components/icons';
 const UPTIME = '/features/uptime-monitoring';
 const REPLAY = '/features/session-replay';
 const ERRORS = '/features/error-tracking';
-const MCP = '/features/mcp-server';
+const MCP = '/features/mcp';
 
 const CATEGORIES = [
   {

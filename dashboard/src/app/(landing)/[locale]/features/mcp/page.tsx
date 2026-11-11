@@ -1,7 +1,7 @@
 import { featurePage } from '@/landing/components/feature/featurePage';
 import { McpServerPage } from './mcpServerPage';
 
-const page = featurePage('mcpServer', '/features/mcp-server', McpServerPage);
+const page = featurePage('mcpServer', '/features/mcp', McpServerPage);
 
 export const revalidate = 86400;
 export const generateMetadata = page.generateMetadata;

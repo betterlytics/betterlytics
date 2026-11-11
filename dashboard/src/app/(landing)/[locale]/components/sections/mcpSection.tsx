@@ -29,7 +29,7 @@ export function McpPanel({ lead, body, cta, scripts, alt }: McpPanelProps) {
       <div className='flex flex-col border-r border-rule-10 px-7.5 pt-8 transition-ink max-lg:border-r-0 max-lg:border-b max-lg:pb-8 max-sm:px-6'>
         <Heading as='h3' size='title' className='mb-2'>
           <AppLink
-            href='/features/mcp-server'
+            href='/features/mcp'
             className='group/lead inline-flex items-center gap-1.5 transition-colors duration-180 ease-out-expo hover:text-white'
           >
             {lead}
