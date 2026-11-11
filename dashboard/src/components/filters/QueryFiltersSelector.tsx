@@ -87,6 +87,7 @@ export default function QueryFiltersSelector({ anchor, ...props }: QueryFiltersS
   );
 
   const interactedOutsideRef = useRef(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   // A pill moves focus to its own filter row, so the default first-control focus is skipped.
   const handleOpenAutoFocus = useCallback(
@@ -102,7 +103,7 @@ export default function QueryFiltersSelector({ anchor, ...props }: QueryFiltersS
     if (!e.defaultPrevented) interactedOutsideRef.current = true;
   }, []);
 
-  // Closing returns focus to the pill section that opened the editor, else to the band
+  // Closing returns focus to the pill section that opened the editor, else the band, else the trigger
   const handleCloseAutoFocus = useCallback(
     (e: Event) => {
       if (interactedOutsideRef.current) return;
@@ -111,10 +112,11 @@ export default function QueryFiltersSelector({ anchor, ...props }: QueryFiltersS
         ? (band ?? document).querySelector<HTMLElement>(
             `[data-filter-pill="${CSS.escape(target.filterId)}"] [data-pill-part="${target.part}"]`,
           )
-        : band;
-      if (!section) return;
+        : null;
+      const next = section ?? band ?? triggerRef.current;
+      if (!next) return;
       e.preventDefault();
-      section.focus({ preventScroll: true });
+      next.focus({ preventScroll: true });
     },
     [target],
   );
@@ -127,7 +129,6 @@ export default function QueryFiltersSelector({ anchor, ...props }: QueryFiltersS
 
   const activeFilterCount = useAllowedQueryFilters(nonEmptyFilters).length;
 
-  const triggerRef = useRef<HTMLButtonElement>(null);
   const anchorRef = useRef<HTMLElement | null>(null);
 
   // One anchor part throughout, as swapping it in would remount the trigger
