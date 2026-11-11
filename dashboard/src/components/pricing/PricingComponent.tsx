@@ -11,6 +11,7 @@ import { VOLUME_STOPS } from '@/lib/billing/catalog';
 import { formatEventCount } from '@/utils/pricing';
 import { useUsageProjection } from '@/hooks/useUsageProjection';
 import type { Currency, UserBillingData } from '@/entities/billing/billing.entities';
+import { usePromo, usePromoLastDay } from './usePromo';
 import {
   Select,
   SelectContent,
@@ -38,7 +39,11 @@ export function PricingComponent({
   stickyControls = false,
 }: PricingComponentProps) {
   const t = useTranslations('pricingSlider');
+  const tPromo = useTranslations('promo');
   const locale = useLocale();
+  const activePromo = usePromo();
+  const promo = billingData.isExistingPaidSubscriber ? null : activePromo;
+  const promoLastDay = usePromoLastDay(promo);
   const [selectedRangeIndex, setSelectedRangeIndex] = useState(initialRangeIndex);
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>(lockedCurrency ?? defaultCurrency);
   const currentVolume = VOLUME_STOPS[selectedRangeIndex];
@@ -97,6 +102,12 @@ export function PricingComponent({
               events: formatEventCount(recommendedVolume, locale),
               emphasis: (chunks) => <span className='text-foreground font-semibold'>{chunks}</span>,
             })}
+          </p>
+        )}
+
+        {promo && (
+          <p className='text-primary mb-6 text-center text-sm font-medium text-balance'>
+            {tPromo('callout', { percent: promo.percentOff, months: promo.months, date: promoLastDay })}
           </p>
         )}
 

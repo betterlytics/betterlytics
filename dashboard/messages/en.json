@@ -5265,5 +5265,16 @@
     },
     "monitorsEmpty": "No monitors",
     "monitorsUp": "up"
+  },
+  "promo": {
+    "offer": "{percent}% off your first {months} months",
+    "bar": "Black Friday: {percent}% off Plus and Business for your first {months} months. Ends {date}.",
+    "barCta": "See pricing",
+    "callout": "Black Friday: {percent}% off your first {months} months, applied at checkout. Ends {date}.",
+    "banner": {
+      "title": "Black Friday",
+      "description": "{percent}% off Plus and Business for your first {months} months, until {date}.",
+      "action": "See plans"
+    }
   }
 }
