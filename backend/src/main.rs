@@ -450,6 +450,7 @@ async fn warm_session_cache(db: &Database) {
                 visitor_fingerprint: r.visitor_id,
                 session_id: r.session_id,
                 created_at: r.session_created_at,
+                has_pageview: r.has_pageview,
             }));
             info!("Warmed {} active sessions into the session cache", warmed);
         }

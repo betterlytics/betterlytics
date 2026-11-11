@@ -438,12 +438,23 @@ fn server_exception_code(response: &str) -> Option<u32> {
 /// sessions, not total history; `argMax(.., session_end)` picks each visitor's current session.
 fn active_sessions_query(window: Duration) -> String {
     let window_secs = window.as_secs();
+    // Sessions are merged before picking each visitor's latest, so a pageview stored in
+    // an older, unmerged part of an active session still counts.
     format!(
-        "SELECT site_id, toUInt64(visitor_id) AS visitor_id, \
+        "SELECT site_id, visitor_id, \
                 argMax(session_id, session_end) AS session_id, \
-                argMax(session_created_at, session_end) AS session_created_at \
-         FROM analytics.sessions \
-         WHERE session_end > now() - toIntervalSecond({window_secs}) \
+                argMax(session_created_at, session_end) AS session_created_at, \
+                toBool(argMax(pageviews, session_end) > 0) AS has_pageview \
+         FROM ( \
+             SELECT site_id, session_created_at, session_id, toUInt64(any(visitor_id)) AS visitor_id, \
+                    max(session_end) AS session_end, sum(pageview_count) AS pageviews \
+             FROM analytics.sessions \
+             WHERE (site_id, session_created_at, session_id) IN ( \
+                 SELECT site_id, session_created_at, session_id FROM analytics.sessions \
+                 WHERE session_end > now() - toIntervalSecond({window_secs}) \
+             ) \
+             GROUP BY site_id, session_created_at, session_id \
+         ) \
          GROUP BY site_id, visitor_id"
     )
 }

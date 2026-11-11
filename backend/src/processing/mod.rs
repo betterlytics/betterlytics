@@ -354,7 +354,7 @@ impl EventProcessor {
                 os: processed.os.as_deref(),
                 root_domain: root_domain.as_deref(),
             };
-            visitor::identify(&site_id, &attrs, timestamp)
+            visitor::identify(&site_id, &attrs, timestamp, processed.event_type == "pageview")
         };
 
         processed.visitor_fingerprint = identity.fingerprint;

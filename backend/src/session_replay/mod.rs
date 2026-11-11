@@ -281,7 +281,7 @@ async fn store_segment(
             os: Some(parsed.os.as_str()),
             root_domain: root_domain.as_deref(),
         };
-        visitor::identify(&p.site_id, &attrs, Utc::now())
+        visitor::identify(&p.site_id, &attrs, Utc::now(), false)
     };
 
     if body.is_empty() || body.len() as u64 > MAX_UPLOAD_BODY_BYTES {

@@ -126,6 +126,7 @@ pub struct ActiveSessionRow {
     pub session_id: u64,
     #[serde(with = "clickhouse::serde::chrono::datetime")]
     pub session_created_at: DateTime<Utc>,
+    pub has_pageview: bool,
 }
 
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
