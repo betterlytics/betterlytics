@@ -37,3 +37,20 @@ pub fn identify(
         session_created_at,
     }
 }
+
+/// Like `identify`, but only resolves an existing session; `None` when the visitor has none
+pub fn identify_existing(site_id: &str, attrs: &VisitorAttrs<'_>) -> Option<VisitorIdentity> {
+    let (current_salt, previous_salt) = salt::current_and_previous();
+
+    let fingerprint = generate_fingerprint(&current_salt, attrs);
+
+    let (session_id, session_created_at) = session::find_session_id(site_id, fingerprint, || {
+        previous_salt.as_ref().map(|s| generate_fingerprint(s, attrs))
+    })?;
+
+    Some(VisitorIdentity {
+        fingerprint,
+        session_id,
+        session_created_at,
+    })
+}

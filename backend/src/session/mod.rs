@@ -33,8 +33,25 @@ impl SessionCache {
         }
     }
 
-    /// Return the visitor's existing session, or assign a new one. On a miss, the lazily-computed
+    /// Return the visitor's existing session without assigning one. On a miss, the lazily-computed
     /// `previous_fingerprint` is tried so a visitor keeps their session across a midnight salt rotation.
+    fn get(
+        &self,
+        site_id: &str,
+        visitor_fingerprint: u64,
+        previous_fingerprint: impl FnOnce() -> Option<u64>,
+    ) -> Option<(u64, DateTime<Utc>)> {
+        if let Some(entry) = self.entries.get(&format!("{}-{}", site_id, visitor_fingerprint)) {
+            return Some((entry.session_id, entry.created_at));
+        }
+
+        let prev_fp = previous_fingerprint().filter(|&fp| fp != visitor_fingerprint)?;
+        self.entries
+            .get(&format!("{}-{}", site_id, prev_fp))
+            .map(|entry| (entry.session_id, entry.created_at))
+    }
+
+    /// Return the visitor's existing session (see `get`), or assign a new one.
     fn get_or_create(
         &self,
         site_id: &str,
@@ -42,21 +59,11 @@ impl SessionCache {
         previous_fingerprint: impl FnOnce() -> Option<u64>,
         event_timestamp: DateTime<Utc>,
     ) -> (u64, DateTime<Utc>) {
+        if let Some(existing) = self.get(site_id, visitor_fingerprint, previous_fingerprint) {
+            return existing;
+        }
+
         let cache_key = format!("{}-{}", site_id, visitor_fingerprint);
-
-        if let Some(entry) = self.entries.get(&cache_key) {
-            return (entry.session_id, entry.created_at);
-        }
-
-        if let Some(prev_fp) = previous_fingerprint() {
-            if prev_fp != visitor_fingerprint {
-                let previous_key = format!("{}-{}", site_id, prev_fp);
-                if let Some(entry) = self.entries.get(&previous_key) {
-                    return (entry.session_id, entry.created_at);
-                }
-            }
-        }
-
         let entry = SessionEntry {
             session_id: rand::thread_rng().r#gen(),
             created_at: event_timestamp,
@@ -97,6 +104,15 @@ pub fn get_or_create_session_id(
         previous_fingerprint,
         event_timestamp,
     )
+}
+
+/// Look up the visitor's existing session id without ever starting one.
+pub fn find_session_id(
+    site_id: &str,
+    visitor_fingerprint: u64,
+    previous_fingerprint: impl FnOnce() -> Option<u64>,
+) -> Option<(u64, DateTime<Utc>)> {
+    SESSION_CACHE.get(site_id, visitor_fingerprint, previous_fingerprint)
 }
 
 /// Pre-populate the cache with recovered sessions so they survive a restart; returns the number
@@ -140,6 +156,25 @@ mod tests {
         let (session_b, _) = cache.get_or_create("site", 200, || Some(100), Utc::now());
 
         assert_eq!(session_a, session_b);
+    }
+
+    #[test]
+    fn lookup_never_creates_a_session() {
+        let cache = SessionCache::new();
+        assert_eq!(cache.get("site", 1, || None), None);
+        assert_eq!(cache.get("site", 1, || None), None);
+
+        let (created, created_at) = cache.get_or_create("site", 1, || None, Utc::now());
+        assert_eq!(cache.get("site", 1, || None), Some((created, created_at)));
+        assert_eq!(cache.get("other-site", 1, || None), None);
+    }
+
+    #[test]
+    fn lookup_bridges_a_rotation() {
+        let cache = SessionCache::new();
+        let (session, _) = cache.get_or_create("site", 100, || None, Utc::now());
+        assert_eq!(cache.get("site", 200, || Some(100)).map(|(id, _)| id), Some(session));
+        assert_eq!(cache.get("site", 200, || Some(300)), None);
     }
 
     #[test]
