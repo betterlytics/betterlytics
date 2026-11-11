@@ -97,6 +97,11 @@ export function LandingFooter() {
               </AppLink>
             </li>
             <li>
+              <AppLink className={LINK} href='/pricing'>
+                {t('product.pricing')}
+              </AppLink>
+            </li>
+            <li>
               <AppLink className={LINK} href='/features/uptime-monitoring'>
                 {t('product.uptime')}
               </AppLink>
@@ -112,8 +117,8 @@ export function LandingFooter() {
               </AppLink>
             </li>
             <li>
-              <AppLink className={LINK} href='/pricing'>
-                {t('product.pricing')}
+              <AppLink className={LINK} href='/features/mcp'>
+                {t('product.mcp')}
               </AppLink>
             </li>
           </Column>
