@@ -23,6 +23,12 @@ export function usePromo(): Promo | null {
   return live ? BLACK_FRIDAY_2026 : null;
 }
 
+/** Plan changes don't go through checkout, so only a first subscription gets the promo. */
+export function useCheckoutPromo(isExistingPaidSubscriber: boolean): Promo | null {
+  const promo = usePromo();
+  return isExistingPaidSubscriber ? null : promo;
+}
+
 export function usePromoLastDay(promo: Promo | null): string {
   const format = useFormatter();
   if (!promo) return '';

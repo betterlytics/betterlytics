@@ -5269,13 +5269,13 @@
   "promo": {
     "bar": "{percent} % rabat på Plus og Business de første {months} måneder. Slutter {date}",
     "barCta": "Se priser",
-    "callout": "Black Friday-priser til og med {date} Ingen rabatkode nødvendig.",
     "banner": {
       "short": "{percent} % rabat på Plus og Business",
       "action": "Se planer"
     },
     "then": "De første {months} måneder, derefter {price}/måned",
     "barTag": "Black Friday",
-    "tag": "−{percent} %"
+    "tag": "−{percent} %",
+    "until": "til og med {date}"
   }
 }

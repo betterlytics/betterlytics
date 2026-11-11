@@ -5269,13 +5269,13 @@
   "promo": {
     "bar": "{percent}% off Plus and Business for your first {months} months. Ends {date}.",
     "barCta": "See pricing",
-    "callout": "Black Friday prices until {date}. No code needed.",
     "banner": {
       "short": "{percent}% off Plus and Business",
       "action": "See plans"
     },
     "then": "First {months} months, then {price}/month",
     "barTag": "Black Friday",
-    "tag": "−{percent}%"
+    "tag": "−{percent}%",
+    "until": "until {date}"
   }
 }

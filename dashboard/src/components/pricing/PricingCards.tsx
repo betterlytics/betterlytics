@@ -127,7 +127,7 @@ export function PricingCards({ promo, volume, currency, onPlanSelect, billingDat
                   {promoPrice !== undefined && listLabel && (
                     <>
                       <s>{listLabel}</s>
-                      <span className='bg-primary/15 text-primary ml-2 inline-block rounded px-1.5 align-[1px] text-xs leading-[18px] font-medium'>
+                      <span className='bg-primary/15 text-primary dark:bg-primary/35 dark:text-primary-foreground ml-2 inline-block rounded px-1.5 align-[1px] text-xs leading-[18px] font-medium'>
                         {tPromo('tag', { percent: promo.percentOff })}
                       </span>
                     </>
