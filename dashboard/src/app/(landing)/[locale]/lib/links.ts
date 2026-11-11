@@ -7,6 +7,7 @@ export const LINKS = {
   errorsDashboardDocs: 'https://betterlytics.io/docs/dashboard/errors',
   vitalsDocs: 'https://betterlytics.io/docs/integration/web-vitals',
   vitalsScoreDocs: 'https://betterlytics.io/docs/dashboard/metrics-glossary#composite-score',
+  trackerNpm: 'https://www.npmjs.com/package/@betterlytics/tracker',
   integrationsDocs: 'https://betterlytics.io/docs/dashboard/integrations',
   github: 'https://github.com/betterlytics/betterlytics',
   license: 'https://github.com/betterlytics/betterlytics/blob/main/LICENSE',
