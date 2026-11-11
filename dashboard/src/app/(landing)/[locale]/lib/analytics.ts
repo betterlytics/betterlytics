@@ -10,4 +10,5 @@ export const track = {
     baEvent('landing-cta', plan ? { placement, destination, plan } : { placement, destination }),
   demoOpened: () => baEvent('landing-demo-opened'),
   pricingVolume: (events: number) => baEvent('landing-pricing-volume', { events }),
+  promoBar: (promo: string) => baEvent('landing-promo-bar', { promo }),
 };
