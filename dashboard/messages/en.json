@@ -5267,12 +5267,12 @@
     "monitorsUp": "up"
   },
   "promo": {
-    "bar": "{percent}% off Plus and Business for your first {months} months · Ends {date}",
+    "bar": "{percent}% off Plus and Business for your first {months} months. Ends {date}.",
     "barCta": "See pricing",
-    "callout": "Black Friday prices until {date}, no code needed.",
+    "callout": "Black Friday prices until {date}. No code needed.",
     "banner": {
-      "title": "Black Friday – {percent}% off",
-      "description": "Plus and Business for your first {months} months, until {date}.",
+      "title": "{percent}% off for Black Friday",
+      "description": "Plus and Business for your first {months} months. Ends {date}.",
       "action": "See plans"
     },
     "then": "First {months} months, then {price}/month",

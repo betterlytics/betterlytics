@@ -5267,12 +5267,12 @@
     "monitorsUp": "oppe"
   },
   "promo": {
-    "bar": "{percent} % rabat på Plus og Business de første {months} måneder · Slutter {date}",
+    "bar": "{percent} % rabat på Plus og Business de første {months} måneder. Slutter {date}",
     "barCta": "Se priser",
-    "callout": "Black Friday-priser uden rabatkode, til og med {date}",
+    "callout": "Black Friday-priser til og med {date} Ingen rabatkode nødvendig.",
     "banner": {
-      "title": "Black Friday – {percent} % rabat",
-      "description": "Plus og Business de første {months} måneder, til og med {date}",
+      "title": "{percent} % Black Friday-rabat",
+      "description": "Plus og Business de første {months} måneder. Slutter {date}",
       "action": "Se planer"
     },
     "then": "De første {months} måneder, derefter {price}/måned",
