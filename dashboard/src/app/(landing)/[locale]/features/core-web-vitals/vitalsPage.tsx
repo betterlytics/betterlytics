@@ -10,22 +10,21 @@ import { HeroSection } from '@/landing/components/sections/heroSection';
 import { Panel, Section } from '@/landing/components/ui/frame';
 import { LINKS } from '@/landing/lib/links';
 import { LoadFilmstrip } from './_components/anatomy/filmstrip';
-import { BreakdownExplorer } from './_components/breakdownExplorer';
+import { BlindSpot } from './_components/blindSpot';
 import { LoadMap } from './_components/field/loadMap';
 import { PriorityChart } from './_components/priorityChart';
-import { ReviewDock } from './_components/review/reviewDock';
-import { SetupPanel } from './_components/setupPanel';
+import { SetupLine } from './_components/setupLine';
 
 const FAQ_KEYS = [
   'what',
+  'ranking',
   'free',
   'lab',
-  'percentile',
+  'campaigns',
   'browsers',
   'speed',
   'spa',
   'attribution',
-  'alerts',
   'privacy',
   'dedicated',
 ] as const;
@@ -68,7 +67,12 @@ export function VitalsPage() {
               label: t('specs.metrics.label'),
               body: t('specs.metrics.body'),
             },
-            { value: 1, unit: t('specs.event.unit'), label: t('specs.event.label'), body: t('specs.event.body') },
+            {
+              value: 1,
+              unit: t('specs.traffic.unit'),
+              label: t('specs.traffic.label'),
+              body: t('specs.traffic.body'),
+            },
             {
               value: 2.6,
               decimals: 1,
@@ -78,12 +82,17 @@ export function VitalsPage() {
             },
           ]}
           lit={{
-            value: 3,
+            value: 0,
             unit: t('specs.thesis.unit'),
             label: t('specs.thesis.label'),
             body: t('specs.thesis.body'),
           }}
         />
+      </Section>
+      <Section id='blind-spot' title={t('blindSpot.title')} lede={t('blindSpot.lede')}>
+        <Panel flush framed>
+          <BlindSpot />
+        </Panel>
       </Section>
       <Section id='field' title={t('field.title')} lede={t('field.lede')}>
         <Panel flush framed>
@@ -95,11 +104,6 @@ export function VitalsPage() {
           <LoadFilmstrip />
         </Panel>
       </Section>
-      <Section id='breakdown' title={t('breakdown.title')} lede={t('breakdown.lede')}>
-        <Panel flush framed>
-          <BreakdownExplorer />
-        </Panel>
-      </Section>
       <Section id='priority' title={t('priority.title')} lede={t('priority.lede')}>
         <Panel flush framed>
           <PriorityChart />
@@ -107,7 +111,7 @@ export function VitalsPage() {
       </Section>
       <Section id='setup' title={t('setup.title')} lede={t('setup.lede')}>
         <Panel flush framed>
-          <SetupPanel />
+          <SetupLine />
         </Panel>
       </Section>
       <FaqSection
@@ -124,7 +128,6 @@ export function VitalsPage() {
           { key: 'uptime', icon: <Activity className='size-4' />, href: '/features/uptime-monitoring' },
         ]}
       />
-      <ReviewDock />
     </PageShell>
   );
 }
