@@ -42,6 +42,7 @@ export function PricingComponent({
   const tPromo = useTranslations('promo');
   const locale = useLocale();
   const activePromo = usePromo();
+  // plan changes don't go through checkout, so only a first subscription gets the promo
   const promo = billingData.isExistingPaidSubscriber ? null : activePromo;
   const promoLastDay = usePromoLastDay(promo);
   const [selectedRangeIndex, setSelectedRangeIndex] = useState(initialRangeIndex);
@@ -112,6 +113,7 @@ export function PricingComponent({
         )}
 
         <PricingCards
+          promo={promo}
           volume={currentVolume}
           onPlanSelect={onPlanSelect}
           billingData={billingData}

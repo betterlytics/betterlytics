@@ -13,10 +13,10 @@ import { cn } from '@/lib/utils';
 import NumberFlow from '@number-flow/react';
 import { EventCountText, FLUSH, QUICK_ROLL } from './EventCountFlow';
 import { usePlanCards, usePlanFeatures, type PlanCard } from './usePlanFeatures';
-import { usePromo } from './usePromo';
-import { promoCents } from '@/lib/billing/promo';
+import { promoCents, type Promo } from '@/lib/billing/promo';
 
 interface PricingCardsProps {
+  promo: Promo | null;
   volume: number;
   currency: Currency;
   onPlanSelect: Dispatch<SelectedPlan>;
@@ -25,14 +25,11 @@ interface PricingCardsProps {
 
 type BillingPlanCard = PlanCard & { description: string; isCurrent: boolean };
 
-export function PricingCards({ volume, currency, onPlanSelect, billingData }: PricingCardsProps) {
+export function PricingCards({ promo, volume, currency, onPlanSelect, billingData }: PricingCardsProps) {
   const t = useTranslations('pricingCards');
   const tPromo = useTranslations('promo');
   const featuresFor = usePlanFeatures();
   const planCards = usePlanCards(volume, currency);
-  const activePromo = usePromo();
-  // plan changes don't go through checkout, so only a first subscription gets the promo
-  const promo = billingData.isExistingPaidSubscriber ? null : activePromo;
 
   const cards: BillingPlanCard[] = useMemo(() => {
     const { subscription } = billingData;
