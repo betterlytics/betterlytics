@@ -5,22 +5,61 @@ import {
   Clock,
   FolderClosed,
   Mic,
-  PanelLeft,
   Plus,
   Search,
   Settings,
   Shapes,
   SquarePen,
 } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { BrandMark } from '@/landing/components/ui/brandMark';
+import { PathIcon } from '@/landing/components/ui/pathIcon';
+import { cn } from '@/landing/lib/cn';
+import { MCP_CLIENT_ICONS } from '@/landing/lib/icons';
 import styles from './chatScene.module.css';
+import { at, replayIn } from './replay';
 
-/* Mock data, deliberately untranslated: signups per hour from 10:00, with the outage in the 14:00 bar. */
+/* Mock data, deliberately untranslated: hourly is the finest the MCP returns, so the 19-minute outage shows as
+   164 failed signups stacked on the 14:00 bar. */
 const HOURS = [10, 11, 12, 13, 14, 15, 16, 17, 18];
-const SIGNUPS = [22, 19, 23, 20, 3, 19, 22, 18, 21];
+const SIGNUPS = [431, 468, 492, 517, 343, 524, 498, 476, 452];
 const OUTAGE = 4;
-const CHART = { width: 520, height: 132, top: 30, bar: 30, gap: 26, max: 25 };
+const FAILED = 164;
+const TICKS = [0, 200, 400, 600];
+const SCALE = 600;
+
+const share = (value: number) => `${(value / SCALE) * 100}%`;
+
+/* Tool calls stay literal, one argument per line, as the client prints them. */
+const CALLS = [
+  {
+    tool: 'query',
+    args: [
+      'metrics: ["custom_events"]',
+      'filters: [custom_event_name = "signup"]',
+      'timeRange: "yesterday"',
+      'granularity: "hour"',
+    ],
+  },
+  { tool: 'list_monitor_incidents', args: ['timeRange: "yesterday"'] },
+  { tool: 'list_errors', args: ['filters: [url = "/signup"]', 'timeRange: "yesterday"'] },
+] as const;
+
+/** Replay cues in seconds; the bars grow 40ms apart from `bars`. */
+const CUE = {
+  user: 0.2,
+  tools: 0.6,
+  call: 0.75,
+  lead: 1.9,
+  chart: 2.15,
+  bars: 2.25,
+  failed: 2.9,
+  points: 3.05,
+  close: 3.55,
+};
+
+const CLAUDE = MCP_CLIENT_ICONS.find((entry) => entry.name === 'Claude')!.icon;
 
 const CHATS = ['drop', 'recap', 'pricing', 'friday'] as const;
 
@@ -33,48 +72,76 @@ const NAV = [
   { key: 'customize', icon: Briefcase },
 ] as const;
 
-function SignupChart({ outage }: { outage: string }) {
-  const { width, height, top, bar, gap, max } = CHART;
-  const left = (width - HOURS.length * bar - (HOURS.length - 1) * gap) / 2;
-  const x = (i: number) => left + i * (bar + gap);
-  const base = height - 20;
+function SignupChart() {
+  const t = useTranslations('landing.mcpServer.window.chat.chart');
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className={styles.chartSvg} aria-hidden>
-      <rect x={x(OUTAGE) - 9} y={top - 6} width={bar + 18} height={base - top + 6} className={styles.outageBand} />
-      <text x={x(OUTAGE) + bar / 2} y={top - 12} textAnchor='middle' className={styles.outageLabel}>
-        {outage}
-      </text>
-      {SIGNUPS.map((value, i) => {
-        const h = Math.max(2, (value / max) * (base - top));
-        return (
-          <rect
-            key={HOURS[i]}
-            x={x(i)}
-            y={base - h}
-            width={bar}
-            height={h}
-            rx={3}
-            className={i === OUTAGE ? styles.dipBar : styles.bar}
-          />
-        );
-      })}
-      <line x1={left - 10} x2={width - left + 10} y1={base + 0.5} y2={base + 0.5} className={styles.axis} />
-      {HOURS.map((hour, i) => (
-        <text key={hour} x={x(i) + bar / 2} y={height - 4} textAnchor='middle' className={styles.tick}>
-          {`${hour}:00`}
-        </text>
-      ))}
-    </svg>
+    <figure className={cn(styles.chart, replayIn)} style={at(CUE.chart)}>
+      <figcaption className={styles.legend}>
+        <span className='sr-only'>{t('summary')}</span>
+        <span className={styles.key} aria-hidden>
+          <i className={styles.swatch} />
+          {t('signups')}
+        </span>
+        <span className={styles.key} aria-hidden>
+          <i className={cn(styles.swatch, styles.failedSwatch)} />
+          {t('failed')}
+        </span>
+      </figcaption>
+      <div className={styles.plot} aria-hidden>
+        {TICKS.map((tick) => (
+          <span key={tick} className={styles.gridline} style={{ bottom: share(tick) }}>
+            <span className={styles.tick}>{tick}</span>
+          </span>
+        ))}
+        <ol className={styles.columns}>
+          {SIGNUPS.map((value, i) => {
+            const failed = i === OUTAGE ? FAILED : 0;
+            return (
+              <li
+                key={HOURS[i]}
+                className={styles.column}
+                data-edge={i === 0 ? 'start' : i === SIGNUPS.length - 1 ? 'end' : undefined}
+              >
+                {failed > 0 && (
+                  <span className={styles.failedBar} style={{ height: share(failed), ...at(CUE.failed) }} />
+                )}
+                <span className={styles.bar} style={{ height: share(value), ...at(CUE.bars + i * 0.04) }} />
+                <span className={styles.tip} style={{ bottom: share(value + failed) }}>
+                  <b>{`${HOURS[i]}:00`}</b>
+                  <span className={styles.tipRow}>
+                    <i className={styles.swatch} />
+                    {t('tipSignups', { count: value })}
+                  </span>
+                  {failed > 0 && (
+                    <span className={styles.tipRow}>
+                      <i className={cn(styles.swatch, styles.failedSwatch)} />
+                      {t('tipFailed', { count: failed })}
+                    </span>
+                  )}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+      <ol className={styles.hours} aria-hidden>
+        {HOURS.map((hour) => (
+          <li key={hour}>{`${hour}:00`}</li>
+        ))}
+      </ol>
+    </figure>
   );
 }
 
 export function ChatScene() {
   const t = useTranslations('landing.mcpServer.window.chat');
+  const tWindow = useTranslations('landing.mcpServer.window');
+  const [open, setOpen] = useState(false);
   return (
     <div className={styles.app}>
       <aside className={styles.sidebar} aria-hidden>
         <div className={styles.sideTop}>
-          <PanelLeft className={styles.sideIcon} />
+          <PathIcon icon={CLAUDE} className={styles.logo} />
           <span className={styles.wordmark}>Claude</span>
         </div>
         <ul className={styles.nav}>
@@ -116,29 +183,63 @@ export function ChatScene() {
         </header>
 
         <div className={styles.thread}>
-          <p className={styles.user}>{t('question')}</p>
+          <p className={cn(styles.user, replayIn)} style={at(CUE.user)}>
+            <span className='sr-only'>{tWindow('you')}: </span>
+            {t('question')}
+          </p>
 
-          <div className={styles.toolUse}>
-            <span className={styles.toolMark}>
-              <BrandMark className='size-3' />
-            </span>
-            <span className={styles.toolLabel}>{t('tools')}</span>
-            <span className={styles.toolNames}>query · list_monitor_incidents · list_errors</span>
-            <ChevronRight className={styles.toolChevron} aria-hidden />
+          <p className='sr-only'>Claude:</p>
+          <div className={cn(styles.toolUse, replayIn)} style={at(CUE.tools)}>
+            <button
+              type='button'
+              className={styles.toolHead}
+              aria-expanded={open}
+              onClick={() => setOpen((value) => !value)}
+            >
+              <span className={styles.toolMark}>
+                <BrandMark className='size-3' />
+              </span>
+              {/* the client's own UI labels stay English in every locale */}
+              <span className={styles.toolLabel} lang='en'>
+                {t('tools')}
+              </span>
+              <span className={styles.toolNames}>
+                {CALLS.map(({ tool }, i) => (
+                  <span key={tool} className={replayIn} style={at(CUE.call + i * 0.35)}>
+                    {i > 0 && ' · '}
+                    {tool}
+                  </span>
+                ))}
+              </span>
+              <ChevronRight className={styles.toolChevron} aria-hidden />
+            </button>
+            {open && (
+              <ol className={styles.calls}>
+                {CALLS.map(({ tool, args }) => (
+                  <li key={tool}>
+                    <span className={styles.callName}>{tool}</span>
+                    <span className={styles.callArgs}>{args.join('\n')}</span>
+                  </li>
+                ))}
+              </ol>
+            )}
           </div>
 
           <div className={styles.answer}>
-            <p>{t('lead')}</p>
-            <figure className={styles.chart}>
-              <figcaption className={styles.chartTitle}>{t('chartTitle')}</figcaption>
-              <SignupChart outage={t('outage')} />
-            </figure>
+            <p className={replayIn} style={at(CUE.lead)}>
+              {t('lead')}
+            </p>
+            <SignupChart />
             <ul className={styles.points}>
-              <li>{t('points.a')}</li>
-              <li>{t('points.b')}</li>
-              <li>{t('points.c')}</li>
+              {(['a', 'b', 'c'] as const).map((point, i) => (
+                <li key={point} className={replayIn} style={at(CUE.points + i * 0.15)}>
+                  {t(`points.${point}`)}
+                </li>
+              ))}
             </ul>
-            <p>{t('close')}</p>
+            <p className={cn(styles.close, replayIn)} style={at(CUE.close)}>
+              {t('close')}
+            </p>
           </div>
         </div>
 

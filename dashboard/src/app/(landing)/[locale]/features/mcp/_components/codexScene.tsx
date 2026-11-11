@@ -20,26 +20,70 @@ import {
   SquarePen,
   SquareStack,
 } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { BrandMark } from '@/landing/components/ui/brandMark';
 import { cn } from '@/landing/lib/cn';
 import styles from './codexScene.module.css';
+import { at, replayIn } from './replay';
 
 const RAIL = [House, SquareStack, Clock, Library, AtSign, Ellipsis];
 
 const PROJECT_CHATS = ['deploy', 'pricing', 'retry'] as const;
 const RECENTS = ['deploy', 'pricing', 'retry', 'recap', 'checkout'] as const;
 
-/* Tool names stay literal, as the app prints them. */
+/* Tool calls stay literal, one argument per line, as the app prints them. */
 const CALLS = [
-  { tool: 'betterlytics.list_monitors', result: 'monitors' },
-  { tool: 'betterlytics.list_monitor_incidents', result: 'incidents' },
-  { tool: 'betterlytics.list_errors', result: 'errors' },
-  { tool: 'betterlytics.query', result: 'traffic' },
+  { tool: 'betterlytics.list_monitors', result: 'monitors', args: ['timeRange: "24h"'] },
+  { tool: 'betterlytics.list_monitor_incidents', result: 'incidents', args: ['timeRange: "today"'] },
+  { tool: 'betterlytics.list_errors', result: 'errors', args: ['timeRange: "1h"'] },
+  {
+    tool: 'betterlytics.query',
+    result: 'traffic',
+    args: [
+      'metrics: ["pageviews"]',
+      'granularity: "hour"',
+      'timeRange: "custom"',
+      'startDate: "2026-11-05"',
+      'endDate: "2026-11-06"',
+    ],
+  },
 ] as const;
+
+/** Replay cues in seconds; each call lands 350ms after the last, with its result 200ms behind. */
+const CUE = { user: 0.2, say: 0.6, calls: 1, answer: 2.65, worked: 3.05 };
+
+function Call({ tool, result, args, cue }: (typeof CALLS)[number] & { cue: number }) {
+  const t = useTranslations('landing.mcpServer.window.codex');
+  const [open, setOpen] = useState(false);
+  return (
+    <li className={styles.call}>
+      <button
+        type='button'
+        className={cn(styles.callHead, replayIn)}
+        style={at(cue)}
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <BrandMark className={styles.callMark} />
+        {/* the client's own UI labels stay English in every locale */}
+        <span className={styles.called} lang='en'>
+          {t('called')}
+        </span>
+        <span className={styles.tool}>{tool}</span>
+        <ChevronRight className={styles.callChevron} aria-hidden />
+      </button>
+      <span className={cn(styles.result, replayIn)} style={at(cue + 0.2)}>
+        {t(result)}
+      </span>
+      {open && <code className={styles.args}>{args.join('\n')}</code>}
+    </li>
+  );
+}
 
 export function CodexScene() {
   const t = useTranslations('landing.mcpServer.window.codex');
+  const tWindow = useTranslations('landing.mcpServer.window');
   return (
     <div className={styles.app}>
       <nav className={styles.rail} aria-hidden>
@@ -102,23 +146,23 @@ export function CodexScene() {
         </div>
 
         <div className={styles.thread}>
-          <p className={styles.user}>{t('question')}</p>
-          <p className={styles.text}>{t('say')}</p>
+          <p className={cn(styles.user, replayIn)} style={at(CUE.user)}>
+            <span className='sr-only'>{tWindow('you')}: </span>
+            {t('question')}
+          </p>
+          <p className='sr-only'>Codex:</p>
+          <p className={cn(styles.text, replayIn)} style={at(CUE.say)}>
+            {t('say')}
+          </p>
           <ul className={styles.calls}>
-            {CALLS.map(({ tool, result }) => (
-              <li key={tool} className={styles.call}>
-                <span className={styles.callHead}>
-                  <BrandMark className={styles.callMark} />
-                  <span className={styles.called}>{t('called')}</span>
-                  <span className={styles.tool}>{tool}</span>
-                  <ChevronRight className={styles.callChevron} aria-hidden />
-                </span>
-                <span className={styles.result}>{t(result)}</span>
-              </li>
+            {CALLS.map((call, i) => (
+              <Call key={call.tool} {...call} cue={CUE.calls + i * 0.35} />
             ))}
           </ul>
-          <p className={styles.text}>{t('answer')}</p>
-          <p className={styles.worked} aria-hidden>
+          <p className={cn(styles.text, replayIn)} style={at(CUE.answer)}>
+            {t('answer')}
+          </p>
+          <p className={cn(styles.worked, replayIn)} style={at(CUE.worked)} aria-hidden>
             {t('worked')}
           </p>
         </div>

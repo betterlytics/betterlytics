@@ -12,6 +12,12 @@
     --app-field: #303030;
     --app-active: #333333;
     --app-accent: #d97c59;
+    --chart-bar: #434343;
+    --chart-bar-hover: #585858;
+    --chart-failed: #e66767;
+    --chart-failed-hover: #ef8383;
+    --chart-grid: #272727;
+    --chart-axis: #3a3a3a;
     display: grid;
     grid-template-columns: 218px minmax(0, 1fr);
     height: 100%;
@@ -46,13 +52,13 @@
   .sideTop {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     padding: 0 8px 12px;
   }
-  .sideIcon {
-    width: 16px;
-    height: 16px;
-    color: var(--app-muted);
+  .logo {
+    width: 18px;
+    height: 18px;
+    color: var(--app-accent);
   }
   .wordmark {
     font-family: Charter, 'Sitka Text', 'Iowan Old Style', 'Palatino Linotype', ui-serif, Georgia, serif;
@@ -110,6 +116,7 @@
     gap: 6px;
     margin-top: auto;
     padding: 8px;
+    border-radius: 8px;
   }
   .avatar {
     display: grid;
@@ -153,6 +160,9 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    margin-left: -8px;
+    padding: 5px 8px;
+    border-radius: 8px;
   }
   .headerIcon {
     width: 16px;
@@ -181,16 +191,26 @@
     line-height: 21px;
   }
   .toolUse {
-    display: flex;
-    align-items: center;
-    gap: 9px;
     margin-top: 18px;
-    padding: 8px 12px;
     border: 1px solid var(--app-line);
     border-radius: 10px;
     font-size: 12.5px;
     line-height: 18px;
     color: var(--app-muted);
+  }
+  .toolHead {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 9px;
+    text-align: left;
+    cursor: pointer;
+    transition: color 0.15s ease;
+  }
+  .toolHead[aria-expanded='true'] {
+    color: var(--app-text);
   }
   .toolMark {
     display: grid;
@@ -220,6 +240,40 @@
     width: 14px;
     height: 14px;
     margin-left: auto;
+    transition: rotate 0.2s var(--ease-out-expo);
+  }
+  .toolHead[aria-expanded='true'] .toolChevron {
+    rotate: 90deg;
+  }
+  .calls {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding: 2px 12px 11px 41px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 17px;
+    animation: calls-open 0.25s var(--ease-out-expo);
+    @variant max-sm {
+      padding-left: 12px;
+    }
+  }
+  .calls > li {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .callName {
+    color: var(--app-text);
+  }
+  .callArgs {
+    white-space: pre-wrap;
+  }
+  @keyframes calls-open {
+    from {
+      opacity: 0;
+      translate: 0 -3px;
+    }
   }
 
   .answer {
@@ -242,44 +296,152 @@
     color: var(--app-muted);
   }
 
-  .chart {
-    padding: 12px 14px 8px;
-    border: 1px solid var(--app-line);
-    border-radius: 12px;
-    background: var(--app-side);
+  .answer > .chart {
+    margin-block: 18px;
   }
-  .chartTitle {
-    font-size: 12.5px;
-    font-weight: 500;
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--app-muted);
   }
-  .chartSvg {
-    display: block;
-    width: 100%;
-    height: auto;
-    margin-top: 6px;
+  .key {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
-  .bar {
-    fill: #5c5c5c;
+  .swatch {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    background: var(--chart-bar);
   }
-  .dipBar {
-    fill: var(--app-accent);
+  .failedSwatch {
+    background: var(--chart-failed);
   }
-  .outageBand {
-    fill: --alpha(var(--app-accent) / 10%);
-    stroke: --alpha(var(--app-accent) / 45%);
-    stroke-dasharray: 3 3;
-    rx: 6px;
+  .plot {
+    position: relative;
+    height: 132px;
+    margin: 16px 0 0 30px;
+    @variant max-sm {
+      height: 104px;
+    }
   }
-  .outageLabel {
-    font-size: 11px;
-    fill: var(--app-accent);
+  .gridline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--chart-grid);
   }
-  .axis {
-    stroke: var(--app-line);
+  .gridline:first-child {
+    background: var(--chart-axis);
   }
   .tick {
-    font-size: 10.5px;
-    fill: var(--app-muted);
+    position: absolute;
+    top: -8px;
+    right: calc(100% + 8px);
+    font-size: 11px;
+    line-height: 16px;
+    color: var(--app-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .columns {
+    position: absolute;
+    inset: 0 0 1px;
+    display: grid;
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+  }
+  .column {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 2px;
+  }
+  .bar,
+  .failedBar {
+    width: min(22px, 64%);
+    border-radius: 4px 4px 0 0;
+    background: var(--chart-bar);
+    transition: background-color 0.15s ease;
+  }
+  .failedBar {
+    background: var(--chart-failed);
+  }
+  .failedBar + .bar {
+    border-radius: 0;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .bar,
+    .failedBar {
+      transform-origin: bottom;
+      animation: grow 0.6s var(--ease-out-expo) var(--at) both;
+    }
+    [data-replay='armed'] .bar,
+    [data-replay='armed'] .failedBar {
+      animation: none;
+      scale: 1 0;
+    }
+  }
+  @keyframes grow {
+    from {
+      scale: 1 0;
+    }
+  }
+  .tip {
+    position: absolute;
+    left: 50%;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 8px;
+    padding: 6px 9px 7px;
+    border: 1px solid #383838;
+    border-radius: 7px;
+    background: #262626;
+    box-shadow: 0 6px 18px rgb(0 0 0 / 0.35);
+    font-size: 11.5px;
+    line-height: 16px;
+    color: var(--app-muted);
+    white-space: nowrap;
+    translate: -50% 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease;
+  }
+  .column[data-edge='start'] .tip {
+    left: 0;
+    translate: none;
+  }
+  .column[data-edge='end'] .tip {
+    right: 0;
+    left: auto;
+    translate: none;
+  }
+  .tip > b {
+    font-weight: 500;
+    color: var(--app-text);
+  }
+  .tipRow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .hours {
+    display: grid;
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+    margin: 7px 0 0 30px;
+    font-size: 11px;
+    line-height: 16px;
+    text-align: center;
+    color: var(--app-muted);
+    font-variant-numeric: tabular-nums;
   }
 
   .composerWrap {
@@ -334,9 +496,71 @@
     font-size: 12px;
     text-align: right;
     color: var(--app-muted);
+    @variant max-sm {
+      display: none;
+    }
+  }
+  /* phones skip the follow-up offer, keeping the window within about one screen */
+  .close {
+    @variant max-sm {
+      display: none;
+    }
   }
   .model > b {
     font-weight: 600;
     color: var(--app-text);
+  }
+
+  .nav > li,
+  .chats > li,
+  .account,
+  .title,
+  .toolUse,
+  .connector,
+  .composer,
+  .cog,
+  .headerIcon,
+  .composerIcon,
+  .mic {
+    cursor: default;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease;
+  }
+  @media (hover: hover) {
+    .nav > li:hover,
+    .chats > li:not([data-active]):hover,
+    .account:hover,
+    .title:hover {
+      background: rgb(255 255 255 / 0.05);
+    }
+    .toolUse:hover {
+      border-color: #3c3c3c;
+    }
+    .toolHead:hover {
+      color: var(--app-text);
+    }
+    .connector:hover {
+      background: rgb(255 255 255 / 0.1);
+    }
+    .composer:hover {
+      border-color: #454545;
+    }
+    .cog:hover,
+    .headerIcon:hover,
+    .composerIcon:hover,
+    .mic:hover {
+      color: var(--app-text);
+    }
+    .column:hover .tip {
+      opacity: 1;
+    }
+    .column:hover .bar {
+      background: var(--chart-bar-hover);
+    }
+    .column:hover .failedBar {
+      background: var(--chart-failed-hover);
+    }
   }
 }

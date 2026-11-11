@@ -17,6 +17,28 @@
   .scene[data-active][data-switched] {
     animation: arrive 0.45s var(--ease-out-expo);
   }
+  /* in the title bar after the dots, stopping short of the centred title (md up) and the switcher */
+  .note {
+    position: absolute;
+    top: 0;
+    left: 76px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    height: 44px;
+    max-width: calc(50% - 136px);
+    font-size: 11.5px;
+    line-height: 14px;
+    color: var(--color-muted);
+    text-wrap: balance;
+    @variant max-md {
+      max-width: calc(100% - 76px - 128px);
+    }
+    @variant max-sm {
+      left: 16px;
+      max-width: calc(100% - 16px - 128px);
+    }
+  }
   @keyframes arrive {
     from {
       opacity: 0;

@@ -324,4 +324,83 @@
     background: var(--cx-blue);
     color: #fff;
   }
+
+  .railButton,
+  .newChat,
+  .projectChats > li,
+  .recents > li,
+  .sideActions > svg,
+  .topbar > svg,
+  .callHead,
+  .contextItem,
+  .input,
+  .inputIcon,
+  .approve,
+  .model,
+  .send {
+    cursor: default;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease;
+  }
+  @media (hover: hover) {
+    .railButton:not(.railActive):hover {
+      background: rgb(255 255 255 / 0.05);
+      color: var(--cx-text);
+    }
+    .newChat:hover,
+    .projectChats > li:not([data-active]):hover,
+    .recents > li:hover {
+      background: rgb(255 255 255 / 0.05);
+    }
+    .sideActions > svg:hover,
+    .topbar > svg:hover,
+    .callHead:hover,
+    .contextItem:hover,
+    .inputIcon:hover,
+    .approve:hover,
+    .model:hover {
+      color: var(--cx-text);
+    }
+    .input:hover {
+      border-color: #474747;
+    }
+    .send:hover {
+      background: #5b9bf8;
+    }
+  }
+
+  .callHead {
+    text-align: left;
+    cursor: pointer;
+  }
+  .callHead[aria-expanded='true'] {
+    color: var(--cx-text);
+  }
+  .callChevron {
+    transition: rotate 0.2s var(--ease-out-expo);
+  }
+  .callHead[aria-expanded='true'] .callChevron {
+    rotate: 90deg;
+  }
+  .args {
+    margin: 6px 0 2px 20px;
+    padding: 7px 10px;
+    border: 1px solid var(--cx-line);
+    border-radius: 8px;
+    background: #1e1e1e;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 17px;
+    color: var(--cx-muted);
+    white-space: pre-wrap;
+    animation: args-open 0.25s var(--ease-out-expo);
+  }
+  @keyframes args-open {
+    from {
+      opacity: 0;
+      translate: 0 -3px;
+    }
+  }
 }

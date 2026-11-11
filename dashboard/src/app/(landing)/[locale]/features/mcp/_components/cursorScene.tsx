@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   ArrowUp,
   ChevronDown,
@@ -9,7 +9,9 @@ import {
   X,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { cn } from '@/landing/lib/cn';
 import styles from './cursorScene.module.css';
+import { at, replayIn } from './replay';
 
 /* Mock source, deliberately untranslated. Line 142 is the agent's fix. */
 const FIRST_LINE = 134;
@@ -70,18 +72,63 @@ const AGENTS = [
   { key: 'recap', time: '3h', diff: null },
 ] as const;
 
+/* Tool calls stay literal, one argument per line, as the client prints them. */
+const STEPS = [
+  { verb: 'thought', object: '3s' },
+  { verb: 'called', object: 'list_errors', args: ['filters: [url = "/pricing"]', 'timeRange: "7d"'] },
+  { verb: 'called', object: 'get_error', args: ['fingerprint: "a91f2c…e07"', 'includeBreadcrumbs: true'] },
+  { verb: 'read', object: 'pricing.js' },
+] as const;
+
+/** Replay cues in seconds; the steps tick in 350ms apart from `steps`. */
+const CUE = { user: 0.2, steps: 0.6, file: 2.05, fix: 2.1, reply: 2.35, worked: 2.75 };
+
 const code = (chunks: ReactNode) => <code className={styles.inlineCode}>{chunks}</code>;
 
-function Step({ verb, object }: { verb: string; object: string }) {
+function Step({
+  verb,
+  object,
+  args,
+  cue,
+}: {
+  verb: string;
+  object: string;
+  args?: readonly string[];
+  cue: number;
+}) {
+  const [open, setOpen] = useState(false);
+  // the client's own UI labels stay English in every locale
+  const label = (
+    <>
+      <span lang='en'>{verb}</span> <span className={styles.stepObject}>{object}</span>
+    </>
+  );
+  if (!args) {
+    return (
+      <p className={cn(styles.step, replayIn)} style={at(cue)}>
+        {label}
+      </p>
+    );
+  }
   return (
-    <p className={styles.step}>
-      {verb} <span className={styles.stepObject}>{object}</span>
-    </p>
+    <div className={replayIn} style={at(cue)}>
+      <button
+        type='button'
+        className={cn(styles.step, styles.stepButton)}
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        {label}
+        <ChevronRight className={styles.stepChevron} aria-hidden />
+      </button>
+      {open && <p className={styles.stepArgs}>{args.join('\n')}</p>}
+    </div>
   );
 }
 
 export function CursorScene() {
   const t = useTranslations('landing.mcpServer.window.cursor');
+  const tWindow = useTranslations('landing.mcpServer.window');
   const lines = SOURCE.split('\n');
   return (
     <div className={styles.app}>
@@ -116,19 +163,32 @@ export function CursorScene() {
           {t('agents.fix.title')}
         </p>
         <div className={styles.messages}>
-          <p className={styles.userMsg}>{t('question')}</p>
+          <p className={cn(styles.userMsg, replayIn)} style={at(CUE.user)}>
+            <span className='sr-only'>{tWindow('you')}: </span>
+            {t('question')}
+          </p>
+          <p className='sr-only'>Cursor:</p>
           <div className={styles.steps}>
-            <Step verb={t('thought')} object='3s' />
-            <Step verb={t('called')} object='list_errors' />
-            <Step verb={t('called')} object='get_error' />
-            <Step verb={t('read')} object='pricing.js' />
+            {STEPS.map((step, i) => (
+              <Step
+                key={step.object}
+                verb={t(step.verb)}
+                object={step.object}
+                args={'args' in step ? step.args : undefined}
+                cue={CUE.steps + i * 0.35}
+              />
+            ))}
           </div>
-          <p className={styles.fileChip}>
+          <p className={cn(styles.fileChip, replayIn)} style={at(CUE.file)}>
             <FileText className='size-3.5' aria-hidden />
             pricing.js <span className={styles.added}>+1</span>
           </p>
-          <p className={styles.agentReply}>{t.rich('answer', { c: code })}</p>
-          <p className={styles.step}>{t('worked')}</p>
+          <p className={cn(styles.agentReply, replayIn)} style={at(CUE.reply)}>
+            {t.rich('answer', { c: code })}
+          </p>
+          <p className={cn(styles.step, replayIn)} style={at(CUE.worked)} lang='en'>
+            {t('worked')}
+          </p>
         </div>
         <div className={styles.composer} aria-hidden>
           <p className={styles.placeholder}>{t('placeholder')}</p>
@@ -161,7 +221,7 @@ export function CursorScene() {
           <span className={styles.crumbs}>
             src <ChevronRight className='size-3' /> js <ChevronRight className='size-3' /> pricing.js
           </span>
-          <span className={styles.reviewActions}>
+          <span className={cn(styles.reviewActions, replayIn)} style={at(CUE.fix)}>
             <span className={styles.undo}>{t('undo')}</span>
             <span className={styles.keep}>{t('keep')}</span>
           </span>
@@ -170,7 +230,12 @@ export function CursorScene() {
           {lines.map((line, i) => {
             const number = FIRST_LINE + i;
             return (
-              <span key={number} className={styles.line} data-added={number === ADDED || undefined}>
+              <span
+                key={number}
+                className={styles.line}
+                data-added={number === ADDED || undefined}
+                style={number === ADDED ? at(CUE.fix) : undefined}
+              >
                 <span className={styles.gutter}>{number}</span>
                 <span className={styles.text}>{highlight(line)}</span>
               </span>
