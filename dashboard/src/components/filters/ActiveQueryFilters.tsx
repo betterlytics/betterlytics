@@ -24,6 +24,7 @@ import { FilterPillSection } from '@/components/filters/FilterPillSection';
 import { FilterPillTooltip } from '@/components/filters/FilterPillTooltip';
 import { FilterPillValues } from '@/components/filters/FilterPillValues';
 import { useNotifyFiltersUpdated } from '@/components/filters/filtersUpdatedToast';
+import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { cn } from '@/lib/utils';
 
 // One opaque pill colour, so the values' "+N more" label and fade can cover text in exactly that colour.
@@ -137,10 +138,16 @@ export function ActiveQueryFilters({ variant = 'row' }: ActiveQueryFiltersProps)
     return <div className='flex flex-wrap gap-1 sm:justify-end'>{pills}</div>;
   }
 
-  return <FilterBand pills={pills} label={t('activeFilters')} onClearAll={clearAll} />;
+  return <FilterBand pills={pills} filters={queryFilters} label={t('activeFilters')} onClearAll={clearAll} />;
 }
 
-type FilterBandProps = { pills: ReactNode[]; label: string; onClearAll: MouseEventHandler<HTMLElement> };
+type FilterBandProps = {
+  pills: ReactNode[];
+  // Changes only when the filters do, unlike the pills
+  filters: QueryFilter[];
+  label: string;
+  onClearAll: MouseEventHandler<HTMLElement>;
+};
 
 const PEEK_MIN_WIDTH = 40;
 
@@ -148,7 +155,7 @@ const PEEK_MIN_WIDTH = 40;
  * Pills always wrap at one width, so none moves on toggle: collapsed is the same list clipped to row one.
  * The space left on that row shows a faded peek, an inert copy of the next pill.
  */
-function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
+function FilterBand({ pills, filters, label, onClearAll }: FilterBandProps) {
   const t = useTranslations('components.filters');
   const bandRef = useRef<HTMLDivElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);
@@ -191,7 +198,7 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
       item.toggleAttribute('inert', !open && first >= 0 && index >= first);
       // Keeps the band's title off live controls
       item
-        .querySelectorAll('[data-pill-part], [data-pill-remove]')
+        .querySelectorAll('[data-pill-part]:not([title]), [data-pill-remove]:not([title])')
         .forEach((section) => section.setAttribute('title', ''));
     });
     setHidden(first < 0 ? 0 : count - first);
@@ -208,7 +215,7 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
   // Changed pills void the wrap history
   useLayoutEffect(() => {
     wrappedAtRef.current = -Infinity;
-  }, [pills]);
+  }, [filters]);
 
   useLayoutEffect(measure);
 
@@ -219,7 +226,7 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
     observer.observe(row);
     row.querySelectorAll(':scope > [data-filter-pill]').forEach((item) => observer.observe(item));
     return () => observer.disconnect();
-  }, [measure, pills]);
+  }, [measure, filters]);
 
   // Height slide with the accordion's timing
   useLayoutEffect(() => {
