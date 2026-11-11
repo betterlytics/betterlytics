@@ -23,23 +23,31 @@ async function main() {
   const promo = BLACK_FRIDAY_2026;
   console.log(`${isLive ? 'LIVE' : 'test'} mode${apply ? '' : ' (dry run; pass --apply to write)'}`);
 
-  const existing = await stripe.coupons.retrieve(promo.couponId).catch(() => null);
-  if (existing) {
-    const redeemBy = existing.redeem_by ? new Date(existing.redeem_by * 1000).toISOString() : 'no end';
-    console.log(
-      `${existing.id} exists: ${existing.percent_off}% off for ${existing.duration_in_months} months, redeemable until ${redeemBy}, valid ${existing.valid}`,
-    );
-    return;
-  }
-
-  const params: Stripe.CouponCreateParams = {
+  const params = {
     id: promo.couponId,
     name: 'Black Friday 2026',
     percent_off: promo.percentOff,
     duration: 'repeating',
     duration_in_months: promo.months,
     redeem_by: Math.floor(promo.endsAt.getTime() / 1000) + REDEEM_GRACE_SECONDS,
-  };
+  } satisfies Stripe.CouponCreateParams;
+
+  const existing = await stripe.coupons.retrieve(promo.couponId).catch(() => null);
+  if (existing) {
+    const wrong = (['percent_off', 'duration', 'duration_in_months', 'redeem_by'] as const).filter(
+      (field) => existing[field] !== params[field],
+    );
+    if (wrong.length || !existing.valid) {
+      console.log(
+        `MISMATCH ${existing.id}: ${wrong.map((f) => `${f} is ${existing[f]}, want ${params[f]}`).join('; ')}${existing.valid ? '' : '; not valid'}`,
+      );
+      process.exitCode = 1;
+    } else {
+      console.log(`${existing.id} matches the promo`);
+    }
+    return;
+  }
+
   console.log(`${apply ? 'creating' : 'would create'} coupon`, params);
   if (apply) await stripe.coupons.create(params);
 }

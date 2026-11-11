@@ -53,13 +53,6 @@ async function expireOpenCheckoutSessions(customerId: string): Promise<void> {
   }
 }
 
-async function redeemableCoupon(couponId: string): Promise<string | null> {
-  const coupon = await stripe.coupons.retrieve(couponId).catch(() => null);
-  if (coupon?.valid) return coupon.id;
-  console.error(`Promo coupon ${couponId} is missing or expired in Stripe, so checkout charges full price`);
-  return null;
-}
-
 export type EmbeddedCheckoutSession = {
   clientSecret: string;
   sessionId: string;
@@ -99,7 +92,6 @@ export const createStripeCheckoutSession = withUserAuth(
       }
 
       const promo = livePromo(isFeatureEnabled('isCloud'));
-      const couponId = promo ? await redeemableCoupon(promo.couponId) : null;
 
       const checkoutSession = await stripe.checkout.sessions.create({
         ui_mode: 'embedded_page',
@@ -123,7 +115,7 @@ export const createStripeCheckoutSession = withUserAuth(
         return_url: `${env.PUBLIC_BASE_URL}/billing?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
         redirect_on_completion: 'if_required',
         // Stripe rejects a session that sets both
-        ...(couponId ? { discounts: [{ coupon: couponId }] } : { allow_promotion_codes: true }),
+        ...(promo ? { discounts: [{ coupon: promo.couponId }] } : { allow_promotion_codes: true }),
         billing_address_collection: 'required',
         tax_id_collection: { enabled: true },
         customer_update: { name: 'auto', address: 'auto' },

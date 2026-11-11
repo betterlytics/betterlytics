@@ -15,7 +15,7 @@ describe('livePromo', () => {
 });
 
 describe('promoCents', () => {
-  it('matches what Stripe charges for a percent-off coupon', () => {
+  it('takes 30% off whole-dollar prices to an exact cent', () => {
     expect(promoCents(900, BLACK_FRIDAY_2026)).toBe(630);
     expect(promoCents(25_400, BLACK_FRIDAY_2026)).toBe(17_780);
   });
