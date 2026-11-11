@@ -1,42 +1,56 @@
 'use client';
 
-import { useId, useRef, useState, type AnimationEventHandler, type FocusEvent, type PointerEvent } from 'react';
+import {
+  useCallback,
+  useId,
+  useRef,
+  useState,
+  type AnimationEventHandler,
+  type FocusEvent,
+  type PointerEvent,
+} from 'react';
+import { Monitor, Smartphone, Tablet } from 'lucide-react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
-import { CWV_THRESHOLDS } from '@/constants/coreWebVitals';
 import {
   CORE_WEB_VITAL_LEVELS,
   type CoreWebVitalLevel,
   formatCWV,
   getCoreWebVitalLevel,
 } from '@/utils/coreWebVitals';
+import { FLAGS } from '@/landing/components/illustrations/flags';
 import { Corners } from '@/landing/components/ui/frame';
 import levels from '@/landing/components/ui/vitalLevels.module.css';
+import { useDismiss } from '@/landing/hooks/useDismiss';
 import { useInView } from '@/landing/hooks/useInView';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
-import { useReviewVariant } from '@/landing/features/core-web-vitals/_components/review/reviewDock';
-import { BREAKDOWN, OVERALL } from '@/landing/features/core-web-vitals/_components/vitalsData';
-import { MAP_ANCHORS, MAP_COLS, MAP_COUNTRIES, MAP_ROWS, MAP_RUNS } from './mapDots';
+import { rovingTabKeys } from '@/landing/lib/rovingTabs';
+import {
+  BREAKDOWN,
+  OVERALL,
+  type Dimension,
+  type RowIcon,
+} from '@/landing/features/core-web-vitals/_components/vitalsData';
+import { MAP_ANCHORS, MAP_COLS, MAP_COUNTRIES, MAP_ROWS, MAP_RUNS } from './mapGrid';
 import styles from './loadMap.module.css';
 
 type CountryKey = (typeof MAP_COUNTRIES)[number];
 
-/** The made-up site's page loads and their 75th percentile, as in the breakdown explorer. */
-const PAGE_LOADS = 3000;
 const VISITORS_MS = OVERALL.LCP!;
-/** Think with Google's mobile speed benchmarks; the 1s to 3s figure is in its chart. Only the ca-en edition still serves it. */
-const SOURCE_URL =
-  'https://business.google.com/ca-en/think/marketing-strategies/mobile-page-speed-new-industry-benchmarks/';
+const VISITORS_LEVEL = getCoreWebVitalLevel('LCP', VISITORS_MS)!;
 
-const [GOOD_MS, FAIR_MS] = CWV_THRESHOLDS.LCP;
+const DIMENSIONS: Dimension[] = ['countries', 'pages', 'devices', 'browsers', 'os'];
 
-/** Diagonals two cells apart, for the hatched style; the corner pieces keep each line whole across tiles. */
+/** The columns phones show: the far Pacific goes at both ends, Alaska to New Zealand, so the rest draws larger. */
+const PHONE_COLS = [22, 168] as const;
+
+/** Diagonals two cells apart; the corner pieces keep each line whole across tiles. */
 const SLASH = 'M-0.5 0.5L0.5 -0.5M0 2L2 0M1.5 2.5L2.5 1.5';
 
 /**
  * The map's runs of land, read once: path data per kind of cell (other land, then MAP_COUNTRIES), one line per run
- * in a row, dotted in CSS; and each country's cells, to land page loads on.
+ * in a row, hatched through a pattern; and each country's cells, to land page loads on.
  */
 const { PATHS, CELLS } = (() => {
   const paths = Array.from({ length: MAP_COUNTRIES.length + 1 }, () => '');
@@ -61,34 +75,114 @@ const { PATHS, CELLS } = (() => {
   return { PATHS: paths, CELLS: cells };
 })();
 
-type Os = 'apple' | 'windows' | 'android' | 'linux';
-type Browser = 'safari' | 'chrome' | 'edge' | 'firefox' | 'samsunginternet';
-
-/** Made-up page loads that land on the map one at a time: the city, the visitor's OS and browser, the page, its LCP. */
+/** Made-up page loads that land on the map one at a time, named as the breakdown's rows: the city, the visitor's device, OS and browser, the page, its LCP. */
 const LOADS: {
   country: CountryKey;
   city: [lat: number, lng: number];
-  os: Os;
-  browser: Browser;
+  device: string;
+  os: string;
+  browser: string;
   page: string;
   ms: number;
 }[] = [
-  { country: 'US', city: [40.7, -74.0], os: 'apple', browser: 'safari', page: '/checkout', ms: 3100 },
-  { country: 'IN', city: [19.1, 72.9], os: 'android', browser: 'chrome', page: '/shop/espresso-beans', ms: 5200 },
-  { country: 'DE', city: [52.5, 13.4], os: 'windows', browser: 'edge', page: '/subscriptions', ms: 1600 },
-  { country: 'BR', city: [-23.5, -46.6], os: 'android', browser: 'samsunginternet', page: '/', ms: 3400 },
-  { country: 'GB', city: [51.5, -0.1], os: 'apple', browser: 'safari', page: '/blog/brewing-guide', ms: 2100 },
-  { country: 'JP', city: [35.7, 139.7], os: 'apple', browser: 'safari', page: '/about', ms: 1900 },
-  { country: 'US', city: [37.8, -122.4], os: 'apple', browser: 'chrome', page: '/', ms: 1200 },
-  { country: 'IN', city: [13.0, 77.6], os: 'android', browser: 'chrome', page: '/checkout', ms: 4300 },
-  { country: 'DE', city: [48.1, 11.6], os: 'linux', browser: 'firefox', page: '/blog/brewing-guide', ms: 2200 },
-  { country: 'BR', city: [-8.1, -34.9], os: 'android', browser: 'chrome', page: '/shop/espresso-beans', ms: 4600 },
-  { country: 'GB', city: [53.5, -2.2], os: 'windows', browser: 'chrome', page: '/checkout', ms: 2700 },
-  { country: 'JP', city: [34.7, 135.5], os: 'android', browser: 'chrome', page: '/shop/espresso-beans', ms: 3200 },
+  {
+    country: 'US',
+    city: [40.7, -74.0],
+    device: 'mobile',
+    os: 'iOS',
+    browser: 'Safari',
+    page: '/checkout',
+    ms: 3100,
+  },
+  {
+    country: 'IN',
+    city: [19.1, 72.9],
+    device: 'mobile',
+    os: 'Android',
+    browser: 'Chrome',
+    page: '/shop/espresso-beans',
+    ms: 5200,
+  },
+  {
+    country: 'DE',
+    city: [52.5, 13.4],
+    device: 'desktop',
+    os: 'Windows',
+    browser: 'Edge',
+    page: '/subscriptions',
+    ms: 1600,
+  },
+  {
+    country: 'BR',
+    city: [-23.5, -46.6],
+    device: 'mobile',
+    os: 'Android',
+    browser: 'Samsung Internet',
+    page: '/',
+    ms: 3400,
+  },
+  {
+    country: 'GB',
+    city: [51.5, -0.1],
+    device: 'desktop',
+    os: 'macOS',
+    browser: 'Safari',
+    page: '/blog/brewing-guide',
+    ms: 2100,
+  },
+  { country: 'JP', city: [35.7, 139.7], device: 'mobile', os: 'iOS', browser: 'Safari', page: '/about', ms: 1900 },
+  { country: 'US', city: [37.8, -122.4], device: 'desktop', os: 'macOS', browser: 'Chrome', page: '/', ms: 1200 },
+  {
+    country: 'IN',
+    city: [13.0, 77.6],
+    device: 'mobile',
+    os: 'Android',
+    browser: 'Chrome',
+    page: '/checkout',
+    ms: 4300,
+  },
+  {
+    country: 'DE',
+    city: [48.1, 11.6],
+    device: 'desktop',
+    os: 'Linux',
+    browser: 'Firefox',
+    page: '/blog/brewing-guide',
+    ms: 2200,
+  },
+  {
+    country: 'BR',
+    city: [-8.1, -34.9],
+    device: 'mobile',
+    os: 'Android',
+    browser: 'Chrome',
+    page: '/shop/espresso-beans',
+    ms: 4600,
+  },
+  {
+    country: 'GB',
+    city: [53.5, -2.2],
+    device: 'desktop',
+    os: 'Windows',
+    browser: 'Chrome',
+    page: '/checkout',
+    ms: 2700,
+  },
+  {
+    country: 'JP',
+    city: [34.7, 135.5],
+    device: 'tablet',
+    os: 'Android',
+    browser: 'Chrome',
+    page: '/shop/espresso-beans',
+    ms: 3200,
+  },
 ];
-
-/** The grid runs 2° a cell from 76°N and 180°W, so a city lands in its cell, or its country's nearest one. */
-const ARRIVALS = LOADS.map((load) => {
+/**
+ * The grid runs 2° a cell from 76°N and 180°W, so a city lands in its cell, or its country's nearest one. Each box
+ * wanders its own way, turning by the golden angle from one load to the next.
+ */
+const ARRIVALS = LOADS.map((load, i) => {
   const [lat, lng] = load.city;
   const [col, row] = [Math.floor((lng + 180) / 2), Math.floor((76 - lat) / 2)];
   const far = ([c, r]: [number, number]) => (c - col) ** 2 + (r - row) ** 2;
@@ -96,19 +190,36 @@ const ARRIVALS = LOADS.map((load) => {
   const x = (c + 0.5) / MAP_COLS;
   const y = (r + 0.5) / MAP_ROWS;
   const align: 'start' | 'center' | 'end' = x < 0.2 ? 'start' : x > 0.8 ? 'end' : 'center';
-  return { ...load, x, y, below: y < 0.36, align };
+  const heading = i * 2.39996;
+  const [wx, wy] = [Math.cos(heading), Math.sin(heading)].map((n) => Math.round(n * 1000) / 1000);
+  return { ...load, x, y, below: y < 0.36, align, wx, wy };
 });
 type Arrival = (typeof ARRIVALS)[number];
 
 /** Shown together and still, far apart, when the reader asks for reduced motion. */
 const STILL = [0, 1, 3];
 
-const OS_ICONS: Record<Os, { src: string; mask: boolean }> = {
-  apple: { src: '/os-icons/apple-dark.svg', mask: true },
-  windows: { src: '/os-icons/windows.svg', mask: true },
-  android: { src: '/os-icons/android.svg', mask: false },
-  linux: { src: '/os-icons/linux.svg', mask: false },
-};
+/** Each dimension's rows by LCP, fastest first, and their icons by name for the loads. */
+const TABLES = Object.fromEntries(
+  DIMENSIONS.map((dimension) => [
+    dimension,
+    BREAKDOWN[dimension]
+      .map((row) => ({ key: row.key, lcp: row.p75.LCP!, icon: row.icon }))
+      .sort((a, b) => a.lcp - b.lcp),
+  ]),
+) as Record<Dimension, { key: string; lcp: number; icon?: RowIcon }[]>;
+
+/** One scale across the tabs: the slowest row's bar fills its room. */
+const SLOWEST = Math.max(...DIMENSIONS.flatMap((dimension) => TABLES[dimension].map((row) => row.lcp)));
+
+const ICONS = Object.fromEntries(
+  DIMENSIONS.map((dimension) => [
+    dimension,
+    Object.fromEntries(BREAKDOWN[dimension].map((row) => [row.key, row.icon])),
+  ]),
+) as Record<Dimension, Record<string, RowIcon | undefined>>;
+
+const DEVICE_ICONS = { desktop: Monitor, mobile: Smartphone, tablet: Tablet };
 
 /** Hairlines across the map through a country, stopping short of its main landmass. */
 const LOCATORS = Object.fromEntries(
@@ -119,14 +230,9 @@ const LOCATORS = Object.fromEntries(
   }),
 ) as Record<CountryKey, string>;
 
-const ROWS = BREAKDOWN.countries
-  .map((row) => ({ key: row.key as CountryKey, share: row.share, lcp: row.p75.LCP! }))
-  .sort((a, b) => a.lcp - b.lcp);
-
-const LEVEL_OF = Object.fromEntries(ROWS.map((row) => [row.key, getCoreWebVitalLevel('LCP', row.lcp)!])) as Record<
-  CountryKey,
-  CoreWebVitalLevel
->;
+const LEVEL_OF = Object.fromEntries(
+  TABLES.countries.map((row) => [row.key, getCoreWebVitalLevel('LCP', row.lcp)!]),
+) as Record<CountryKey, CoreWebVitalLevel>;
 
 function useFormats() {
   const locale = useLocale();
@@ -136,60 +242,70 @@ function useFormats() {
     unitDisplay: 'narrow',
     maximumFractionDigits: 2,
   });
-  const count = new Intl.NumberFormat(locale);
-  const percent = new Intl.NumberFormat(locale, { style: 'percent' });
   const regions = new Intl.DisplayNames([locale], { type: 'region' });
   return {
     s: (ms: number) => seconds.format(ms / 1000),
-    count: (n: number) => count.format(n),
-    share: (n: number) => percent.format(n),
     country: (key: string) => regions.of(key) ?? key,
   };
 }
 
-function Lcp({ ms, text }: { ms: number; text: string }) {
+/** A row's LCP as a bar in its level's colour, with the time at its end. */
+function Meter({ ms, text, index }: { ms: number; text: string; index: number }) {
   const t = useTranslations('landing.vitals.field');
   const level = getCoreWebVitalLevel('LCP', ms);
   return (
     <td data-level={level}>
-      {text}
-      {level && <span className='sr-only'>, {t(`levels.${level}`)}</span>}
+      <span className={styles.meter}>
+        <i style={vars({ '--length': ms / SLOWEST, '--i': index })} />
+        {text}
+        {level && <span className='sr-only'>, {t(`levels.${level}`)}</span>}
+      </span>
     </td>
   );
 }
 
-function Head({ first }: { first?: string }) {
+function Head({ first }: { first: string }) {
   const t = useTranslations('landing.vitals.field');
   return (
     <thead>
       <tr>
-        {first ? (
-          <th scope='col'>
-            <span>{first}</span>
-          </th>
-        ) : (
-          <td />
-        )}
         <th scope='col'>
-          <span>{t('columns.loads')}</span>
+          <span className='sr-only'>{first}</span>
         </th>
         <th scope='col'>
-          <span>{t('columns.lcp')}</span>
+          <span className='sr-only'>{t('columns.lcp')}</span>
         </th>
       </tr>
     </thead>
   );
 }
 
-function Glyph({ src, mask }: { src: string; mask: boolean }) {
-  return mask ? (
-    <i className={styles.mask} style={{ WebkitMaskImage: `url(${src})`, maskImage: `url(${src})` }} />
-  ) : (
-    <Image src={src} alt='' width={13} height={13} className={styles.glyph} />
-  );
+function Glyph({ icon }: { icon?: RowIcon }) {
+  switch (icon?.kind) {
+    case 'device': {
+      const Icon = DEVICE_ICONS[icon.device];
+      return <Icon className={cn(styles.glyph, styles.device)} aria-hidden />;
+    }
+    case 'flag': {
+      const Flag = FLAGS[icon.code];
+      return <Flag className={styles.flag} aria-hidden />;
+    }
+    case 'image':
+      return <Image src={icon.src} alt='' width={14} height={14} className={styles.glyph} />;
+    case 'mask':
+      return (
+        <i
+          className={cn(styles.glyph, styles.mask)}
+          style={{ WebkitMaskImage: `url(${icon.src})`, maskImage: `url(${icon.src})` }}
+          aria-hidden
+        />
+      );
+    default:
+      return null;
+  }
 }
 
-/** A page load landing: its dot, a ring that spreads once, and a box with what it was and how long it took. */
+/** A page load landing: its dot, a ring that spreads once, and a box on a stem with what it was and how long it took. */
 function Landing({
   arrival,
   live = false,
@@ -208,22 +324,23 @@ function Landing({
       data-level={getCoreWebVitalLevel('LCP', arrival.ms)}
       data-below={arrival.below || undefined}
       data-align={arrival.align}
-      style={vars({ '--x': arrival.x, '--y': arrival.y })}
+      style={vars({ '--x': arrival.x, '--y': arrival.y, '--wx': arrival.wx, '--wy': arrival.wy })}
       onAnimationEnd={onAnimationEnd}
     >
       <i className={styles.ping} />
-      <span className={styles.callout}>
-        <Corners
-          persistent
-          className='[--corner-edge:var(--color-volt-lift)] [--corner-fill:var(--color-canvas)]'
-        />
-        <span className={styles.visit}>
-          <Glyph {...OS_ICONS[arrival.os]} />
-          <Glyph src={`/browser-icons/${arrival.browser}.svg`} mask={false} />
-          <b>{arrival.page}</b>
-        </span>
-        <span className={styles.reading}>
-          {t('columns.lcp')} <b>{formatCWV('LCP', arrival.ms, locale)}</b>
+      <span className={styles.lead}>
+        <i className={styles.stem} />
+        <span className={styles.callout}>
+          <Corners persistent className='[--corner-fill:var(--color-canvas)]' />
+          <span className={styles.visit}>
+            <Glyph icon={ICONS.devices[arrival.device]} />
+            <Glyph icon={ICONS.os[arrival.os]} />
+            <Glyph icon={ICONS.browsers[arrival.browser]} />
+            <b>{arrival.page}</b>
+          </span>
+          <span className={styles.reading}>
+            {t('columns.lcp')} <b>{formatCWV('LCP', arrival.ms, locale)}</b>
+          </span>
         </span>
       </span>
     </span>
@@ -232,22 +349,41 @@ function Landing({
 
 export function LoadMap() {
   const t = useTranslations('landing.vitals.field');
-  const { s, count, share, country } = useFormats();
+  const { s, country } = useFormats();
   const landings = useRef<HTMLSpanElement>(null);
   const onScreen = useInView(landings, 'onScreen');
   const [landing, setLanding] = useState(0);
-  const hatched = useReviewVariant('map') === 'hatch';
   const patterns = useId().replace(/[^\w-]/g, '');
+  const tabs = useId();
+  const [tab, setTab] = useState<Dimension>('countries');
   const [hover, setHover] = useState<CountryKey | null>(null);
   const [focus, setFocus] = useState<CountryKey | null>(null);
   const [pinned, setPinned] = useState<CountryKey | null>(null);
+  const unpin = useCallback(() => setPinned(null), []);
+  useDismiss(pinned !== null, '[data-pin]', unpin);
+  const panels = useRef<HTMLDivElement>(null);
+  const counted = useInView(panels);
   const active = hover ?? focus ?? pinned;
   /** Landings play while the map is on screen and wait while the reader looks at a country. */
   const playing = onScreen && active === null;
   const live = ARRIVALS[landing];
 
-  const paint = (kind: string) => (hatched ? `url(#${patterns}-${kind})` : undefined);
-  const pin = (key: CountryKey) => setPinned((current) => (current === key ? null : key));
+  const paint = (kind: string) => `url(#${patterns}-${kind})`;
+  const label = (dimension: Dimension, key: string) => {
+    if (dimension === 'countries') return country(key);
+    if (dimension === 'devices') return t(`devices.${key as 'desktop' | 'mobile' | 'tablet'}`);
+    return key;
+  };
+  const choose = (dimension: Dimension) => {
+    setTab(dimension);
+    setHover(null);
+    setFocus(null);
+    setPinned(null);
+  };
+  const pin = (key: CountryKey) => {
+    setTab('countries');
+    setPinned((current) => (current === key ? null : key));
+  };
   const pointer = (key: CountryKey) => ({
     onPointerEnter: (event: PointerEvent) => event.pointerType !== 'touch' && setHover(key),
     onPointerLeave: () => setHover(null),
@@ -259,58 +395,68 @@ export function LoadMap() {
   return (
     <div className={cn(levels.levels, styles.root)}>
       <div className={styles.layout}>
-        <figure className={styles.atlas} data-style={hatched ? 'hatch' : undefined}>
-          <div className={styles.map}>
+        <figure className={styles.atlas}>
+          <div
+            className={styles.map}
+            style={vars({
+              '--cols': MAP_COLS,
+              '--rows': MAP_ROWS,
+              '--phone-from': PHONE_COLS[0],
+              '--phone-cols': PHONE_COLS[1] - PHONE_COLS[0],
+            })}
+          >
             <svg
               className={styles.svg}
               viewBox={`0 0 ${MAP_COLS} ${MAP_ROWS}`}
-              style={{ aspectRatio: `${MAP_COLS} / ${MAP_ROWS}` }}
+              preserveAspectRatio='xMinYMid slice'
               data-active={active ?? undefined}
               aria-hidden
             >
-              {hatched && (
-                <defs>
-                  <pattern id={`${patterns}-land`} width='2' height='2' patternUnits='userSpaceOnUse'>
-                    <path className={styles.slashLand} d={SLASH} />
+              <defs>
+                <pattern id={`${patterns}-land`} width='2' height='2' patternUnits='userSpaceOnUse'>
+                  <path className={styles.slashLand} d={SLASH} />
+                </pattern>
+                {CORE_WEB_VITAL_LEVELS.map((level) => (
+                  <pattern
+                    key={level}
+                    id={`${patterns}-${level}`}
+                    data-level={level}
+                    width='2'
+                    height='2'
+                    patternUnits='userSpaceOnUse'
+                  >
+                    <path className={styles.slash} d={SLASH} />
                   </pattern>
-                  {CORE_WEB_VITAL_LEVELS.map((level) => (
-                    <pattern
-                      key={level}
-                      id={`${patterns}-${level}`}
-                      data-level={level}
-                      width='2'
-                      height='2'
-                      patternUnits='userSpaceOnUse'
-                    >
-                      <path className={styles.slash} d={SLASH} />
-                    </pattern>
-                  ))}
-                </defs>
-              )}
-              {MAP_COUNTRIES.map((key) => (
-                <path
-                  key={key}
-                  className={styles.locator}
-                  d={LOCATORS[key]}
-                  data-on={active === key || undefined}
-                />
-              ))}
-              <path className={hatched ? styles.hatched : styles.land} d={PATHS[0]} stroke={paint('land')} />
-              {MAP_COUNTRIES.map((key, i) => (
-                <g
-                  key={key}
-                  className={styles.country}
-                  data-level={LEVEL_OF[key]}
-                  data-on={active === key || undefined}
-                >
+                ))}
+              </defs>
+              <g className={styles.world}>
+                {MAP_COUNTRIES.map((key) => (
                   <path
-                    className={hatched ? styles.hatched : styles.dots}
-                    d={PATHS[i + 1]}
-                    stroke={paint(LEVEL_OF[key])}
+                    key={key}
+                    className={styles.locator}
+                    d={LOCATORS[key]}
+                    data-on={active === key || undefined}
                   />
-                  <path className={styles.hit} d={PATHS[i + 1]} onClick={() => pin(key)} {...pointer(key)} />
-                </g>
-              ))}
+                ))}
+                <path className={styles.land} d={PATHS[0]} stroke={paint('land')} />
+                {MAP_COUNTRIES.map((key, i) => (
+                  <g
+                    key={key}
+                    className={styles.country}
+                    data-level={LEVEL_OF[key]}
+                    data-on={active === key || undefined}
+                  >
+                    <path className={styles.land} d={PATHS[i + 1]} stroke={paint(LEVEL_OF[key])} />
+                    <path
+                      className={styles.hit}
+                      d={PATHS[i + 1]}
+                      data-pin={key}
+                      onClick={() => pin(key)}
+                      {...pointer(key)}
+                    />
+                  </g>
+                ))}
+              </g>
             </svg>
             <span ref={landings} className={styles.landings} data-paused={!playing || undefined} aria-hidden>
               <Landing
@@ -328,75 +474,107 @@ export function LoadMap() {
               </span>
             </span>
           </div>
-          <figcaption className={styles.foot}>
-            <span className={styles.key}>
-              <span data-level='good'>{t('key.good', { value: s(GOOD_MS) })}</span>
-              <span data-level='fair'>{t('key.fair', { value: s(FAIR_MS) })}</span>
-              <span data-level='poor'>{t('key.poor', { value: s(FAIR_MS) })}</span>
-            </span>
-            <span className={styles.source}>
-              {t.rich('source', {
-                link: (chunks) => (
-                  <a href={SOURCE_URL} target='_blank' rel='noopener noreferrer'>
-                    {chunks}
-                  </a>
-                ),
-              })}
-            </span>
+          <figcaption className={styles.key}>
+            {CORE_WEB_VITAL_LEVELS.map((level) => (
+              <span key={level} data-level={level}>
+                {t(`levels.${level}`)}
+              </span>
+            ))}
           </figcaption>
         </figure>
 
         <div className={styles.ledger}>
-          <div className={styles.us}>
-            <table className={styles.table}>
-              <caption className='sr-only'>{t('summary')}</caption>
-              <Head />
-              <tbody>
-                <tr>
-                  <th scope='row'>
-                    <span className={styles.name}>{t('visitors.name')}</span>
-                    <span className={styles.note}>{t('visitors.note')}</span>
-                  </th>
-                  <td>{count(PAGE_LOADS)}</td>
-                  <Lcp ms={VISITORS_MS} text={s(VISITORS_MS)} />
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <p className={styles.us} data-level={VISITORS_LEVEL}>
+            <span className={styles.name}>{t('visitors')}</span>
+            <span className={styles.figure}>
+              {t('columns.lcp')} <b>{s(VISITORS_MS)}</b>
+              <span className='sr-only'>, {t(`levels.${VISITORS_LEVEL}`)}</span>
+            </span>
+          </p>
 
-          <div className={styles.countries}>
-            <table className={styles.table}>
-              <caption className='sr-only'>{t('byCountry')}</caption>
-              <Head first={t('columns.country')} />
-              <tbody>
-                {ROWS.map((row) => (
-                  <tr
-                    key={row.key}
-                    data-on={active === row.key || undefined}
-                    data-live={(playing && live.country === row.key) || undefined}
-                    onClick={() => pin(row.key)}
-                    {...pointer(row.key)}
-                  >
-                    <th scope='row'>
-                      <button
-                        type='button'
-                        aria-pressed={pinned === row.key}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          pin(row.key);
-                        }}
-                        onFocus={onFocus(row.key)}
-                        onBlur={() => setFocus(null)}
-                      >
-                        {country(row.key)}
-                      </button>
-                    </th>
-                    <td>{share(row.share)}</td>
-                    <Lcp ms={row.lcp} text={s(row.lcp)} />
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className={styles.breakdown}>
+            <div
+              role='tablist'
+              aria-label={t('split')}
+              className={styles.tabs}
+              onKeyDown={rovingTabKeys(DIMENSIONS.indexOf(tab), DIMENSIONS.length, (i) => choose(DIMENSIONS[i]))}
+            >
+              {DIMENSIONS.map((dimension) => (
+                <button
+                  key={dimension}
+                  type='button'
+                  role='tab'
+                  id={`${tabs}-tab-${dimension}`}
+                  aria-controls={`${tabs}-panel-${dimension}`}
+                  aria-selected={dimension === tab}
+                  tabIndex={dimension === tab ? 0 : -1}
+                  onClick={() => choose(dimension)}
+                >
+                  {t(`tabs.${dimension}`)}
+                </button>
+              ))}
+            </div>
+            <div ref={panels} className={styles.panels} data-in={counted || undefined}>
+              {DIMENSIONS.map((dimension) => (
+                <div
+                  key={dimension}
+                  role='tabpanel'
+                  id={`${tabs}-panel-${dimension}`}
+                  aria-labelledby={`${tabs}-tab-${dimension}`}
+                  className={styles.panel}
+                  data-shown={dimension === tab || undefined}
+                >
+                  <table className={styles.table}>
+                    <Head first={t(`columns.${dimension}`)} />
+                    <tbody>
+                      {TABLES[dimension].map((row, index) => {
+                        if (dimension !== 'countries') {
+                          return (
+                            <tr key={row.key}>
+                              <th scope='row'>
+                                <span className={styles.row}>
+                                  <Glyph icon={row.icon} />
+                                  <span>{label(dimension, row.key)}</span>
+                                </span>
+                              </th>
+                              <Meter ms={row.lcp} text={s(row.lcp)} index={index} />
+                            </tr>
+                          );
+                        }
+                        const key = row.key as CountryKey;
+                        return (
+                          <tr
+                            key={key}
+                            data-on={active === key || undefined}
+                            data-pin={key}
+                            onClick={() => pin(key)}
+                            {...pointer(key)}
+                          >
+                            <th scope='row'>
+                              <button
+                                type='button'
+                                className={styles.row}
+                                aria-pressed={pinned === key}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  pin(key);
+                                }}
+                                onFocus={onFocus(key)}
+                                onBlur={() => setFocus(null)}
+                              >
+                                <Glyph icon={row.icon} />
+                                <span>{label(dimension, key)}</span>
+                              </button>
+                            </th>
+                            <Meter ms={row.lcp} text={s(row.lcp)} index={index} />
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
