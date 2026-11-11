@@ -240,7 +240,8 @@ async fn store_segment(
         return Err(Rejection::invalid("url too long"));
     }
 
-    if processor.check_replay_request(
+    if processor.check_header_request(
+        "replay",
         &p.site_id,
         &client.ip,
         &client.user_agent,
