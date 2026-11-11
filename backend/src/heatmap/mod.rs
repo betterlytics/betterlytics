@@ -2,6 +2,7 @@
 //! stored as one `analytics.heatmap_clicks` row per click.
 
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use axum::{
     extract::{State, rejection::BytesRejection},
@@ -240,6 +241,10 @@ async fn store_clicks(
     Ok(())
 }
 
+/// Logs one in every 1000 dropped batches so a sustained overflow cannot flood the log;
+/// the dropped_total metric carries the exact click count.
+static DROP_LOG_SAMPLE: AtomicU64 = AtomicU64::new(0);
+
 fn enqueue(ctx: &HeatmapCtx, rows: Vec<HeatmapClickRow>) {
     let total = rows.len() as u64;
     let mut accepted = 0u64;
@@ -264,7 +269,15 @@ fn enqueue(ctx: &HeatmapCtx, rows: Vec<HeatmapClickRow>) {
         }
     }
     if let Some(reason) = failure {
-        warn!(reason, dropped = total - accepted, "Heatmap channel unavailable, dropping clicks");
+        let batch_drops = DROP_LOG_SAMPLE.fetch_add(1, Ordering::Relaxed);
+        if batch_drops.is_multiple_of(1000) {
+            warn!(
+                reason,
+                dropped = total - accepted,
+                sampled_drop_number = batch_drops + 1,
+                "Heatmap channel unavailable, dropping clicks"
+            );
+        }
     }
 }
 
