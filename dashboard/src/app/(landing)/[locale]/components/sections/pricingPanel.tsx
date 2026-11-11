@@ -102,7 +102,7 @@ function Plan({
         ) : null}
       </div>
       <p className='mb-4 text-body-sm leading-[22px] text-muted'>{tagline}</p>
-      <div className='mb-2.5'>
+      <div className={cn('mb-2.5', promoRow && '@container')}>
         {promoRow ? (
           <p className='h-6 text-[18px] leading-6 tracking-[-0.3px] text-muted tabular-nums'>
             {listPrice !== undefined ? (
@@ -112,7 +112,13 @@ function Plan({
         ) : null}
         {/* fixed height so swapping a figure for a word doesn't shift the plans */}
         <div className='flex h-11 items-baseline gap-1.5'>
-          <b className='text-[42px] leading-11 font-medium tracking-[-1.5px] tabular-nums'>
+          <b
+            className={cn(
+              'leading-11 font-medium tracking-[-1.5px] tabular-nums',
+              // promo prices carry cents, so narrow four-column cards scale them down to keep the period beside them
+              promoRow ? 'text-[length:min(42px,18cqi)]' : 'text-[42px]',
+            )}
+          >
             {typeof price === 'number' ? (
               <NumberFlow
                 className={cn(FLUSH, NARROW_DECIMAL)}
