@@ -45,7 +45,6 @@
     }
   }
 
-  /* sits in the window's title bar, above its glow */
   .switcher {
     position: absolute;
     top: 8px;

@@ -196,7 +196,6 @@
     line-height: 20px;
     color: var(--color-muted);
     text-wrap: pretty;
-    /* below lg the guide link joins the button's row and the note goes under both */
     @variant max-lg {
       order: 1;
       flex-basis: 100%;

@@ -32,7 +32,6 @@ const RAIL = [House, SquareStack, Clock, Library, AtSign, Ellipsis];
 const PROJECT_CHATS = ['deploy', 'pricing', 'retry'] as const;
 const RECENTS = ['deploy', 'pricing', 'retry', 'recap', 'checkout'] as const;
 
-/* Tool calls stay literal, one argument per line, as the app prints them. */
 const CALLS = [
   { tool: 'betterlytics.list_monitors', result: 'monitors', args: ['timeRange: "24h"'] },
   { tool: 'betterlytics.list_monitor_incidents', result: 'incidents', args: ['timeRange: "today"'] },
@@ -50,7 +49,6 @@ const CALLS = [
   },
 ] as const;
 
-/** Replay cues in seconds; each call lands 350ms after the last, with its result 200ms behind. */
 const CUE = { user: 0.2, say: 0.6, calls: 1, answer: 2.65, worked: 3.05 };
 
 function Call({ tool, result, args, cue }: (typeof CALLS)[number] & { cue: number }) {

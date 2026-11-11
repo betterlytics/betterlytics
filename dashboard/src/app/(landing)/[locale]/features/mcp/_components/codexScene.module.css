@@ -1,7 +1,6 @@
 @reference '../../../landing.css';
 
 @layer components {
-  /* a desktop coding-agent app, its own palette inside the window */
   .app {
     --cx-bg: #181818;
     --cx-side: #1f1f1f;

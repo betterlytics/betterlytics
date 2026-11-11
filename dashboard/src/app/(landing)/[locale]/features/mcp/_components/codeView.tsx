@@ -49,7 +49,7 @@ function highlightJson(code: string, mark?: string) {
   return out;
 }
 
-/** Code that overflows takes keyboard focus so it can be scrolled without a mouse; `label` names it for screen readers. */
+/** Overflowing code takes focus, so keyboard users can scroll it. */
 export function CodeView({
   code,
   mark,

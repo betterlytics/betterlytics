@@ -42,7 +42,7 @@ const GROUPS = [
 
 type Tool = (typeof GROUPS)[number]['tools'][number];
 
-/** The featured questions, each using several tools; signups, pricing and deploy are the hero's three sessions. */
+/** Signups, pricing and deploy are also the hero's three sessions. */
 const QUESTIONS = [
   { key: 'morning', tools: ['query', 'list_errors', 'list_monitors', 'list_status_pages'] },
   { key: 'launch', tools: ['query', 'query_sessions', 'list_monitors'] },
@@ -269,11 +269,11 @@ export function ToolMap() {
             </DropdownMenu.Content>
           </DropdownMenu.Portal>
         </DropdownMenu.Root>
-        {/* empty until a pick, so a screen reader reading the page doesn't hear the question twice */}
+        {/* empty until a pick, or a screen reader hears the question twice */}
         <p className='sr-only' aria-live='polite'>
           {picked && ask}
         </p>
-        {/* the menu renders only while open, so this copy carries its questions in the page HTML for search engines */}
+        {/* the menu only renders while open, so search engines get its questions from this copy */}
         <div hidden>
           {sections.map((section) => (
             <Fragment key={section.key}>

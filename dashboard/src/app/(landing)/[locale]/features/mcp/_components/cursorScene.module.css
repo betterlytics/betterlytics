@@ -1,7 +1,6 @@
 @reference '../../../landing.css';
 
 @layer components {
-  /* an agent-first editor: agents, the agent's chat, and a review pane */
   .app {
     --cu-bg: #171717;
     --cu-side: #121212;
@@ -393,7 +392,6 @@
     }
   }
 
-  /* the fix lights up in the diff as the agent finishes */
   @media (prefers-reduced-motion: no-preference) {
     .line[data-added] {
       animation: fix 0.7s ease var(--at) both;

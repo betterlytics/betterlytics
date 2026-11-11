@@ -1,7 +1,6 @@
 @reference '../../../landing.css';
 
 @layer components {
-  /* a desktop chat app in its own dark palette, measured from the real one */
   .app {
     --app-bg: #181818;
     --app-side: #1f1f1f;
@@ -500,7 +499,6 @@
       display: none;
     }
   }
-  /* phones skip the follow-up offer, keeping the window within about one screen */
   .close {
     @variant max-sm {
       display: none;

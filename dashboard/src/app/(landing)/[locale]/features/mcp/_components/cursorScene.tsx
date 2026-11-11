@@ -13,7 +13,7 @@ import { cn } from '@/landing/lib/cn';
 import styles from './cursorScene.module.css';
 import { at, replayIn } from './replay';
 
-/* Mock source, deliberately untranslated. Line 142 is the agent's fix. */
+/* Line 142 is the agent's fix, as the answer copy says. */
 const FIRST_LINE = 134;
 const ADDED = 142;
 const SOURCE = `  store.set('plans', plans);
@@ -72,7 +72,6 @@ const AGENTS = [
   { key: 'recap', time: '3h', diff: null },
 ] as const;
 
-/* Tool calls stay literal, one argument per line, as the client prints them. */
 const STEPS = [
   { verb: 'thought', object: '3s' },
   { verb: 'called', object: 'list_errors', args: ['filters: [url = "/pricing"]', 'timeRange: "7d"'] },
@@ -80,7 +79,6 @@ const STEPS = [
   { verb: 'read', object: 'pricing.js' },
 ] as const;
 
-/** Replay cues in seconds; the steps tick in 350ms apart from `steps`. */
 const CUE = { user: 0.2, steps: 0.6, file: 2.05, fix: 2.1, reply: 2.35, worked: 2.75 };
 
 const code = (chunks: ReactNode) => <code className={styles.inlineCode}>{chunks}</code>;

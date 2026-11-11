@@ -20,8 +20,7 @@ import { MCP_CLIENT_ICONS } from '@/landing/lib/icons';
 import styles from './chatScene.module.css';
 import { at, replayIn } from './replay';
 
-/* Mock data, deliberately untranslated: hourly is the finest the MCP returns, so the 19-minute outage shows as
-   164 failed signups stacked on the 14:00 bar. */
+/* Hourly is the finest the MCP returns, so the 19-minute outage lands as 164 failed signups on the 14:00 bar. */
 const HOURS = [10, 11, 12, 13, 14, 15, 16, 17, 18];
 const SIGNUPS = [431, 468, 492, 517, 343, 524, 498, 476, 452];
 const OUTAGE = 4;
@@ -31,7 +30,6 @@ const SCALE = 600;
 
 const share = (value: number) => `${(value / SCALE) * 100}%`;
 
-/* Tool calls stay literal, one argument per line, as the client prints them. */
 const CALLS = [
   {
     tool: 'query',
@@ -46,7 +44,6 @@ const CALLS = [
   { tool: 'list_errors', args: ['filters: [url = "/signup"]', 'timeRange: "yesterday"'] },
 ] as const;
 
-/** Replay cues in seconds; the bars grow 40ms apart from `bars`. */
 const CUE = {
   user: 0.2,
   tools: 0.6,

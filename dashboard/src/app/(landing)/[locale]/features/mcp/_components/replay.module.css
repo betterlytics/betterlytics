@@ -1,8 +1,7 @@
 @reference '../../../landing.css';
 
 @layer components {
-  /* Plays on load, so the first paint is already the opening frame. AgentWindow arms the stage when it loads
-     below the fold and lets it play once it's in view. */
+  /* Plays on load, so the first paint is the opening frame; AgentWindow arms it when it loads below the fold. */
   @media (prefers-reduced-motion: no-preference) {
     .in {
       animation: replay-in 0.5s var(--ease-out-expo) var(--at, 0s) both;
