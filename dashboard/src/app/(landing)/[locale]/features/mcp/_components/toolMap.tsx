@@ -1,6 +1,17 @@
 'use client';
 
-import { useCallback, useId, useLayoutEffect, useRef, useState, type RefObject } from 'react';
+import {
+  Fragment,
+  useCallback,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type RefObject,
+} from 'react';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { Check, ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { BrandMark } from '@/landing/components/ui/brandMark';
 import { PathIcon } from '@/landing/components/ui/pathIcon';
@@ -15,6 +26,7 @@ const GROUPS = [
     key: 'analytics',
     tools: [
       'describe',
+      'list_dashboards',
       'query',
       'query_sessions',
       'user_journeys',
@@ -30,29 +42,24 @@ const GROUPS = [
 
 type Tool = (typeof GROUPS)[number]['tools'][number];
 
-const RANGE = ['timeRange', 'timezone'];
+/** The featured questions, each using several tools; signups, pricing and deploy are the hero's three sessions. */
+const QUESTIONS = [
+  { key: 'morning', tools: ['query', 'list_errors', 'list_monitors', 'list_status_pages'] },
+  { key: 'launch', tools: ['query', 'query_sessions', 'list_monitors'] },
+  { key: 'signups', tools: ['query', 'list_monitor_incidents', 'list_errors'] },
+  { key: 'pricing', tools: ['list_errors', 'get_error'] },
+  { key: 'deploy', tools: ['list_monitors', 'list_monitor_incidents', 'list_errors', 'query'] },
+  { key: 'outage', tools: ['list_monitor_incidents', 'query', 'list_incident_suggestions'] },
+] as const satisfies readonly { key: string; tools: readonly Tool[] }[];
 
-/** Input names from each tool's schema in src/mcp; `timeRange` also takes `startDate` and `endDate`. */
-const INPUTS: Record<Tool, string[]> = {
-  describe: [],
-  query: ['metrics', 'dimensions', 'filters', 'granularity', 'orderBy', 'order', 'limit', ...RANGE],
-  query_sessions: ['metrics', 'dimensions', 'filters', 'granularity', 'orderBy', 'order', 'limit', ...RANGE],
-  user_journeys: ['filters', 'maxSteps', 'limit', ...RANGE],
-  funnel_preview: ['steps', 'isStrict', ...RANGE],
-  list_funnels: RANGE,
-  list_global_properties: ['key', ...RANGE],
-  list_errors: ['filters', 'search', 'fingerprint', 'limit', ...RANGE],
-  get_error: ['fingerprint', 'occurrenceOffset', 'includeBreadcrumbs'],
-  list_monitors: RANGE,
-  list_monitor_incidents: ['monitorId', 'state', 'limit', ...RANGE],
-  list_status_pages: ['statusPageId'],
-  list_incident_suggestions: ['statusPageId'],
-};
+type Choice = Tool | (typeof QUESTIONS)[number]['key'];
 
 const GROUP_OF = Object.fromEntries(GROUPS.flatMap((group, g) => group.tools.map((tool) => [tool, g]))) as Record<
   Tool,
   number
 >;
+
+const isTool = (choice: Choice): choice is Tool => choice in GROUP_OF;
 
 type Wire = { d: string; group: number | null };
 type Geometry = { width: number; height: number; wires: Wire[]; ends: { x: number; y: number }[] };
@@ -98,7 +105,7 @@ function useGeometry(
         ends.push(end);
       });
     } else {
-      const trunk = at(s.left + 22, 0).x;
+      const trunk = s.left + 22;
       const from = at(trunk, a.bottom);
       const to = at(trunk, s.top);
       wires.push({ d: `M${from.x},${from.y} V${to.y}`, group: null });
@@ -128,20 +135,39 @@ function useGeometry(
 
 export function ToolMap() {
   const t = useTranslations('landing.mcpServer.tools');
-  const [selected, setSelected] = useState<Tool>('query');
+  const [choice, setChoice] = useState<Choice>('query');
   const container = useRef<HTMLDivElement>(null);
   const agent = useRef<HTMLDivElement>(null);
   const server = useRef<HTMLDivElement>(null);
   const cards = useRef<(HTMLDivElement | null)[]>([]);
   const geometry = useGeometry(container, agent, server, cards);
-  const seen = useInView(container, 'read');
-  const detailId = useId();
-  const group = GROUP_OF[selected];
-
-  const select = (tool: Tool) => {
-    if (tool === selected) return;
-    setSelected(tool);
+  const seen = useInView(container, 'draw');
+  const cue = useInView(agent, 'read');
+  const menuId = useId();
+  const pointerPick = useRef(false);
+  const [picked, setPicked] = useState(false);
+  const pick = (next: Choice) => {
+    setChoice(next);
+    setPicked(true);
   };
+
+  const tools: readonly Tool[] = isTool(choice)
+    ? [choice]
+    : QUESTIONS.find((entry) => entry.key === choice)!.tools;
+  const lit = [...new Set(tools.map((tool) => GROUP_OF[tool]))].sort((a, b) => a - b);
+  const ask = isTool(choice) ? t(`asks.${choice}`) : t(`questions.${choice}`);
+  const sections = [
+    {
+      key: 'featured',
+      label: t('featured'),
+      items: QUESTIONS.map((entry) => ({ value: entry.key as Choice, text: t(`questions.${entry.key}`) })),
+    },
+    ...GROUPS.map((group) => ({
+      key: group.key,
+      label: t(`groups.${group.key}`),
+      items: group.tools.map((tool) => ({ value: tool as Choice, text: t(`asks.${tool}`) })),
+    })),
+  ];
 
   const svgProps = geometry && {
     width: geometry.width,
@@ -149,116 +175,152 @@ export function ToolMap() {
     viewBox: `0 0 ${geometry.width} ${geometry.height}`,
     'aria-hidden': true,
   };
-  const ask = t(`items.${selected}.ask`);
 
   return (
-    <div className={styles.map}>
-      <div ref={container} className={styles.diagram} data-seen={seen || undefined}>
-        {svgProps && (
-          <svg className={styles.wires} {...svgProps}>
-            {geometry.wires.map((wire, i) => (
-              <path key={i} d={wire.d} pathLength={1} className={styles.wire} />
-            ))}
-            {geometry.wires.map((wire, i) => (
+    <div ref={container} className={styles.diagram} data-seen={seen || undefined}>
+      {svgProps && (
+        <svg className={styles.wires} {...svgProps}>
+          {geometry.wires.map((wire, i) => (
+            <path key={i} d={wire.d} pathLength={1} className={styles.wire} />
+          ))}
+          {geometry.wires.map((wire, i) => {
+            const order = wire.group === null ? 0 : lit.indexOf(wire.group);
+            return (
               <path
                 key={`lit-${i}`}
                 d={wire.d}
                 pathLength={1}
                 className={styles.litWire}
-                data-lit={wire.group === null || wire.group === group || undefined}
+                data-lit={order >= 0 || undefined}
+                style={{ '--order': Math.max(order, 0) } as CSSProperties}
               />
-            ))}
-          </svg>
-        )}
-        {svgProps && (
-          <svg className={styles.nodes} {...svgProps}>
-            {geometry.ends.map((end, i) => (
-              <rect
-                key={i}
-                x={end.x - 3.5}
-                y={end.y - 3.5}
-                width={7}
-                height={7}
-                rx={1.5}
-                className={styles.node}
-              />
-            ))}
-          </svg>
-        )}
+            );
+          })}
+        </svg>
+      )}
+      {svgProps && (
+        <svg className={styles.nodes} {...svgProps}>
+          {geometry.ends.map((end, i) => (
+            <rect key={i} x={end.x - 3.5} y={end.y - 3.5} width={7} height={7} rx={1.5} className={styles.node} />
+          ))}
+        </svg>
+      )}
 
-        <div ref={agent} className={cn(styles.card, styles.agent)}>
-          <div className={styles.clients} aria-label={t('agentBody')} role='img'>
-            {SETUP_CLIENTS.map((client) => (
-              <PathIcon key={client.name} icon={client.icon} className='size-3.5' />
-            ))}
-          </div>
-          <p className={cn(styles.cardTitle, styles.agentTitle)}>{t('agent')}</p>
-          <p key={selected} className={styles.question}>
+      <div ref={agent} className={cn(styles.card, styles.agent)} data-cue={cue || undefined}>
+        <div className={styles.clients} aria-label={t('agentBody')} role='img'>
+          {SETUP_CLIENTS.map((client) => (
+            <PathIcon key={client.name} icon={client.icon} className='size-3.5' />
+          ))}
+        </div>
+        <p className={cn(styles.cardTitle, styles.agentTitle)}>{t('agent')}</p>
+        <CopyButton text={ask} label={t('copy')} done={t('copied')} iconOnly className={styles.copy} />
+        <DropdownMenu.Root modal={false}>
+          <DropdownMenu.Trigger className={styles.question}>
             <span className={styles.prompt} aria-hidden>
               &gt;
             </span>
-            {ask}
-          </p>
-          <CopyButton text={ask} label={t('copy')} done={t('copied')} iconOnly className={styles.copy} />
-        </div>
-
-        <div ref={server} className={cn(styles.card, styles.server)}>
-          <BrandMark className={styles.serverMark} />
-          <p className={styles.cardTitle}>{t('server')}</p>
-          <p className={styles.endpoint}>betterlytics.io/api/mcp</p>
-        </div>
-
-        <div className={styles.groups}>
-          {GROUPS.map((entry, g) => (
-            <div
-              key={entry.key}
-              ref={(el) => {
-                cards.current[g] = el;
+            <span key={ask} className={styles.ask}>
+              <span className='sr-only'>{t('pick')}: </span>
+              {ask}
+            </span>
+            <ChevronDown className={styles.chevron} aria-hidden />
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Portal>
+            <DropdownMenu.Content
+              className={styles.menu}
+              align='start'
+              sideOffset={6}
+              collisionPadding={16}
+              onCloseAutoFocus={(event) => {
+                /* refocusing the trigger after a mouse pick makes Chrome draw the keyboard focus ring */
+                if (pointerPick.current) event.preventDefault();
+                pointerPick.current = false;
               }}
-              className={styles.group}
-              data-lit={g === group || undefined}
             >
-              <p className={styles.groupTitle}>{t(`groups.${entry.key}`)}</p>
-              <ul className={styles.tools}>
-                {entry.tools.map((tool) => (
-                  <li key={tool}>
-                    <button
-                      type='button'
-                      className={styles.tool}
-                      aria-pressed={tool === selected}
-                      aria-controls={detailId}
-                      onClick={() => select(tool)}
-                    >
-                      {tool}
-                    </button>
-                  </li>
+              {sections.map((section, s) => (
+                <Fragment key={section.key}>
+                  {s > 0 && <DropdownMenu.Separator className={styles.menuRule} />}
+                  <DropdownMenu.Label id={`${menuId}-${section.key}`} className={styles.menuLabel}>
+                    {section.label}
+                  </DropdownMenu.Label>
+                  <DropdownMenu.RadioGroup
+                    aria-labelledby={`${menuId}-${section.key}`}
+                    value={choice}
+                    onValueChange={(value) => pick(value as Choice)}
+                  >
+                    {section.items.map((item) => (
+                      <DropdownMenu.RadioItem
+                        key={item.value}
+                        value={item.value}
+                        className={styles.menuItem}
+                        onPointerUp={() => {
+                          pointerPick.current = true;
+                        }}
+                      >
+                        {item.text}
+                        <DropdownMenu.ItemIndicator className={styles.menuCheck}>
+                          <Check className='size-3.5' aria-hidden />
+                        </DropdownMenu.ItemIndicator>
+                      </DropdownMenu.RadioItem>
+                    ))}
+                  </DropdownMenu.RadioGroup>
+                </Fragment>
+              ))}
+            </DropdownMenu.Content>
+          </DropdownMenu.Portal>
+        </DropdownMenu.Root>
+        {/* empty until a pick, so a screen reader reading the page doesn't hear the question twice */}
+        <p className='sr-only' aria-live='polite'>
+          {picked && ask}
+        </p>
+        {/* the menu renders only while open, so this copy carries its questions in the page HTML for search engines */}
+        <div hidden>
+          {sections.map((section) => (
+            <Fragment key={section.key}>
+              <p>{section.label}</p>
+              <ul>
+                {section.items.map((item) => (
+                  <li key={item.value}>{item.text}</li>
                 ))}
               </ul>
-            </div>
+            </Fragment>
           ))}
         </div>
       </div>
 
-      <div id={detailId} className={styles.detail} aria-live='polite'>
-        <div className={styles.detailMain}>
-          <p className={styles.detailName}>
-            <span>{selected}</span>
-            <span className={styles.detailGroup}>{t(`groups.${GROUPS[group].key}`)}</span>
-          </p>
-          <p className={styles.detailBody}>{t(`items.${selected}.body`)}</p>
-        </div>
-        <div className={styles.inputs}>
-          <p className={styles.inputsLabel}>{t('inputs')}</p>
-          {INPUTS[selected].length > 0 ? (
-            <p className={styles.inputList}>
-              {INPUTS[selected].map((input) => (
-                <code key={input}>{input}</code>
+      <div ref={server} className={cn(styles.card, styles.server)}>
+        <BrandMark className={styles.serverMark} />
+        <p className={styles.cardTitle}>{t('server')}</p>
+        <p className={styles.endpoint}>betterlytics.io/api/mcp</p>
+      </div>
+
+      <div className={styles.groups}>
+        {GROUPS.map((entry, g) => (
+          <div
+            key={entry.key}
+            ref={(el) => {
+              cards.current[g] = el;
+            }}
+            className={styles.group}
+            data-lit={lit.includes(g) || undefined}
+          >
+            <p className={styles.groupTitle}>{t(`groups.${entry.key}`)}</p>
+            <ul className={styles.tools}>
+              {entry.tools.map((tool) => (
+                <li key={tool}>
+                  <button
+                    type='button'
+                    className={styles.tool}
+                    aria-pressed={tools.includes(tool)}
+                    onClick={() => pick(tool)}
+                  >
+                    {tool}
+                  </button>
+                </li>
               ))}
-            </p>
-          ) : (
-            <p className={styles.noInputs}>{t('noInputs')}</p>
-          )}
-        </div>
+            </ul>
+          </div>
+        ))}
       </div>
     </div>
   );
