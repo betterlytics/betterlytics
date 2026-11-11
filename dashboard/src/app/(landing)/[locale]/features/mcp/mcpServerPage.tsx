@@ -14,18 +14,7 @@ import { ConnectSetup } from './_components/connectSetup';
 import { ToolMap } from './_components/toolMap';
 import { TrustRow } from './_components/trustRow';
 
-const FAQ_KEYS = [
-  'what',
-  'free',
-  'clients',
-  'writes',
-  'scope',
-  'provider',
-  'sites',
-  'revoke',
-  'schema',
-  'selfhost',
-] as const;
+const FAQ_KEYS = ['what', 'free', 'clients', 'scope', 'provider', 'sites', 'revoke', 'schema'] as const;
 
 export function McpServerPage() {
   const t = useTranslations('landing.mcpServer');
@@ -55,29 +44,26 @@ export function McpServerPage() {
         />
       }
     >
-      <Section id='ask' className='z-2 flow-root px-[calc(var(--inset)+8px)] pt-0 pb-2 max-lg:pb-2 max-sm:px-0'>
+      <Section
+        id='ask'
+        className='z-2 flow-root px-[calc(var(--inset)+8px)] pt-0 pb-2 max-lg:pb-2 max-sm:px-(--inset)'
+      >
         <AgentWindow />
       </Section>
       <Section id='specs' className='pt-0 max-sm:pt-8'>
         <SpecStrip
           specs={[
             {
-              value: 13,
-              unit: t('specs.tools.unit'),
-              label: t('specs.tools.label'),
-              body: t('specs.tools.body'),
+              value: 1,
+              unit: t('specs.connection.unit'),
+              label: t('specs.connection.label'),
+              body: t('specs.connection.body'),
             },
             {
-              value: 4,
-              unit: t('specs.products.unit'),
-              label: t('specs.products.label'),
-              body: t('specs.products.body'),
-            },
-            {
-              value: 7,
-              unit: t('specs.clients.unit'),
-              label: t('specs.clients.label'),
-              body: t('specs.clients.body'),
+              value: t('specs.free.value'),
+              unit: t('specs.free.unit'),
+              label: t('specs.free.label'),
+              body: t('specs.free.body'),
             },
           ]}
           lit={{

@@ -5,7 +5,9 @@ import ruled from '@/landing/components/ui/ruledGrid.module.css';
 import { Label } from '@/landing/components/ui/text';
 import { cn } from '@/landing/lib/cn';
 
-export type Spec = { value: number; unit?: string; label: string; body: string };
+export type Spec = { value: number | string; unit?: string; label: string; body: string };
+
+const VALUE = 'text-[2.25rem] leading-10 font-medium tracking-[-1.2px]';
 
 export function SpecStrip({ specs, lit }: { specs: Spec[]; lit?: Spec }) {
   const cells = lit ? [...specs, lit] : specs;
@@ -24,10 +26,11 @@ export function SpecStrip({ specs, lit }: { specs: Spec[]; lit?: Spec }) {
             >
               <Reveal index={i}>
                 <p className='flex items-baseline gap-1.5'>
-                  <CountUp
-                    className='text-[2.25rem] leading-10 font-medium tracking-[-1.2px]'
-                    value={spec.value}
-                  />
+                  {typeof spec.value === 'number' ? (
+                    <CountUp className={VALUE} value={spec.value} />
+                  ) : (
+                    <span className={VALUE}>{spec.value}</span>
+                  )}
                   {spec.unit && (
                     <span className={cn('text-[17px] tracking-[-0.3px]', isLit ? 'opacity-80' : 'text-muted')}>
                       {spec.unit}
