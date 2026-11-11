@@ -1,0 +1,223 @@
+@reference '../../../landing.css';
+
+@layer components {
+  .split {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    @variant max-lg {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .feel,
+  .measure {
+    position: relative;
+    overflow: hidden;
+    min-height: 480px;
+    @variant max-sm {
+      min-height: 420px;
+    }
+  }
+  .feel {
+    border-right: 1px solid var(--color-rule-08);
+    @apply bg-hatch;
+    @variant max-lg {
+      border-right: 0;
+      border-bottom: 1px solid var(--color-rule-08);
+    }
+  }
+  .measure {
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    background:
+      radial-gradient(60% 55% at 50% 100%, --alpha(var(--color-glow) / 30%), transparent 70%),
+      repeating-linear-gradient(315deg, rgb(242 245 255 / 0.09) 0 1px, transparent 0 50%) 0 0 / 10px 10px,
+      var(--color-volt);
+    color: var(--color-on-volt);
+    @variant max-lg {
+      min-height: 400px;
+    }
+  }
+
+  .heading {
+    position: relative;
+    z-index: 4;
+    padding: 46px 32px 0;
+    text-align: center;
+    font-size: clamp(26px, 2.6vw, 34px);
+    line-height: 1.12;
+    font-weight: 500;
+    letter-spacing: -0.9px;
+    text-wrap: balance;
+    @variant max-sm {
+      padding: 36px var(--pad) 0;
+      font-size: 26px;
+      letter-spacing: -0.6px;
+    }
+  }
+  .feel .heading {
+    color: --alpha(var(--color-fg) / 88%);
+    text-shadow: 0 2px 18px var(--color-canvas);
+  }
+
+  .lanes {
+    position: absolute;
+    inset: 0;
+    container-type: inline-size;
+  }
+  /* --x is the resting spot (reduced motion); with motion each thought crosses the half at its own pace */
+  .thought {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 13px 8px 12px;
+    border: 1px solid var(--color-rule-10);
+    border-radius: 12px;
+    background-color: var(--color-canvas);
+    background-image: linear-gradient(180deg, --alpha(var(--color-fg) / 4%), --alpha(var(--color-fg) / 1.2%));
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.04) inset,
+      0 10px 24px rgb(0 0 0 / 0.38);
+    font-size: 13px;
+    line-height: 18px;
+    font-weight: 500;
+    white-space: nowrap;
+    color: --alpha(var(--color-fg) / 90%);
+  }
+  /* a speech tail, so these read as things thought rather than things sent */
+  .thought::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 16px;
+    width: 9px;
+    height: 9px;
+    border-right: 1px solid var(--color-rule-10);
+    border-bottom: 1px solid var(--color-rule-10);
+    background: var(--color-canvas);
+    rotate: 45deg;
+  }
+  .thought[data-back] {
+    z-index: -1;
+    opacity: 0.45;
+    filter: blur(0.5px);
+    scale: 0.92;
+  }
+  .device {
+    flex: none;
+    width: 14px;
+    height: 14px;
+    color: var(--color-muted);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .thought {
+      left: 0;
+      animation: drift var(--dur) linear var(--delay) infinite;
+    }
+    .split:not([data-live]) .thought {
+      animation-play-state: paused;
+    }
+  }
+  /* standing still, two to a lane would overlap on a phone */
+  @media (prefers-reduced-motion: reduce) {
+    @container (width < 560px) {
+      .thought[data-spare] {
+        display: none;
+      }
+    }
+  }
+  @container (width < 640px) {
+    .thought {
+      gap: 7px;
+      padding: 6px 10px;
+      font-size: 12px;
+      line-height: 16px;
+    }
+    .device {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  /* the gauges stand on the volt half itself, three over two; where three won't fit across they shrink, then go two by two */
+  .gauges {
+    --zoom: 1;
+    --cell: calc(var(--gauge) * var(--zoom) + 22px);
+    --color-muted: rgb(242 245 255 / 0.82);
+    flex: 1;
+    align-self: center;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+    row-gap: 26px;
+    width: min(100% - 32px, 3 * var(--cell));
+    padding-block: 26px 44px;
+  }
+  @container (width < 520px) {
+    .gauges {
+      --zoom: 0.84;
+      --cell: calc(var(--gauge) * var(--zoom) + 16px);
+      row-gap: 20px;
+    }
+  }
+  @container (width < 300px) {
+    .gauges {
+      --zoom: 0.72;
+    }
+  }
+  .measure .gauges [data-level] {
+    --level-text: var(--color-on-volt);
+  }
+  .gauge {
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: 10px;
+    width: var(--cell);
+  }
+  .gauge > :first-child {
+    zoom: var(--zoom);
+  }
+  .gauge > span {
+    font-size: 13.5px;
+    line-height: 18px;
+    text-align: center;
+    color: rgb(242 245 255 / 0.94);
+  }
+
+  .source {
+    grid-column: 1 / -1;
+    padding: 14px 30px 16px;
+    border-top: 1px solid var(--color-rule-08);
+    font-size: 12px;
+    line-height: 18px;
+    color: --alpha(var(--color-muted) / 80%);
+    @variant max-sm {
+      padding: 12px var(--pad) 14px;
+    }
+  }
+  .source a {
+    color: var(--color-muted);
+    text-decoration: underline;
+    text-decoration-color: var(--color-rule-30);
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.2s ease;
+  }
+  .source a:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100cqw);
+  }
+}
