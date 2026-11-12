@@ -179,6 +179,36 @@ describe('createMcpServer', () => {
     expect([...dashboardToolNames()].sort()).toEqual(scoped.map((t) => t.name).sort());
   });
 
+  // Clients use these to decide whether to ask before running a tool, so future write tools have to declare them too.
+  it('gives every tool a title and declares every behaviour hint explicitly', async () => {
+    const client = await connect(single);
+    const { tools } = await client.listTools();
+
+    // Includes list_dashboards and the tools only registered when monitoring or status pages are enabled.
+    expect(tools.map((t) => t.name).sort()).toEqual(
+      ['describe', 'list_dashboards', ...DASHBOARD_TOOLS.map((t) => t.name)].sort(),
+    );
+    for (const tool of tools) {
+      expect(tool.title?.trim(), tool.name).toBeTruthy();
+      expect(typeof tool.annotations?.readOnlyHint, tool.name).toBe('boolean');
+      expect(typeof tool.annotations?.destructiveHint, tool.name).toBe('boolean');
+      expect(typeof tool.annotations?.openWorldHint, tool.name).toBe('boolean');
+    }
+  });
+
+  it('marks every tool read-only, non-destructive and closed-world', async () => {
+    const client = await connect(single);
+    const { tools } = await client.listTools();
+
+    for (const tool of tools) {
+      expect(tool.annotations, tool.name).toMatchObject({
+        readOnlyHint: true,
+        destructiveHint: false,
+        openWorldHint: false,
+      });
+    }
+  });
+
   it('keeps the refinements out of the published schema of a refined tool', async () => {
     const client = await connect(single);
     const { tools } = await client.listTools();
