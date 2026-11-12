@@ -213,7 +213,6 @@ function FailureBody({ failure, isAuthRequired, isCardDeclined, isBusy, onRetryA
         </Button>
         {isAuthRequired && (
           <Button onClick={onRetryAuth} disabled={isBusy} className='cursor-pointer'>
-            {isBusy && <Loader2 className='animate-spin' aria-hidden />}
             {t('tryAgain')}
           </Button>
         )}
