@@ -8739,6 +8739,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
       if (state.disabled || state.consentWithdrawn) return Promise.resolve();
       state.errorFlushPending = false;
       state.errorLastFlushAt = Date.now();
+      var epoch = state.consentEpoch;
 
       if (state.retryQueue.length > 0) {
         return sendChunk(state.retryQueue[0]).catch(function () {});
@@ -8765,7 +8766,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
       return groups
         .reduce(function (prev, group) {
           return prev.then(function () {
-            if (state.disabled || state.consentWithdrawn) return;
+            // Groups split off before a withdrawal stay discarded, even after a quick re-grant
+            if (state.disabled || epoch !== state.consentEpoch) return;
             return buildEventsChunk(group).then(sendChunk);
           });
         }, Promise.resolve())
