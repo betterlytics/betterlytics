@@ -3073,6 +3073,7 @@
       "pillMoreValues": "+{count, number} more",
       "notAvailableOnPage": "Not available on this page",
       "activeFilters": "Active filters",
+      "toggleFilters": "Toggle filters",
       "clearAll": "Clear all"
     },
     "funnels": {

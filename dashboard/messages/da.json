@@ -3073,6 +3073,7 @@
       "pillMoreValues": "{count, plural, one {+# mere} other {+# flere}}",
       "notAvailableOnPage": "Ikke tilgængelig på denne side",
       "activeFilters": "Aktive filtre",
+      "toggleFilters": "Vis/skjul filtre",
       "clearAll": "Fjern alle"
     },
     "funnels": {

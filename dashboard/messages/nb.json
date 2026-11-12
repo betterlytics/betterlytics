@@ -3073,6 +3073,7 @@
       "pillMoreValues": "+{count, number} til",
       "notAvailableOnPage": "Ikke tilgjengelig på denne siden",
       "activeFilters": "Aktive filtre",
+      "toggleFilters": "Vis/skjul filtre",
       "clearAll": "Fjern alle"
     },
     "funnels": {

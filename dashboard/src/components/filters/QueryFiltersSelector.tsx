@@ -11,7 +11,7 @@ import {
   type AnimationEvent,
 } from 'react';
 import { ChevronDownIcon, FilterIcon } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -31,9 +31,12 @@ import { useQueryFiltersEditor } from '@/contexts/QueryFiltersEditorProvider';
 const initOrDefault = (filters: QueryFilter[]): QueryFilter[] =>
   filters.length > 0 ? filters : [{ id: generateTempId(), column: 'url', operator: '=', values: [] }];
 
-type QueryFiltersSelectorProps = Omit<ComponentProps<typeof Popover>, 'open' | 'onOpenChange'>;
+type QueryFiltersSelectorProps = Omit<ComponentProps<typeof Popover>, 'open' | 'onOpenChange'> & {
+  // Stands in for the trigger while that is scrolled out of view
+  anchor?: HTMLElement | null;
+};
 
-export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
+export default function QueryFiltersSelector({ anchor, ...props }: QueryFiltersSelectorProps) {
   const { isOpen: isPopoverOpen, setIsOpen: setIsPopoverOpen, target } = useQueryFiltersEditor();
   const [isSavedFiltersOpen, setIsSavedFiltersOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -84,6 +87,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
   );
 
   const interactedOutsideRef = useRef(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   // A pill moves focus to its own filter row, so the default first-control focus is skipped.
   const handleOpenAutoFocus = useCallback(
@@ -99,16 +103,20 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
     if (!e.defaultPrevented) interactedOutsideRef.current = true;
   }, []);
 
-  // Closing hands focus back to the pill section that opened the editor, while that pill still exists.
+  // Closing returns focus to the pill section that opened the editor, else the band, else the trigger
   const handleCloseAutoFocus = useCallback(
     (e: Event) => {
-      if (!target || interactedOutsideRef.current) return;
-      const section = document.querySelector<HTMLElement>(
-        `[data-filter-pill="${CSS.escape(target.filterId)}"] [data-pill-part="${target.part}"]`,
-      );
-      if (!section) return;
+      if (interactedOutsideRef.current) return;
+      const band = document.querySelector<HTMLElement>('[data-slot=active-filters-band]');
+      const section = target
+        ? (band ?? document).querySelector<HTMLElement>(
+            `[data-filter-pill="${CSS.escape(target.filterId)}"] [data-pill-part="${target.part}"]`,
+          )
+        : null;
+      const next = section ?? band ?? triggerRef.current;
+      if (!next) return;
       e.preventDefault();
-      section.focus();
+      next.focus({ preventScroll: true });
     },
     [target],
   );
@@ -121,24 +129,12 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
 
   const activeFilterCount = useAllowedQueryFilters(nonEmptyFilters).length;
 
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const [editorOffset, setEditorOffset] = useState({ side: 4, align: 0 });
+  const anchorRef = useRef<HTMLElement | null>(null);
 
-  // A pinned header below xl hides this trigger behind the topbar, so the editor is offset to open under the band instead.
+  // One anchor part throughout, as swapping it in would remount the trigger
   useLayoutEffect(() => {
-    if (!isPopoverOpen) return;
-    const trigger = triggerRef.current;
-    const band = trigger
-      ?.closest('[data-slot=dashboard-filters]')
-      ?.querySelector('[data-slot=active-filters-band]');
-    if (!trigger || !band || getComputedStyle(trigger).visibility !== 'hidden') {
-      setEditorOffset({ side: 4, align: 0 });
-      return;
-    }
-    const triggerRect = trigger.getBoundingClientRect();
-    const bandRect = band.getBoundingClientRect();
-    setEditorOffset({ side: bandRect.bottom - triggerRect.bottom + 4, align: bandRect.left - triggerRect.left });
-  }, [isPopoverOpen]);
+    anchorRef.current = anchor ?? triggerRef.current;
+  });
 
   const trigger = (
     <Button
@@ -195,11 +191,10 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
   return (
     <Popover {...props} open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+      <PopoverAnchor virtualRef={anchorRef} />
       <PopoverContent
         className='w-[620px] max-w-[calc(100svw-48px)] border p-2 shadow-2xl'
         align='start'
-        sideOffset={editorOffset.side}
-        alignOffset={editorOffset.align}
         onAnimationEnd={handleContentAnimationEnd}
         onOpenAutoFocus={handleOpenAutoFocus}
         onCloseAutoFocus={handleCloseAutoFocus}

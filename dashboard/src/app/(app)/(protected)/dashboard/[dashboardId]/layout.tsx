@@ -58,7 +58,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
             <InvitationJoinedToast />
             <section>
               <BATopbar />
-              <main className='bg-background w-full overflow-x-clip'>
+              <main className='bg-background w-full overflow-x-hidden'>
                 <ScrollReset />
                 {children}
               </main>

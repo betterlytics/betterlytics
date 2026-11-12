@@ -3073,6 +3073,7 @@
       "pillMoreValues": "{count, plural, one {+# altro} other {+# altri}}",
       "notAvailableOnPage": "Non disponibile in questa pagina",
       "activeFilters": "Filtri attivi",
+      "toggleFilters": "Mostra/nascondi filtri",
       "clearAll": "Rimuovi tutti"
     },
     "funnels": {
