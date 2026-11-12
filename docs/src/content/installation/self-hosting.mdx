@@ -185,6 +185,8 @@ BIND_ADDRESS=0.0.0.0
 Over plain HTTP, passwords and sessions cross the network unencrypted. Only do this on a network you trust, and firewall the port: `BIND_ADDRESS=0.0.0.0` listens on every interface.
 </Callout>
 
+Over plain HTTP, browsers withhold some identifying headers, so bot filtering that relies on them is skipped; serving over HTTPS keeps it.
+
 ### Try Locally
 
 The third `setup.sh` mode runs the instance on `http://localhost:5566`, or the port you picked, with no domain and no TLS. Use it to try Betterlytics on your own computer, not for a real deployment.
