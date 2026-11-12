@@ -11,6 +11,8 @@ type CollapsibleSidebarGroupProps = {
   storageKey: string;
   children: React.ReactNode;
   defaultOpen?: boolean;
+  /** Shown on the header while the group is folded, e.g. an alert dot from one of its hidden items. */
+  foldedIndicator?: React.ReactNode;
 };
 
 export function CollapsibleSidebarGroup({
@@ -18,6 +20,7 @@ export function CollapsibleSidebarGroup({
   storageKey,
   children,
   defaultOpen = true,
+  foldedIndicator,
 }: CollapsibleSidebarGroupProps) {
   const [isOpen, setIsOpen] = React.useState(defaultOpen);
   const [isHydrated, setIsHydrated] = React.useState(false);
@@ -51,6 +54,7 @@ export function CollapsibleSidebarGroup({
       <SidebarGroup className='py-0'>
         <CollapsibleTrigger className='text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-1.5 text-xs font-medium transition-colors'>
           <span>{label}</span>
+          {!isOpen && foldedIndicator && <span className='mr-2 ml-auto flex'>{foldedIndicator}</span>}
           <ChevronRight
             className={cn('size-3.5 shrink-0 transition-transform duration-200', isOpen && 'rotate-90')}
           />

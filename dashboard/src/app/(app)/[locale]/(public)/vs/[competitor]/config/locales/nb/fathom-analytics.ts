@@ -6,7 +6,7 @@ export const fathom: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Fathom Analytics: Flere funksjoner, lavere pris',
     description:
-      'Sammenlign Betterlytics med Fathom Analytics. Samme personvernfokuserte tilnærming med session replay, trakter og sporing av brukerreiser. Gratisnivå tilgjengelig, fra $7/måned.',
+      'Sammenlign Betterlytics med Fathom Analytics. Samme personvernfokuserte tilnærming med session replay, trakter og sporing av brukerreiser. Gratisnivå tilgjengelig, betalte planer fra $9/måned.',
   },
   hero: {
     title: 'Ser du etter et alternativ til Fathom Analytics?',
@@ -27,7 +27,7 @@ export const fathom: ComparisonLocaleContent = {
     },
     {
       title: 'Lavere startpris',
-      betterlytics: 'Starter på $7/måned med et gratisnivå for mindre nettsteder.',
+      betterlytics: 'Starter på $9/måned med et gratisnivå for mindre nettsteder.',
       competitor: 'Starter på $15/måned. Ingen gratisnivå.',
     },
   ],
@@ -39,7 +39,7 @@ export const fathom: ComparisonLocaleContent = {
           { name: 'Cookieless sporing', betterlytics: true, competitor: true },
           { name: 'GDPR-klar som standard', betterlytics: true, competitor: true },
           { name: 'Ingen cookie-banner nødvendig', betterlytics: true, competitor: true },
-          { name: 'EU-hosting av data', betterlytics: true, competitor: 'Valgfritt' },
+          { name: 'EU-hosting av data', betterlytics: true, competitor: 'Behandling i EU, lagring i USA' },
           { name: 'Personvernfokusert som standard', betterlytics: true, competitor: true },
           { name: 'Ingen sporing på tvers av nettsteder', betterlytics: true, competitor: true },
           { name: 'Open source', betterlytics: true, competitor: false },
@@ -49,9 +49,9 @@ export const fathom: ComparisonLocaleContent = {
       {
         name: 'Ytelse og hastighet',
         features: [
-          { name: 'Skriptstørrelse', betterlytics: '~3,5KB', competitor: '<2KB' },
+          { name: 'Skriptstørrelse', betterlytics: '~3,5KB', competitor: '~2KB' },
           { name: 'Påvirkning på sidelasting', betterlytics: 'Minimal', competitor: 'Minimal' },
-          { name: 'Fungerer med annonseblokkere', betterlytics: true, competitor: true },
+          { name: 'Fungerer med annonseblokkere', betterlytics: true, competitor: 'Delvis' },
         ],
       },
       {
@@ -64,7 +64,7 @@ export const fathom: ComparisonLocaleContent = {
           { name: 'Sporing av utgående lenker', betterlytics: true, competitor: true },
           { name: 'Traktanalyse', betterlytics: true, competitor: false },
           { name: 'Sporing av brukerreiser', betterlytics: true, competitor: false },
-          { name: 'Annotasjoner', betterlytics: true, competitor: false },
+          { name: 'Annotasjoner', betterlytics: true, competitor: true },
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Ytelsesovervåking', betterlytics: true, competitor: false },
           { name: 'Oppetidsovervåking', betterlytics: true, competitor: false },
@@ -79,14 +79,14 @@ export const fathom: ComparisonLocaleContent = {
           { name: 'Oppsettstid', betterlytics: '<5 minutter', competitor: '<5 minutter' },
           { name: 'Læringskurve', betterlytics: 'Mild', competitor: 'Mild' },
           { name: 'Enkelt og intuitivt grensesnitt', betterlytics: true, competitor: true },
-          { name: 'Datalagring', betterlytics: 'Opptil 5 år', competitor: 'For alltid' },
+          { name: 'Datalagring', betterlytics: 'Opptil 5 år', competitor: 'Full historikk mens du abonnerer' },
         ],
       },
       {
         name: 'Prising og støtte',
         features: [
           { name: 'Gratisnivå tilgjengelig', betterlytics: true, competitor: false },
-          { name: 'Startpris', betterlytics: 'Fra $7/måned', competitor: 'Fra $15/måned' },
+          { name: 'Startpris', betterlytics: 'Fra $9/måned', competitor: 'Fra $15/måned' },
           { name: 'Transparent prising', betterlytics: true, competitor: true },
           { name: 'E-poststøtte', betterlytics: true, competitor: true },
         ],
@@ -112,12 +112,12 @@ export const fathom: ComparisonLocaleContent = {
     },
     {
       title: 'Pris vs verdi',
-      content: `Fathom starter på $15/måned for 100 000 sidevisninger. Ingen gratisnivå, og betaling kreves for å komme i gang.\n\nBetterlytics starter på $7/måned, under halv pris, med et gratisnivå for mindre nettsteder. Du får flere funksjoner (session replay, trakter, brukerreiser) til lavere pris. Begge har transparent prising.`,
+      content: `Fathom starter på $15/måned for 100 000 sidevisninger. Ingen gratisnivå, og betaling kreves for å komme i gang.\n\nBetterlytics starter på $9/måned, med et gratisnivå for mindre nettsteder. Du får flere funksjoner (session replay, trakter, brukerreiser) til lavere pris. Begge har transparent prising.`,
       icon: 'dollar',
     },
     {
       title: 'Der Fathom vinner',
-      content: `Fathom har datalagring for alltid (vi lagrer opptil 5 år), en GA4-importør for migrering av historiske data og egendefinerte domener for å redusere påvirkning fra annonseblokkere. De har vært lenger i markedet med en dokumentert merittliste.\n\nMen hvis du ønsker session replay, trakter, brukerreiser og mer, til en lavere pris med gratisnivå for oppstart, gir vi bedre verdi.`,
+      content: `Fathom lagrer hele historikken så lenge du abonnerer (vi lagrer opptil 5 år), og har en GA4-importør for migrering av historiske data. De har vært lenger i markedet med en dokumentert merittliste.\n\nMen hvis du ønsker datalagring i EU, session replay, trakter, brukerreiser og mer, til en lavere pris med gratisnivå for oppstart, gir vi bedre verdi.`,
       icon: 'target',
     },
   ],

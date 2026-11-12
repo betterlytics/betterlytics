@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { isSignedInPath, isUnlocalizedPath } from './routing';
 
 describe('isUnlocalizedPath', () => {
-  it('matches the app, its API and admin, with or without a query or hash', () => {
+  it('matches the app, its API, admin and the blog, with or without a query or hash', () => {
     for (const href of [
       '/dashboards',
       '/dashboard/abc',
@@ -11,6 +11,9 @@ describe('isUnlocalizedPath', () => {
       '/api/auth/session',
       '/billing',
       '/admin/users',
+      '/blog',
+      '/blog/some-post',
+      '/blog/rss.xml',
     ]) {
       expect(isUnlocalizedPath(href)).toBe(true);
     }
@@ -23,6 +26,8 @@ describe('isUnlocalizedPath', () => {
       '/da/dashboards',
       '/dashboardsx',
       '/apis',
+      '/blogs',
+      '/da/blog',
       '/signin?callbackUrl=/dashboards',
     ]) {
       expect(isUnlocalizedPath(href)).toBe(false);

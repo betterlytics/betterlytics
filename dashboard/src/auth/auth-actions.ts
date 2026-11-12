@@ -76,7 +76,7 @@ async function requireDashboardAuth(dashboardId: string): Promise<AuthContext> {
   return ctx;
 }
 
-async function resolveDashboardContext(dashboardId: string): Promise<AuthContext> {
+export async function resolveDashboardContext(dashboardId: string): Promise<AuthContext> {
   const result = await resolveDashboardAuthResult(dashboardId);
   if (result.error) {
     redirect(result.error === 'unauthenticated' ? getSigninPath(await headers()) : '/dashboards');

@@ -80,7 +80,7 @@ export function UptimePage() {
         <SpecStrip
           specs={[
             {
-              value: 1,
+              value: 30,
               unit: t('specs.interval.unit'),
               label: t('specs.interval.label'),
               body: t('specs.interval.body'),
@@ -147,7 +147,7 @@ export function UptimePage() {
         items={[
           { key: 'analytics', icon: <MousePointerClick className='size-4' />, href: LINKS.docs, docs: true },
           { key: 'replay', icon: <PlayCircle className='size-4' />, href: '/features/session-replay' },
-          { key: 'errors', icon: <Bug className='size-4' />, href: `${LINKS.docs}/dashboard/errors`, docs: true },
+          { key: 'errors', icon: <Bug className='size-4' />, href: '/features/error-tracking' },
           {
             key: 'vitals',
             icon: <Gauge className='size-4' />,

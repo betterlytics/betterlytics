@@ -11,6 +11,7 @@ import type { SelectedPlan } from '@/types/pricing';
 import { UserException } from '@/lib/exceptions';
 import { syncSubscriptionFromStripe } from '@/services/system/webhookHandlers.service';
 import { findActivePriceByLookupKey } from '@/lib/billing/stripe-prices';
+import { purchasableLookupKey } from '@/lib/billing/catalog';
 import { clearScheduledCancellation } from '@/services/billing/subscription.service';
 
 function isProrationLine(line: Stripe.InvoiceLineItem): boolean {
@@ -44,7 +45,8 @@ async function resolvePrice(lookupKey: string): Promise<Stripe.Price> {
 }
 
 async function resolveSubscriptionContext(userId: string, targetPlan: SelectedPlan) {
-  if (!targetPlan.lookup_key) {
+  const lookupKey = purchasableLookupKey(targetPlan.planId, targetPlan.eventLimit);
+  if (!lookupKey) {
     throw new UserException('Selected plan is not available.');
   }
 
@@ -64,7 +66,7 @@ async function resolveSubscriptionContext(userId: string, targetPlan: SelectedPl
     throw new UserException('Subscription is missing a line item.');
   }
 
-  const newPrice = await resolvePrice(targetPlan.lookup_key);
+  const newPrice = await resolvePrice(lookupKey);
 
   const subCurrency = stripeSubscription.currency;
   const priceSupportsSubCurrency =
@@ -86,6 +88,7 @@ async function resolveSubscriptionContext(userId: string, targetPlan: SelectedPl
     itemId: currentItem.id,
     currentPeriodEnd: currentItem.current_period_end,
     newPrice,
+    lookupKey,
   };
 }
 
@@ -141,7 +144,7 @@ export async function applySubscriptionChange(
   attemptId: string,
 ): Promise<ApplyChangeResult> {
   try {
-    const { subscriptionId, itemId, newPrice } = await resolveSubscriptionContext(userId, targetPlan);
+    const { subscriptionId, itemId, newPrice, lookupKey } = await resolveSubscriptionContext(userId, targetPlan);
 
     const updated = await stripe.subscriptions.update(
       subscriptionId,
@@ -150,7 +153,7 @@ export async function applySubscriptionChange(
         proration_behavior: PRORATION_BEHAVIOR,
         payment_behavior: 'pending_if_incomplete',
         metadata: {
-          lookupKey: targetPlan.lookup_key ?? '',
+          lookupKey,
         },
       },
       {

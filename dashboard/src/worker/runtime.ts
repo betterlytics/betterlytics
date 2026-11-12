@@ -1,4 +1,5 @@
 import type { PgBoss } from 'pg-boss';
+import { trace, SpanStatusCode } from '@opentelemetry/api';
 import type { Job } from '@/worker/jobs/types';
 import { syncJobQueuesOnce } from '@/worker/queue';
 import { JOB_REGISTRY } from '@/worker/jobs/registry';
@@ -8,6 +9,7 @@ import { sharedEmailEnv } from '@/lib/env/shared.env';
 type RuntimeGlobal = { _workerRegistration?: Promise<void> };
 type RuntimeJob = Job<unknown>;
 const globalForWorkerRuntime = globalThis as unknown as RuntimeGlobal;
+const tracer = trace.getTracer('worker');
 
 function isJobEnabled<T extends { saasOnly?: boolean; selfHostOnly?: boolean }>(job: T): boolean {
   if (job.saasOnly && !sharedEmailEnv.isCloud) return false;
@@ -34,26 +36,46 @@ async function registerWorkers(boss: PgBoss): Promise<void> {
   for (const job of enabledJobs) {
     const runtimeJob = job as RuntimeJob;
 
-    await boss.work(runtimeJob.name, async ([j]) => {
-      const startedAt = Date.now();
-      const endTimer = jobDurationSeconds.startTimer({ job_name: runtimeJob.name });
-      jobsInFlight.inc({ job_name: runtimeJob.name });
-      try {
-        await runtimeJob.handler(j.data);
-        jobRunsTotal.inc({ job_name: runtimeJob.name, status: 'success' });
-        endTimer({ status: 'success' });
-        jobLastRunTimestamp.set({ job_name: runtimeJob.name, status: 'success' }, Date.now() / 1000);
-        console.info({ job: runtimeJob.name, jobId: j.id, success: true, durationMs: Date.now() - startedAt });
-      } catch (err) {
-        jobRunsTotal.inc({ job_name: runtimeJob.name, status: 'failure' });
-        endTimer({ status: 'failure' });
-        jobLastRunTimestamp.set({ job_name: runtimeJob.name, status: 'failure' }, Date.now() / 1000);
-        console.error({ job: runtimeJob.name, jobId: j.id, success: false, err, durationMs: Date.now() - startedAt });
-        throw err;
-      } finally {
-        jobsInFlight.dec({ job_name: runtimeJob.name });
-      }
-    });
+    await boss.work(runtimeJob.name, async ([j]) =>
+      // root: each job attempt is its own trace, also inside a dashboard request context in embedded mode
+      tracer.startActiveSpan(
+        runtimeJob.name,
+        { root: true, attributes: { 'job.name': runtimeJob.name, 'job.id': j.id } },
+        async (span) => {
+          const startedAt = Date.now();
+          const endTimer = jobDurationSeconds.startTimer({ job_name: runtimeJob.name });
+          jobsInFlight.inc({ job_name: runtimeJob.name });
+          try {
+            await runtimeJob.handler(j.data);
+            jobRunsTotal.inc({ job_name: runtimeJob.name, status: 'success' });
+            endTimer({ status: 'success' });
+            jobLastRunTimestamp.set({ job_name: runtimeJob.name, status: 'success' }, Date.now() / 1000);
+            span.setAttribute('job.outcome', 'success');
+            span.setStatus({ code: SpanStatusCode.OK });
+            console.info({ job: runtimeJob.name, jobId: j.id, success: true, durationMs: Date.now() - startedAt });
+          } catch (err) {
+            jobRunsTotal.inc({ job_name: runtimeJob.name, status: 'failure' });
+            endTimer({ status: 'failure' });
+            jobLastRunTimestamp.set({ job_name: runtimeJob.name, status: 'failure' }, Date.now() / 1000);
+            const error = err instanceof Error ? err : new Error(String(err));
+            span.setAttribute('job.outcome', 'failure');
+            span.recordException(error);
+            span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
+            console.error({
+              job: runtimeJob.name,
+              jobId: j.id,
+              success: false,
+              err,
+              durationMs: Date.now() - startedAt,
+            });
+            throw err;
+          } finally {
+            jobsInFlight.dec({ job_name: runtimeJob.name });
+            span.end();
+          }
+        },
+      ),
+    );
 
     if (runtimeJob.runOnStart) {
       await boss.send(runtimeJob.name);
