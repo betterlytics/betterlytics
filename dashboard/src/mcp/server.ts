@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import type { ToolAnnotations } from '@modelcontextprotocol/sdk/types.js';
 import { getSchemaDescription, type ToolAvailability } from '@/mcp/tools/describe';
 import { executeQuery } from '@/mcp/tools/query';
 import { executeQuerySessions } from '@/mcp/tools/querySessions';
@@ -60,8 +61,12 @@ async function runTool(toolName: string, fn: () => Promise<unknown> | unknown): 
   }
 }
 
+// Every tool only reads the caller's own Betterlytics data.
+const READ_ONLY: ToolAnnotations = { readOnlyHint: true, destructiveHint: false, openWorldHint: false };
+
 type DashboardTool = {
   name: string;
+  title: string;
   description: string;
   inputSchema: z.ZodTypeAny;
   execute: (params: unknown, dashboard: McpDashboard) => Promise<unknown>;
@@ -75,6 +80,7 @@ function objectShape(schema: z.ZodTypeAny): z.ZodRawShape {
 const ANALYTICS_TOOLS: DashboardTool[] = [
   {
     name: 'query',
+    title: 'Query analytics',
     description:
       'Query analytics data with flexible metrics and dimensions. Use describe first to see available options. For bounce rate, visit duration, pages per session, and landing or exit pages, use query_sessions.',
     inputSchema: McpQueryInputSchema,
@@ -82,6 +88,7 @@ const ANALYTICS_TOOLS: DashboardTool[] = [
   },
   {
     name: 'query_sessions',
+    title: 'Query sessions',
     description:
       'Query aggregate session analytics: sessions, visitors, pageviews, bounce rate, average visit duration, and pages per session, as totals or as an hourly or daily series, broken down by landing page (entry_page), exit page, device, geography, referrer, or UTM fields. Filters take the same columns as query plus entry_page and exit_page. Sessions are picked by when they started, and metrics always cover the whole session. A filter on url, event_type, custom_event_name, outbound_link_url, or cep.<key> keeps a session when any of its events in the range matches, and != drops the whole session. Breakdowns leave out sessions with an empty value for a requested dimension. Use describe first: its querySessions section lists the metrics with units and the dimensions.',
     inputSchema: McpQuerySessionsInputSchema,
@@ -89,6 +96,7 @@ const ANALYTICS_TOOLS: DashboardTool[] = [
   },
   {
     name: 'user_journeys',
+    title: 'User journeys',
     description:
       'Analyze user navigation paths through the site. Returns Sankey diagram data showing page-to-page transitions with traffic volumes. Use describe first to see available filter options.',
     inputSchema: McpUserJourneysInputSchema,
@@ -96,6 +104,7 @@ const ANALYTICS_TOOLS: DashboardTool[] = [
   },
   {
     name: 'funnel_preview',
+    title: 'Preview funnel',
     description:
       'Run an ad-hoc funnel analysis. Define ordered steps (each a filter condition like url = "/pricing") to see how many visitors progress through each step. Use describe first to see available filter columns.',
     inputSchema: McpFunnelPreviewInputSchema,
@@ -103,6 +112,7 @@ const ANALYTICS_TOOLS: DashboardTool[] = [
   },
   {
     name: 'list_global_properties',
+    title: 'List global properties',
     description:
       'List the global properties recorded for the dashboard. Without a "key" argument it returns the property keys, each as a column in the gp.<key> form you can use directly in a filter, e.g. { column: "gp.plan", operator: "=", values: ["pro"] }. Pass a "key" argument to see example values for that specific property. Use this to discover which global properties are filterable.',
     inputSchema: McpListGlobalPropertiesInputSchema,
@@ -110,6 +120,7 @@ const ANALYTICS_TOOLS: DashboardTool[] = [
   },
   {
     name: 'list_funnels',
+    title: 'List funnels',
     description:
       'List all saved funnels for the dashboard and return their step-by-step conversion data for the given time range.',
     inputSchema: McpListFunnelsInputSchema,
@@ -117,6 +128,7 @@ const ANALYTICS_TOOLS: DashboardTool[] = [
   },
   {
     name: 'list_errors',
+    title: 'List errors',
     description:
       'List client-side JavaScript errors grouped by type. Returns error groups with occurrence counts, affected sessions, status, and first/last seen timestamps. Use this to identify the most impactful errors on the site.',
     inputSchema: McpListErrorsInputSchema,
@@ -124,6 +136,7 @@ const ANALYTICS_TOOLS: DashboardTool[] = [
   },
   {
     name: 'get_error',
+    title: 'Get error details',
     description:
       'Get detailed information about a specific error, including the full stack trace, browser/OS/device context, and the session trail of events leading up to the error. Use the fingerprint from list_errors, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
     inputSchema: McpGetErrorInputBaseSchema,
@@ -134,6 +147,7 @@ const ANALYTICS_TOOLS: DashboardTool[] = [
 const MONITORING_TOOLS: DashboardTool[] = [
   {
     name: 'list_monitors',
+    title: 'List monitors',
     description:
       'List the uptime monitors configured for the dashboard with their current operational state (up, down, degraded, preparing, paused), plus uptime percentage and response time summary over the given time range. Use timeRange "24h" to answer "is my site up right now".',
     inputSchema: McpListMonitorsInputSchema,
@@ -141,6 +155,7 @@ const MONITORING_TOOLS: DashboardTool[] = [
   },
   {
     name: 'list_monitor_incidents',
+    title: 'List monitor incidents',
     description:
       "List detected downtime incidents (ongoing and resolved) for the dashboard's uptime monitors, newest first, with severity, duration, and failure reason. Filterable by monitor and incident state. SSL certificate incidents are not included; cert health is reported per monitor by list_monitors.",
     inputSchema: McpListMonitorIncidentsInputSchema,
@@ -151,6 +166,7 @@ const MONITORING_TOOLS: DashboardTool[] = [
 const STATUS_PAGE_TOOLS: DashboardTool[] = [
   {
     name: 'list_status_pages',
+    title: 'List status pages',
     description:
       "List the dashboard's public status pages exactly as visitors currently see them: published state, public URL, derived overall status, each attached monitor with its public name, status and uptime, and the incidents shown on the page with their full update timelines.",
     inputSchema: McpListStatusPagesInputBaseSchema,
@@ -158,6 +174,7 @@ const STATUS_PAGE_TOOLS: DashboardTool[] = [
   },
   {
     name: 'list_incident_suggestions',
+    title: 'List incident suggestions',
     description:
       'List detected outages that are NOT covered by any incident posted on the status page. Use this to find out whether an ongoing outage is missing an incident, or whether a recent one was never documented. Each suggestion carries the detected incident id and the affected monitors. Every status page and every monitor attached to them is swept, so an empty result means nothing is uncovered. Only the last 90 days count, and a resolved outage stops being suggested 3 days after it recovered.',
     inputSchema: McpListIncidentSuggestionsInputBaseSchema,
@@ -195,8 +212,10 @@ export function createMcpServer(context: McpContext): McpServer {
   server.registerTool(
     'describe',
     {
+      title: 'Describe schema',
       description:
         'Returns available metrics, dimensions, filter columns, time ranges, and granularities. Call this first to understand what you can query.',
+      annotations: READ_ONLY,
     },
     () => runTool('describe', () => getSchemaDescription(available)),
   );
@@ -204,8 +223,10 @@ export function createMcpServer(context: McpContext): McpServer {
   server.registerTool(
     'list_dashboards',
     {
+      title: 'List dashboards',
       description:
         "List the dashboards this connection can read, newest membership first, with each dashboard's id, domain and your role on it. Pass an id as dashboardId to any other tool to read that dashboard.",
+      annotations: READ_ONLY,
     },
     () => runTool('list_dashboards', () => listDashboards(context)),
   );
@@ -214,8 +235,10 @@ export function createMcpServer(context: McpContext): McpServer {
     server.registerTool(
       tool.name,
       {
+        title: tool.title,
         description: tool.description,
         inputSchema: { ...objectShape(tool.inputSchema), dashboardId: DashboardIdInputSchema },
+        annotations: READ_ONLY,
       },
       ({ dashboardId, ...params }: { dashboardId?: string }) =>
         runTool(tool.name, () => tool.execute(params, resolveDashboard(context, dashboardId))),
