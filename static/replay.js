@@ -8878,6 +8878,53 @@ or you can use record.mirror to access the mirror instance during recording.`;
       state.stopping = false;
     }
 
+    var CONSENT_KEY = "betterlytics:replay_consent";
+
+    // What an older analytics.js checked before loading this script
+    function hasLegacyConsent() {
+      if (script.getAttribute("data-consent-replay") === "true") return true;
+      var stored;
+      try {
+        stored = localStorage.getItem(CONSENT_KEY);
+      } catch (_) {
+        return true;
+      }
+      try {
+        var data = JSON.parse(stored);
+        return !!data && data.consented === true && data.source === "custom";
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function setupLegacyConsent() {
+      var channel = null;
+      try {
+        channel = new BroadcastChannel(CONSENT_KEY);
+        channel.onmessage = function (e) {
+          if (e.data === "withdrawn") withdrawConsent();
+        };
+      } catch (_) {}
+      window.addEventListener("storage", function (e) {
+        if (e.key === CONSENT_KEY && e.newValue === null) withdrawConsent();
+      });
+      var api = window.betterlytics;
+      if (!api || typeof api.setReplayConsent !== "function") return;
+      var setReplayConsent = api.setReplayConsent;
+      api.setReplayConsent = function (consented) {
+        setReplayConsent.apply(this, arguments);
+        if (consented) {
+          resumeAfterConsent();
+          return;
+        }
+        // An older analytics.js skips stop when storage throws
+        withdrawConsent();
+        try {
+          if (channel) channel.postMessage("withdrawn");
+        } catch (_) {}
+      };
+    }
+
     function resumeAfterConsent() {
       if (!state.consentWithdrawn) return;
       state.consentWithdrawn = false;
@@ -9203,15 +9250,20 @@ or you can use record.mirror to access the mirror instance during recording.`;
 
     setupEventListeners();
 
-    // Consent may have been withdrawn while this script was loading; older analytics.js has no hasConsent
+    // An older cached analytics.js has no hasConsent, never calls resume and hears no other tab
+    var legacyConsent = typeof handoff.hasConsent !== "function";
+
+    // Consent may have been withdrawn while this script was loading
     try {
-      if (typeof handoff.hasConsent === "function" && handoff.hasConsent() === false) {
+      if (legacyConsent ? !hasLegacyConsent() : handoff.hasConsent() === false) {
         state.consentWithdrawn = true;
       }
     } catch (_) {}
 
+    if (legacyConsent) setupLegacyConsent();
+
     if (state.consentWithdrawn) {
-      // Nothing records until analytics.js calls resume
+      // Nothing records until consent is granted again
     } else if (isReplayEnabledOnPage()) {
       startRecordingDeferred();
     } else {
