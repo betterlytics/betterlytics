@@ -177,6 +177,7 @@ async fn main() {
         metrics_collector.clone(),
         config.is_development,
         config.enable_bot_event_log,
+        config.client_hints_unavailable,
     ));
 
     let site_config_pool = Arc::new(
@@ -221,6 +222,9 @@ async fn main() {
         allow_private_targets = config.allow_private_targets,
         "Outbound target guard configured"
     );
+    if config.client_hints_unavailable {
+        info!("Client-hint bot rules disabled: PUBLIC_URL is plain HTTP on a non-loopback host, where browsers send no client hints");
+    }
 
     let notification_engine = crate::notifications::initialize_notification_engine(
         Arc::clone(&site_config_pool),

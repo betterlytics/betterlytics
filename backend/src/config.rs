@@ -86,6 +86,9 @@ pub struct Config {
     pub is_development: bool,
     pub is_cloud: bool,
     pub allow_private_targets: bool,
+    /// Self-host served over plain HTTP on a non-loopback host: Chromium sends no
+    /// client hints to insecure origins, so the client-hint bot rules must not fire
+    pub client_hints_unavailable: bool,
     // Public-facing base URL (used for dashboard links in push notifications)
     pub public_base_url: String,
     // Integration config encryption key (32 bytes)
@@ -226,6 +229,7 @@ impl Config {
                 .unwrap_or(false),
             is_cloud,
             allow_private_targets,
+            client_hints_unavailable: client_hints_unavailable(env::var("PUBLIC_URL").ok().as_deref(), is_cloud),
             // Public-facing base URL for dashboard links in push notifications
             public_base_url: env::var("PUBLIC_BASE_URL")
                 .unwrap_or_else(|_| "https://betterlytics.io".to_string()),
@@ -256,5 +260,67 @@ impl Config {
         );
 
         config
+    }
+}
+
+/// True when browsers reach the instance at a plain-HTTP, non-loopback address.
+/// Loopback hosts are secure contexts, so Chromium still sends client hints there.
+fn client_hints_unavailable(public_url: Option<&str>, is_cloud: bool) -> bool {
+    if is_cloud {
+        return false;
+    }
+    let Some(url) = public_url.and_then(|value| url::Url::parse(value.trim()).ok()) else {
+        return false;
+    };
+    if url.scheme() != "http" {
+        return false;
+    }
+    match url.host() {
+        Some(url::Host::Domain(domain)) => {
+            let domain = domain.trim_end_matches('.');
+            domain != "localhost" && !domain.ends_with(".localhost")
+        }
+        Some(url::Host::Ipv4(ip)) => !ip.is_loopback(),
+        Some(url::Host::Ipv6(ip)) => !ip.is_loopback(),
+        None => false,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::client_hints_unavailable;
+
+    #[test]
+    fn plain_http_on_a_non_loopback_host_disables_client_hints() {
+        for url in [
+            "http://192.168.1.10:5566",
+            "http://10.0.0.5",
+            "http://analytics.lan:5566",
+            "http://nas.local",
+            "http://analytics.example.com",
+            "HTTP://192.168.1.10:5566",
+        ] {
+            assert!(client_hints_unavailable(Some(url), false), "{}", url);
+        }
+    }
+
+    #[test]
+    fn loopback_https_unset_and_cloud_keep_client_hints() {
+        for url in [
+            "http://localhost:5566",
+            "http://LOCALHOST",
+            "http://foo.localhost:3010",
+            "http://127.0.0.1:5566",
+            "http://127.1.2.3",
+            "http://[::1]:5566",
+            "https://192.168.1.10:5566",
+            "https://analytics.example.com",
+            "",
+            "not a url",
+        ] {
+            assert!(!client_hints_unavailable(Some(url), false), "{}", url);
+        }
+        assert!(!client_hints_unavailable(None, false));
+        assert!(!client_hints_unavailable(Some("http://192.168.1.10:5566"), true));
     }
 }

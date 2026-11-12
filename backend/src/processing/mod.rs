@@ -121,10 +121,12 @@ pub struct EventProcessor {
     honor_client_timestamps: bool,
     /// When false, detections update metrics but are not persisted to bot_events
     log_bot_events: bool,
+    client_hints_unavailable: bool,
 }
 
 impl EventProcessor {
     /// `event_tx`/`bot_tx` are the ingest channels consumed by the ClickHouse inserter tasks.
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         geoip_service: GeoIpService,
         asn_service: Option<AsnService>,
@@ -133,8 +135,18 @@ impl EventProcessor {
         metrics: Option<Arc<MetricsCollector>>,
         honor_client_timestamps: bool,
         log_bot_events: bool,
+        client_hints_unavailable: bool,
     ) -> Self {
-        Self { event_tx, bot_tx, geoip_service, asn_service, metrics, honor_client_timestamps, log_bot_events }
+        Self {
+            event_tx,
+            bot_tx,
+            geoip_service,
+            asn_service,
+            metrics,
+            honor_client_timestamps,
+            log_bot_events,
+            client_hints_unavailable,
+        }
     }
 
     fn asn_lookup(&self, ip_address: &str) -> AsnInfo {
@@ -221,6 +233,7 @@ impl EventProcessor {
             asn: asn_info.asn,
             prefetch,
             sec_ch_ua,
+            client_hints_unavailable: self.client_hints_unavailable,
             ..Default::default()
         };
         let detection = bot_detection::detect(&input);
@@ -261,6 +274,7 @@ impl EventProcessor {
             prefetch: event.prefetch,
             velocity_exceeded,
             sec_ch_ua: &event.sec_ch_ua,
+            client_hints_unavailable: self.client_hints_unavailable,
         };
         let detection = bot_detection::detect(&input);
         self.record_detection(&detection, &input, &site_id, domain.as_deref(), &path, &event.raw.event_name, &asn_info.org);

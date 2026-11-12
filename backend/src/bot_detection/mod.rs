@@ -178,6 +178,8 @@ pub struct DetectionInput<'a> {
     pub velocity_exceeded: bool,
     /// sec-ch-ua header ("" when the client sent none)
     pub sec_ch_ua: &'a str,
+    /// Instance is served over plain HTTP, where Chromium sends no client hints
+    pub client_hints_unavailable: bool,
 }
 
 pub fn detect(input: &DetectionInput) -> Detection {
@@ -230,7 +232,7 @@ fn collect_reasons(input: &DetectionInput) -> Vec<&'static str> {
     }
 
     if let Some(major) = chromium_major(user_agent) {
-        if major >= CLIENT_HINTS_MIN_CHROMIUM_MAJOR {
+        if major >= CLIENT_HINTS_MIN_CHROMIUM_MAJOR && !input.client_hints_unavailable {
             if input.sec_ch_ua.is_empty() {
                 if major < CLIENT_HINTS_ENFORCE_BELOW_MAJOR && is_desktop_ua(user_agent) {
                     reasons.push(REASON_STALE_CHROMIUM_NO_HINTS);
@@ -752,6 +754,49 @@ mod tests {
 
         // Non-Chromium engines have no client-hints or staleness expectations
         assert!(detect_ua(HUMAN_USER_AGENTS[4]).is_empty());
+    }
+
+    #[test]
+    fn client_hint_rules_are_skipped_when_hints_are_unavailable() {
+        let chrome_120 = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+        let chrome_146 = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36";
+        let detect_with = |user_agent: &str, screen_resolution: &str, sec_ch_ua: &str, client_hints_unavailable: bool| {
+            detect(&DetectionInput {
+                user_agent,
+                header_user_agent: user_agent,
+                screen_resolution,
+                sec_ch_ua,
+                client_hints_unavailable,
+                ..Default::default()
+            })
+        };
+
+        for (user_agent, screen_resolution) in
+            [(chrome_120, "1920x1080"), (chrome_146, "800x600"), (chrome_146, "1280x1200"), (chrome_146, "1920x1080")]
+        {
+            assert!(detect_with(user_agent, screen_resolution, "", true).is_empty(), "{}", screen_resolution);
+            // Today's behaviour when hints are available
+            assert!(!detect_with(user_agent, screen_resolution, "", false).is_empty(), "{}", screen_resolution);
+        }
+        assert!(detect_with(chrome_120, "1920x1080", "", false).should_reject());
+        assert!(detect_with(chrome_146, "800x600", "", false).should_reject());
+
+        // A mismatched header is not judged either
+        assert!(detect_with(chrome_146, "1920x1080", "\"Chromium\";v=\"120\"", true).is_empty());
+
+        // Every other reason still applies
+        let stale = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36";
+        assert_eq!(detect_with(stale, "1920x1080", "", true).shadow, vec![REASON_STALE_BROWSER]);
+        let automated = detect(&DetectionInput {
+            automation: true,
+            sec_ch_ua: "",
+            client_hints_unavailable: true,
+            ..human_input()
+        });
+        assert_eq!(automated.enforcing, vec![REASON_CLIENT_AUTOMATION]);
+        for user_agent in BOT_USER_AGENTS {
+            assert!(detect_with(user_agent, "1920x1080", "", true).should_reject(), "{}", user_agent);
+        }
     }
 
     #[test]
