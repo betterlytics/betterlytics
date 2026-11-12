@@ -5,6 +5,9 @@ import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
 import { getCompetitorSlugs } from './(app)/[locale]/(public)/vs/[competitor]/config';
 
+// Hosted images are built once for staging and prod, so ALLOW_CRAWLING must be read per request
+export const dynamic = 'force-dynamic';
+
 type PageCfg = {
   path: string;
   changeFrequency: MetadataRoute.Sitemap[0]['changeFrequency'];

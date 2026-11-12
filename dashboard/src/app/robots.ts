@@ -1,6 +1,9 @@
 import { MetadataRoute } from 'next';
 import { env } from '@/lib/env';
 
+// Hosted images are built once for staging and prod, so ALLOW_CRAWLING must be read per request
+export const dynamic = 'force-dynamic';
+
 export default function robots(): MetadataRoute.Robots {
   const baseUrl = env.PUBLIC_BASE_URL;
 
