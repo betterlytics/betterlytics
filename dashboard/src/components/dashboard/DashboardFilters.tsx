@@ -43,7 +43,7 @@ export default function DashboardFilters({
         )}
         {isMobile && <div className='grid grid-cols-2 gap-2'>{children}</div>}
         {hasPills && showBand && (
-          <div className='pointer-events-none fixed top-(--topbar-height) right-0 left-(--sidebar-offset) z-40 px-2 pt-2 transition-[left] duration-200 ease-linear sm:px-4'>
+          <div className='pointer-events-none fixed top-(--topbar-height) right-(--removed-body-scroll-bar-size,0px) left-(--sidebar-offset) z-40 container mx-auto w-auto px-2 pt-2 transition-[left] duration-200 ease-linear sm:px-10'>
             <div ref={setBand} className='pointer-events-auto'>
               <ActiveQueryFilters variant='band' />
             </div>
