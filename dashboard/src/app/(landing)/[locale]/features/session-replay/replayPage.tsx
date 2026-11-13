@@ -139,7 +139,7 @@ export function ReplayPage() {
       <RelatedSection
         lede={t('related.lede')}
         items={[
-          { key: 'analytics', icon: <MousePointerClick className='size-4' />, href: LINKS.docs, docs: true },
+          { key: 'analytics', icon: <MousePointerClick className='size-4' />, href: '/features/web-analytics' },
           { key: 'errors', icon: <Bug className='size-4' />, href: '/features/error-tracking' },
           {
             key: 'vitals',
