@@ -176,7 +176,7 @@ export function LoadFilmstrip() {
 
   return (
     <div className={cn(levels.levels, styles.film)}>
-      <div className={styles.stage}>
+      <div className={styles.stage} data-nosnippet>
         <p className='sr-only'>
           {t('alt', {
             end: at(END),

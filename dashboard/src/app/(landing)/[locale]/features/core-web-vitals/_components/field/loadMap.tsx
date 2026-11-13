@@ -393,7 +393,7 @@ export function LoadMap() {
   };
 
   return (
-    <div className={cn(levels.levels, styles.root)}>
+    <div className={cn(levels.levels, styles.root)} data-nosnippet>
       <div className={styles.layout}>
         <figure className={styles.atlas}>
           <div

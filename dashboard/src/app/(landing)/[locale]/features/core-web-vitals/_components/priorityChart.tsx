@@ -48,7 +48,7 @@ export function PriorityChart() {
 
   return (
     <InView className={styles.priority}>
-      <div className={styles.stage}>
+      <div className={styles.stage} data-nosnippet>
         <div className={styles.plotWrap} aria-hidden>
           <span className={styles.axisY}>{t('axisY')}</span>
           <div className={styles.plot}>
@@ -123,16 +123,16 @@ export function PriorityChart() {
                 onMouseLeave={() => setHot(null)}
               >
                 <i aria-hidden>{i + 1}</i>
-                <span className={styles.rankText}>
+                <span className={styles.rankText} data-nosnippet>
                   <b>{page.key}</b>
                   <span>{t('share', { share: percent.format(page.share) })}</span>
                 </span>
-                <span className={styles.score} data-grade={grade}>
+                <span className={styles.score} data-grade={grade} data-nosnippet>
                   <span className='sr-only'>{t('score')} </span>
                   {decimal(1).format(page.score)}
                   <span className='sr-only'>, {t(`grades.${grade}`)}</span>
                 </span>
-                <span className={styles.opportunity}>
+                <span className={styles.opportunity} data-nosnippet>
                   <span className='sr-only'>{t('opportunity')} </span>
                   {decimal(2).format(page.opportunity)}
                 </span>

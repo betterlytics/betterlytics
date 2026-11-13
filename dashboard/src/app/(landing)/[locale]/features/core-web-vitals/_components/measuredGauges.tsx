@@ -18,7 +18,13 @@ export function MeasuredGauges() {
   const ref = useRef<HTMLDivElement>(null);
   const entered = useInView(ref);
   return (
-    <div ref={ref} className={styles.gauges} style={vars({ '--gauge': `${GAUGE.size}px` })} aria-hidden>
+    <div
+      ref={ref}
+      className={styles.gauges}
+      style={vars({ '--gauge': `${GAUGE.size}px` })}
+      aria-hidden
+      data-nosnippet
+    >
       {VITALS.map((metric) => (
         <div key={metric} className={styles.gauge}>
           <VitalGauge metric={metric} value={PAGE.p75[metric]} drawn={entered} {...GAUGE} />

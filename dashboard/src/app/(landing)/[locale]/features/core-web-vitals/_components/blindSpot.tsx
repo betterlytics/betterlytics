@@ -36,9 +36,9 @@ export function BlindSpot() {
   const t = useTranslations('landing.vitals.blindSpot');
   return (
     <InView className={cn(levels.levels, styles.split)}>
-      <p className='sr-only' data-nosnippet>
+      <div className='sr-only' data-nosnippet>
         {t('alt')}
-      </p>
+      </div>
       <div className={styles.feel}>
         <p className={styles.heading}>{t('feel')}</p>
         <div className={styles.lanes} aria-hidden data-nosnippet>
