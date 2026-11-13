@@ -214,10 +214,12 @@
   .ranksHead > :first-child {
     grid-column: 1 / 3;
   }
+  /* a name wider than its column grows leftward, so it stays flush with the figures under it */
   .ranksHead > span {
+    justify-self: end;
     font-size: 12px;
     line-height: 16px;
-    text-align: right;
+    white-space: nowrap;
     color: var(--color-muted);
   }
   .ranks {

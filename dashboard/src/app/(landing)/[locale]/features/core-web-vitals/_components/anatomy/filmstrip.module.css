@@ -297,7 +297,7 @@
     position: absolute;
     top: calc(var(--y) * 100%);
     left: 92.2%;
-    right: -7px;
+    right: -5px;
     border-top: 1px solid var(--ink);
   }
   .callout i::before {
@@ -313,7 +313,7 @@
   .callout b {
     position: absolute;
     top: calc(var(--y) * 100%);
-    left: calc(100% + 10px);
+    left: calc(100% + 8px);
     font-size: 11px;
     line-height: 14px;
     font-weight: 500;
@@ -326,7 +326,7 @@
   .callout[data-span] i {
     bottom: calc((1 - var(--to)) * 100%);
     left: calc(100% - 3px);
-    right: -6px;
+    right: -4px;
     border: 1px solid var(--ink);
     border-left: 0;
     border-radius: 0 3px 3px 0;
@@ -340,7 +340,7 @@
   }
   .callout[data-span] b {
     top: calc((var(--y) + var(--to)) * 50%);
-    left: calc(100% + 13px);
+    left: calc(100% + 11px);
   }
 
   .lane {
@@ -551,6 +551,19 @@
     .reel {
       --gap: 40px;
       margin-inline: calc(var(--gap) / 2) calc(var(--gap) / -2);
+    }
+    /* the slots are 4px narrower here, so the labels sit closer to their frames to fit longer words */
+    .callout i {
+      right: -3px;
+    }
+    .callout b {
+      left: calc(100% + 6px);
+    }
+    .callout[data-span] i {
+      right: -2px;
+    }
+    .callout[data-span] b {
+      left: calc(100% + 9px);
     }
     .frames {
       grid-template-columns: repeat(5, minmax(0, 1fr));
