@@ -254,9 +254,11 @@ model ErrorGroup {
 }
 
 // Ended memberships are kept (deletedAt + deletedById) as an access audit trail, so a user can have
-// several rows per dashboard over time. One live row per user and dashboard is enforced by a partial
-// unique index (userId, dashboardId WHERE deletedAt IS NULL) created in the migration. Prisma can't
-// express partial indexes, so there is no @@unique here; every read must filter deletedAt: null.
+// several rows per dashboard over time. A role change ends the live row and opens one with the new role,
+// the old row's deletedAt equal to the new row's createdAt, so each row is one period of one role. One
+// live row per user and dashboard is enforced by a partial unique index (userId, dashboardId WHERE
+// deletedAt IS NULL) created in the migration. Prisma can't express partial indexes, so there is no
+// @@unique here; every read must filter deletedAt: null.
 model UserDashboard {
   id String @id @default(cuid())
 
@@ -270,6 +272,8 @@ model UserDashboard {
 
   isDefault Boolean @default(false)
 
+  // Start of the access period; a role change opens a new row but carries this forward
+  joinedAt  DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
