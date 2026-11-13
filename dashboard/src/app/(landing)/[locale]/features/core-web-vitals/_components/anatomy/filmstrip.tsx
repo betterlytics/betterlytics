@@ -184,7 +184,7 @@ export function LoadFilmstrip() {
             fcp: at(AT.FCP),
             lcp: at(AT.LCP),
             cls: at(AT.CLS),
-            shift: SHIFT,
+            shift: new Intl.NumberFormat(locale).format(SHIFT),
             inp: at(AT.INP),
             response: spoken('millisecond', AT.PAINT - AT.INP),
           })}
