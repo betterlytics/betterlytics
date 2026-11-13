@@ -2153,6 +2153,218 @@
         "primary": "Start feilsporing gratis",
         "secondary": "Les dokumentasjonen om feilsporing"
       }
+    },
+    "vitals": {
+      "seo": {
+        "title": "Overvåking av Core Web Vitals fra ekte besøkende | Betterlytics",
+        "description": "Gratis overvåking av Core Web Vitals hos ekte besøkende: LCP, INP, CLS, FCP og TTFB fra deres egne nettlesere, fordelt på side, enhet, land og nettleser."
+      },
+      "hero": {
+        "eyebrow": "Core Web Vitals",
+        "title": "Se hvor raskt nettstedet ditt er for ekte besøkende, og hvor det går tregt",
+        "lede": "Betterlytics måler LCP, INP, CLS, FCP og TTFB i de besøkendes egne nettlesere og viser hvilke sider, enheter og land som er trege. Det er gratis på alle planer og slås på med ett attributt.",
+        "primary": "Start måling gratis",
+        "secondary": "Les dokumentasjonen"
+      },
+      "specs": {
+        "metrics": {
+          "unit": "målinger",
+          "label": "Målt slik Google gjør det",
+          "body": "De tre Core Web Vitals, LCP, INP og CLS, pluss FCP og TTFB."
+        },
+        "traffic": {
+          "unit": "besøk",
+          "label": "Ingen krav til trafikk",
+          "body": "Alle sider vises fra første besøk, også de med lite trafikk."
+        },
+        "weight": {
+          "unit": "KB",
+          "label": "Belaster ikke sidene dine",
+          "body": "Måleskriptet, gzippet. Det lastes inn uten å blokkere siden."
+        },
+        "thesis": {
+          "unit": "dagers forsinkelse",
+          "label": "Se effekten av en fiks samme dag",
+          "body": "Googles rapporter dekker de siste 28 dagene, så det tar uker før en fiks synes der. Betterlytics viser den etter hvert som nye sideinnlastinger kommer inn."
+        }
+      },
+      "blindSpot": {
+        "title": "Trege sider *ser fine ut* fra serverne dine",
+        "lede": "Serversjekkene dine er grønne, men ventetiden oppstår i de besøkendes nettlesere. Betterlytics måler den der, ved hver sideinnlasting.",
+        "feel": "Det de besøkende merker",
+        "measure": "Det Betterlytics måler",
+        "thoughts": {
+          "loading": "Laster fortsatt…",
+          "photos": "Hvor er bildene?",
+          "pay": "Jeg trykket på Betal. Ingenting skjedde.",
+          "typing": "Søkefeltet henger etter når jeg skriver.",
+          "jumped": "Den flyttet seg, og jeg traff feil knapp.",
+          "blank": "Virker denne siden i det hele tatt?",
+          "menu": "Hvorfor åpner ikke menyen seg?",
+          "elsewhere": "Jeg finner det et annet sted.",
+          "moving": "Siden hopper hele tiden.",
+          "come": "Kom igjen, da!"
+        },
+        "vitals": {
+          "LCP": "Hovedinnhold vist",
+          "INP": "Respons på trykk",
+          "CLS": "Layoutforskyvning",
+          "FCP": "Første innhold vist",
+          "TTFB": "Serverrespons"
+        },
+        "source": "<link>Google fant</link> at risikoen for at besøkende forlater siden, øker med 32\u00a0% når lastetiden går fra 1 til 3 sekunder.",
+        "alt": "Til venstre driver tanker forbi som de besøkende har, men aldri sender: en side som fortsatt laster, et trykk på Betal som ikke gjorde noe, en layout som flyttet seg under noens finger, en tom skjerm og en meny som ikke vil åpne seg. Til høyre Betterlytics’ fem målere for kassesiden: hovedinnholdet vises etter 3,3 sekunder, som er middels; trykk får respons etter 520 millisekunder, som er dårlig; layoutforskyvningen er 0,05, som er bra; det første innholdet vises etter 2 sekunder, som er middels; og serveren svarer på 640 millisekunder, som er bra."
+      },
+      "field": {
+        "title": "Nettstedet ditt er ikke like raskt *i alle land*",
+        "lede": "Besøkende laster inn sidene dine på egne telefoner og nettverk. Betterlytics viser hvem som venter lengst, fordelt på land, side, enhet og nettleser.",
+        "levels": {
+          "good": "God",
+          "fair": "Middels",
+          "poor": "Dårlig"
+        },
+        "split": "Fordelt på",
+        "tabs": {
+          "countries": "Land",
+          "pages": "Sider",
+          "devices": "Enheter",
+          "browsers": "Nettlesere",
+          "os": "OS"
+        },
+        "columns": {
+          "countries": "Land",
+          "pages": "Side",
+          "devices": "Enhet",
+          "browsers": "Nettleser",
+          "os": "Operativsystem",
+          "lcp": "LCP"
+        },
+        "devices": {
+          "desktop": "Desktop",
+          "mobile": "Mobil",
+          "tablet": "Nettbrett"
+        },
+        "visitors": "Alle besøkende"
+      },
+      "anatomy": {
+        "title": "Fem tall fra *én sideinnlasting*",
+        "lede": "Hver måling fanger sitt eget øyeblikk, så du kan skille en treg server fra et tungt bilde eller en knapp som henger. Velg en for å se når den måles.",
+        "alt": "En filmstripe av en side som lastes inn på en telefon, ett bilde hvert halve sekund i {end}. Den første byten kommer etter {ttfb}, men skjermen er tom til overskriften tegnes etter {fcp}. Resten av teksten og knappen følger, med plass satt av til bildet, og bildet, det største elementet, tegnes etter {lcp}. Etter {cls} skyver et banner alt nedover, en layoutforskyvning på {shift}. Den besøkende trykker på knappen etter {inp}, og siden viser responsen {response} senere. Velg en måling for å se når den måles.",
+        "callouts": {
+          "shift": "Hopp",
+          "tap": "Trykk"
+        },
+        "metrics": {
+          "TTFB": {
+            "name": "Time to First Byte",
+            "body": "Hvor lang tid serveren bruker på å begynne å sende siden."
+          },
+          "FCP": {
+            "name": "First Contentful Paint",
+            "body": "Når den første teksten eller det første bildet dukker opp."
+          },
+          "LCP": {
+            "name": "Largest Contentful Paint",
+            "body": "Når det største bildet eller den største tekstblokken vises. Det er vanligvis da siden ser klar ut."
+          },
+          "CLS": {
+            "name": "Cumulative Layout Shift",
+            "body": "En score for hvor mye layouten hopper rundt mens ting lastes inn."
+          },
+          "INP": {
+            "name": "Interaction to Next Paint",
+            "body": "Hvor lang tid siden bruker på å reagere på skjermen når noen klikker, trykker eller skriver. Det er de tregeste responsene som avgjør."
+          }
+        }
+      },
+      "priority": {
+        "title": "Se hvilken side du bør *fikse først*",
+        "lede": "Sidene rangeres etter score og trafikk, så en treg side som få ser, ikke sniker i køen.",
+        "axisX": "Andel av sideinnlastinger",
+        "axisY": "Ytelsesscore",
+        "highest": "Størst potensial",
+        "list": "Fiks først",
+        "share": "{share} av trafikken",
+        "score": "Score",
+        "opportunity": "Potensial",
+        "grades": {
+          "great": "Utmerket",
+          "okay": "OK",
+          "poor": "Dårlig"
+        },
+        "recipe": {
+          "title": "Score og potensial",
+          "body": "Vektene over setter målingene sammen til én score fra 0 til 100. Potensial viser hvilken fiks som hjelper flest besøkende."
+        },
+        "cta": "Slik beregnes scoren"
+      },
+      "setup": {
+        "title": "Slå det på med *ett* attributt",
+        "lede": "Web Vitals følger med Betterlytics-skriptet. Legg til ett attributt i script-taggen, så begynner de neste sideinnlastingene å rapportere.",
+        "label": "Legg dette til i script-taggen for Betterlytics",
+        "npm": "Bruker du <link>npm-pakken</link>? Legg til <code>enableWebVitals: true</code> i <code>init()</code>.",
+        "copy": "Kopier attributtet",
+        "copied": "Kopiert",
+        "cta": "Les oppsettsguiden"
+      },
+      "related": {
+        "lede": "Core Web Vitals er én del av Betterlytics. Alt nedenfor deler dashboard, innlogging og faktura."
+      },
+      "faq": {
+        "title": "Ofte stilte spørsmål",
+        "items": {
+          "what": {
+            "q": "Hva er Core Web Vitals?",
+            "a": "Core Web Vitals er Googles målinger av hvordan det oppleves å laste inn og bruke en side: Largest Contentful Paint for innlasting, Interaction to Next Paint for responsivitet og Cumulative Layout Shift for visuell stabilitet. Betterlytics registrerer også First Contentful Paint og Time to First Byte, som hjelper deg å forstå en treg LCP."
+          },
+          "ranking": {
+            "q": "Hjelper det rangeringen min i Google?",
+            "a": "Det kan det, fordi det viser deg hva du bør fikse. Google bruker Core Web Vitals som ett av rangeringssignalene sine, og Betterlytics vurderer dem på samme måte, ved 75-persentilen, så du ser hvilke sider som ikke holder mål. Fiks dem, og du ser endringen i Betterlytics samme dag, uker før det slår ut i Googles data for de siste 28 dagene."
+          },
+          "free": {
+            "q": "Er overvåking av Core Web Vitals gratis?",
+            "a": "Ja. Det er inkludert i alle planer, også gratisplanen. Hver målt sideinnlasting sender alle fem målingene som én hendelse, og den teller i den månedlige hendelseskvoten din, akkurat som en sidevisning."
+          },
+          "lab": {
+            "q": "Hvordan skiller dette seg fra Lighthouse eller PageSpeed Insights?",
+            "a": "Lighthouse er en labtest: den laster inn siden din én gang, på en simulert enhet og et simulert nettverk. Betterlytics er real user monitoring: det måler hva de besøkende faktisk fikk, på sine egne enheter. PageSpeed Insights legger til feltdata fra Chrome UX Report, som bare teller Chrome på desktop og Android, dekker de siste 28 dagene og bare vises for sider og nettsteder med nok trafikk. Bruk labverktøyene til å feilsøke en side, og Betterlytics til å se hva de besøkende opplevde."
+          },
+          "campaigns": {
+            "q": "Kan jeg se Web Vitals for én kampanje eller trafikkilde?",
+            "a": "Ja. Web Vitals fungerer med filtrene i dashboardet ditt, så du kan se hvor raskt sidene dine lastes for besøkende fra én kampanje eller henvisningskilde. Det er en rask måte å sjekke sidene annonsene dine sender folk til."
+          },
+          "browsers": {
+            "q": "Hvilke nettlesere rapporterer Web Vitals?",
+            "a": "Alle moderne nettlesere. Chrome, Edge, Opera, Samsung Internet og andre Chromium-baserte nettlesere rapporterer alle fem målingene. Nyere versjoner av Safari og Firefox, på desktop og mobil, rapporterer alle unntatt CLS, som bare Chromium måler. En nettleser som ikke kan måle en verdi, hopper over den og rapporterer resten."
+          },
+          "speed": {
+            "q": "Blir nettstedet mitt tregere av målingen?",
+            "a": "Ikke slik at de besøkende merker det. Måleskriptet er på 2,6\u00a0KB gzippet og lastes inn uten å blokkere siden. Alle fem verdiene sendes i én liten forespørsel når den besøkende forlater siden eller bytter fane."
+          },
+          "spa": {
+            "q": "Fungerer det med single-page-apper?",
+            "a": "Delvis. I en single-page-app måler Betterlytics den første innlastingen og registrerer den på siden som er åpen når den besøkende går. Ruteendringer etter det måles ikke som egne sideinnlastinger."
+          },
+          "attribution": {
+            "q": "Kan det fortelle meg hvilket element som gjorde en side treg?",
+            "a": "Nei. Betterlytics viser hvor treg hver side var, og for hvem, fordelt på enhet, land, nettleser og OS. Elementet bak en treg LCP eller skriptet bak en treg INP finner du ved å åpne siden i Chrome DevTools eller kjøre Lighthouse på den."
+          },
+          "privacy": {
+            "q": "Bruker det cookies, eller samler det inn personopplysninger?",
+            "a": "Nei. Som resten av Betterlytics bruker Web Vitals ingen cookies. Hver måling er bare fem tall pluss detaljene en sidevisning allerede har, som side, nettleser og land."
+          },
+          "dedicated": {
+            "q": "Når passer et dedikert ytelsesverktøy bedre?",
+            "a": "Et dedikert ytelsesverktøy passer bedre hvis du vil se hvilket element som gjør en side treg, eller trenger Web Vitals for ruteendringer på klientsiden, varsler, labtester eller måling i native mobilapper. Betterlytics passer best når du vil se hastighet sammen med trafikk, feil og opptak, fra ett skript og ett dashboard."
+          }
+        }
+      },
+      "cta": {
+        "title": "Mål din første ekte sideinnlasting i dag",
+        "lede": "Legg til Betterlytics-skriptet, eller ett attributt hvis du allerede har det, så begynner ekte sideinnlastinger å dukke opp i dashboardet ditt. Gratis på alle planer.",
+        "primary": "Start måling gratis",
+        "secondary": "Les dokumentasjonen om Web Vitals"
+      }
     }
   },
   "pricingSlider": {
