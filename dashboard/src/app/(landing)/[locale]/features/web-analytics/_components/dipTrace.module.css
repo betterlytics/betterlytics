@@ -1,0 +1,309 @@
+@reference '../../../landing.css';
+
+@layer components {
+  .stage {
+    position: relative;
+    display: grid;
+    padding: 34px clamp(20px, 4.4vw, 64px) 44px;
+    @variant max-sm {
+      padding: 26px 16px 30px;
+    }
+  }
+
+  .head {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 18px;
+  }
+  .filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 30px;
+    padding: 0 12px;
+    border: 1px solid --alpha(var(--color-volt-soft) / 30%);
+    border-radius: 8px;
+    background: --alpha(var(--color-volt) / 22%);
+    font-size: 13px;
+    color: var(--color-muted);
+    white-space: nowrap;
+  }
+  .filter svg {
+    color: var(--color-volt-soft);
+  }
+  .filter b {
+    font-weight: 500;
+    color: var(--color-fg);
+  }
+  .metric {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-fg);
+  }
+  .legend {
+    display: inline-flex;
+    gap: 16px;
+    margin-left: auto;
+    font-size: 12.5px;
+    color: var(--color-muted);
+    @variant max-sm {
+      margin-left: 0;
+    }
+  }
+  .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .legend span::before {
+    content: '';
+    width: 16px;
+    border-top: 1.75px solid --alpha(var(--color-fg) / 85%);
+  }
+  .legend [data-series='before']::before {
+    border-top: 1.25px dashed --alpha(var(--color-fg) / 40%);
+  }
+
+  /* the plot box; the svg draws over the whole stage so the wires can leave it */
+  .chart {
+    height: 236px;
+    margin-top: 58px;
+    @variant max-sm {
+      height: 168px;
+      margin-top: 52px;
+    }
+  }
+  .svg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .grid {
+    stroke: var(--color-rule-08);
+    stroke-width: 1;
+  }
+  .axis {
+    stroke: var(--color-rule-22);
+    stroke-width: 1;
+  }
+  .hatchLine {
+    stroke: rgb(242 245 255 / 0.13);
+    stroke-width: 1;
+  }
+  .dipStop {
+    stop-color: var(--color-volt-lift);
+  }
+  .fillTop {
+    stop-color: rgb(235 232 230 / 0.075);
+  }
+  .today {
+    fill: none;
+    stroke: --alpha(var(--color-fg) / 88%);
+    stroke-width: 1.75;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+  }
+  .before {
+    fill: none;
+    stroke: --alpha(var(--color-fg) / 34%);
+    stroke-width: 1.25;
+    stroke-dasharray: 4 4;
+  }
+  .marker {
+    stroke: --alpha(var(--color-volt-soft) / 80%);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+  }
+  .wire {
+    fill: none;
+    stroke: --alpha(var(--color-volt-lift) / 80%);
+    stroke-width: 1.25;
+    stroke-dasharray: 1;
+  }
+  .plug {
+    fill: #1a1918;
+    stroke: var(--color-rule-30);
+    stroke-width: 1;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .today,
+    .wire {
+      stroke-dashoffset: 1;
+    }
+    .area,
+    .window,
+    .marker,
+    .annotation,
+    .plug,
+    .card {
+      opacity: 0;
+    }
+    .stage[data-drawn] .today {
+      animation: draw 1.4s var(--ease-pen) 0.1s forwards;
+    }
+    .stage[data-drawn] .area {
+      animation: show 1s ease 0.5s forwards;
+    }
+    .stage[data-drawn] .window,
+    .stage[data-drawn] .marker,
+    .stage[data-drawn] .annotation {
+      animation: show 0.7s ease 1.1s forwards;
+    }
+    .stage[data-drawn] .wire {
+      animation: draw 0.9s var(--ease-pen) 1.45s forwards;
+    }
+    .stage[data-drawn] .plug {
+      animation: show 0.4s ease 1.45s forwards;
+    }
+    .stage[data-drawn] .card {
+      animation: show 0.7s ease calc(1.9s + var(--i) * 0.12s) forwards;
+    }
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .annotation {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 24px;
+    padding: 0 9px;
+    translate: -50% calc(-100% - 12px);
+    border: 1px solid --alpha(var(--color-volt-soft) / 30%);
+    border-radius: 7px;
+    background-color: var(--color-canvas);
+    background-image: linear-gradient(180deg, --alpha(var(--color-fg) / 5%), --alpha(var(--color-fg) / 1.5%));
+    box-shadow: 0 8px 20px rgb(0 0 0 / 0.4);
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    color: var(--color-fg);
+  }
+  .annotation svg {
+    color: var(--color-volt-soft);
+  }
+  .tick {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    translate: -50% 9px;
+    font-size: 11.5px;
+    font-variant-numeric: tabular-nums;
+    color: --alpha(var(--color-muted) / 80%);
+    @variant max-sm {
+      font-size: 10px;
+    }
+  }
+  .tick[data-edge='start'] {
+    translate: 0 9px;
+  }
+  .tick[data-edge='end'] {
+    translate: -100% 9px;
+  }
+
+  /* centred under the dip (--dip is its share of the plot width), kept inside the stage */
+  .evidence {
+    --row: min(100%, 660px);
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(14px, 2.4vw, 28px);
+    width: var(--row);
+    margin: 76px 0 0 clamp(0px, calc(var(--dip) - var(--row) / 2), calc(100% - var(--row)));
+    @variant max-sm {
+      gap: 10px;
+      margin-top: 64px;
+    }
+  }
+  .card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 15px 16px 16px;
+    border: 1px solid var(--color-rule-10);
+    border-radius: 12px;
+    background-color: var(--color-panel-raised);
+    background-image: linear-gradient(180deg, --alpha(var(--color-fg) / 5%), --alpha(var(--color-fg) / 1.5%));
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.05) inset,
+      0 14px 32px rgb(0 0 0 / 0.42);
+    @variant max-sm {
+      flex-direction: column;
+      gap: 9px;
+      padding: 12px 12px 13px;
+    }
+  }
+  .cardIcon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: --alpha(var(--color-volt-lift) / 18%);
+    color: var(--color-volt-soft);
+    @variant max-sm {
+      width: 26px;
+      height: 26px;
+    }
+  }
+  .card[data-kind='errors'] .cardIcon {
+    background: --alpha(var(--color-down) / 16%);
+    color: #f08a98;
+  }
+  .cardText {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+  .product {
+    font-size: 12.5px;
+    line-height: 17px;
+    color: var(--color-muted);
+  }
+  .finding {
+    font-size: 14.5px;
+    line-height: 20px;
+    font-weight: 500;
+    color: var(--color-fg);
+    @variant max-sm {
+      font-size: 13.5px;
+      line-height: 18px;
+    }
+  }
+  .meta {
+    margin-top: 2px;
+    font-size: 12.5px;
+    line-height: 17px;
+    color: --alpha(var(--color-muted) / 90%);
+    @variant max-sm {
+      font-size: 11.5px;
+    }
+  }
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes show {
+  to {
+    opacity: 1;
+  }
+}
