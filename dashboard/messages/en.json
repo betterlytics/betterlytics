@@ -1690,11 +1690,6 @@
             "desktop": "Desktop",
             "mobile": "Mobile",
             "tablet": "Tablet"
-          },
-          "reports": {
-            "when": "Monday",
-            "subject": "Your weekly report for acme.com",
-            "visitors": "Visitors"
           }
         }
       },

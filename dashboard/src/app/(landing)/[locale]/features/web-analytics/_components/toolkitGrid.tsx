@@ -1,10 +1,11 @@
-import { Filter, Mail, Monitor, Plus, Smartphone, Tablet } from 'lucide-react';
+import { Filter, Monitor, Plus, Smartphone, Tablet } from 'lucide-react';
 import type { ReactNode } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { FeatureGrid } from '@/landing/components/feature/featureGrid';
 import grid from '@/landing/components/feature/featureGrid.module.css';
 import { FLAGS } from '@/landing/components/illustrations/flags';
+import { BrandMark } from '@/landing/components/ui/brandMark';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
 import styles from './toolkitGrid.module.css';
@@ -135,25 +136,45 @@ function Events() {
   );
 }
 
-function Reports({ t }: { t: Art }) {
+/* The report email is English-only, so the sheet's labels stay literal too. */
+const METRICS = [
+  { label: 'Visitors', value: '12,480', change: 8 },
+  { label: 'Page Views', value: '31,902', change: 5 },
+  { label: 'Sessions', value: '14,211', change: 6 },
+];
+
+const PAGES = [
+  ['/', '4,120'],
+  ['/pricing', '2,980'],
+  ['/blog/cookieless-analytics', '1,240'],
+];
+
+function Reports() {
   return (
     <div className={cn(grid.comp, styles.reports)}>
-      <div className={cn(grid.card, styles.mail)}>
-        <span className={styles.from}>
-          <Mail strokeWidth={1.75} />
-          Betterlytics
-          <small>{t('reports.when')}</small>
+      <div className={cn(grid.card, styles.sheet)}>
+        <span className={styles.sheetHead}>
+          <BrandMark className={styles.mark} />
+          Weekly Analytics Report
         </span>
-        <b className={styles.subject}>{t('reports.subject')}</b>
-        <span className={styles.figures}>
-          <span>
-            {t('reports.visitors')} <b>12,480</b>
+        <span className={styles.sheetMeta}>acme.com · Nov 3 – Nov 9</span>
+        <span className={styles.metrics}>
+          {METRICS.map(({ label, value, change }, i) => (
+            <span key={label} className={styles.metric} style={vars({ '--i': i })}>
+              <small>{label}</small>
+              <b>{value}</b>
+              <em>↑ {change}%</em>
+            </span>
+          ))}
+        </span>
+        <span className={styles.tableTitle}>Top Pages</span>
+        {PAGES.map(([path, views], i) => (
+          <span key={path} className={styles.row} style={vars({ '--i': i })}>
+            <i>{i + 1}.</i>
+            <span>{path}</span>
+            <b>{views}</b>
           </span>
-          <span data-up>+8%</span>
-        </span>
-        <svg className={styles.spark} viewBox='0 0 120 24' preserveAspectRatio='none' aria-hidden>
-          <path d='M0,18 L17,15 L34,17 L51,11 L68,13 L85,8 L102,9 L120,4' />
-        </svg>
+        ))}
       </div>
     </div>
   );
@@ -172,7 +193,7 @@ function scene(key: Key, art: Art): ReactNode {
     case 'events':
       return <Events />;
     case 'reports':
-      return <Reports t={art} />;
+      return <Reports />;
   }
 }
 
