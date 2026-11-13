@@ -1,26 +1,79 @@
-import { Check, Cookie } from 'lucide-react';
+import { Check, Cookie, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { InView } from '@/landing/components/ui/inView';
 import { vars } from '@/landing/lib/cssVars';
 import styles from './consentSplit.module.css';
 
-type Notice = 'cookies' | 'choices' | 'allow' | 'improve' | 'settings' | 'value' | 'partners' | 'necessary';
-type Button = 'accept' | 'reject' | 'manage' | 'ok' | 'save';
+type Kind = 'bar' | 'modal' | 'card' | 'wall' | 'partners' | 'corner';
+type Button = 'reject' | 'accept' | 'save' | 'customize' | 'continue' | 'manage' | 'agree' | 'ok';
+type Translate = ReturnType<typeof useTranslations<'landing.analytics.privacy'>>;
 
-const LANES = [33, 46, 59, 72, 85];
-const BACK_LANES = [1, 3];
+const LANES = [33, 56, 80];
+const BACK_LANE = 1;
 
-/** `lane` picks the row, `dur` the seconds to cross, `at` how far across it starts (0–1), `rest` where it stands still (in %). */
-const NOTICES: { key: Notice; lane: number; dur: number; at: number; rest: number; buttons: Button[] }[] = [
-  { key: 'cookies', lane: 0, dur: 32, at: 0.1, rest: 6, buttons: ['accept', 'reject'] },
-  { key: 'choices', lane: 0, dur: 32, at: 0.62, rest: 56, buttons: ['manage'] },
-  { key: 'partners', lane: 1, dur: 42, at: 0.32, rest: 4, buttons: ['ok'] },
-  { key: 'necessary', lane: 1, dur: 42, at: 0.84, rest: 50, buttons: ['save'] },
-  { key: 'allow', lane: 2, dur: 27, at: 0.44, rest: 12, buttons: ['accept', 'reject'] },
-  { key: 'settings', lane: 2, dur: 27, at: 0.94, rest: 60, buttons: [] },
-  { key: 'improve', lane: 3, dur: 46, at: 0.18, rest: 22, buttons: ['ok'] },
-  { key: 'value', lane: 4, dur: 35, at: 0.7, rest: 6, buttons: ['accept', 'manage'] },
+/** The common shapes of a consent banner, each drawn generic so none reads as a real vendor's. */
+const BANNERS: {
+  kind: Kind;
+  tone: 'light' | 'dark';
+  buttons: Button[];
+  lane: number;
+  dur: number;
+  at: number;
+  rest: number;
+}[] = [
+  { kind: 'bar', tone: 'dark', buttons: ['reject', 'accept'], lane: 0, dur: 46, at: 0.04, rest: 3 },
+  { kind: 'card', tone: 'light', buttons: ['customize', 'accept'], lane: 0, dur: 46, at: 0.58, rest: 60 },
+  { kind: 'partners', tone: 'light', buttons: ['manage', 'agree'], lane: 1, dur: 58, at: 0.26, rest: 8 },
+  { kind: 'corner', tone: 'dark', buttons: ['ok'], lane: 1, dur: 58, at: 0.8, rest: 62 },
+  { kind: 'modal', tone: 'light', buttons: ['save', 'accept'], lane: 2, dur: 40, at: 0.4, rest: 5 },
+  { kind: 'wall', tone: 'dark', buttons: ['continue'], lane: 2, dur: 40, at: 0.92, rest: 56 },
 ];
+
+function Body({ kind, t }: { kind: Kind; t: Translate }) {
+  switch (kind) {
+    case 'bar':
+    case 'partners':
+    case 'corner':
+      return <p className={styles.text}>{t(`banners.${kind}.body`)}</p>;
+    case 'card':
+      return (
+        <>
+          <p className={styles.title}>
+            <Cookie className={styles.cookie} strokeWidth={1.75} />
+            {t('banners.card.title')}
+          </p>
+          <p className={styles.text}>{t('banners.card.body')}</p>
+        </>
+      );
+    case 'wall':
+      return (
+        <>
+          <p className={styles.title}>{t('banners.wall.title')}</p>
+          <p className={styles.text}>{t('banners.wall.body')}</p>
+        </>
+      );
+    case 'modal':
+      return (
+        <>
+          <p className={styles.title}>{t('banners.modal.title')}</p>
+          <ul className={styles.rows}>
+            <li>
+              {t('banners.modal.necessary')}
+              <span className={styles.always}>{t('banners.modal.always')}</span>
+            </li>
+            <li>
+              {t('banners.modal.analytics')}
+              <i className={styles.toggle} data-on />
+            </li>
+            <li>
+              {t('banners.modal.marketing')}
+              <i className={styles.toggle} />
+            </li>
+          </ul>
+        </>
+      );
+  }
+}
 
 const FACTS = ['cookies', 'ip', 'eu'] as const;
 
@@ -34,11 +87,13 @@ export function ConsentSplit() {
       <div className={styles.banner}>
         <p className={styles.heading}>{t('banner')}</p>
         <div className={styles.lanes} aria-hidden data-nosnippet>
-          {NOTICES.map(({ key, lane, dur, at, rest, buttons }, i) => (
-            <span
-              key={key}
+          {BANNERS.map(({ kind, tone, buttons, lane, dur, at, rest }, i) => (
+            <div
+              key={kind}
               className={styles.notice}
-              data-back={BACK_LANES.includes(lane) || undefined}
+              data-kind={kind}
+              data-tone={tone}
+              data-back={lane === BACK_LANE || undefined}
               data-spare={i % 2 === 1 || undefined}
               style={vars({
                 '--x': `${rest}%`,
@@ -47,14 +102,22 @@ export function ConsentSplit() {
                 '--delay': `${-at * dur}s`,
               })}
             >
-              <Cookie className={styles.cookie} strokeWidth={1.75} />
-              {t(`notices.${key}`)}
-              {buttons.map((button, b) => (
-                <span key={button} className={styles.button} data-primary={b === 0 || undefined}>
-                  {t(`buttons.${button}`)}
-                </span>
-              ))}
-            </span>
+              {(kind === 'card' || kind === 'modal') && <X className={styles.close} strokeWidth={2} />}
+              <div className={styles.copy}>
+                <Body kind={kind} t={t} />
+              </div>
+              <div className={styles.actions}>
+                {buttons.map((button, b) => (
+                  <span
+                    key={button}
+                    className={styles.button}
+                    data-primary={b === buttons.length - 1 || undefined}
+                  >
+                    {t(`buttons.${button}`)}
+                  </span>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       </div>
@@ -69,7 +132,7 @@ export function ConsentSplit() {
           </div>
           <div className={styles.page}>
             <span className={styles.brand} />
-            <span className={styles.title} />
+            <span className={styles.pageTitle} />
             <span className={styles.line} />
             <span className={styles.line} data-short />
             <div className={styles.plans}>

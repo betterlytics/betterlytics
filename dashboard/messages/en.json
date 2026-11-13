@@ -1605,25 +1605,44 @@
       "privacy": {
         "title": "Analytics without the *cookie banner*",
         "lede": "Betterlytics counts visits without cookies or stored IP addresses, so visitors land on your page instead of a consent dialog.",
-        "alt": "On the left, cookie banners drift past, such as We use cookies and Your privacy choices, each with Accept all and Reject all buttons. On the right, on Betterlytics blue, the same pricing page with nothing in front of it, above three facts: no cookies, no stored IP addresses and data kept in the EU.",
+        "alt": "On the left, cookie banners drift past: a bar at the bottom of a page, a privacy preferences dialog with toggles, a card that says We value your privacy, a cookie wall and more, each asking the visitor to accept or reject. On the right, on Betterlytics blue, the same pricing page with nothing in front of it, above three facts: no cookies, no stored IP addresses and data kept in the EU.",
         "banner": "Behind a cookie banner",
         "clean": "Straight to your page",
-        "notices": {
-          "cookies": "We use cookies",
-          "choices": "Your privacy choices",
-          "allow": "Allow cookies?",
-          "improve": "Cookies help us improve your experience",
-          "settings": "Cookie settings",
-          "value": "We value your privacy",
-          "partners": "We and our partners use cookies",
-          "necessary": "Only necessary cookies?"
+        "banners": {
+          "bar": {
+            "body": "We use cookies to improve your experience and show you relevant ads."
+          },
+          "modal": {
+            "title": "Privacy preferences",
+            "necessary": "Strictly necessary",
+            "always": "Always active",
+            "analytics": "Analytics",
+            "marketing": "Marketing"
+          },
+          "card": {
+            "title": "We value your privacy",
+            "body": "We and our partners use cookies to personalise content and measure traffic."
+          },
+          "wall": {
+            "title": "Accept cookies to continue",
+            "body": "This site needs cookies to work properly."
+          },
+          "partners": {
+            "body": "We and our advertising partners store and access information on your device."
+          },
+          "corner": {
+            "body": "This website uses cookies."
+          }
         },
         "buttons": {
-          "accept": "Accept all",
           "reject": "Reject all",
-          "manage": "Manage",
-          "ok": "OK",
-          "save": "Save"
+          "accept": "Accept all",
+          "save": "Save choices",
+          "customize": "Customize",
+          "continue": "Accept and continue",
+          "manage": "Manage options",
+          "agree": "Agree",
+          "ok": "OK"
         },
         "facts": {
           "cookies": "No cookies",
