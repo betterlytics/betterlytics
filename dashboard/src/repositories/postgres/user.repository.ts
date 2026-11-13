@@ -20,6 +20,7 @@ import {
   resolveAccountDeletionBlocker,
 } from '@/entities/account/userSettings.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
+import { softDeleteDashboardsWith } from '@/repositories/postgres/dashboard.repository';
 
 // better-auth's providerId for email+password accounts; accountId is the user id by its convention.
 const CREDENTIAL_PROVIDER_ID = 'credential';
@@ -201,12 +202,12 @@ const REMOVAL_TARGET_SELECT = { role: true, deletedAt: true, disabledAt: true } 
  * Deletes (anonymizes) a user and disposes of the dashboards they own in one locked transaction, so a
  * refused deletion never leaves dashboards half-deleted. With `guard`, the last enabled admin or user is
  * refused. Every live membership of the user is ended with `removedById` as the remover. Returns the
- * refusal reason, or null when the user was deleted.
+ * refusal reason, or a null outcome with the released status page slugs when the user was deleted.
  */
 export async function deleteUserAccount(
   userId: string,
   options: { guard: boolean; ownedDashboards: OwnedDashboardsDisposal; removedById: string },
-): Promise<AccountDeletionOutcome> {
+): Promise<{ outcome: AccountDeletionOutcome; releasedSlugs: string[] }> {
   try {
     return await prisma.$transaction(async (tx) => {
       await lockAccountRemovals(tx);
@@ -215,7 +216,7 @@ export async function deleteUserAccount(
         const target = await tx.user.findUnique({ where: { id: userId }, select: REMOVAL_TARGET_SELECT });
         if (target) {
           const blocker = await resolveRemovalBlockerWith(tx, target);
-          if (blocker) return blocker;
+          if (blocker) return { outcome: blocker, releasedSlugs: [] };
         }
       }
 
@@ -224,6 +225,7 @@ export async function deleteUserAccount(
         select: { dashboardId: true },
       });
       const dashboardIds = owned.map((row) => row.dashboardId);
+      let releasedSlugs: string[] = [];
 
       if (options.ownedDashboards.mode === 'transfer') {
         const toUserId = options.ownedDashboards.toUserId;
@@ -231,7 +233,7 @@ export async function deleteUserAccount(
           where: { id: toUserId, ...ENABLED_USER_WHERE },
           select: { id: true },
         });
-        if (!recipient || recipient.id === userId) return 'invalid_recipient';
+        if (!recipient || recipient.id === userId) return { outcome: 'invalid_recipient', releasedSlugs: [] };
 
         for (const dashboardId of dashboardIds) {
           const recipientAccess = await tx.userDashboard.findFirst({
@@ -263,11 +265,7 @@ export async function deleteUserAccount(
           }
         }
       } else if (dashboardIds.length > 0) {
-        await tx.dashboard.updateMany({ where: { id: { in: dashboardIds } }, data: { deletedAt: new Date() } });
-        await tx.dashboardInvitation.updateMany({
-          where: { dashboardId: { in: dashboardIds }, status: 'pending' },
-          data: { status: 'cancelled' },
-        });
+        releasedSlugs = await softDeleteDashboardsWith(tx, dashboardIds);
       }
 
       // Ends the owner rows too, so a transferred dashboard keeps the old owner's access period
@@ -277,7 +275,7 @@ export async function deleteUserAccount(
       });
 
       await anonymizeUserWith(tx, userId);
-      return null;
+      return { outcome: null, releasedSlugs };
     });
   } catch (error) {
     console.error(`Error deleting user ${userId}:`, error);

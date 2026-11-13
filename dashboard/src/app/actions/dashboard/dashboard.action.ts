@@ -18,6 +18,7 @@ import type { User } from '@/entities/auth/session.entities';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { getUserCapabilities } from '@/lib/billing/capabilityAccess';
 import { dashboardValidator } from '@/lib/billing/validators';
+import { revalidateReleasedStatusPages } from '@/lib/statusPageRevalidation';
 
 export const createDashboardAction = withUserAuth(async (user: User, domain: string): Promise<Dashboard> => {
   const caps = await getUserCapabilities();
@@ -30,7 +31,7 @@ export const createDashboardAction = withUserAuth(async (user: User, domain: str
 
 export const deleteDashboardAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext): Promise<void> => {
-    return deleteDashboard(ctx.dashboardId);
+    revalidateReleasedStatusPages(await deleteDashboard(ctx.dashboardId));
   },
   { permission: 'canDeleteDashboard' },
 );
