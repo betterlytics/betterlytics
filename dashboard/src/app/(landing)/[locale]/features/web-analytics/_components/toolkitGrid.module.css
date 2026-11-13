@@ -1,5 +1,12 @@
 @reference '../../../landing.css';
 
+/* inherited, so the count's ::after reads the value the hover animates on its <b> */
+@property --count {
+  syntax: '<integer>';
+  inherits: true;
+  initial-value: 690;
+}
+
 @layer components {
   .page[data-lit],
   .filter[data-lit],
@@ -16,19 +23,23 @@
       0 16px 36px rgb(4 8 60 / 0.55);
   }
 
-  .paths {
+  .paths,
+  .send {
     position: absolute;
     inset: 0;
     width: 300px;
     height: 140px;
     overflow: visible;
   }
-  .paths path {
+  .paths path,
+  .send path {
     fill: none;
     stroke: var(--color-rule-30);
     stroke-width: 1;
+    stroke-dasharray: 1;
   }
-  .paths path[data-lit] {
+  .paths path[data-lit],
+  .send path {
     stroke: --alpha(var(--color-volt-lift) / 90%);
     stroke-width: 1.5;
   }
@@ -192,13 +203,20 @@
     height: 14px;
   }
   .device i {
+    position: relative;
     height: 6px;
+    overflow: hidden;
     border-radius: 3px;
-    background: linear-gradient(
-      90deg,
-      var(--color-volt-lift) calc(var(--share) * 100%),
-      --alpha(var(--color-fg) / 7%) 0
-    );
+    background: --alpha(var(--color-fg) / 7%);
+  }
+  .device i::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--color-volt-lift);
+    transform-origin: 0 50%;
+    scale: var(--share) 1;
   }
   .device b {
     font-size: 12px;
@@ -221,6 +239,7 @@
     display: grid;
     gap: 2px;
     padding: 11px 13px;
+    overflow: hidden;
     font-family: var(--font-mono);
     font-size: 11.5px;
     line-height: 17px;
@@ -233,6 +252,14 @@
   .call s {
     text-decoration: none;
     color: var(--color-volt-soft);
+  }
+  .call::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 30%, rgb(242 245 255 / 0.09) 50%, transparent 70%);
+    translate: -100% 0;
+    pointer-events: none;
   }
   .count {
     right: 14px;
@@ -249,6 +276,11 @@
     font-size: 18px;
     font-weight: 500;
     letter-spacing: -0.3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .count b::after {
+    counter-reset: count var(--count);
+    content: counter(count);
   }
 
   /* the report email's own shape, running off the bottom edge */
@@ -333,5 +365,128 @@
     font-weight: 500;
     white-space: nowrap;
     text-overflow: ellipsis;
+  }
+
+  /* hover replays: each ends on the scene's resting state, so nothing jumps when it finishes */
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .stage[data-in]:hover .paths path[data-quiet] {
+      animation: hover-draw 0.5s var(--ease-pen);
+    }
+    .stage[data-in]:hover .paths path[data-step='0'] {
+      animation: hover-draw 0.45s var(--ease-pen) backwards;
+    }
+    .stage[data-in]:hover .paths path[data-step='1'] {
+      animation: hover-draw 0.45s var(--ease-pen) 0.4s backwards;
+    }
+    .stage[data-in]:hover .page[data-step='1'] {
+      animation: hover-pop 0.4s var(--ease-out-expo) 0.3s backwards;
+    }
+    .stage[data-in]:hover .page[data-step='2'] {
+      animation: hover-pop 0.45s var(--ease-out-expo) 0.75s backwards;
+    }
+
+    .stage[data-in]:hover .filter {
+      animation: hover-drop 0.45s var(--ease-out-expo) calc(var(--i) * 0.09s) backwards;
+    }
+    .stage[data-in]:hover .add svg {
+      animation: hover-turn 0.5s var(--ease-out-expo) 0.3s;
+    }
+
+    .stage[data-in]:hover .step[data-level='region'] {
+      animation: hover-reveal 0.35s var(--ease-pen) 0.1s backwards;
+    }
+    .stage[data-in]:hover .step[data-level='city'] {
+      animation: hover-reveal 0.35s var(--ease-pen) 0.45s backwards;
+    }
+    .stage[data-in]:hover .place[data-level='region'] {
+      animation: hover-drop 0.4s var(--ease-out-expo) 0.3s backwards;
+    }
+    .stage[data-in]:hover .place[data-level='city'] {
+      animation: hover-pop 0.45s var(--ease-out-expo) 0.65s backwards;
+    }
+
+    .stage[data-in]:hover .device i::after {
+      animation: hover-fill 0.7s var(--ease-out-expo) calc(var(--i) * 0.1s) backwards;
+    }
+    .stage[data-in]:hover .browsers img {
+      animation: hover-pop 0.35s var(--ease-out-expo) calc(0.35s + var(--i) * 0.06s) backwards;
+    }
+
+    .stage[data-in]:hover .call::after {
+      animation: hover-sweep 0.6s ease-out;
+    }
+    .stage[data-in]:hover .send path {
+      animation: hover-draw 0.4s var(--ease-pen) 0.35s backwards;
+    }
+    .stage[data-in]:hover .count {
+      animation: hover-pop 0.45s var(--ease-out-expo) 0.7s backwards;
+    }
+    .stage[data-in]:hover .count b {
+      animation: hover-count 0.01s linear 0.75s backwards;
+    }
+
+    .stage[data-in]:hover .metric {
+      animation: hover-drop 0.4s var(--ease-out-expo) calc(var(--i) * 0.08s) backwards;
+    }
+    .stage[data-in]:hover .metric em {
+      animation: hover-rise 0.5s var(--ease-out-expo) calc(0.25s + var(--i) * 0.08s) backwards;
+    }
+    .stage[data-in]:hover .row {
+      animation: hover-drop 0.4s var(--ease-out-expo) calc(0.3s + var(--i) * 0.07s) backwards;
+    }
+  }
+}
+
+@keyframes hover-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes hover-pop {
+  from {
+    scale: 0.82;
+  }
+}
+@keyframes hover-drop {
+  from {
+    opacity: 0.25;
+    translate: 0 -7px;
+  }
+}
+@keyframes hover-turn {
+  from {
+    rotate: -90deg;
+  }
+}
+@keyframes hover-reveal {
+  from {
+    clip-path: inset(0 100% 100% 0);
+  }
+}
+@keyframes hover-fill {
+  from {
+    scale: 0 1;
+  }
+}
+@keyframes hover-sweep {
+  from {
+    translate: -100% 0;
+  }
+  to {
+    translate: 100% 0;
+  }
+}
+@keyframes hover-count {
+  from {
+    --count: 689;
+  }
+}
+@keyframes hover-rise {
+  from {
+    opacity: 0;
+    translate: 0 4px;
   }
 }

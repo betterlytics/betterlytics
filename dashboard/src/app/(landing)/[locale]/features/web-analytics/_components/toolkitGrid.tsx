@@ -21,10 +21,10 @@ function Journeys() {
   return (
     <div className={cn(grid.comp, styles.journeys)}>
       <svg className={styles.paths} viewBox='0 0 300 140' aria-hidden>
-        <path d='M64,40 C94,40 94,70 124,70' />
-        <path d='M206,70 C222,70 222,100 238,100' data-lit />
-        <path d='M64,40 C98,40 98,116 132,116' data-quiet />
-        <path d='M206,70 C222,70 222,30 238,30' data-quiet />
+        <path d='M64,40 C98,40 98,116 132,116' pathLength={1} data-quiet />
+        <path d='M206,70 C222,70 222,30 238,30' pathLength={1} data-quiet />
+        <path d='M64,40 C94,40 94,70 124,70' pathLength={1} data-step={0} />
+        <path d='M206,70 C222,70 222,100 238,100' pathLength={1} data-step={1} data-lit />
       </svg>
       {PATH.map((page, i) => (
         <span key={page} className={cn(grid.card, styles.page)} data-step={i} data-lit={i === 2 || undefined}>
@@ -101,8 +101,8 @@ function Devices({ t }: { t: Art }) {
   return (
     <div className={cn(grid.comp, styles.devices)}>
       <div className={cn(grid.card, styles.deviceCard)}>
-        {DEVICES.map(({ key, icon: Icon, share }) => (
-          <span key={key} className={styles.device} style={vars({ '--share': share / 100 })}>
+        {DEVICES.map(({ key, icon: Icon, share }, i) => (
+          <span key={key} className={styles.device} style={vars({ '--share': share / 100, '--i': i })}>
             <Icon strokeWidth={1.75} />
             <span>{t(`devices.${key}`)}</span>
             <i />
@@ -110,8 +110,15 @@ function Devices({ t }: { t: Art }) {
           </span>
         ))}
         <span className={styles.browsers}>
-          {BROWSERS.map((browser) => (
-            <Image key={browser} src={`/browser-icons/${browser}.svg`} alt='' width={14} height={14} />
+          {BROWSERS.map((browser, i) => (
+            <Image
+              key={browser}
+              src={`/browser-icons/${browser}.svg`}
+              alt=''
+              width={14}
+              height={14}
+              style={vars({ '--i': i })}
+            />
           ))}
         </span>
       </div>
@@ -128,9 +135,12 @@ function Events() {
           <s>&apos;signup&apos;</s>, {'{'} plan: <s>&apos;team&apos;</s> {'}'})
         </span>
       </code>
+      <svg className={styles.send} viewBox='0 0 300 140' aria-hidden>
+        <path d='M120,78 C120,104 150,108 176,108' pathLength={1} />
+      </svg>
       <span className={cn(grid.card, styles.count)} data-lit>
         <span>signup</span>
-        <b>690</b>
+        <b />
       </span>
     </div>
   );
@@ -204,6 +214,7 @@ export function ToolkitGrid() {
   const art = useTranslations('landing.analytics.toolkit.art');
   return (
     <FeatureGrid
+      stageClassName={styles.stage}
       items={KEYS.map((key) => ({
         key,
         title: t(`items.${key}.title`),
