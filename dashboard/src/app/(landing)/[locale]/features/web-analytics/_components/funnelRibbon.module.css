@@ -1,0 +1,202 @@
+@reference '../../../landing.css';
+
+@layer components {
+  /* the height is laid out from the measured width; it holds a sane size until then */
+  .stage {
+    position: relative;
+    height: var(--height, 420px);
+    overflow: hidden;
+  }
+
+  .ribbon {
+    position: absolute;
+    inset: 0;
+    overflow: visible;
+  }
+  .hatchLine {
+    stroke: rgb(235 232 230 / 0.07);
+    stroke-width: 1;
+  }
+  .band rect {
+    fill: rgb(235 232 230 / 0.07);
+  }
+  .band .edge {
+    stroke: rgb(235 232 230 / 0.16);
+    stroke-width: 1;
+  }
+  .converted {
+    fill: var(--color-volt-lift);
+  }
+  .convertedHatch {
+    opacity: 0.6;
+  }
+  .gate {
+    fill: rgb(235 232 230 / 0.42);
+  }
+  .gate[data-last] {
+    fill: var(--color-on-volt);
+  }
+
+  .peel {
+    fill: none;
+  }
+  .peelStop {
+    stop-color: rgb(235 232 230 / 0.085);
+  }
+  .worstStop {
+    stop-color: --alpha(var(--color-down) / 30%);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .band,
+    .bandHatch,
+    .converted,
+    .convertedHatch,
+    .peel {
+      opacity: 0;
+    }
+    .stage[data-drawn] .band,
+    .stage[data-drawn] .bandHatch {
+      animation: show 0.9s ease forwards;
+    }
+    .stage[data-drawn] .peel {
+      animation: show 0.9s ease 0.35s forwards;
+    }
+    .stage[data-drawn] .converted {
+      animation: show 0.9s ease 0.6s forwards;
+    }
+    .stage[data-drawn] .convertedHatch {
+      animation: show-hatch 0.9s ease 0.6s forwards;
+    }
+  }
+
+  .grain,
+  .gates {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .grain {
+      opacity: 0;
+    }
+    .stage[data-drawn] .grain {
+      animation: show 1.2s ease 0.4s forwards;
+    }
+  }
+
+  .steps {
+    position: absolute;
+    inset: 0 0 auto;
+    pointer-events: none;
+  }
+  .step {
+    position: absolute;
+    top: 0;
+    left: var(--x);
+    display: grid;
+    gap: 6px;
+    width: var(--w);
+    padding: 26px 0 0 1px;
+    @variant max-sm {
+      gap: 4px;
+      padding-top: 16px;
+    }
+  }
+  .stepName {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    overflow: hidden;
+    font-size: 14px;
+    line-height: 18px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--color-muted);
+    @variant max-sm {
+      gap: 5px;
+      font-size: 12px;
+      line-height: 16px;
+    }
+  }
+  .stepIcon {
+    flex: none;
+    width: 14px;
+    height: 14px;
+    opacity: 0.8;
+    @variant max-sm {
+      display: none;
+    }
+  }
+  .stepCount {
+    font-size: 24px;
+    line-height: 28px;
+    font-weight: 500;
+    letter-spacing: -0.6px;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-fg);
+    @variant max-sm {
+      font-size: 18px;
+      line-height: 22px;
+      letter-spacing: -0.3px;
+    }
+  }
+
+  .drops {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .drop {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    translate: -50% 6px;
+    font-size: 12.5px;
+    font-variant-numeric: tabular-nums;
+    line-height: 16px;
+    white-space: nowrap;
+    color: var(--color-muted);
+    @variant max-sm {
+      font-size: 11px;
+    }
+  }
+  .drop b {
+    font-weight: 500;
+    color: --alpha(var(--color-fg) / 72%);
+  }
+  .drop[data-worst] b {
+    color: #f08a98;
+  }
+  .rate {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    translate: -100% 0;
+    font-size: 13px;
+    line-height: 18px;
+    white-space: nowrap;
+    color: var(--color-muted);
+    @variant max-sm {
+      font-size: 12px;
+    }
+  }
+  .rate b {
+    font-weight: 500;
+    color: var(--color-fg);
+  }
+}
+
+@keyframes show {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes show-hatch {
+  to {
+    opacity: 0.6;
+  }
+}

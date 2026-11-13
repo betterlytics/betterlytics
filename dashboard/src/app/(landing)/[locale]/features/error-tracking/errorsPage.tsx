@@ -133,7 +133,7 @@ export function ErrorsPage() {
       <RelatedSection
         lede={t('related.lede')}
         items={[
-          { key: 'analytics', icon: <MousePointerClick className='size-4' />, href: LINKS.docs, docs: true },
+          { key: 'analytics', icon: <MousePointerClick className='size-4' />, href: '/features/web-analytics' },
           { key: 'replay', icon: <PlayCircle className='size-4' />, href: '/features/session-replay' },
           {
             key: 'vitals',

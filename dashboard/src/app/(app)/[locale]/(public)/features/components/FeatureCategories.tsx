@@ -47,6 +47,7 @@ import {
 
 import { MCPIcon } from '@/components/icons';
 
+const ANALYTICS = '/features/web-analytics';
 const UPTIME = '/features/uptime-monitoring';
 const REPLAY = '/features/session-replay';
 const ERRORS = '/features/error-tracking';
@@ -55,17 +56,17 @@ const CATEGORIES = [
   {
     id: 'coreAnalytics',
     features: [
-      { id: 'pageViews', icon: Eye },
-      { id: 'visitors', icon: Users },
-      { id: 'bounceRate', icon: TrendingDown },
-      { id: 'trafficSources', icon: ArrowRightLeft },
-      { id: 'location', icon: Globe },
-      { id: 'devices', icon: Smartphone },
+      { id: 'pageViews', icon: Eye, href: ANALYTICS },
+      { id: 'visitors', icon: Users, href: ANALYTICS },
+      { id: 'bounceRate', icon: TrendingDown, href: ANALYTICS },
+      { id: 'trafficSources', icon: ArrowRightLeft, href: ANALYTICS },
+      { id: 'location', icon: Globe, href: ANALYTICS },
+      { id: 'devices', icon: Smartphone, href: ANALYTICS },
       { id: 'languages', icon: Languages },
-      { id: 'filtering', icon: Filter },
-      { id: 'realtimeData', icon: Activity },
-      { id: 'customEvents', icon: MousePointerClick },
-      { id: 'utmTracking', icon: Target },
+      { id: 'filtering', icon: Filter, href: ANALYTICS },
+      { id: 'realtimeData', icon: Activity, href: ANALYTICS },
+      { id: 'customEvents', icon: MousePointerClick, href: ANALYTICS },
+      { id: 'utmTracking', icon: Target, href: ANALYTICS },
       { id: 'linkTracking', icon: Link2 },
       { id: 'globalProperties', icon: Tag },
     ],
@@ -75,10 +76,10 @@ const CATEGORIES = [
     features: [
       { id: 'sessionReplay', icon: Video, href: REPLAY },
       { id: 'errorTracking', icon: Bug, href: ERRORS },
-      { id: 'userJourneys', icon: GitBranch },
-      { id: 'funnels', icon: TrendingUp },
-      { id: 'annotations', icon: StickyNote },
-      { id: 'timePeriodComparison', icon: BarChart3 },
+      { id: 'userJourneys', icon: GitBranch, href: ANALYTICS },
+      { id: 'funnels', icon: TrendingUp, href: ANALYTICS },
+      { id: 'annotations', icon: StickyNote, href: ANALYTICS },
+      { id: 'timePeriodComparison', icon: BarChart3, href: ANALYTICS },
       { id: 'outboundLinks', icon: ExternalLink },
       { id: 'emailReports', icon: Send },
     ],
@@ -96,10 +97,10 @@ const CATEGORIES = [
   {
     id: 'privacyData',
     features: [
-      { id: 'cookieless', icon: Cookie },
+      { id: 'cookieless', icon: Cookie, href: ANALYTICS },
       { id: 'gdprCcpa', icon: Scale },
       { id: 'euHosting', icon: Server },
-      { id: 'anonymousByDefault', icon: UserX },
+      { id: 'anonymousByDefault', icon: UserX, href: ANALYTICS },
       { id: 'dataOwnership', icon: Database },
       { id: 'openSource', icon: Github },
     ],

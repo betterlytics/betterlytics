@@ -1487,7 +1487,8 @@
           "say": "I'll rank this week's errors.",
           "groups": "TypeError 318 sessions · ChunkLoadError 41 · RangeError 6",
           "answer": "Start with the TypeError reading 'plan'. It hit 318 sessions, more than six times the other two combined."
-        }
+        },
+        "analyticsAlt": "A terminal session: asked which traffic source brings visitors who sign up, an agent queries visitors and signups by source through the Betterlytics MCP server and finds that ChatGPT sends a ninth of the visitors Google does, but they sign up at nearly four times the rate. Then, asked which pages lost traffic after a redesign, it compares pageviews and errors and finds /pricing down 34%, hit by a TypeError shipped the same day."
       }
     },
     "feature": {
@@ -1518,6 +1519,254 @@
           "title": "Uptime monitoring",
           "body": "Checks as often as every 30 seconds, alerts where your team talks, and a status page."
         }
+      }
+    },
+    "analytics": {
+      "seo": {
+        "title": "Cookieless web analytics with funnels | Betterlytics",
+        "description": "See where visitors come from, where they drop off and why your numbers move, next to your errors and replays. No cookies, a script under 4 kB and a free plan."
+      },
+      "hero": {
+        "eyebrow": "Web analytics",
+        "title": "Know where your visitors come from, and why they leave",
+        "lede": "Sources, pages, campaigns and funnels, updated live. When a number drops, the errors and replays behind it are in the same dashboard.",
+        "primary": "Start tracking free",
+        "secondary": "Read the docs"
+      },
+      "specs": {
+        "script": {
+          "unit": "kB",
+          "label": "Light on your pages",
+          "body": "The tracker, gzipped. It loads async, so your page never waits for it."
+        },
+        "ai": {
+          "unit": "AI assistants",
+          "label": "AI answers, counted",
+          "body": "Visits from ChatGPT, Claude, Perplexity, Gemini and six more get their own AI channel."
+        },
+        "live": {
+          "unit": "s",
+          "label": "Live within seconds",
+          "body": "New visits reach your dashboard in about 10 seconds. The live view refreshes every 30 seconds."
+        },
+        "thesis": {
+          "unit": "cookies",
+          "label": "No cookie banner needed",
+          "body": "Visitors are counted with a hash that changes every day. IP addresses are used for location, then dropped."
+        }
+      },
+      "sources": {
+        "title": "See every source, *AI answers* included",
+        "lede": "Every visit is filed under a channel, from Google and Reddit to ChatGPT and Perplexity. UTM tags give each campaign its own row.",
+        "alt": "Referrers flow into the channel each one is filed under: google.com, duckduckgo.com and bing.com into Search, chatgpt.com, perplexity.ai and claude.ai into AI, reddit.com, news.ycombinator.com and x.com into Social, mail.google.com and outlook.live.com into Email, and visits without a referrer into Direct.",
+        "noReferrer": "No referrer",
+        "channels": {
+          "search": "Search",
+          "ai": "AI",
+          "social": "Social",
+          "email": "Email",
+          "direct": "Direct"
+        }
+      },
+      "funnel": {
+        "title": "See the step where visitors *drop off*",
+        "lede": "Build a funnel from pages and events, and see how many visitors make it through each step and where the rest leave.",
+        "alt": "A funnel drawn as a stream of visitors: 4,820 viewed /pricing, 2,140 clicked Start trial, 1,760 opened /signup and 690 signed up, 14.3% of those who started. At each step the visitors who left peel away, and the last step loses the most, 61%.",
+        "steps": {
+          "pricing": "/pricing",
+          "trial": "Start trial",
+          "signup": "/signup",
+          "signed": "Signed up"
+        },
+        "converted": "converted"
+      },
+      "trace": {
+        "title": "When the numbers drop, *see why*",
+        "lede": "Compare with any earlier period, mark releases on the chart, and find the error behind a drop, with a replay of a visit that hit it.",
+        "alt": "Visitors per hour who sent a signup event, today against yesterday. After a release marked Deploy v2.14 at 14:00, they fall to less than half of yesterday’s until just before 18:00. Lines from the dip lead to its cause in error tracking, a TypeError in selectPlan that fired 1,206 times since 14:02, and to a replay of a visit that hit it.",
+        "filter": "Event is <value>signup</value>",
+        "metric": "Visitors per hour",
+        "today": "Today",
+        "before": "Yesterday",
+        "annotation": "Deploy v2.14",
+        "evidence": {
+          "errors": {
+            "product": "Error tracking",
+            "finding": "TypeError in selectPlan",
+            "meta": "1,206 times since 14:02"
+          },
+          "replay": {
+            "product": "Session replay",
+            "finding": "Watch a visit that hit it",
+            "meta": "Linked from the error"
+          }
+        }
+      },
+      "privacy": {
+        "title": "Analytics without the *cookie banner*",
+        "lede": "Betterlytics counts visits without cookies or stored IP addresses, so visitors land on your page instead of a consent dialog.",
+        "alt": "On the left, cookie banners drift past: a bar at the bottom of a page, a privacy preferences dialog with toggles, a card that says We value your privacy, a cookie wall and more, each asking the visitor to accept or reject. On the right, on Betterlytics blue, the same pricing page with nothing in front of it, above three facts: no cookies, no stored IP addresses and data kept in the EU.",
+        "banner": "Behind a cookie banner",
+        "clean": "Straight to your page",
+        "banners": {
+          "bar": {
+            "body": "We use cookies to improve your experience and show you relevant ads."
+          },
+          "modal": {
+            "title": "Privacy preferences",
+            "necessary": "Strictly necessary",
+            "always": "Always active",
+            "analytics": "Analytics",
+            "marketing": "Marketing"
+          },
+          "card": {
+            "title": "We value your privacy",
+            "body": "We and our partners use cookies to personalise content and measure traffic."
+          },
+          "wall": {
+            "title": "Accept cookies to continue",
+            "body": "This site needs cookies to work properly."
+          },
+          "partners": {
+            "body": "We and our advertising partners store and access information on your device."
+          },
+          "corner": {
+            "body": "This website uses cookies."
+          }
+        },
+        "buttons": {
+          "reject": "Reject all",
+          "accept": "Accept all",
+          "save": "Save choices",
+          "customize": "Customize",
+          "continue": "Accept and continue",
+          "manage": "Manage options",
+          "agree": "Agree",
+          "ok": "OK"
+        },
+        "facts": {
+          "cookies": "No cookies",
+          "ip": "No stored IP addresses",
+          "eu": "Data kept in the EU"
+        }
+      },
+      "toolkit": {
+        "title": "Every view you’d expect, *built in*",
+        "lede": "Journeys, locations and devices fill in from the first visit. Add your own events when you need them.",
+        "items": {
+          "journeys": {
+            "title": "Journeys",
+            "body": "See the paths visitors take through your site, up to five steps deep."
+          },
+          "filters": {
+            "title": "Filter by anything",
+            "body": "Click any row to filter by it, or combine pages, sources, campaigns, locations, devices and event properties."
+          },
+          "locations": {
+            "title": "Down to the city",
+            "body": "Countries, regions and cities, looked up as each visit arrives. The IP address is never stored."
+          },
+          "devices": {
+            "title": "Devices and browsers",
+            "body": "Desktop, mobile and tablet, with the browser and operating system behind every visit, versions included."
+          },
+          "events": {
+            "title": "Your own events",
+            "body": "Send signups, purchases or any click with properties, then count them and filter by them."
+          },
+          "reports": {
+            "title": "Reports in your inbox",
+            "body": "A weekly or monthly summary of visitors, top pages and channels for up to five people. On Plus and Business."
+          }
+        },
+        "art": {
+          "filters": {
+            "country": "Country is",
+            "device": "Device type is",
+            "campaign": "UTM campaign is",
+            "add": "Add filter"
+          },
+          "devices": {
+            "desktop": "Desktop",
+            "mobile": "Mobile",
+            "tablet": "Tablet"
+          }
+        }
+      },
+      "agent": {
+        "title": "Ask your agent about *your traffic*",
+        "lede": "Traffic, funnels and journeys are in the built-in MCP, so your agent can answer with your real numbers.",
+        "lead": "From question to answer, with the numbers",
+        "body": "Ask which source brings the visitors who sign up, or which pages lost traffic after a release. Your agent queries Betterlytics and shows the numbers behind its answer.",
+        "cta": "Set up MCP"
+      },
+      "setup": {
+        "title": "Add it with *one* script tag",
+        "lede": "Paste the snippet into your site or install the npm package. Your first visits show up within seconds.",
+        "snippetLabel": "Install snippet",
+        "live": "Live",
+        "online": "visitor on your site",
+        "ago": "{minutes} min ago",
+        "nowLabel": "Now",
+        "cta": "Read the setup guide"
+      },
+      "faq": {
+        "title": "Frequently asked questions",
+        "items": {
+          "what": {
+            "q": "What is web analytics?",
+            "a": "Web analytics counts the visits to your website and shows where they came from, which pages they viewed and what they did there. Betterlytics does it with a script under 4 kB and no cookies, and keeps the numbers next to your errors, replays and uptime."
+          },
+          "free": {
+            "q": "Is Betterlytics free?",
+            "a": "Yes. The <link>free plan</link> includes 10,000 events a month for one site and a year of history, with funnels, journeys and the rest of the analytics. Paid plans add events, sites, team members and email reports."
+          },
+          "cookies": {
+            "q": "Do I need a cookie banner for Betterlytics?",
+            "a": "Betterlytics sets no cookies and stores nothing in your visitors’ browsers to count them, so there is no tracking cookie to ask consent for. Whether your site needs a banner also depends on the other tools you run."
+          },
+          "unique": {
+            "q": "How do you count unique visitors without cookies?",
+            "a": "Each visit gets an ID made by hashing a secret that changes every day with a shortened IP address, the browser, OS and device type, and your site’s domain. Old secrets are deleted, so an ID can’t be traced back to anyone. The flip side is that someone who returns the next day counts as a new visitor."
+          },
+          "gdpr": {
+            "q": "Is Betterlytics GDPR compliant?",
+            "a": "It is built for it. Betterlytics sets no cookies, never stores IP addresses and keeps your analytics data in the EU. Our <link>data processing agreement</link> covers the rest."
+          },
+          "ai": {
+            "q": "Can I see traffic from ChatGPT and other AI assistants?",
+            "a": "Yes. Visits from ChatGPT, Claude, Perplexity, Gemini, Copilot and other assistants get their own AI channel, as long as the assistant passes on where the visitor came from."
+          },
+          "events": {
+            "q": "Can I track signups and purchases?",
+            "a": "Yes. Send any action as a custom event with its own properties, then count it, filter by it and use it as a funnel step."
+          },
+          "spa": {
+            "q": "Does it work with single-page apps?",
+            "a": "Yes. The script follows route changes in React, Vue, Next.js and any other app that uses the History API, and counts each new path as a pageview. Changes to only the query string or the #hash are not counted."
+          },
+          "bots": {
+            "q": "Are bots counted?",
+            "a": "No. Bots that identify themselves, headless browsers and automation tools are dropped before anything is stored, so they never reach your charts or your bill."
+          },
+          "retention": {
+            "q": "How long is my data kept?",
+            "a": "Up to a year on the free plan, three years on Plus and five on Business. You can set a shorter period for each site."
+          },
+          "ga": {
+            "q": "Can I import my Google Analytics data?",
+            "a": "Not yet. There is no importer, so most teams run Betterlytics next to Google Analytics for a while before switching. Our <link>Google Analytics comparison</link> covers the other differences."
+          }
+        }
+      },
+      "related": {
+        "lede": "Web analytics is where Betterlytics starts. Everything below shares the dashboard, the login and the bill."
+      },
+      "cta": {
+        "title": "See your first visitor in a minute",
+        "lede": "Paste one script tag and open your dashboard. No credit card required.",
+        "primary": "Start tracking free",
+        "secondary": "Read the docs"
       }
     },
     "uptime": {
