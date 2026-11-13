@@ -11,25 +11,17 @@ export function useScrolledBehindTopbar(ref: RefObject<HTMLElement | null>, enab
       return;
     }
 
-    let frame = 0;
-    const update = () => {
-      frame = 0;
-      const edge = document.querySelector('[data-slot=topbar]')?.getBoundingClientRect().bottom ?? 0;
-      const { height, bottom } = element.getBoundingClientRect();
-      setBehind(height > 0 && bottom <= edge);
-    };
-    const schedule = () => {
-      frame ||= requestAnimationFrame(update);
-    };
-
-    update();
-    window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule);
-    return () => {
-      window.removeEventListener('scroll', schedule);
-      window.removeEventListener('resize', schedule);
-      cancelAnimationFrame(frame);
-    };
+    const edge = document.querySelector('[data-slot=topbar]')?.getBoundingClientRect().bottom ?? 0;
+    // The viewport below the topbar, so leaving it upwards means the element is behind the topbar
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const { height, bottom } = entry.boundingClientRect;
+        setBehind(!entry.isIntersecting && height > 0 && bottom <= (entry.rootBounds?.top ?? edge));
+      },
+      { rootMargin: `-${edge}px 0px 0px 0px` },
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
   }, [ref, enabled]);
 
   return behind;
