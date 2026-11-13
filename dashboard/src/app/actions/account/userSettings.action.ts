@@ -11,6 +11,7 @@ import * as UserSettingsService from '@/services/account/userSettings.service';
 import * as UserRepository from '@/repositories/postgres/user.repository';
 import { countUserSessions, invalidateOtherUserSessions } from '@/services/session.service';
 import { UserException } from '@/lib/exceptions';
+import { revalidateReleasedStatusPages } from '@/lib/statusPageRevalidation';
 import type { User } from '@/entities/auth/session.entities';
 import { setLocaleCookie } from '@/constants/cookies';
 import { Theme, AvatarMode } from '@prisma/client';
@@ -64,7 +65,7 @@ export const getAccountDeletionBlockerAction = withUserAuth(
 );
 
 export const deleteUserAccountAction = withUserAuth(async (user: User): Promise<void> => {
-  return await UserSettingsService.deleteUser(user.id);
+  revalidateReleasedStatusPages(await UserSettingsService.deleteUser(user.id));
 });
 
 export const updateUserNameAction = withUserAuth(

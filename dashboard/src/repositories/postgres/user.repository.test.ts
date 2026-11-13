@@ -36,6 +36,9 @@ const prismaMock = vi.hoisted(() => {
     dashboardInvitation: {
       updateMany: vi.fn(),
     },
+    statusPage: {
+      updateManyAndReturn: vi.fn(),
+    },
     account: {
       findFirst: vi.fn(),
       findMany: vi.fn(),
@@ -209,6 +212,7 @@ describe('deleteUserAccount', () => {
 
   beforeEach(() => {
     prismaMock.userDashboard.findMany.mockResolvedValue([]);
+    prismaMock.statusPage.updateManyAndReturn.mockResolvedValue([]);
   });
 
   it('runs the full cleanup inside a single locked transaction', async () => {
@@ -287,12 +291,26 @@ describe('deleteUserAccount', () => {
     await deleteUserAccount('user-1', deleteOwned);
 
     expect(prismaMock.dashboard.updateMany).toHaveBeenCalledWith({
-      where: { id: { in: ['dash-1'] } },
+      where: { id: { in: ['dash-1'] }, deletedAt: null },
       data: { deletedAt: expect.any(Date) },
     });
     expect(prismaMock.dashboardInvitation.updateMany).toHaveBeenCalledWith({
       where: { dashboardId: { in: ['dash-1'] }, status: 'pending' },
       data: { status: 'cancelled' },
+    });
+  });
+
+  it("releases the deleted dashboards' live status pages with the dashboards' deletion time", async () => {
+    prismaMock.userDashboard.findMany.mockResolvedValue([{ dashboardId: 'dash-1' }, { dashboardId: 'dash-2' }]);
+    prismaMock.statusPage.updateManyAndReturn.mockResolvedValue([{ slug: 'acme' }]);
+
+    expect(await deleteUserAccount('user-1', deleteOwned)).toEqual({ outcome: null, releasedSlugs: ['acme'] });
+
+    const dashboardDeletedAt = prismaMock.dashboard.updateMany.mock.calls[0][0].data.deletedAt;
+    expect(prismaMock.statusPage.updateManyAndReturn).toHaveBeenCalledWith({
+      where: { dashboardId: { in: ['dash-1', 'dash-2'] }, deletedAt: null },
+      data: { deletedAt: dashboardDeletedAt },
+      select: { slug: true },
     });
   });
 
@@ -307,8 +325,9 @@ describe('deleteUserAccount', () => {
       removedById: 'user-1',
     });
 
-    expect(outcome).toBeNull();
+    expect(outcome).toEqual({ outcome: null, releasedSlugs: [] });
     expect(prismaMock.dashboard.updateMany).not.toHaveBeenCalled();
+    expect(prismaMock.statusPage.updateManyAndReturn).not.toHaveBeenCalled();
     expect(prismaMock.userDashboard.findFirst).toHaveBeenCalledWith({
       where: { userId: 'user-2', dashboardId: 'dash-1', deletedAt: null },
       select: { id: true },
@@ -346,7 +365,7 @@ describe('deleteUserAccount', () => {
       removedById: 'user-1',
     });
 
-    expect(outcome).toBe('invalid_recipient');
+    expect(outcome).toEqual({ outcome: 'invalid_recipient', releasedSlugs: [] });
     expect(prismaMock.user.update).not.toHaveBeenCalled();
     expect(prismaMock.userDashboard.create).not.toHaveBeenCalled();
     expect(prismaMock.userDashboard.updateMany).not.toHaveBeenCalled();
@@ -356,7 +375,10 @@ describe('deleteUserAccount', () => {
     prismaMock.user.findUnique.mockResolvedValue(enabledAdmin);
     mockCounts(1, 2);
 
-    expect(await deleteUserAccount('user-1', { ...deleteOwned, guard: true })).toBe('last_admin');
+    expect(await deleteUserAccount('user-1', { ...deleteOwned, guard: true })).toEqual({
+      outcome: 'last_admin',
+      releasedSlugs: [],
+    });
     expect(prismaMock.user.update).not.toHaveBeenCalled();
     expect(prismaMock.userDashboard.updateMany).not.toHaveBeenCalled();
     expect(prismaMock.dashboard.updateMany).not.toHaveBeenCalled();

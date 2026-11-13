@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
+  deleteDashboard,
   findAllUserDashboards,
   findDashboardMembers,
   findUserDashboardOrNull,
@@ -15,6 +16,10 @@ const prismaMock = vi.hoisted(() => ({
     update: vi.fn(),
     updateMany: vi.fn(),
   },
+  dashboard: { updateMany: vi.fn() },
+  statusPage: { updateManyAndReturn: vi.fn() },
+  dashboardInvitation: { updateMany: vi.fn() },
+  $transaction: vi.fn(),
 }));
 
 vi.mock('@/lib/postgres', () => ({ default: prismaMock }));
@@ -35,6 +40,7 @@ const memberRow = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  prismaMock.$transaction.mockImplementation(async (fn: (tx: typeof prismaMock) => unknown) => fn(prismaMock));
 });
 
 describe('removeMember', () => {
@@ -107,5 +113,43 @@ describe('membership reads skip ended memberships', () => {
         },
       }),
     );
+  });
+});
+
+describe('deleteDashboard', () => {
+  it('soft-deletes the dashboard and releases its live status pages with the same timestamp', async () => {
+    prismaMock.statusPage.updateManyAndReturn.mockResolvedValue([{ slug: 'acme' }]);
+
+    expect(await deleteDashboard('d1')).toEqual(['acme']);
+
+    expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+    const { deletedAt } = prismaMock.dashboard.updateMany.mock.calls[0][0].data;
+    expect(prismaMock.dashboard.updateMany).toHaveBeenCalledWith({
+      where: { id: { in: ['d1'] }, deletedAt: null },
+      data: { deletedAt },
+    });
+    expect(deletedAt).toBeInstanceOf(Date);
+    expect(prismaMock.statusPage.updateManyAndReturn).toHaveBeenCalledWith({
+      where: { dashboardId: { in: ['d1'] }, deletedAt: null },
+      data: { deletedAt },
+      select: { slug: true },
+    });
+  });
+
+  it('cancels the pending invitations of the deleted dashboard', async () => {
+    prismaMock.statusPage.updateManyAndReturn.mockResolvedValue([]);
+
+    await deleteDashboard('d1');
+
+    expect(prismaMock.dashboardInvitation.updateMany).toHaveBeenCalledWith({
+      where: { dashboardId: { in: ['d1'] }, status: 'pending' },
+      data: { status: 'cancelled' },
+    });
+  });
+
+  it('wraps failures', async () => {
+    prismaMock.dashboard.updateMany.mockRejectedValue(new Error('boom'));
+
+    await expect(deleteDashboard('d1')).rejects.toThrow('Failed to delete dashboard d1.');
   });
 });
