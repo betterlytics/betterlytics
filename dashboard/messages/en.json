@@ -2216,8 +2216,8 @@
         "alt": "On the left, things your visitors think but never send drift past: a page still loading, a tap on Pay that did nothing, a layout that moved under someone's finger, a blank screen and a menu that won't open. On the right, Betterlytics' five gauges for the checkout page: the main content shows after 3.3 seconds, which is fair; taps get a response after 520 milliseconds, which is poor; layout shift is 0.05, which is good; the first content shows after 2 seconds, which is fair; and the server responds in 640 milliseconds, which is good."
       },
       "field": {
-        "title": "Your site has a different speed *in every country*",
-        "lede": "Visitors load your pages on their own phones and networks. Betterlytics shows who waits longest, by country, page, device and browser.",
+        "title": "See who waits *the longest*",
+        "lede": "Visitors load your pages on their own phones and networks. Betterlytics splits those loads by country, page, device and browser.",
         "levels": {
           "good": "Good",
           "fair": "Fair",

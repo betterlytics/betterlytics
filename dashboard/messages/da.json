@@ -2216,8 +2216,8 @@
         "alt": "Til venstre driver tanker forbi, som dine besøgende har, men aldrig sender: en side, der stadig indlæses, et tryk på Betal, der ikke gjorde noget, et layout, der flyttede sig under nogens finger, en tom skærm og en menu, der ikke vil åbne. Til højre Betterlytics’ fem målere for betalingssiden: hovedindholdet vises efter 3,3 sekunder, hvilket er middel; tryk får en reaktion efter 520 millisekunder, hvilket er dårligt; layoutskiftet er 0,05, hvilket er godt; det første indhold vises efter 2 sekunder, hvilket er middel; og serveren svarer på 640 millisekunder, hvilket er godt."
       },
       "field": {
-        "title": "Dit website er ikke lige hurtigt *i alle lande*",
-        "lede": "Besøgende indlæser dine sider på deres egne telefoner og netværk. Betterlytics viser, hvem der venter længst, opdelt efter land, side, enhed og browser.",
+        "title": "Se hvem der venter *længst*",
+        "lede": "Besøgende indlæser dine sider på deres egne telefoner og netværk. Betterlytics opdeler indlæsningerne efter land, side, enhed og browser.",
         "levels": {
           "good": "God",
           "fair": "Middel",

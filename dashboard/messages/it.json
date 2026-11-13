@@ -2216,8 +2216,8 @@
         "alt": "A sinistra scorrono pensieri che i tuoi visitatori hanno ma non inviano mai: una pagina ancora in caricamento, un tocco su Paga che non ha fatto nulla, un layout che si è spostato sotto il dito di qualcuno, uno schermo vuoto e un menu che non si apre. A destra, i cinque indicatori di Betterlytics per la pagina di checkout: il contenuto principale compare dopo 3,3 secondi, un valore discreto; i tocchi ricevono risposta dopo 520 millisecondi, un valore scarso; lo spostamento del layout è 0,05, un valore buono; il primo contenuto compare dopo 2 secondi, un valore discreto; e il server risponde in 640 millisecondi, un valore buono."
       },
       "field": {
-        "title": "Il tuo sito ha una velocità diversa *in ogni paese*",
-        "lede": "I visitatori caricano le tue pagine sui loro telefoni e sulle loro reti. Betterlytics ti mostra chi aspetta di più, per paese, pagina, dispositivo e browser.",
+        "title": "Scopri chi aspetta *di più*",
+        "lede": "I visitatori caricano le tue pagine sui loro telefoni e sulle loro reti. Betterlytics suddivide i caricamenti per paese, pagina, dispositivo e browser.",
         "levels": {
           "good": "Buono",
           "fair": "Discreto",
