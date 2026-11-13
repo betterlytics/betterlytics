@@ -24,7 +24,7 @@ vi.mock('@/lib/env/shared.env', () => ({
   sharedEmailEnv: { publicBaseUrl: 'https://app.example.com', isCloud: true },
 }));
 
-const PAGE = { id: 'sp1', dashboardId: 'd1', slug: 'acme', isPublished: true, isDashboardDeleted: false };
+const PAGE = { id: 'sp1', dashboardId: 'd1', slug: 'acme', isPublished: true };
 
 describe('getTlsAuthorization', () => {
   beforeEach(() => {
@@ -37,8 +37,8 @@ describe('getTlsAuthorization', () => {
     expect(await getTlsAuthorization('status.acme.com')).toBe('authorized');
   });
 
-  it('refuses a deleted dashboard the same way as an unpublished page', async () => {
-    findStatusPageByCustomDomain.mockResolvedValueOnce({ ...PAGE, isDashboardDeleted: true });
+  it('refuses an unknown domain the same way as an unpublished page', async () => {
+    findStatusPageByCustomDomain.mockResolvedValueOnce(null);
     expect(await getTlsAuthorization('status.acme.com')).toBe('unauthorized');
 
     findStatusPageByCustomDomain.mockResolvedValueOnce({ ...PAGE, isPublished: false });
