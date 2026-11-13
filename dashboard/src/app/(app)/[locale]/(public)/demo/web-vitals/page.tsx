@@ -13,5 +13,5 @@ export default async function DemoWebVitalsPage({ params }: Props) {
   if (!env.IS_CLOUD || !demoId) {
     redirect(getPathname({ href: '/', locale }));
   }
-  redirect(`${getPathname({ href: `/share/${demoId}/web-vitals`, locale })}?interval=28d`);
+  redirect(`${getPathname({ href: `/share/${demoId}/web-vitals`, locale })}?interval=7d`);
 }
