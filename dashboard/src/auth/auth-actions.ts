@@ -84,8 +84,14 @@ export async function resolveDashboardContext(dashboardId: string): Promise<Auth
   return result.context;
 }
 
+export type DashboardActionOptions = {
+  // Off for views whose public demo data is static and re-dated relative to now, so they agree on the time
+  demoCache?: boolean;
+};
+
 export function withDashboardAuthContext<Args extends Array<unknown> = unknown[], Ret = unknown>(
   action: ActionRequiringAuthContext<Args, Ret>,
+  options?: DashboardActionOptions,
 ) {
   return async function (dashboardId: string, ...args: Args): Promise<Awaited<Ret>> {
     const context = await resolveDashboardContext(dashboardId);
@@ -98,7 +104,10 @@ export function withDashboardAuthContext<Args extends Array<unknown> = unknown[]
         'ba.site.id': context.siteId,
         'ba.auth.is_demo': context.isDemo,
       },
-      async () => await executeWithDemoCache(context, action, args),
+      async () =>
+        options?.demoCache === false
+          ? await action(context, ...args)
+          : await executeWithDemoCache(context, action, args),
     );
   };
 }

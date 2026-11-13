@@ -11,6 +11,7 @@ const SESSION_REPLAYS_MAX_PAGE_SIZE = 100;
 
 export const sessionReplaysRouter = createRouter({
   list: dashboardProcedure
+    .meta({ demoCache: false })
     .input(queryInput.extend({
       limit: z.number().int().min(1).max(SESSION_REPLAYS_MAX_PAGE_SIZE).default(SESSION_REPLAYS_DEFAULT_PAGE_SIZE),
       cursor: z.number().nullish(),
