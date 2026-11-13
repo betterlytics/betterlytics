@@ -30,3 +30,19 @@ describe('formatPrimaryRangeLabel in a zone', () => {
     expect(label).toBe('Sep 20 - Sep 22');
   });
 });
+
+describe('formatPrimaryRangeLabel with the year', () => {
+  it('adds the year to a sub-day range', () => {
+    const label = formatPrimaryRangeLabel({
+      interval: 'custom',
+      offset: 0,
+      startDate: new Date('2025-10-23T05:00:00Z'), // Oct 23 14:00 in Tokyo
+      endDate: new Date('2025-10-23T08:59:59Z'), // Oct 23 17:59:59 in Tokyo
+      locale: 'en',
+      timeZone: TZ,
+      showYear: true,
+    });
+
+    expect(label).toBe('Oct 23, 2025 14:00 - 18:00');
+  });
+});
