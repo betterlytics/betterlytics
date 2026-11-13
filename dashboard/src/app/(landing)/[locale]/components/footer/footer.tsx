@@ -113,6 +113,11 @@ export function LandingFooter() {
               </AppLink>
             </li>
             <li>
+              <AppLink className={LINK} href='/features/core-web-vitals'>
+                {t('product.vitals')}
+              </AppLink>
+            </li>
+            <li>
               <AppLink className={LINK} href='/pricing'>
                 {t('product.pricing')}
               </AppLink>

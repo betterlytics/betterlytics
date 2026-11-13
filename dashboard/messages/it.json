@@ -1349,6 +1349,7 @@
         "uptime": "Monitoraggio uptime",
         "replay": "Session replay",
         "errors": "Tracciamento errori",
+        "vitals": "Core Web Vitals",
         "pricing": "Prezzi"
       },
       "company": {
@@ -2210,6 +2211,218 @@
         "lede": "Aggiungi lo script di Betterlytics, o un attributo se lo hai già, e gli errori iniziano ad arrivare nella tua dashboard. Gratis in tutti i piani.",
         "primary": "Inizia a tracciare gli errori gratis",
         "secondary": "Leggi la documentazione sugli errori"
+      }
+    },
+    "vitals": {
+      "seo": {
+        "title": "Monitoraggio Core Web Vitals con utenti reali | Betterlytics",
+        "description": "Real user monitoring gratuito per i Core Web Vitals: LCP, INP, CLS, FCP e TTFB dai browser dei tuoi visitatori, per pagina, dispositivo, paese e browser."
+      },
+      "hero": {
+        "eyebrow": "Core Web Vitals",
+        "title": "Scopri quanto è veloce il tuo sito per i visitatori reali, e dove rallenta",
+        "lede": "Betterlytics misura LCP, INP, CLS, FCP e TTFB nei browser dei tuoi visitatori e ti mostra quali pagine, dispositivi e paesi sono lenti. È gratis in tutti i piani e si attiva con un solo attributo.",
+        "primary": "Inizia a misurare gratis",
+        "secondary": "Leggi la documentazione"
+      },
+      "specs": {
+        "metrics": {
+          "unit": "metriche",
+          "label": "Misurate come fa Google",
+          "body": "I tre Core Web Vitals, LCP, INP e CLS, più FCP e TTFB."
+        },
+        "traffic": {
+          "unit": "visita",
+          "label": "Nessun minimo di traffico",
+          "body": "Tutte le pagine compaiono dalla prima visita, anche quelle con poco traffico."
+        },
+        "weight": {
+          "unit": "KB",
+          "label": "Non appesantisce le pagine",
+          "body": "Lo script di misurazione, compresso con gzip. Si carica senza bloccare la pagina."
+        },
+        "thesis": {
+          "unit": "giorni di ritardo",
+          "label": "Correzioni visibili in giornata",
+          "body": "I report di Google coprono gli ultimi 28 giorni, quindi lì una correzione si vede solo dopo settimane. Betterlytics la mostra man mano che arrivano nuovi caricamenti di pagina."
+        }
+      },
+      "blindSpot": {
+        "title": "Dai tuoi server le pagine lente *sembrano a posto*",
+        "lede": "I controlli sul server sono tutti verdi, ma l’attesa avviene nei browser dei tuoi visitatori. Betterlytics la misura lì, a ogni caricamento di pagina.",
+        "feel": "Cosa provano i tuoi visitatori",
+        "measure": "Cosa misura Betterlytics",
+        "thoughts": {
+          "loading": "Ancora in caricamento…",
+          "photos": "Dove sono le foto?",
+          "pay": "Ho premuto Paga. Non è successo niente.",
+          "typing": "La ricerca va a scatti mentre scrivo.",
+          "jumped": "Si è spostato tutto e ho sbagliato tasto.",
+          "blank": "Ma questa pagina funziona?",
+          "menu": "Perché il menu non si apre?",
+          "elsewhere": "Lo cerco da un’altra parte.",
+          "moving": "La pagina continua a saltare.",
+          "come": "Dai, carica!"
+        },
+        "vitals": {
+          "LCP": "Contenuto chiave",
+          "INP": "Risposta ai tocchi",
+          "CLS": "Salti del layout",
+          "FCP": "Primo contenuto",
+          "TTFB": "Risposta del server"
+        },
+        "source": "<link>Google ha rilevato</link> che la probabilità di rimbalzo aumenta del 32% quando il tempo di caricamento passa da 1 a 3 secondi.",
+        "alt": "A sinistra scorrono pensieri che i tuoi visitatori hanno ma non inviano mai: una pagina ancora in caricamento, un tocco su Paga che non ha fatto nulla, un layout che si è spostato sotto il dito di qualcuno, uno schermo vuoto e un menu che non si apre. A destra, i cinque indicatori di Betterlytics per la pagina di checkout: il contenuto principale compare dopo 3,3 secondi, un valore discreto; i tocchi ricevono risposta dopo 520 millisecondi, un valore scarso; lo spostamento del layout è 0,05, un valore buono; il primo contenuto compare dopo 2 secondi, un valore discreto; e il server risponde in 640 millisecondi, un valore buono."
+      },
+      "field": {
+        "title": "Scopri chi aspetta *di più*",
+        "lede": "I visitatori caricano le tue pagine sui loro telefoni e sulle loro reti. Betterlytics suddivide i caricamenti per paese, pagina, dispositivo e browser.",
+        "levels": {
+          "good": "Buono",
+          "fair": "Discreto",
+          "poor": "Scarso"
+        },
+        "split": "Suddividi per",
+        "tabs": {
+          "countries": "Paesi",
+          "pages": "Pagine",
+          "devices": "Dispositivi",
+          "browsers": "Browser",
+          "os": "OS"
+        },
+        "columns": {
+          "countries": "Paese",
+          "pages": "Pagina",
+          "devices": "Dispositivo",
+          "browsers": "Browser",
+          "os": "Sistema operativo",
+          "lcp": "LCP"
+        },
+        "devices": {
+          "desktop": "Desktop",
+          "mobile": "Mobile",
+          "tablet": "Tablet"
+        },
+        "visitors": "Tutti i visitatori"
+      },
+      "anatomy": {
+        "title": "Cinque numeri da *un solo caricamento*",
+        "lede": "Ogni metrica misura un momento diverso, così distingui un server lento da un’immagine pesante o da un pulsante che risponde in ritardo. Scegline una per trovare il suo fotogramma.",
+        "alt": "Una sequenza di fotogrammi di una pagina che si carica su un telefono, un fotogramma ogni mezzo secondo per {end}. Il primo byte arriva dopo {ttfb}, ma lo schermo resta vuoto finché il titolo non compare dopo {fcp}. Seguono il resto del testo e il pulsante, con uno spazio riservato all’immagine, e l’immagine, l’elemento più grande, compare dopo {lcp}. Dopo {cls} un banner spinge giù tutto, uno spostamento del layout di {shift}. Il visitatore tocca il pulsante dopo {inp} e la pagina mostra la risposta {response} più tardi. Scegli una metrica per trovare il suo fotogramma.",
+        "callouts": {
+          "shift": "Salto",
+          "tap": "Tocco"
+        },
+        "metrics": {
+          "TTFB": {
+            "name": "Time to First Byte",
+            "body": "Quanto ci mette il server a iniziare a inviare la pagina."
+          },
+          "FCP": {
+            "name": "First Contentful Paint",
+            "body": "Quando compaiono il primo testo o la prima immagine."
+          },
+          "LCP": {
+            "name": "Largest Contentful Paint",
+            "body": "Quando compare l’immagine o il blocco di testo più grande. Di solito è il momento in cui la pagina sembra pronta."
+          },
+          "CLS": {
+            "name": "Cumulative Layout Shift",
+            "body": "Un punteggio che indica quanto salta il layout mentre la pagina si carica."
+          },
+          "INP": {
+            "name": "Interaction to Next Paint",
+            "body": "Quanto ci mette la pagina a rispondere sullo schermo quando qualcuno fa clic, tocca o digita. Contano le risposte più lente."
+          }
+        }
+      },
+      "priority": {
+        "title": "Scopri quale pagina *sistemare prima*",
+        "lede": "Le pagine sono ordinate per punteggio e traffico, così una pagina lenta che vedono in pochi non salta la fila.",
+        "axisX": "Quota di caricamenti di pagina",
+        "axisY": "Punteggio di prestazioni",
+        "highest": "Massima opportunità",
+        "list": "Da sistemare prima",
+        "share": "{share} dei caricamenti",
+        "score": "Punteggio",
+        "opportunity": "Opportunità",
+        "grades": {
+          "great": "Ottimo",
+          "okay": "Discreto",
+          "poor": "Scarso"
+        },
+        "recipe": {
+          "title": "Punteggio e opportunità",
+          "body": "I pesi qui sopra combinano le metriche in un punteggio da 0 a 100. L’opportunità indica quale correzione aiuta più visitatori."
+        },
+        "cta": "Come funzionano i punteggi"
+      },
+      "setup": {
+        "title": "Attivalo con *un solo* attributo",
+        "lede": "I Web Vitals sono già nello script di Betterlytics. Aggiungi un attributo al tag e i prossimi caricamenti di pagina inizieranno a inviare dati.",
+        "label": "Aggiungilo al tag script di Betterlytics",
+        "npm": "Usi il <link>pacchetto npm</link>? Passa <code>enableWebVitals: true</code> a <code>init()</code>.",
+        "copy": "Copia l’attributo",
+        "copied": "Copiato",
+        "cta": "Leggi la guida alla configurazione"
+      },
+      "related": {
+        "lede": "I Core Web Vitals sono solo una parte di Betterlytics. Tutto ciò che trovi qui sotto condivide la dashboard, il login e la fattura."
+      },
+      "faq": {
+        "title": "Domande frequenti",
+        "items": {
+          "what": {
+            "q": "Cosa sono i Core Web Vitals?",
+            "a": "I Core Web Vitals sono le metriche con cui Google descrive come si percepisce una pagina mentre si carica e si usa: Largest Contentful Paint per il caricamento, Interaction to Next Paint per la reattività e Cumulative Layout Shift per la stabilità visiva. Betterlytics registra anche First Contentful Paint e Time to First Byte, che aiutano a capire un LCP lento."
+          },
+          "ranking": {
+            "q": "Mi aiuta a posizionarmi meglio su Google?",
+            "a": "Può aiutarti, perché ti mostra cosa sistemare. Google usa i Core Web Vitals come uno dei suoi segnali di ranking, e Betterlytics li valuta allo stesso modo, al 75° percentile, così vedi quali pagine restano sotto la soglia. Sistemale e vedrai il cambiamento in Betterlytics in giornata, settimane prima che compaia nei dati di Google sugli ultimi 28 giorni."
+          },
+          "free": {
+            "q": "Il monitoraggio dei Core Web Vitals è gratuito?",
+            "a": "Sì. È incluso in tutti i piani, compreso quello gratuito. Ogni caricamento di pagina misurato invia tutte e cinque le metriche in un solo evento, che conta nel tuo limite mensile come una visualizzazione di pagina."
+          },
+          "lab": {
+            "q": "In cosa è diverso da Lighthouse o PageSpeed Insights?",
+            "a": "Lighthouse è un test di laboratorio: carica la tua pagina una volta, su un dispositivo e una rete simulati. Betterlytics è uno strumento di real user monitoring: misura cosa hanno trovato davvero i tuoi visitatori, sui loro dispositivi. PageSpeed Insights aggiunge i dati sul campo del Chrome UX Report, che conta solo Chrome su desktop e Android, copre gli ultimi 28 giorni e compare solo per pagine e siti con abbastanza traffico. Usa gli strumenti di laboratorio per il debug di una pagina e Betterlytics per vedere cosa hanno vissuto i tuoi visitatori."
+          },
+          "campaigns": {
+            "q": "Posso vedere i Web Vitals di una sola campagna o fonte di traffico?",
+            "a": "Sì. I Web Vitals funzionano con i filtri della tua dashboard, così puoi vedere quanto velocemente si caricano le pagine per i visitatori che arrivano da una campagna o da un sito di riferimento. È un modo rapido per controllare le pagine su cui portano i tuoi annunci."
+          },
+          "browsers": {
+            "q": "Quali browser inviano i Web Vitals?",
+            "a": "Tutti i browser moderni. Chrome, Edge, Opera, Samsung Internet e gli altri browser basati su Chromium inviano tutte e cinque le metriche. Le versioni recenti di Safari e Firefox, su desktop e mobile, le inviano tutte tranne CLS, che solo Chromium misura. Un browser che non può misurare una metrica la salta e invia comunque le altre."
+          },
+          "speed": {
+            "q": "La misurazione rallenta il mio sito?",
+            "a": "Non in modo che i tuoi visitatori se ne accorgano. Lo script di misurazione pesa 2,6 KB compresso con gzip e si carica senza bloccare la pagina. Tutti e cinque i valori partono in un’unica piccola richiesta quando il visitatore lascia la pagina o cambia scheda."
+          },
+          "spa": {
+            "q": "Funziona con le single-page app?",
+            "a": "In parte. In una single-page app, Betterlytics misura il primo caricamento e lo attribuisce alla pagina aperta quando il visitatore se ne va. I cambi di route successivi non vengono misurati come caricamenti di pagina a sé."
+          },
+          "attribution": {
+            "q": "Può dirmi quale elemento ha rallentato una pagina?",
+            "a": "No. Betterlytics mostra quanto è stata lenta ogni pagina e per chi, con i dati suddivisi per dispositivo, paese, browser e OS. Per scoprire quale elemento causa un LCP lento o quale script causa un INP lento, apri la pagina in Chrome DevTools o esegui Lighthouse."
+          },
+          "privacy": {
+            "q": "Usa cookie o raccoglie dati personali?",
+            "a": "No. Come il resto di Betterlytics, i Web Vitals non usano cookie. Ogni misurazione è fatta solo di cinque numeri più i dettagli che una visualizzazione di pagina ha già, come la pagina, il browser e il paese."
+          },
+          "dedicated": {
+            "q": "Quando conviene uno strumento dedicato alle prestazioni?",
+            "a": "Se ti serve sapere quale elemento rallenta una pagina, misurare i cambi di route lato client, ricevere avvisi, fare test di laboratorio o monitorare app mobile native, uno strumento dedicato fa più al caso tuo. Betterlytics è la scelta migliore quando vuoi la velocità accanto a traffico, errori e replay, con un solo script e una sola dashboard."
+          }
+        }
+      },
+      "cta": {
+        "title": "Misura il tuo primo caricamento reale oggi stesso",
+        "lede": "Aggiungi lo script di Betterlytics, o un attributo se lo hai già, e i caricamenti di pagina reali inizieranno ad arrivare nella tua dashboard. Gratis in tutti i piani.",
+        "primary": "Inizia a misurare gratis",
+        "secondary": "Leggi la documentazione sui Web Vitals"
       }
     }
   },

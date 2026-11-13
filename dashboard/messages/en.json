@@ -1349,6 +1349,7 @@
         "uptime": "Uptime monitoring",
         "replay": "Session replay",
         "errors": "Error tracking",
+        "vitals": "Core Web Vitals",
         "pricing": "Pricing"
       },
       "company": {
@@ -2210,6 +2211,218 @@
         "lede": "Add the Betterlytics script, or one attribute if you already have it, and errors start showing up in your dashboard. Free on every plan.",
         "primary": "Start tracking errors free",
         "secondary": "Read the error docs"
+      }
+    },
+    "vitals": {
+      "seo": {
+        "title": "Core Web Vitals monitoring from real visitors | Betterlytics",
+        "description": "Free real user monitoring for Core Web Vitals: LCP, INP, CLS, FCP and TTFB from your visitors' own browsers, split by page, device, country and browser."
+      },
+      "hero": {
+        "eyebrow": "Core Web Vitals",
+        "title": "See how fast your site is for real visitors, and where it slows down",
+        "lede": "Betterlytics measures LCP, INP, CLS, FCP and TTFB in your visitors' own browsers and shows which pages, devices and countries are slow. It's free on every plan and turns on with one attribute.",
+        "primary": "Start measuring free",
+        "secondary": "Read the docs"
+      },
+      "specs": {
+        "metrics": {
+          "unit": "metrics",
+          "label": "Measured the way Google does",
+          "body": "The three Core Web Vitals, LCP, INP and CLS, plus FCP and TTFB."
+        },
+        "traffic": {
+          "unit": "visit",
+          "label": "No traffic minimum",
+          "body": "Every page shows up from its first visit, even the quiet ones."
+        },
+        "weight": {
+          "unit": "KB",
+          "label": "Light on your pages",
+          "body": "The measuring script, gzipped. It loads without blocking your page."
+        },
+        "thesis": {
+          "unit": "days behind",
+          "label": "See a fix the same day",
+          "body": "Google's reports cover the last 28 days, so a fix takes weeks to show there. Betterlytics shows it as new page loads come in."
+        }
+      },
+      "blindSpot": {
+        "title": "Slow pages *look fine* from your servers",
+        "lede": "Your server checks come back green, but the waiting happens in your visitors' browsers. Betterlytics measures it there, on every page load.",
+        "feel": "What your visitors feel",
+        "measure": "What Betterlytics measures",
+        "thoughts": {
+          "loading": "Still loading…",
+          "photos": "Where are the photos?",
+          "pay": "I tapped Pay. Nothing happened.",
+          "typing": "The search box lags as I type.",
+          "jumped": "It moved and I hit the wrong button.",
+          "blank": "Is this page even working?",
+          "menu": "Why won't the menu open?",
+          "elsewhere": "I'll find it somewhere else.",
+          "moving": "The page keeps jumping around.",
+          "come": "Come on, load already."
+        },
+        "vitals": {
+          "LCP": "Main content shown",
+          "INP": "Response to taps",
+          "CLS": "Layout shifts",
+          "FCP": "First content shown",
+          "TTFB": "Server response"
+        },
+        "source": "<link>Google found</link> the chance of a bounce rises 32% as load time goes from 1 to 3 seconds.",
+        "alt": "On the left, things your visitors think but never send drift past: a page still loading, a tap on Pay that did nothing, a layout that moved under someone's finger, a blank screen and a menu that won't open. On the right, Betterlytics' five gauges for the checkout page: the main content shows after 3.3 seconds, which is fair; taps get a response after 520 milliseconds, which is poor; layout shift is 0.05, which is good; the first content shows after 2 seconds, which is fair; and the server responds in 640 milliseconds, which is good."
+      },
+      "field": {
+        "title": "See who waits *the longest*",
+        "lede": "Visitors load your pages on their own phones and networks. Betterlytics splits those loads by country, page, device and browser.",
+        "levels": {
+          "good": "Good",
+          "fair": "Fair",
+          "poor": "Poor"
+        },
+        "split": "Split by",
+        "tabs": {
+          "countries": "Countries",
+          "pages": "Pages",
+          "devices": "Devices",
+          "browsers": "Browsers",
+          "os": "OS"
+        },
+        "columns": {
+          "countries": "Country",
+          "pages": "Page",
+          "devices": "Device",
+          "browsers": "Browser",
+          "os": "Operating system",
+          "lcp": "LCP"
+        },
+        "devices": {
+          "desktop": "Desktop",
+          "mobile": "Mobile",
+          "tablet": "Tablet"
+        },
+        "visitors": "All visitors"
+      },
+      "anatomy": {
+        "title": "Five numbers from *one page load*",
+        "lede": "Each metric times a different moment, so you can tell a slow server from a heavy image or a laggy button. Pick one to find its frame.",
+        "alt": "A filmstrip of a page loading on a phone, one frame every half second for {end}. The first byte arrives at {ttfb}, but the screen stays empty until the heading paints at {fcp}. The rest of the text and the button follow, with a box held for the image, and the image, the largest element, paints at {lcp}. At {cls} a banner pushes everything down, a layout shift of {shift}. The visitor taps the button at {inp}, and the page shows the response {response} later. Pick a metric to find its frame.",
+        "callouts": {
+          "shift": "Shift",
+          "tap": "Tap"
+        },
+        "metrics": {
+          "TTFB": {
+            "name": "Time to First Byte",
+            "body": "How long the server takes to start sending the page."
+          },
+          "FCP": {
+            "name": "First Contentful Paint",
+            "body": "When the first text or image shows up."
+          },
+          "LCP": {
+            "name": "Largest Contentful Paint",
+            "body": "When the biggest image or block of text appears. That's usually when the page looks ready."
+          },
+          "CLS": {
+            "name": "Cumulative Layout Shift",
+            "body": "A score for how much the layout jumps around while things load."
+          },
+          "INP": {
+            "name": "Interaction to Next Paint",
+            "body": "How long the page takes to respond on screen when someone clicks, taps or types. The slowest responses decide it."
+          }
+        }
+      },
+      "priority": {
+        "title": "Know which page to *fix first*",
+        "lede": "Pages are ranked by score and traffic, so a slow page that few people see doesn't jump the queue.",
+        "axisX": "Share of page loads",
+        "axisY": "Performance score",
+        "highest": "Highest opportunity",
+        "list": "Fix first",
+        "share": "{share} of page loads",
+        "score": "Score",
+        "opportunity": "Opportunity",
+        "grades": {
+          "great": "Great",
+          "okay": "Okay",
+          "poor": "Poor"
+        },
+        "recipe": {
+          "title": "Score and opportunity",
+          "body": "The weights above blend the metrics into a 0–100 score. Opportunity shows which fix helps the most visitors."
+        },
+        "cta": "How scores work"
+      },
+      "setup": {
+        "title": "Turn it on with *one* attribute",
+        "lede": "Web Vitals come with the Betterlytics script. Add one attribute to the tag, and the next page loads start reporting.",
+        "label": "Add this to your Betterlytics script tag",
+        "npm": "Using the <link>npm package</link>? Pass <code>enableWebVitals: true</code> to <code>init()</code>.",
+        "copy": "Copy the attribute",
+        "copied": "Copied",
+        "cta": "Read the setup guide"
+      },
+      "related": {
+        "lede": "Core Web Vitals are one part of Betterlytics. Everything below shares the dashboard, the login and the bill."
+      },
+      "faq": {
+        "title": "Frequently asked questions",
+        "items": {
+          "what": {
+            "q": "What are Core Web Vitals?",
+            "a": "Core Web Vitals are Google's metrics for how a page feels to load and use: Largest Contentful Paint for loading, Interaction to Next Paint for responsiveness and Cumulative Layout Shift for visual stability. Betterlytics also records First Contentful Paint and Time to First Byte, which help explain a slow LCP."
+          },
+          "ranking": {
+            "q": "Will it help my Google ranking?",
+            "a": "It can, by showing you what to fix. Google uses Core Web Vitals as one of its ranking signals, and Betterlytics grades them the same way, at the 75th percentile, so you can see which pages fall short. Fix them, and you'll see the change in Betterlytics the same day, weeks before Google's 28-day data catches up."
+          },
+          "free": {
+            "q": "Is Core Web Vitals monitoring free?",
+            "a": "Yes. It's on every plan, including the free one. Each measured page load sends all five metrics as a single event, which counts toward your monthly limit like a pageview."
+          },
+          "lab": {
+            "q": "How is this different from Lighthouse or PageSpeed Insights?",
+            "a": "Lighthouse is a lab test: it loads your page once, on a simulated device and network. Betterlytics is real user monitoring: it measures what your visitors got, on their own devices. PageSpeed Insights adds field data from the Chrome UX Report, which only counts Chrome on desktop and Android, covers the last 28 days and only shows up for pages and sites with enough traffic. Use the lab tools to debug a page, and Betterlytics to see what your visitors experienced."
+          },
+          "campaigns": {
+            "q": "Can I see Web Vitals for one campaign or traffic source?",
+            "a": "Yes. Web Vitals work with your dashboard's filters, so you can see how fast your pages load for visitors from one campaign or referrer. It's a quick way to check the pages your ads send people to."
+          },
+          "browsers": {
+            "q": "Which browsers report Web Vitals?",
+            "a": "Every modern browser reports them. Chrome, Edge, Opera, Samsung Internet and other Chromium-based browsers report all five metrics. Recent versions of Safari and Firefox, on desktop and mobile, report all but CLS, which only Chromium measures. A browser that can't measure a metric skips it and still reports the rest."
+          },
+          "speed": {
+            "q": "Will measuring slow my site down?",
+            "a": "Not in a way your visitors will notice. The measuring script is 2.6 KB gzipped and loads without blocking your page. All five values go out in one small request when the visitor leaves or switches tabs."
+          },
+          "spa": {
+            "q": "Does it work with single-page apps?",
+            "a": "Partly. In a single-page app, Betterlytics measures the first load and files it under the page that's open when the visitor leaves. Route changes after that aren't measured as page loads of their own."
+          },
+          "attribution": {
+            "q": "Can it tell me which element made a page slow?",
+            "a": "No. Betterlytics shows how slow each page was, and for whom, by device, country, browser and OS. To find the element behind a slow LCP or the script behind a slow INP, open the page in Chrome DevTools or run Lighthouse on it."
+          },
+          "privacy": {
+            "q": "Does it use cookies or collect personal data?",
+            "a": "No. Like the rest of Betterlytics, Web Vitals use no cookies. Each measurement is just five numbers plus the details a pageview already has, such as the page, browser and country."
+          },
+          "dedicated": {
+            "q": "When is a dedicated performance tool the better fit?",
+            "a": "A dedicated performance tool will serve you better if you need element-level attribution, vitals for client-side route changes, alerts, lab tests or native mobile apps. Betterlytics is the better fit when you want speed next to your traffic, errors and replays, from one script and one dashboard."
+          }
+        }
+      },
+      "cta": {
+        "title": "Measure your first real page load today",
+        "lede": "Add the Betterlytics script, or one attribute if you already have it, and real page loads start showing up in your dashboard. Free on every plan.",
+        "primary": "Start measuring free",
+        "secondary": "Read the Web Vitals docs"
       }
     }
   },

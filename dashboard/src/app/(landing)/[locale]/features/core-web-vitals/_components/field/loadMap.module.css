@@ -1,0 +1,556 @@
+@reference '../../../../landing.css';
+
+/* registered so they animate; the stem reads them to keep pointing at the wandering box */
+@property --wander-x {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+@property --wander-y {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+@layer components {
+  .root {
+    container-type: inline-size;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @container (width >= 1040px) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr) 340px;
+    }
+  }
+
+  /*
+   * the key sits on the bottom edge, and the map centres in the room above it. No panel hatch behind the map: two
+   * hatches at nearly the same pitch shimmer against each other.
+   */
+  .atlas {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 28px;
+    padding: 32px 30px 14px;
+  }
+  @container (width < 600px) {
+    .atlas {
+      gap: 16px;
+      padding: 22px 0 20px;
+    }
+  }
+
+  /*
+   * the map and the loads landing on it share one box, so shares of it are places on the map. The box shows --shown
+   * columns from --left: all of them, or on phones a crop that runs edge to edge.
+   */
+  .map {
+    --left: 0;
+    --shown: var(--cols);
+    position: relative;
+    align-self: center;
+  }
+  .svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: var(--shown) / var(--rows);
+    overflow: visible;
+  }
+  .world {
+    translate: calc(var(--left) * -1px) 0;
+  }
+  @container (width < 600px) {
+    .map {
+      --left: var(--phone-from);
+      --shown: var(--phone-cols);
+    }
+    .svg {
+      overflow: hidden;
+    }
+  }
+
+  .landings {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  /* --reach is where the box's near edge rests: above the dot, or below it near the top of the map */
+  .arrival {
+    --stem: 8px;
+    --reach: calc(-1 * (var(--stem) + 5px));
+    position: absolute;
+    top: calc(var(--y) * 100%);
+    left: calc((var(--x) * var(--cols) - var(--left)) / var(--shown) * 100%);
+  }
+  .arrival[data-below] {
+    --reach: calc(var(--stem) + 5px);
+  }
+  /* the load itself, in its own level's colour, and a ring that spreads once as it lands */
+  .arrival::before,
+  .ping {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .arrival::before {
+    background: var(--level);
+    box-shadow: 0 0 0 2px var(--color-panel);
+  }
+  .ping {
+    border: 1px solid var(--level);
+    opacity: 0;
+  }
+
+  /* the box and its stem move together, by --wander-x/y */
+  .lead {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  /* a line from the dot's ring to the box's near edge, turned and stretched to follow the box wherever it wanders */
+  .stem {
+    position: absolute;
+    top: -0.5px;
+    left: 0;
+    width: calc(hypot(var(--wander-x), var(--reach) + var(--wander-y)) - 5px);
+    height: 1px;
+    background: var(--color-rule-30);
+    transform-origin: 0 50%;
+    transform: rotate(atan2(calc(var(--reach) + var(--wander-y)), var(--wander-x))) translateX(5px);
+  }
+  .callout {
+    position: absolute;
+    bottom: calc(var(--stem) + 5px);
+    left: 0;
+    display: grid;
+    gap: 2px;
+    padding: 7px 11px 8px;
+    border: 1px solid var(--color-rule-22);
+    background: --alpha(var(--color-canvas) / 82%);
+    font-size: 11.5px;
+    line-height: 16px;
+    white-space: nowrap;
+    translate: -50% 0;
+    transform: translate(var(--wander-x), var(--wander-y));
+    @apply font-mono;
+  }
+  .arrival[data-below] .callout {
+    top: calc(var(--stem) + 5px);
+    bottom: auto;
+  }
+  .arrival[data-align='start'] .callout {
+    translate: -16px 0;
+  }
+  .arrival[data-align='end'] .callout {
+    translate: calc(-100% + 16px) 0;
+  }
+  .visit {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--color-fg);
+  }
+  .visit b {
+    margin-left: 3px;
+    font-weight: 400;
+  }
+  .reading {
+    color: var(--color-muted);
+  }
+  .reading b {
+    font-weight: 500;
+    color: var(--level-text);
+  }
+
+  .glyph {
+    flex: none;
+    width: 14px;
+    height: 14px;
+  }
+  .callout .glyph {
+    width: 13px;
+    height: 13px;
+  }
+  .device {
+    color: var(--color-muted);
+  }
+  .mask {
+    background: var(--color-fg);
+    -webkit-mask: center / contain no-repeat;
+    mask: center / contain no-repeat;
+  }
+  .flag {
+    flex: none;
+    width: 15px;
+    height: 10px;
+    border-radius: 1.5px;
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08);
+  }
+
+  /* one load at a time: it lands, stays a moment and fades, and its animation's end brings the next */
+  @keyframes arrive {
+    from {
+      opacity: 0;
+    }
+    8%,
+    88% {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+  /* the box drifts slowly through its rest spot, along its own heading */
+  @keyframes wander {
+    from {
+      --wander-x: calc(var(--wx) * -4px);
+      --wander-y: calc(var(--wy) * -4px);
+    }
+    to {
+      --wander-x: calc(var(--wx) * 4px);
+      --wander-y: calc(var(--wy) * 4px);
+    }
+  }
+  @keyframes ping {
+    from {
+      opacity: 0.9;
+      scale: 1;
+    }
+    to {
+      opacity: 0;
+      scale: 3.6;
+    }
+  }
+  .arrival[data-live] {
+    animation: arrive 3.6s linear both;
+  }
+  .arrival[data-live] .lead {
+    animation: wander 3.6s ease-in-out both;
+  }
+  .arrival[data-live] .ping {
+    animation: ping 1.4s var(--ease-out-expo) 0.1s both;
+  }
+  .landings[data-paused] :is(.arrival, .lead, .ping) {
+    animation-play-state: paused;
+  }
+  .still {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .arrival[data-live] {
+      display: none;
+    }
+    .still {
+      display: contents;
+    }
+  }
+
+  @container (width < 600px) {
+    .arrival {
+      --stem: 6px;
+    }
+    /* the map spans the panel here, so 100cqw is its width: each box centres on its dot but keeps clear of the edges */
+    .arrival {
+      --dot: calc((var(--x) * var(--cols) - var(--left)) / var(--shown) * 100cqw);
+    }
+    .arrival[data-align] .callout {
+      translate: clamp(12px - var(--dot), -50%, 100cqw - 12px - var(--dot) - 100%) 0;
+    }
+    .callout {
+      padding: 4px 7px 5px;
+      font-size: 10px;
+      line-height: 13px;
+    }
+    .visit {
+      gap: 4px;
+    }
+    .visit b {
+      margin-left: 2px;
+    }
+    .callout .glyph {
+      width: 10px;
+      height: 10px;
+    }
+  }
+
+  /* each run of land is one line a cell tall, painted with diagonals two cells apart */
+  .land {
+    fill: none;
+    stroke-width: 1;
+    stroke-linecap: butt;
+  }
+  .slash,
+  .slashLand {
+    fill: none;
+    stroke-width: 0.3;
+  }
+  .slash {
+    stroke: var(--level);
+    stroke-width: 0.38;
+  }
+  .slashLand {
+    stroke: --alpha(var(--color-fg) / 26%);
+  }
+
+  .hit {
+    fill: none;
+    stroke: transparent;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    cursor: pointer;
+  }
+  .country {
+    transition: opacity 0.25s ease;
+  }
+  .svg[data-active] .country:not([data-on]) {
+    opacity: 0.22;
+  }
+  .locator {
+    fill: none;
+    stroke: var(--color-rule-22);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .locator[data-on] {
+    opacity: 1;
+  }
+
+  .key {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--color-muted);
+  }
+  .key span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+  }
+  /* a hatched cell, the map's own mark */
+  .key span::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 1px;
+    background: repeating-linear-gradient(315deg, var(--level) 0 1px, transparent 0 50%) 0 0 / 5px 5px;
+    box-shadow: inset 0 0 0 1px --alpha(var(--level) / 60%);
+  }
+  @container (width < 600px) {
+    .key {
+      column-gap: 14px;
+      padding-inline: 20px;
+    }
+  }
+
+  .ledger {
+    padding: 20px 28px 22px;
+    border-top: 1px solid var(--color-rule-08);
+  }
+  @container (width >= 1040px) {
+    .ledger {
+      border-top: 0;
+      border-left: 1px solid var(--color-rule-08);
+    }
+  }
+  @container (680px <= width < 1040px) {
+    .ledger {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      padding-inline: 30px;
+    }
+  }
+  @container (width < 600px) {
+    .ledger {
+      padding-inline: 24px 20px;
+    }
+  }
+
+  .us {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding-block: 2px 16px;
+    font-size: var(--text-label);
+    line-height: 20px;
+  }
+  .name {
+    font-weight: 500;
+    color: var(--color-fg);
+  }
+  .figure {
+    font-size: 12px;
+    white-space: nowrap;
+    color: var(--color-muted);
+  }
+  .figure b {
+    margin-left: 4px;
+    font-size: 1.75rem;
+    line-height: 30px;
+    letter-spacing: -0.8px;
+    font-weight: 500;
+    color: var(--level-text);
+  }
+
+  .table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: var(--text-label);
+    line-height: 20px;
+  }
+  .table th,
+  .table td {
+    padding: 9px 0;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  .table th {
+    font-weight: 400;
+    text-align: left;
+  }
+  .table thead th {
+    padding: 0;
+  }
+  .table tr > :last-child {
+    width: 44%;
+  }
+  .table tbody tr {
+    border-top: 1px solid var(--color-rule-08);
+  }
+  .table td {
+    font-weight: 500;
+    color: var(--level-text);
+  }
+  /* the bar leaves room after it for the time */
+  .meter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .meter i {
+    flex: none;
+    width: calc(var(--length) * (100% - 44px));
+    height: 6px;
+    border-radius: 3px;
+    background: var(--level);
+  }
+  /* the bars grow in as the rows come into view, and again in each tab opened */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .meter i {
+      transform-origin: 0 50%;
+    }
+    .panels:not([data-in]) .meter i {
+      scale: 0 1;
+    }
+    .panels[data-in] .panel[data-shown] .meter i {
+      animation: meter-grow 0.9s var(--ease-out-expo) calc(var(--i) * 60ms) backwards;
+    }
+  }
+  @keyframes meter-grow {
+    from {
+      scale: 0 1;
+    }
+  }
+
+  /* the rule and the selected tab's underline are inset shadows, which the scrolling strip doesn't clip */
+  .tabs {
+    display: flex;
+    gap: 14px;
+    margin-top: 8px;
+    box-shadow: inset 0 -1px 0 var(--color-rule-22);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs button {
+    padding: 8px 0 10px;
+    font-size: 12.5px;
+    line-height: 16px;
+    white-space: nowrap;
+    color: var(--color-muted);
+    transition:
+      color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .tabs button:hover {
+    color: var(--color-fg);
+  }
+  .tabs button[aria-selected='true'] {
+    box-shadow: inset 0 -2px 0 var(--color-fg);
+    color: var(--color-fg);
+  }
+
+  /* every table stays laid out in the same cell, so switching keeps the height of the longest */
+  .panels {
+    display: grid;
+  }
+  .panel {
+    grid-area: 1 / 1;
+  }
+  .panel:not([data-shown]) {
+    visibility: hidden;
+  }
+
+  .breakdown tbody tr {
+    transition: background-color 0.2s ease;
+  }
+  .breakdown tbody tr:first-child {
+    border-top: 0;
+  }
+  .breakdown tr:has(button) {
+    cursor: pointer;
+  }
+  .breakdown tbody tr[data-on] {
+    background: --alpha(var(--color-fg) / 4%);
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    max-width: 100%;
+    color: var(--color-fg);
+    text-align: left;
+  }
+  .row span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* side by side: the overall figure on the left, large, beside the countries */
+  @container (680px <= width < 1040px) {
+    .us {
+      flex-direction: column;
+      align-self: start;
+      align-items: start;
+      gap: 6px;
+      padding-right: 28px;
+    }
+    .figure b {
+      font-size: 2.25rem;
+      line-height: 38px;
+      letter-spacing: -1.1px;
+    }
+    .breakdown {
+      padding-left: 28px;
+      border-left: 1px solid var(--color-rule-08);
+    }
+    .breakdown .tabs {
+      margin-top: 0;
+    }
+  }
+}
