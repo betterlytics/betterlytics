@@ -3569,6 +3569,8 @@
         "usageProgress": "{current} av {limit} hendelser",
         "replayUsage": "Forbruk av sesjonsavspilling",
         "replayUsageProgress": "{current} av {limit} innspilte sesjoner",
+        "replayUsageUnlimited": "{current} innspilte sesjoner, ubegrenset",
+        "replayUnlimited": "Ubegrenset",
         "resetsInDays": "Nullstilles om {days} dager",
         "expiresInDays": "Utløper om {days} dager",
         "manage": "Administrer abonnement",
@@ -4253,6 +4255,7 @@
           "replaysLabel": "Sesjonsavspillinger",
           "replaysDescription": "Innspilte sesjoner i denne perioden",
           "replaysUsed": "{current} <muted>/ {limit} ({percentage})</muted>",
+          "replaysUsedUnlimited": "{current} <muted>/ Ubegrenset</muted>",
           "resetsInDays": "Tilbakestilles om {days} dager",
           "breakdown": {
             "byType": "Etter type",

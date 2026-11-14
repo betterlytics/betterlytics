@@ -3569,6 +3569,8 @@
         "usageProgress": "{current} af {limit} events",
         "replayUsage": "Forbrug af sessionsafspilning",
         "replayUsageProgress": "{current} af {limit} optagede sessioner",
+        "replayUsageUnlimited": "{current} optagede sessioner, ubegrænset",
+        "replayUnlimited": "Ubegrænset",
         "resetsInDays": "Nulstilles om {days} dage",
         "expiresInDays": "Udløber om {days} dage",
         "manage": "Administrér abonnement",
@@ -4253,6 +4255,7 @@
           "replaysLabel": "Sessionsafspilninger",
           "replaysDescription": "Optagede sessioner i denne periode",
           "replaysUsed": "{current} <muted>/ {limit} ({percentage})</muted>",
+          "replaysUsedUnlimited": "{current} <muted>/ Ubegrænset</muted>",
           "resetsInDays": "Nulstilles om {days} dage",
           "breakdown": {
             "byType": "Efter type",

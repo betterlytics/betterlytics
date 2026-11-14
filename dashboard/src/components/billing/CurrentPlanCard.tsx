@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import type { UserBillingData } from '@/entities/billing/billing.entities';
 import { useLocale, useTranslations } from 'next-intl';
 import { getPlan } from '@/lib/billing/catalog';
+import { isUnlimitedCount } from '@/lib/billing/capabilities';
 
 interface CurrentPlanCardProps {
   billingData: UserBillingData;
@@ -23,6 +24,7 @@ interface CurrentPlanCardProps {
 
 export function CurrentPlanCard({ billingData, showManagementButtons = false }: CurrentPlanCardProps) {
   const { subscription, usage, replayUsage } = billingData;
+  const replayUnlimited = isUnlimitedCount(replayUsage.limit);
   const t = useTranslations('components.billing.currentPlan');
   const locale = useLocale();
 
@@ -85,9 +87,7 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
               <span className='text-sm font-medium'>{t('eventUsage')}</span>
             </div>
             {!isCanceled && (
-              <p className='text-muted-foreground text-xs'>
-                {t('resetsInDays', { days: usage.daysUntilReset })}
-              </p>
+              <p className='text-muted-foreground text-xs'>{t('resetsInDays', { days: usage.daysUntilReset })}</p>
             )}
           </div>
 
@@ -115,14 +115,18 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
           <div className='space-y-2'>
             <div className='flex items-center justify-between text-sm'>
               <span className='text-muted-foreground'>
-                {t('replayUsageProgress', {
-                  current: formatNumber(replayUsage.current, locale),
-                  limit: formatNumber(replayUsage.limit, locale),
-                })}
+                {replayUnlimited
+                  ? t('replayUsageUnlimited', { current: formatNumber(replayUsage.current, locale) })
+                  : t('replayUsageProgress', {
+                      current: formatNumber(replayUsage.current, locale),
+                      limit: formatNumber(replayUsage.limit, locale),
+                    })}
               </span>
-              <span className='text-foreground font-medium'>
-                {formatPercentage(replayUsage.usagePercentage, locale)}
-              </span>
+              {!replayUnlimited && (
+                <span className='text-foreground font-medium'>
+                  {formatPercentage(replayUsage.usagePercentage, locale)}
+                </span>
+              )}
             </div>
 
             <Progress value={Math.min(replayUsage.usagePercentage, 100)} className='h-2' color='var(--primary)' />

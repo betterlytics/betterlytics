@@ -3,6 +3,7 @@ import { ManageBillingButton } from './ManageBillingButton';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { getPlan } from '@/lib/billing/catalog';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
+import { isUnlimitedCount } from '@/lib/billing/capabilities';
 import { Calendar } from 'lucide-react';
 
 export default async function PlanQuota({
@@ -18,6 +19,7 @@ export default async function PlanQuota({
   const percentage = Math.min(100, Math.round((current / Math.max(1, limit)) * 100));
   const replay = billing.data.replayUsage;
   const replayPercentage = Math.min(100, Math.round((replay.current / Math.max(1, replay.limit)) * 100));
+  const replayUnlimited = isUnlimitedCount(replay.limit);
   const isCanceled = billing.data.subscription.cancelAtPeriodEnd;
   const t = await getTranslations('components.billing');
   const planLabel = t('planLabel', { name: getPlan(billing.data.subscription.planId).name });
@@ -57,7 +59,9 @@ export default async function PlanQuota({
           {formatNumber(replay.current, locale)}
           <span className='text-muted-foreground'>
             {' '}
-            / {formatNumber(replay.limit, locale)} ({formatPercentage(replayPercentage, locale)})
+            {replayUnlimited
+              ? `/ ${t('currentPlan.replayUnlimited')}`
+              : `/ ${formatNumber(replay.limit, locale)} (${formatPercentage(replayPercentage, locale)})`}
           </span>
         </span>
       </div>

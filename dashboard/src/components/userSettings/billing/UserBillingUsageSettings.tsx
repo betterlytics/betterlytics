@@ -9,6 +9,7 @@ import { UsageRow, type UsageSegment } from '@/components/billing/UsageRow';
 import { useUsageBreakdown } from '@/hooks/useUsageBreakdown';
 import { useToggle } from '@/hooks/use-toggle';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
+import { isUnlimitedCount } from '@/lib/billing/capabilities';
 import type { BillableEventType, ReplayUsageData, UsageData } from '@/entities/billing/billing.entities';
 import UserSettingsSection from '../shared/UserSettingsSection';
 
@@ -166,12 +167,19 @@ export default function UserBillingUsageSettings({
             <p className='text-muted-foreground text-xs'>{t('replaysDescription')}</p>
           </div>
         }
-        value={t.rich('replaysUsed', {
-          current: formatNumber(replayUsage.current, locale),
-          limit: formatNumber(replayUsage.limit, locale),
-          percentage: formatPercentage(replayUsage.usagePercentage, locale),
-          muted: (chunks) => <span className='text-muted-foreground'>{chunks}</span>,
-        })}
+        value={
+          isUnlimitedCount(replayUsage.limit)
+            ? t.rich('replaysUsedUnlimited', {
+                current: formatNumber(replayUsage.current, locale),
+                muted: (chunks) => <span className='text-muted-foreground'>{chunks}</span>,
+              })
+            : t.rich('replaysUsed', {
+                current: formatNumber(replayUsage.current, locale),
+                limit: formatNumber(replayUsage.limit, locale),
+                percentage: formatPercentage(replayUsage.usagePercentage, locale),
+                muted: (chunks) => <span className='text-muted-foreground'>{chunks}</span>,
+              })
+        }
       />
     </div>
   );
