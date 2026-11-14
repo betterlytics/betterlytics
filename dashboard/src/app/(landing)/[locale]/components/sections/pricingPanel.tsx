@@ -6,7 +6,9 @@ import NumberFlow from '@number-flow/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { EventCountFlow, EventCountText, FLUSH, QUICK_ROLL } from '@/components/pricing/EventCountFlow';
 import { usePlanCards, type PlanFeatureLabel, type VolumeLabel } from '@/components/pricing/usePlanFeatures';
+import { usePromo } from '@/components/pricing/usePromo';
 import { VOLUME_STOPS, type PlanId } from '@/lib/billing/catalog';
+import { promoCents } from '@/lib/billing/promo';
 import { formatEventCount } from '@/utils/pricing';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { Panel } from '@/landing/components/ui/frame';
@@ -21,6 +23,13 @@ import styles from './pricingPanel.module.css';
 /** USD only here, though billing also offers EUR. */
 const CURRENCY = 'USD';
 const PRICE_FORMAT = { style: 'currency', currency: CURRENCY, maximumFractionDigits: 0 } as const;
+const PROMO_PRICE_FORMAT = { style: 'currency', currency: CURRENCY } as const;
+// tabular figures give the decimal point a digit's width
+const NARROW_DECIMAL = '[&::part(decimal)]:[font-variant-numeric:proportional-nums]';
+
+function formatListPrice(cents: number, locale: string): string {
+  return new Intl.NumberFormat(locale, PRICE_FORMAT).format(cents / 100);
+}
 
 function Check() {
   return (
@@ -44,6 +53,12 @@ type PlanProps = {
   tagline: string;
   /** Cents, or a label such as 'Custom'. */
   price: number | string;
+  /** Reserves the struck-through price line on every plan, so prices stay level during a promo. */
+  promoRow?: boolean;
+  /** Cents before a promo discount, shown struck through. */
+  listPrice?: number;
+  promoTag?: string;
+  promoNote?: string;
   period?: string;
   volumeLabel: VolumeLabel;
   badge?: string;
@@ -53,7 +68,23 @@ type PlanProps = {
   dimmed?: boolean;
 };
 
-function Plan({ tier, name, tagline, price, period, volumeLabel, badge, features, cta, pick, dimmed }: PlanProps) {
+function Plan({
+  tier,
+  name,
+  tagline,
+  price,
+  promoRow,
+  listPrice,
+  promoTag,
+  promoNote,
+  period,
+  volumeLabel,
+  badge,
+  features,
+  cta,
+  pick,
+  dimmed,
+}: PlanProps) {
   const locale = useLocale();
   return (
     // a subgrid of five rows shared across plans, so prices and buttons stay level when a tagline wraps
@@ -77,16 +108,33 @@ function Plan({ tier, name, tagline, price, period, volumeLabel, badge, features
         ) : null}
       </div>
       <p className='mb-4 text-body-sm leading-[22px] text-muted'>{tagline}</p>
-      <div className='mb-2.5'>
+      <div className={cn('mb-2.5', promoRow && '@container')}>
+        {promoRow ? (
+          <p className='h-5 text-body leading-5 tracking-ui text-muted tabular-nums'>
+            {listPrice !== undefined ? <s>{formatListPrice(listPrice, locale)}</s> : null}
+            {listPrice !== undefined && promoTag ? (
+              <span className='ml-2 inline-block rounded-[4px] bg-volt-lift/22 px-1.5 align-[1px] text-[12.5px] leading-[18px] font-medium text-volt-soft'>
+                {promoTag}
+              </span>
+            ) : null}
+          </p>
+        ) : null}
         {/* fixed height so swapping a figure for a word doesn't shift the plans */}
         <div className='flex h-11 items-baseline gap-1.5'>
-          <b className='text-[42px] leading-11 font-medium tracking-[-1.5px] tabular-nums'>
+          <b
+            className={cn(
+              // promo prices carry cents, so narrow four-column cards scale them down to keep the period beside them
+              promoRow ? 'text-[length:min(42px,18cqi)]' : 'text-[42px]',
+              // after the size: tailwind-merge drops a leading that comes before a font size
+              'leading-11 font-medium tracking-[-1.5px] tabular-nums',
+            )}
+          >
             {typeof price === 'number' ? (
               <NumberFlow
-                className={FLUSH}
+                className={cn(FLUSH, NARROW_DECIMAL)}
                 value={price / 100}
                 locales={locale}
-                format={PRICE_FORMAT}
+                format={listPrice !== undefined ? PROMO_PRICE_FORMAT : PRICE_FORMAT}
                 willChange
                 {...QUICK_ROLL}
               />
@@ -99,6 +147,7 @@ function Plan({ tier, name, tagline, price, period, volumeLabel, badge, features
         <p className='mt-1.5 text-body-sm tracking-ui text-muted'>
           <EventCountText {...volumeLabel} />
         </p>
+        {promoNote ? <p className='mt-1 text-body-sm tracking-ui text-muted'>{promoNote}</p> : null}
       </div>
       <div>
         <ul className='mt-3 mb-[26px] border-t border-rule-08 pt-[22px] transition-ink'>
@@ -133,7 +182,9 @@ function Plan({ tier, name, tagline, price, period, volumeLabel, badge, features
 
 export function PricingPanel() {
   const t = useTranslations('landing.pricing');
+  const tPromo = useTranslations('promo');
   const locale = useLocale();
+  const promo = usePromo();
   const [rangeIndex, setRangeIndex] = useState(0);
   const sliderRef = useRef<HTMLSpanElement>(null);
   // drives the phone thumb nudge in the module
@@ -213,6 +264,8 @@ export function PricingPanel() {
       <Panel flush>
         <div className='grid max-sm:-mx-(--pad) md:grid-cols-2 3xl:grid-cols-4'>
           {cards.map(({ plan, offer, fits, isRecommended, volumeLabel, features }) => {
+            const listCents = offer.kind === 'paid' ? offer.cents : undefined;
+            const promoPrice = promo && listCents !== undefined ? promoCents(listCents, promo) : undefined;
             return (
               <Plan
                 key={plan.id}
@@ -222,7 +275,15 @@ export function PricingPanel() {
                 name={plan.name}
                 badge={isRecommended ? t('badge') : undefined}
                 tagline={t(`plans.${plan.id}.tagline`)}
-                price={offer.kind === 'paid' ? offer.cents : offer.kind === 'free' ? 0 : t('custom')}
+                price={promoPrice ?? listCents ?? (offer.kind === 'free' ? 0 : t('custom'))}
+                promoRow={promo !== null}
+                listPrice={promoPrice !== undefined ? listCents : undefined}
+                promoTag={promo ? tPromo('tag', { percent: promo.percentOff }) : undefined}
+                promoNote={
+                  promo && promoPrice !== undefined && listCents !== undefined
+                    ? tPromo('then', { months: promo.months, price: formatListPrice(listCents, locale) })
+                    : undefined
+                }
                 period={offer.kind === 'quoted' ? undefined : t('perMonth')}
                 volumeLabel={volumeLabel}
                 features={features}

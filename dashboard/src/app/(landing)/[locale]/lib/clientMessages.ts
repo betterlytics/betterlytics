@@ -4,6 +4,7 @@ export function landingClientMessages(messages: Messages, extra?: Partial<Messag
   const { nav, demo, journey, network, pricing, illustrations } = messages.landing;
   return {
     pricingCards: messages.pricingCards,
+    promo: messages.promo,
     landing: { nav, demo, journey, network, pricing, illustrations, ...extra },
   };
 }

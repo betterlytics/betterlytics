@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { PricingComponent } from '@/components/pricing/PricingComponent';
+import { useCheckoutPromo, usePromoLastDay } from '@/components/pricing/usePromo';
 import { FeatureComparisonSection } from '@/components/billing/FeatureComparisonSection';
 import { VOLUME_STOPS } from '@/lib/billing/catalog';
 import type { SelectedPlan } from '@/types/pricing';
@@ -30,6 +31,9 @@ export function PlanPickerDialog({
   reason,
 }: PlanPickerDialogProps) {
   const t = useTranslations('components.billing.planPicker');
+  const tPromo = useTranslations('promo');
+  const promo = useCheckoutPromo(billingData.isExistingPaidSubscriber);
+  const promoLastDay = usePromoLastDay(promo);
   const [comparisonOpen, setComparisonOpen] = useState(false);
   const comparisonTriggerRef = useRef<HTMLButtonElement>(null);
 
@@ -53,7 +57,17 @@ export function PlanPickerDialog({
         <ScrollArea className='min-h-0 flex-1 [&>[data-slot=scroll-area-scrollbar]]:z-40 [&>[data-slot=scroll-area-viewport]>div]:!block'>
           <div className='px-3 pt-5 pb-6 sm:px-8 sm:pt-8'>
             <DialogHeader className='pb-3 sm:text-center'>
-              <DialogTitle className='text-2xl sm:text-3xl'>{t('title')}</DialogTitle>
+              <div className='flex flex-wrap items-center gap-x-3 gap-y-1.5 sm:justify-center'>
+                <DialogTitle className='text-2xl sm:text-3xl'>{t('title')}</DialogTitle>
+                {promo && (
+                  <span className='flex items-center gap-2 text-sm'>
+                    <span className='bg-primary text-primary-foreground rounded-[5px] px-2 leading-6 font-medium'>
+                      {tPromo('barTag')}
+                    </span>
+                    <span className='text-muted-foreground'>{tPromo('until', { date: promoLastDay })}</span>
+                  </span>
+                )}
+              </div>
               <DialogDescription className={reason ? 'text-sm sm:text-base' : 'sr-only'}>
                 {reason ?? t('description')}
               </DialogDescription>

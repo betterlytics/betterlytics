@@ -6,6 +6,7 @@ import { BannerProvider } from '@/contexts/BannerProvider';
 import { Suspense } from 'react';
 import UsageAlertBanner from '@/components/billing/UsageAlertBanner';
 import UsageExceededBanner from '@/components/billing/UsageExceededBanner';
+import PromoBanner from '@/components/billing/PromoBanner';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { VerificationBanner } from '@/components/accountVerification/VerificationBanner';
 import { IntegrationBanner } from '../IntegrationBanner';
@@ -57,6 +58,7 @@ export default async function DashboardSidebarLayout({ params, children }: Dashb
             <Suspense fallback={null}>
               <UsageAlertBanner billingDataPromise={billingDataPromise} />
               <UsageExceededBanner billingDataPromise={billingDataPromise} />
+              <PromoBanner billingDataPromise={billingDataPromise} />
             </Suspense>
           )}
           {isFeatureEnabled('enableAccountVerification') && (

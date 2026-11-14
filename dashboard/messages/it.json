@@ -5532,5 +5532,17 @@
     },
     "monitorsEmpty": "Nessun monitor",
     "monitorsUp": "attivi"
+  },
+  "promo": {
+    "bar": "{percent}% di sconto su Plus e Business per i primi {months} mesi. Termina il {date}.",
+    "barCta": "Vedi i prezzi",
+    "banner": {
+      "short": "{percent}% di sconto su Plus e Business",
+      "action": "Vedi i piani"
+    },
+    "then": "Per i primi {months} mesi, poi {price}/mese",
+    "barTag": "Black Friday",
+    "tag": "−{percent}%",
+    "until": "fino al {date}"
   }
 }

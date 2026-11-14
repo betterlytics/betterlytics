@@ -12,6 +12,8 @@ import { isFeatureEnabled } from '@/lib/feature-flags';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
 import { landingClientMessages } from '@/landing/lib/clientMessages';
 import { LandingProviders } from '@/landing/providers';
+import { PromoProvider } from '@/components/pricing/usePromo';
+import { livePromo } from '@/lib/billing/promo';
 import '@/landing/landing.css';
 
 const sans = Schibsted_Grotesk({
@@ -48,7 +50,7 @@ export async function LandingDocument({ locale, children }: { locale: string; ch
         <NextIntlClientProvider messages={landingClientMessages(messages)}>
           <LandingProviders>
             {env.ENABLE_APP_TRACKING && <GlobalPropertiesUpdater />}
-            {children}
+            <PromoProvider live={livePromo(isFeatureEnabled('isCloud')) !== null}>{children}</PromoProvider>
           </LandingProviders>
         </NextIntlClientProvider>
       </body>

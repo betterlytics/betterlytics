@@ -11,6 +11,7 @@ import { VOLUME_STOPS } from '@/lib/billing/catalog';
 import { formatEventCount } from '@/utils/pricing';
 import { useUsageProjection } from '@/hooks/useUsageProjection';
 import type { Currency, UserBillingData } from '@/entities/billing/billing.entities';
+import { useCheckoutPromo } from './usePromo';
 import {
   Select,
   SelectContent,
@@ -39,6 +40,7 @@ export function PricingComponent({
 }: PricingComponentProps) {
   const t = useTranslations('pricingSlider');
   const locale = useLocale();
+  const promo = useCheckoutPromo(billingData.isExistingPaidSubscriber);
   const [selectedRangeIndex, setSelectedRangeIndex] = useState(initialRangeIndex);
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>(lockedCurrency ?? defaultCurrency);
   const currentVolume = VOLUME_STOPS[selectedRangeIndex];
@@ -101,6 +103,7 @@ export function PricingComponent({
         )}
 
         <PricingCards
+          promo={promo}
           volume={currentVolume}
           onPlanSelect={onPlanSelect}
           billingData={billingData}

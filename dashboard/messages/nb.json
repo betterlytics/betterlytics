@@ -5532,5 +5532,17 @@
     },
     "monitorsEmpty": "Ingen monitorer",
     "monitorsUp": "oppe"
+  },
+  "promo": {
+    "bar": "{percent} % rabatt på Plus og Business de første {months} månedene. Slutter {date}",
+    "barCta": "Se priser",
+    "banner": {
+      "short": "{percent} % rabatt på Plus og Business",
+      "action": "Se planer"
+    },
+    "then": "De første {months} månedene, deretter {price}/mnd",
+    "barTag": "Black Friday",
+    "tag": "−{percent} %",
+    "until": "til og med {date}"
   }
 }

@@ -5532,5 +5532,17 @@
     },
     "monitorsEmpty": "No monitors",
     "monitorsUp": "up"
+  },
+  "promo": {
+    "bar": "{percent}% off Plus and Business for your first {months} months. Ends {date}.",
+    "barCta": "See pricing",
+    "banner": {
+      "short": "{percent}% off Plus and Business",
+      "action": "See plans"
+    },
+    "then": "First {months} months, then {price}/month",
+    "barTag": "Black Friday",
+    "tag": "−{percent}%",
+    "until": "until {date}"
   }
 }
