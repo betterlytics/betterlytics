@@ -14,6 +14,7 @@ describe('createGammaScale', () => {
   it('spans low to high between 1 and the max', () => {
     const scale = createGammaScale([LOW, HIGH], 50);
     expect(scale(1)).toBe(LOW_RGB);
+    expect(scale(2)).toBe('rgb(103, 159, 220)');
     expect(scale(50)).toBe(HIGH_RGB);
   });
 
