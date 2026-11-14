@@ -3,7 +3,7 @@ import 'server-only';
 import type { Job } from '@/worker/jobs/types';
 import { trackingSilentAlertsJobDefinition } from '@/worker/jobs/definitions';
 import { findTrackingSilentRecipients } from '@/repositories/postgres/dashboard.repository';
-import { findSentCampaignKeysByPrefix } from '@/repositories/postgres/sentEmail.repository';
+import { findSentTimesByCampaignPrefix } from '@/repositories/postgres/sentEmail.repository';
 import { TRACKING_EVENT_TYPES } from '@/entities/dashboard/verification.entities';
 import { enqueueEmail } from '@/services/email/email.service';
 import { createDashboardRecipientKey } from '@/services/email/recipient-key.service';
@@ -16,7 +16,6 @@ import {
   isNewEpisode,
   lookbackStart,
   OUTAGE_SILENT_SHARE,
-  parseTrackingSilentCampaignKey,
   TRACKING_SILENT_CAMPAIGN_PREFIX,
   trackingSilentCampaignKey,
   type DailyEventTotals,
@@ -93,7 +92,7 @@ async function runTrackingSilentAlerts(): Promise<void> {
 
   const lastEventAtBySite = new Map(silent.map((s) => [s.siteId, s.lastEventAt]));
   const recipients = await findTrackingSilentRecipients(silent.map((s) => s.siteId));
-  const sentCampaignKeys = await findSentCampaignKeysByPrefix(
+  const sentTimes = await findSentTimesByCampaignPrefix(
     recipients.map((r) => createDashboardRecipientKey(r.dashboardId)),
     TRACKING_SILENT_CAMPAIGN_PREFIX,
   );
@@ -102,10 +101,7 @@ async function runTrackingSilentAlerts(): Promise<void> {
   for (const recipient of recipients) {
     const recipientKey = createDashboardRecipientKey(recipient.dashboardId);
     const lastEventAt = lastEventAtBySite.get(recipient.siteId)!;
-    const previouslyEmailed = (sentCampaignKeys.get(recipientKey) ?? []).flatMap(
-      (key) => parseTrackingSilentCampaignKey(key) ?? [],
-    );
-    if (!isNewEpisode(lastEventAt, previouslyEmailed)) continue;
+    if (!isNewEpisode(lastEventAt, sentTimes.get(recipientKey) ?? [])) continue;
     try {
       const result = await enqueueEmail({
         type: 'tracking-silent',

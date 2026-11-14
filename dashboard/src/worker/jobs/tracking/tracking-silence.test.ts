@@ -7,8 +7,6 @@ import {
   isNewEpisode,
   isOutage,
   isSilent,
-  parseTrackingSilentCampaignKey,
-  trackingSilentCampaignKey,
   type DailyEventTotals,
 } from '@/worker/jobs/tracking/tracking-silence';
 
@@ -220,9 +218,10 @@ describe('classifyTrackingSilence', () => {
 
 describe('isNewEpisode', () => {
   const firstSilence = new Date('2026-07-24T15:00:00Z');
+  const firstSentAt = new Date('2026-07-26T15:00:00Z');
 
   it('rejects the episode that was already emailed', () => {
-    expect(isNewEpisode(firstSilence, [firstSilence])).toBe(false);
+    expect(isNewEpisode(firstSilence, [firstSentAt])).toBe(false);
   });
 
   it('rejects a new silence after a partial-day resume, even though no UTC day in the window was empty', () => {
@@ -238,21 +237,22 @@ describe('isNewEpisode', () => {
     });
     const secondSilence = new Date('2026-07-31T09:00:00Z');
     expect(hasBaseline(daily, '2026-07-31')).toBe(true);
-    expect(isNewEpisode(secondSilence, [firstSilence])).toBe(false);
+    expect(isNewEpisode(secondSilence, [firstSentAt])).toBe(false);
   });
 
-  it('allows a new email once five full days after the day the silence was detected have events', () => {
-    expect(isNewEpisode(new Date('2026-07-31T09:00:00Z'), [firstSilence])).toBe(false);
-    expect(isNewEpisode(new Date('2026-08-01T09:00:00Z'), [firstSilence])).toBe(true);
+  it('allows a new email once five full days after the day the previous email was sent have events', () => {
+    expect(isNewEpisode(new Date('2026-07-31T09:00:00Z'), [firstSentAt])).toBe(false);
+    expect(isNewEpisode(new Date('2026-08-01T09:00:00Z'), [firstSentAt])).toBe(true);
+  });
+
+  it('counts from the send day when the silence was detected late', () => {
+    // Last event Nov 11 00:03, emailed 90 hours later on Nov 14, resumed late Nov 14
+    const sentAt = new Date('2026-11-14T18:03:00Z');
+    expect(isNewEpisode(new Date('2026-11-19T09:00:00Z'), [sentAt])).toBe(false);
+    expect(isNewEpisode(new Date('2026-11-20T09:00:00Z'), [sentAt])).toBe(true);
   });
 
   it('allows the first episode for a dashboard', () => {
     expect(isNewEpisode(firstSilence, [])).toBe(true);
-  });
-
-  it('round-trips the campaign key and ignores keys from other campaigns', () => {
-    expect(parseTrackingSilentCampaignKey(trackingSilentCampaignKey(firstSilence))).toEqual(firstSilence);
-    expect(parseTrackingSilentCampaignKey('setup-help')).toBeNull();
-    expect(parseTrackingSilentCampaignKey('tracking-silent:garbage')).toBeNull();
   });
 });

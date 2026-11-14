@@ -116,19 +116,12 @@ export function trackingSilentCampaignKey(lastEventAt: Date): string {
   return `${TRACKING_SILENT_CAMPAIGN_PREFIX}${lastEventAt.toISOString()}`;
 }
 
-export function parseTrackingSilentCampaignKey(campaignKey: string): Date | null {
-  if (!campaignKey.startsWith(TRACKING_SILENT_CAMPAIGN_PREFIX)) return null;
-  const date = new Date(campaignKey.slice(TRACKING_SILENT_CAMPAIGN_PREFIX.length));
-  return Number.isNaN(date.getTime()) ? null : date;
-}
-
 /**
- * A new episode needs its whole baseline window after the day the previously emailed silence was detected,
- * so a partial-day resume (or a stray event) can't re-trigger. Also rejects the same episode twice.
+ * A new episode needs its whole baseline window after the day a previous tracking-silent email was sent,
+ * so a partial-day resume (or a stray event) can't re-trigger, however late that silence was detected.
+ * Also rejects the same episode twice.
  */
-export function isNewEpisode(lastEventAt: Date, previouslyEmailed: Date[]): boolean {
+export function isNewEpisode(lastEventAt: Date, previousSentAt: Date[]): boolean {
   const windowStart = shiftDayKey(utcDayKey(lastEventAt), -BASELINE_DAYS);
-  return previouslyEmailed.every(
-    (previous) => windowStart > utcDayKey(new Date(previous.getTime() + TRACKING_SILENCE_HOURS * HOUR_MS)),
-  );
+  return previousSentAt.every((sentAt) => windowStart > utcDayKey(sentAt));
 }
