@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { env } from '@/lib/env';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { round } from '@/mcp/utils/round';
+import { floorUptime } from '@/mcp/utils/round';
 import { statusPagePublicUrl } from '@/entities/analytics/statusPage/statusPage.helpers';
 import type { StatusPageListItem } from '@/entities/analytics/statusPage/statusPage.entities';
 import type {
@@ -68,13 +68,13 @@ function formatStatusPage(page: StatusPageListItem, payload: StatusPagePreviewPa
     custom_domain: page.customDomain,
     shows_past_incidents: page.showPastIncidents,
     overall_status: data?.overallStatus ?? null,
-    overall_uptime_percent: round(data?.overallUptime, 3),
+    overall_uptime_percent: floorUptime(data?.overallUptime, 2),
     last_updated_at: data?.lastUpdatedAt ?? null,
     monitors: (data?.monitors ?? []).map((monitor, index) => ({
       monitor_id: payload?.monitorCheckIds[index] ?? null,
       public_name: monitor.publicName,
       status: monitor.status,
-      uptime_percent: round(monitor.uptime, 3),
+      uptime_percent: floorUptime(monitor.uptime, 2),
     })),
     incidents: (data?.incidents ?? []).map(formatIncident),
   };

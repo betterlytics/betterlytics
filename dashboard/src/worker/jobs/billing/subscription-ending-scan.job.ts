@@ -7,17 +7,13 @@ import { findOwnedDashboardDomainsExceedingRetention } from '@/repositories/post
 import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { sharedEmailEnv } from '@/lib/env/shared.env';
-import {
-  STARTER_SUBSCRIPTION_STATIC,
-  type SubscriptionEndingSoonCandidate,
-} from '@/entities/billing/billing.entities';
-import { getMaxRetentionDaysForTier } from '@/lib/billing/capabilities';
+import { type SubscriptionEndingSoonCandidate } from '@/entities/billing/billing.entities';
+import { freePlan, freeSubscriptionDefaults } from '@/lib/billing/catalog';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const NOTICE_WINDOW_DAYS = 7;
-const FREE_TIER = STARTER_SUBSCRIPTION_STATIC.tier;
-const FREE_EVENT_LIMIT = STARTER_SUBSCRIPTION_STATIC.eventLimit;
-const FREE_RETENTION_DAYS = getMaxRetentionDaysForTier(FREE_TIER);
+const FREE_EVENT_LIMIT = freeSubscriptionDefaults().eventLimit;
+const FREE_RETENTION_DAYS = freePlan().capabilities.dataRetention.maxDataRetentionDays;
 
 async function enqueueSubscriptionEndingSoon(candidate: SubscriptionEndingSoonCandidate): Promise<void> {
   const affectedDashboards = await findOwnedDashboardDomainsExceedingRetention(

@@ -1,0 +1,65 @@
+@reference '../../landing.css';
+
+@layer components {
+  .cell {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stage {
+    display: grid;
+    place-items: center;
+    height: 204px;
+    border-bottom: 1px solid var(--color-rule-08);
+  }
+  .lit::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: 0;
+  }
+  .lit[data-in]::before {
+    opacity: 1;
+  }
+
+  /* zero specificity, so a page's own scene classes win whichever stylesheet loads first */
+  :where(.comp) {
+    position: relative;
+    width: 300px;
+    height: 140px;
+  }
+  :where(.card) {
+    position: absolute;
+    border-radius: 10px;
+    background-color: var(--color-canvas);
+    background-image: linear-gradient(180deg, --alpha(var(--color-fg) / 5%), --alpha(var(--color-fg) / 1.5%));
+    border: 1px solid var(--color-rule-10);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.04) inset,
+      0 14px 30px rgb(0 0 0 / 0.45);
+    opacity: 0;
+    translate: 0 10px;
+    transition:
+      opacity 0.5s var(--ease-out-expo),
+      translate 0.6s var(--ease-out-expo);
+  }
+  [data-in] .card {
+    opacity: 1;
+    translate: 0;
+  }
+
+  .copy {
+    padding: 34px 32px 44px;
+    @variant max-sm {
+      padding-inline: var(--pad);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card {
+      transition: none;
+    }
+  }
+}

@@ -1,7 +1,7 @@
 import { getUserBillingData } from '@/actions/billing.action';
-import Link from 'next/link';
+import { ManageBillingButton } from './ManageBillingButton';
 import { getLocale, getTranslations } from 'next-intl/server';
-import { getPlanNameKey } from '@/lib/billing/plans';
+import { getPlan } from '@/lib/billing/catalog';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { Calendar } from 'lucide-react';
 
@@ -16,22 +16,15 @@ export default async function PlanQuota({
   const locale = await getLocale();
   const { current, limit } = billing.data.usage;
   const percentage = Math.min(100, Math.round((current / Math.max(1, limit)) * 100));
-  const tier = billing.data.subscription.tier;
   const isCanceled = billing.data.subscription.cancelAtPeriodEnd;
   const t = await getTranslations('components.billing');
-  const planKey = getPlanNameKey(tier);
-  const planLabel = planKey ? t(`planNames.${planKey}`) : t('currentPlan.plan');
+  const planLabel = t('planLabel', { name: getPlan(billing.data.subscription.planId).name });
 
   return (
     <div className='flex w-full min-w-0 flex-col gap-2 rounded-md py-1 text-sm sm:min-w-[280px]'>
       <div className='flex items-center justify-between'>
         <div className='font-medium'>{t('currentPlan.eventUsage')}</div>
-        <Link
-          href='/billing'
-          className='text-primary hover:text-primary/90 inline-flex items-center rounded-md px-1.5 py-0.5 text-xs font-medium'
-        >
-          {t('currentPlan.manage')}
-        </Link>
+        <ManageBillingButton label={t('currentPlan.manage')} />
       </div>
 
       <div className='text-2xl font-semibold'>

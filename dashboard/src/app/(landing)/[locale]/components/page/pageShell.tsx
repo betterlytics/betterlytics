@@ -21,16 +21,19 @@ export function PageShell({ hero, children, after }: { hero: ReactNode; children
       </a>
       <div
         className={cn(
-          'relative mx-auto max-w-[1480px]',
+          // a page shorter than the window (the blog's 404) grows its band, so the band's rule stays on the footer
+          'relative mx-auto flex min-h-svh max-w-[1480px] flex-col',
           'before:pointer-events-none before:absolute before:inset-y-0 before:left-(--pad) before:z-30 before:w-px before:bg-rule max-sm:before:hidden',
           'after:pointer-events-none after:absolute after:inset-y-0 after:right-(--pad) after:z-30 after:w-px after:bg-rule max-sm:after:hidden',
         )}
       >
         <Nav />
-        <main id={IDS.main} className='relative'>
-          <div className='relative before:bleed-rule before:top-0 before:z-2 before:bg-rule max-sm:before:hidden'>
-            {hero}
-          </div>
+        <main id={IDS.main} className='relative flex flex-1 flex-col'>
+          {hero ? (
+            <div className='relative before:bleed-rule before:top-0 before:z-2 before:bg-rule max-sm:before:hidden'>
+              {hero}
+            </div>
+          ) : null}
           <Band>{children}</Band>
           {after}
         </main>

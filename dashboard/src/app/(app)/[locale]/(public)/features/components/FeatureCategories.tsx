@@ -48,6 +48,10 @@ import {
 import { MCPIcon } from '@/components/icons';
 
 const UPTIME = '/features/uptime-monitoring';
+const REPLAY = '/features/session-replay';
+const ERRORS = '/features/error-tracking';
+const VITALS = '/features/core-web-vitals';
+const MCP = '/features/mcp';
 
 const CATEGORIES = [
   {
@@ -71,8 +75,8 @@ const CATEGORIES = [
   {
     id: 'advancedAnalytics',
     features: [
-      { id: 'sessionReplay', icon: Video },
-      { id: 'errorTracking', icon: Bug },
+      { id: 'sessionReplay', icon: Video, href: REPLAY },
+      { id: 'errorTracking', icon: Bug, href: ERRORS },
       { id: 'userJourneys', icon: GitBranch },
       { id: 'funnels', icon: TrendingUp },
       { id: 'annotations', icon: StickyNote },
@@ -84,7 +88,7 @@ const CATEGORIES = [
   {
     id: 'performanceMonitoring',
     features: [
-      { id: 'coreWebVitals', icon: Gauge },
+      { id: 'coreWebVitals', icon: Gauge, href: VITALS },
       { id: 'uptimeMonitoring', icon: MonitorCheck, href: UPTIME },
       { id: 'statusPages', icon: Radio, href: UPTIME },
       { id: 'sslMonitoring', icon: ShieldCheck, href: UPTIME },
@@ -119,7 +123,7 @@ const CATEGORIES = [
       { id: 'fullyManaged', icon: Cloud },
       { id: 'lightweightScript', icon: Zap },
       { id: 'highPerformance', icon: Gauge },
-      { id: 'mcpServer', icon: MCPIcon },
+      { id: 'mcpServer', icon: MCPIcon, href: MCP },
     ],
   },
   {

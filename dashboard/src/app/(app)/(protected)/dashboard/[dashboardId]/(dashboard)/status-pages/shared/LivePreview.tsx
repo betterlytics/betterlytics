@@ -200,7 +200,13 @@ export function LivePreview({
     return {
       monitors,
       overallStatus,
-      overallUptime: deriveOverallUptime(monitors.map((monitor) => monitor.uptime)),
+      overallUptime: deriveOverallUptime(
+        includedRows.flatMap((row) => {
+          const index = indexByCheckId.get(row.monitorCheckId);
+          const totals = index != null ? payload.monitorUptimeTotals[index] : undefined;
+          return totals ? [totals] : [];
+        }),
+      ),
       publishedIncidents,
     };
   }, [payload, indexByCheckId, draftMonitors]);

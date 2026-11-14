@@ -109,9 +109,12 @@
     opacity: 0.8;
   }
 
+  /* a zero minimum, so one-line results truncate instead of widening the terminal */
   .screen {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     flex: 1;
+    min-width: 0;
   }
   .screen > * {
     grid-area: 1 / 1;
@@ -203,6 +206,13 @@
   }
   .result {
     padding-left: 20px;
+  }
+  /* one line each, like collapsed tool output */
+  .tool,
+  .result {
+    overflow: hidden;
+    white-space: pre;
+    text-overflow: ellipsis;
   }
 
   .working:not([data-shown]) {

@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
-import { formatPercentage } from '@/utils/formatters';
+import { formatUptime } from '@/utils/formatters';
 import { presentMonitorStatus } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/monitoring/styles';
 import type { MonitorRow } from './monitorRow';
 
@@ -14,12 +14,7 @@ export function MonitorStatusMeta({ row }: { row: MonitorRow }) {
   return (
     <div className='flex flex-none items-center gap-2'>
       <span className='text-muted-foreground w-12 text-right text-xs font-medium tabular-nums'>
-        {row.uptimePercent != null &&
-          formatPercentage(row.uptimePercent, locale, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-            trimHundred: true,
-          })}
+        {row.uptimePercent != null && formatUptime(row.uptimePercent, locale)}
       </span>
       {presentation && (
         <span

@@ -20,11 +20,11 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { DestructiveActionDialog } from '@/components/dialogs';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { type MonitorCheck, MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
 import { useMonitorMutations } from '../shared/hooks/useMonitorMutations';
 import { EditMonitorSheet } from '../[monitorId]/EditMonitorSheet';
+import { MonitorDeleteDialog } from './MonitorDeleteDialog';
 import { useTranslations } from 'next-intl';
 
 type MonitorActionMenuProps = {
@@ -174,17 +174,15 @@ export function MonitorActionMenu({ monitor, dashboardId, vertical = false }: Mo
         </DialogContent>
       </Dialog>
 
-      <DestructiveActionDialog
-        open={showDeleteDialog}
-        onOpenChange={setShowDeleteDialog}
-        title={t('deleteConfirmTitle')}
-        description={t('deleteConfirmDescription')}
-        cancelLabel={tMisc('cancel')}
-        confirmLabel={tMisc('delete')}
-        pendingLabel={tMisc('deleting')}
-        onConfirm={handleDelete}
-        isPending={deleteMutation.isPending}
-      />
+      {showDeleteDialog && (
+        <MonitorDeleteDialog
+          dashboardId={dashboardId}
+          monitorId={monitor.id}
+          onOpenChange={setShowDeleteDialog}
+          onConfirm={handleDelete}
+          isPending={deleteMutation.isPending}
+        />
+      )}
     </>
   );
 }

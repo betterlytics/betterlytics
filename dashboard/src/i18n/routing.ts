@@ -14,9 +14,9 @@ const SIGNED_IN_SECTIONS = ['dashboard', 'dashboards', 'billing', 'admin'];
 
 const underSections = (sections: string[]) => new RegExp(`^/(${sections.join('|')})(/|$)`);
 
-// The signed-in app, its API and admin carry no locale: the middleware skips them, and links into them mustn't add
-// one (/da/dashboards is a 404)
-const UNLOCALIZED_PATH = underSections(['api', ...SIGNED_IN_SECTIONS]);
+// The signed-in app, its API, admin and the English-only blog carry no locale: the middleware skips them, and links
+// into them mustn't add one (/da/dashboards is a 404, /da/blog redirects)
+const UNLOCALIZED_PATH = underSections(['api', 'blog', ...SIGNED_IN_SECTIONS]);
 const SIGNED_IN_PATH = underSections(SIGNED_IN_SECTIONS);
 
 export function isUnlocalizedPath(href: string) {

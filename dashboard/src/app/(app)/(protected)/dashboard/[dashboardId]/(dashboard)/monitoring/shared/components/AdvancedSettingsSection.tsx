@@ -15,9 +15,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { getStatusCodeColorClasses } from '../utils/httpStatusColors';
 import { isHeaderBlocked } from '../utils/formValidation';
 import { SectionHeader } from './SectionHeader';
-import { useCapabilities } from '@/contexts/CapabilitiesProvider';
-import { CapabilityGate } from '@/components/billing/CapabilityGate';
-import { ProBadge } from '@/components/billing/ProBadge';
+import { useUpgrade } from '@/contexts/CapabilitiesProvider';
+import { PlanBadge } from '@/components/billing/PlanBadge';
 import type { MonitorFormInterface } from '../types';
 
 export type AdvancedSettingsSectionProps = {
@@ -39,7 +38,10 @@ export function AdvancedSettingsSection({
 }: AdvancedSettingsSectionProps) {
   const t = useTranslations('monitoringEditDialog');
   const [statusCodeInput, setStatusCodeInput] = useState('');
-  const { caps } = useCapabilities();
+  const httpMethodUpgrade = useUpgrade((c) => c.monitoring.httpMethodConfigurable);
+  const keywordUpgrade = useUpgrade((c) => c.monitoring.keywordValidation);
+  const headersUpgrade = useUpgrade((c) => c.monitoring.customHeaders);
+  const statusCodesUpgrade = useUpgrade((c) => c.monitoring.customStatusCodes);
 
   const handleStatusCodeInputChange = useCallback((value: string) => {
     setStatusCodeInput(value.replace(/[^0-9xX]/g, '').toLowerCase());
@@ -80,34 +82,30 @@ export function AdvancedSettingsSection({
           <div className='space-y-3'>
             <div className='flex items-center justify-between'>
               <Label className='text-sm font-medium'>{t('advanced.httpMethod.label')}</Label>
-              {!caps.monitoring.httpMethodConfigurable && <ProBadge />}
+              <PlanBadge plan={httpMethodUpgrade.plan} />
             </div>
             <p className='text-muted-foreground text-xs'>{t('advanced.httpMethod.description')}</p>
-            <CapabilityGate allowed={caps.monitoring.httpMethodConfigurable}>
-              {({ locked }) => (
-                <Tabs
-                  value={form.state.httpMethod}
-                  onValueChange={(v) => {
-                    const method = v as 'HEAD' | 'GET';
-                    if (locked && method !== 'HEAD') return;
-                    form.setField('httpMethod')(method);
-                  }}
+            <Tabs
+              value={form.state.httpMethod}
+              onValueChange={(v) => {
+                const method = v as 'HEAD' | 'GET';
+                if (httpMethodUpgrade.locked && method !== 'HEAD') return;
+                form.setField('httpMethod')(method);
+              }}
+            >
+              <TabsList className='h-8'>
+                <TabsTrigger value='HEAD' disabled={isPending} className='px-3 py-1 text-xs font-medium'>
+                  HEAD
+                </TabsTrigger>
+                <TabsTrigger
+                  value='GET'
+                  disabled={isPending || httpMethodUpgrade.locked}
+                  className='px-3 py-1 text-xs font-medium'
                 >
-                  <TabsList className='h-8'>
-                    <TabsTrigger value='HEAD' disabled={isPending} className='px-3 py-1 text-xs font-medium'>
-                      HEAD
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value='GET'
-                      disabled={isPending || locked}
-                      className='px-3 py-1 text-xs font-medium'
-                    >
-                      GET
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              )}
-            </CapabilityGate>
+                  GET
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
 
           <Separator />
@@ -115,32 +113,28 @@ export function AdvancedSettingsSection({
           <div className='space-y-3'>
             <div className='flex items-center justify-between'>
               <Label className='text-sm font-medium'>{t('advanced.expectedKeyword.label')}</Label>
-              {!caps.monitoring.keywordValidation && <ProBadge />}
+              <PlanBadge plan={keywordUpgrade.plan} />
             </div>
-            <CapabilityGate allowed={caps.monitoring.keywordValidation}>
-              {({ locked }) => (
-                <div className='space-y-1.5'>
-                  <Input
-                    type='text'
-                    placeholder={t('advanced.expectedKeyword.placeholder')}
-                    value={form.state.expectedKeyword ?? ''}
-                    onChange={(e) => {
-                      const value = e.target.value || null;
-                      if (locked && value !== null) return;
-                      form.setField('expectedKeyword')(value);
-                    }}
-                    maxLength={MONITOR_LIMITS.EXPECTED_KEYWORD_MAX}
-                    disabled={isPending || (locked && !form.state.expectedKeyword) || form.state.httpMethod !== 'GET'}
-                    className='h-9 text-sm'
-                  />
-                  <p className='text-muted-foreground text-xs'>
-                    {form.state.httpMethod !== 'GET'
-                      ? t('advanced.expectedKeyword.requiresGet')
-                      : t('advanced.expectedKeyword.description')}
-                  </p>
-                </div>
-              )}
-            </CapabilityGate>
+            <div className='space-y-1.5'>
+              <Input
+                type='text'
+                placeholder={t('advanced.expectedKeyword.placeholder')}
+                value={form.state.expectedKeyword ?? ''}
+                onChange={(e) => {
+                  const value = e.target.value || null;
+                  if (keywordUpgrade.locked && value !== null) return;
+                  form.setField('expectedKeyword')(value);
+                }}
+                maxLength={MONITOR_LIMITS.EXPECTED_KEYWORD_MAX}
+                disabled={isPending || (keywordUpgrade.locked && !form.state.expectedKeyword) || form.state.httpMethod !== 'GET'}
+                className='h-9 text-sm'
+              />
+              <p className='text-muted-foreground text-xs'>
+                {form.state.httpMethod !== 'GET'
+                  ? t('advanced.expectedKeyword.requiresGet')
+                  : t('advanced.expectedKeyword.description')}
+              </p>
+            </div>
           </div>
 
           <Separator />
@@ -148,67 +142,63 @@ export function AdvancedSettingsSection({
           <div className='space-y-3'>
             <div className='flex items-center justify-between'>
               <Label className='text-sm font-medium'>{t('advanced.requestHeaders.label')}</Label>
-              {!caps.monitoring.customHeaders && <ProBadge />}
+              <PlanBadge plan={headersUpgrade.plan} />
             </div>
             <p className='text-muted-foreground text-xs'>{t('advanced.requestHeaders.description')}</p>
-            <CapabilityGate allowed={caps.monitoring.customHeaders}>
-              {({ locked }) => (
-                <div className='space-y-2'>
-                  {(form.state.requestHeaders ?? []).map((header, index) => {
-                    const isEmptyRow = header.key === '' && header.value === '';
-                    const isLastRow = index === (form.state.requestHeaders ?? []).length - 1;
-                    const showDeleteButton = !isEmptyRow || !isLastRow;
-                    const headerBlocked = header.key.trim() !== '' && isHeaderBlocked(header.key);
+            <div className='space-y-2'>
+              {(form.state.requestHeaders ?? []).map((header, index) => {
+                const isEmptyRow = header.key === '' && header.value === '';
+                const isLastRow = index === (form.state.requestHeaders ?? []).length - 1;
+                const showDeleteButton = !isEmptyRow || !isLastRow;
+                const headerBlocked = header.key.trim() !== '' && isHeaderBlocked(header.key);
 
-                    return (
-                      <div key={index} className='flex items-center gap-2'>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Input
-                              type='text'
-                              placeholder={t('advanced.requestHeaders.namePlaceholder')}
-                              value={header.key}
-                              onChange={(e) => form.updateRequestHeader(index, 'key', e.target.value)}
-                              maxLength={MONITOR_LIMITS.REQUEST_HEADER_KEY_MAX}
-                              disabled={isPending || locked}
-                              className={`h-9 flex-1 text-sm ${headerBlocked ? 'border-destructive text-destructive focus-visible:ring-destructive' : ''}`}
-                            />
-                          </TooltipTrigger>
-                          {headerBlocked && (
-                            <TooltipContent side='top'>
-                              <p>{t('advanced.requestHeaders.blockedHeader')}</p>
-                            </TooltipContent>
-                          )}
-                        </Tooltip>
+                return (
+                  <div key={index} className='flex items-center gap-2'>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
                         <Input
                           type='text'
-                          placeholder={t('advanced.requestHeaders.valuePlaceholder')}
-                          value={header.value}
-                          onChange={(e) => form.updateRequestHeader(index, 'value', e.target.value)}
-                          maxLength={MONITOR_LIMITS.REQUEST_HEADER_VALUE_MAX}
-                          disabled={isPending || locked}
-                          className='h-9 flex-1 text-sm'
+                          placeholder={t('advanced.requestHeaders.namePlaceholder')}
+                          value={header.key}
+                          onChange={(e) => form.updateRequestHeader(index, 'key', e.target.value)}
+                          maxLength={MONITOR_LIMITS.REQUEST_HEADER_KEY_MAX}
+                          disabled={isPending || headersUpgrade.locked}
+                          className={`h-9 flex-1 text-sm ${headerBlocked ? 'border-destructive text-destructive focus-visible:ring-destructive' : ''}`}
                         />
-                        <Button
-                          type='button'
-                          variant='ghost'
-                          size='icon'
-                          onClick={() => form.removeRequestHeader(index)}
-                          disabled={isPending || locked || !showDeleteButton}
-                          className={`h-9 w-9 flex-shrink-0 cursor-pointer ${
-                            showDeleteButton
-                              ? 'text-muted-foreground hover:text-destructive hover:bg-destructive/10'
-                              : 'invisible'
-                          }`}
-                        >
-                          <Trash2 className='h-4 w-4' />
-                        </Button>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </CapabilityGate>
+                      </TooltipTrigger>
+                      {headerBlocked && (
+                        <TooltipContent side='top'>
+                          <p>{t('advanced.requestHeaders.blockedHeader')}</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                    <Input
+                      type='text'
+                      placeholder={t('advanced.requestHeaders.valuePlaceholder')}
+                      value={header.value}
+                      onChange={(e) => form.updateRequestHeader(index, 'value', e.target.value)}
+                      maxLength={MONITOR_LIMITS.REQUEST_HEADER_VALUE_MAX}
+                      disabled={isPending || headersUpgrade.locked}
+                      className='h-9 flex-1 text-sm'
+                    />
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      size='icon'
+                      onClick={() => form.removeRequestHeader(index)}
+                      disabled={isPending || headersUpgrade.locked || !showDeleteButton}
+                      className={`h-9 w-9 flex-shrink-0 cursor-pointer ${
+                        showDeleteButton
+                          ? 'text-muted-foreground hover:text-destructive hover:bg-destructive/10'
+                          : 'invisible'
+                      }`}
+                    >
+                      <Trash2 className='h-4 w-4' />
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           <Separator />
@@ -216,76 +206,72 @@ export function AdvancedSettingsSection({
           <div className='space-y-3'>
             <div className='flex items-center justify-between'>
               <Label className='text-sm font-medium'>{t('advanced.acceptedStatusCodes.label')}</Label>
-              {!caps.monitoring.customStatusCodes && <ProBadge />}
+              <PlanBadge plan={statusCodesUpgrade.plan} />
             </div>
             <p className='text-muted-foreground text-xs'>{t('advanced.acceptedStatusCodes.description')}</p>
-            <CapabilityGate allowed={caps.monitoring.customStatusCodes}>
-              {({ locked }) => (
-                <div className='flex flex-wrap items-center gap-1.5'>
-                  {form.state.acceptedStatusCodes.map((code) => {
-                    const isOnlyCode = form.state.acceptedStatusCodes.length === 1;
-                    const removeButton = (
-                      <button
-                        type='button'
-                        onClick={() => form.removeStatusCode(code)}
-                        disabled={isPending || locked || isOnlyCode}
-                        className='cursor-pointer rounded p-0.5 opacity-60 transition-opacity hover:opacity-100 disabled:cursor-not-allowed disabled:hover:opacity-60'
-                      >
-                        <X className='h-3 w-3' />
-                      </button>
-                    );
+            <div className='flex flex-wrap items-center gap-1.5'>
+              {form.state.acceptedStatusCodes.map((code) => {
+                const isOnlyCode = form.state.acceptedStatusCodes.length === 1;
+                const removeButton = (
+                  <button
+                    type='button'
+                    onClick={() => form.removeStatusCode(code)}
+                    disabled={isPending || statusCodesUpgrade.locked || isOnlyCode}
+                    className='cursor-pointer rounded p-0.5 opacity-60 transition-opacity hover:opacity-100 disabled:cursor-not-allowed disabled:hover:opacity-60'
+                  >
+                    <X className='h-3 w-3' />
+                  </button>
+                );
 
-                    return (
-                      <span
-                        key={code}
-                        className={`inline-flex h-7 items-center gap-1 rounded-md border px-2 font-mono text-xs font-medium ${getStatusCodeColorClasses(code)}`}
-                      >
-                        {code}
-                        {isOnlyCode ? (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className='inline-flex cursor-not-allowed'>{removeButton}</span>
-                            </TooltipTrigger>
-                            <TooltipContent side='top' className='max-w-[220px]'>
-                              {t('advanced.acceptedStatusCodes.lastCodeRequired')}
-                            </TooltipContent>
-                          </Tooltip>
-                        ) : (
-                          removeButton
-                        )}
-                      </span>
-                    );
-                  })}
-                  <div className='flex items-center gap-1'>
-                    <Input
-                      type='text'
-                      placeholder='2xx'
-                      value={statusCodeInput}
-                      onChange={(e) => handleStatusCodeInputChange(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleAddStatusCode();
-                        }
-                      }}
-                      maxLength={3}
-                      disabled={isPending || locked}
-                      className='h-7 w-16 font-mono text-xs'
-                    />
-                    <Button
-                      type='button'
-                      variant='ghost'
-                      size='icon'
-                      onClick={handleAddStatusCode}
-                      disabled={isPending || !statusCodeInput.trim() || locked}
-                      className='h-7 w-7 cursor-pointer'
-                    >
-                      <Plus className='h-3.5 w-3.5' />
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </CapabilityGate>
+                return (
+                  <span
+                    key={code}
+                    className={`inline-flex h-7 items-center gap-1 rounded-md border px-2 font-mono text-xs font-medium ${getStatusCodeColorClasses(code)}`}
+                  >
+                    {code}
+                    {isOnlyCode ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className='inline-flex cursor-not-allowed'>{removeButton}</span>
+                        </TooltipTrigger>
+                        <TooltipContent side='top' className='max-w-[220px]'>
+                          {t('advanced.acceptedStatusCodes.lastCodeRequired')}
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      removeButton
+                    )}
+                  </span>
+                );
+              })}
+              <div className='flex items-center gap-1'>
+                <Input
+                  type='text'
+                  placeholder='2xx'
+                  value={statusCodeInput}
+                  onChange={(e) => handleStatusCodeInputChange(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddStatusCode();
+                    }
+                  }}
+                  maxLength={3}
+                  disabled={isPending || statusCodesUpgrade.locked}
+                  className='h-7 w-16 font-mono text-xs'
+                />
+                <Button
+                  type='button'
+                  variant='ghost'
+                  size='icon'
+                  onClick={handleAddStatusCode}
+                  disabled={isPending || !statusCodeInput.trim() || statusCodesUpgrade.locked}
+                  className='h-7 w-7 cursor-pointer'
+                >
+                  <Plus className='h-3.5 w-3.5' />
+                </Button>
+              </div>
+            </div>
           </div>
 
         </div>

@@ -148,6 +148,7 @@ describe('deleteUser', () => {
 
     expect(deleteUserAccount).toHaveBeenCalledWith('user-1', {
       ownedDashboards: { mode: 'transfer', toUserId: 'admin-1' },
+      removedById: 'admin-1',
     });
   });
 
@@ -167,9 +168,13 @@ describe('deleteUser', () => {
 
   it('deletes owned dashboards when asked and none is the demo', async () => {
     vi.mocked(DashboardRepository.findOwnedDashboards).mockResolvedValue([{ id: 'other-dash' }] as never);
+    vi.mocked(deleteUserAccount).mockResolvedValue(['acme']);
 
-    await deleteUser(selfHost, 'user-1', { ownedDashboards: 'delete' });
+    expect(await deleteUser(selfHost, 'user-1', { ownedDashboards: 'delete' })).toEqual(['acme']);
 
-    expect(deleteUserAccount).toHaveBeenCalledWith('user-1', { ownedDashboards: { mode: 'delete' } });
+    expect(deleteUserAccount).toHaveBeenCalledWith('user-1', {
+      ownedDashboards: { mode: 'delete' },
+      removedById: 'admin-1',
+    });
   });
 });

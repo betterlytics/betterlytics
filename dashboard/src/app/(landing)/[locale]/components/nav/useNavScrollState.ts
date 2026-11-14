@@ -17,7 +17,8 @@ export function useNavScrollState(navRef: RefObject<HTMLElement | null>, gridSta
     const update = () => {
       frame = 0;
       const y = window.scrollY;
-      setGrid(y >= trigger);
+      // strict, so a band right under the bar (no hero) keeps the wordmark at the top
+      setGrid(y > trigger);
       if (Math.abs(y - lastY) < TOLERANCE) return;
       setScrolledDown(y > lastY && y > nav.offsetHeight);
       lastY = y;

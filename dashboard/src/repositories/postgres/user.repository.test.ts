@@ -25,14 +25,19 @@ const prismaMock = vi.hoisted(() => {
     },
     userDashboard: {
       findMany: vi.fn(),
-      delete: vi.fn(),
-      upsert: vi.fn(),
+      findFirst: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      updateMany: vi.fn(),
     },
     dashboard: {
       updateMany: vi.fn(),
     },
     dashboardInvitation: {
       updateMany: vi.fn(),
+    },
+    statusPage: {
+      updateManyAndReturn: vi.fn(),
     },
     account: {
       findFirst: vi.fn(),
@@ -203,10 +208,11 @@ describe('countActiveUsers', () => {
 });
 
 describe('deleteUserAccount', () => {
-  const deleteOwned = { guard: false, ownedDashboards: { mode: 'delete' as const } };
+  const deleteOwned = { guard: false, ownedDashboards: { mode: 'delete' as const }, removedById: 'user-1' };
 
   beforeEach(() => {
     prismaMock.userDashboard.findMany.mockResolvedValue([]);
+    prismaMock.statusPage.updateManyAndReturn.mockResolvedValue([]);
   });
 
   it('runs the full cleanup inside a single locked transaction', async () => {
@@ -229,7 +235,6 @@ describe('deleteUserAccount', () => {
         image: null,
         role: null,
         twoFactorEnabled: false,
-        totpSecret: null,
         emailVerified: false,
         deletedAt: expect.any(Date),
       },
@@ -262,13 +267,31 @@ describe('deleteUserAccount', () => {
     });
   });
 
+  it('ends every live membership with the remover set instead of deleting it', async () => {
+    await deleteUserAccount('user-1', { ...deleteOwned, removedById: 'admin-1' });
+
+    expect(prismaMock.userDashboard.updateMany).toHaveBeenCalledWith({
+      where: { userId: 'user-1', deletedAt: null },
+      data: { deletedAt: expect.any(Date), deletedById: 'admin-1' },
+    });
+  });
+
+  it('only disposes of live owned memberships', async () => {
+    await deleteUserAccount('user-1', deleteOwned);
+
+    expect(prismaMock.userDashboard.findMany).toHaveBeenCalledWith({
+      where: { userId: 'user-1', role: 'owner', deletedAt: null, dashboard: { deletedAt: null } },
+      select: { dashboardId: true },
+    });
+  });
+
   it('soft-deletes owned dashboards and cancels their pending invitations', async () => {
-    prismaMock.userDashboard.findMany.mockResolvedValue([{ id: 'ud-1', dashboardId: 'dash-1' }]);
+    prismaMock.userDashboard.findMany.mockResolvedValue([{ dashboardId: 'dash-1' }]);
 
     await deleteUserAccount('user-1', deleteOwned);
 
     expect(prismaMock.dashboard.updateMany).toHaveBeenCalledWith({
-      where: { id: { in: ['dash-1'] } },
+      where: { id: { in: ['dash-1'] }, deletedAt: null },
       data: { deletedAt: expect.any(Date) },
     });
     expect(prismaMock.dashboardInvitation.updateMany).toHaveBeenCalledWith({
@@ -277,23 +300,60 @@ describe('deleteUserAccount', () => {
     });
   });
 
-  it('hands owned dashboards to the recipient instead of deleting them', async () => {
-    prismaMock.userDashboard.findMany.mockResolvedValue([{ id: 'ud-1', dashboardId: 'dash-1' }]);
+  it("releases the deleted dashboards' live status pages with the dashboards' deletion time", async () => {
+    prismaMock.userDashboard.findMany.mockResolvedValue([{ dashboardId: 'dash-1' }, { dashboardId: 'dash-2' }]);
+    prismaMock.statusPage.updateManyAndReturn.mockResolvedValue([{ slug: 'acme' }]);
+
+    expect(await deleteUserAccount('user-1', deleteOwned)).toEqual({ outcome: null, releasedSlugs: ['acme'] });
+
+    const dashboardDeletedAt = prismaMock.dashboard.updateMany.mock.calls[0][0].data.deletedAt;
+    expect(prismaMock.statusPage.updateManyAndReturn).toHaveBeenCalledWith({
+      where: { dashboardId: { in: ['dash-1', 'dash-2'] }, deletedAt: null },
+      data: { deletedAt: dashboardDeletedAt },
+      select: { slug: true },
+    });
+  });
+
+  it('hands owned dashboards to the recipient and ends the old owner row instead of deleting it', async () => {
+    prismaMock.userDashboard.findMany.mockResolvedValue([{ dashboardId: 'dash-1' }]);
+    prismaMock.userDashboard.findFirst.mockResolvedValue(null);
     prismaMock.user.findFirst.mockResolvedValue({ id: 'user-2' });
 
     const outcome = await deleteUserAccount('user-1', {
       guard: false,
       ownedDashboards: { mode: 'transfer', toUserId: 'user-2' },
+      removedById: 'user-1',
     });
 
-    expect(outcome).toBeNull();
+    expect(outcome).toEqual({ outcome: null, releasedSlugs: [] });
     expect(prismaMock.dashboard.updateMany).not.toHaveBeenCalled();
-    expect(prismaMock.userDashboard.delete).toHaveBeenCalledWith({ where: { id: 'ud-1' } });
-    expect(prismaMock.userDashboard.upsert).toHaveBeenCalledWith({
-      where: { userId_dashboardId: { userId: 'user-2', dashboardId: 'dash-1' } },
-      create: { userId: 'user-2', dashboardId: 'dash-1', role: 'owner' },
-      update: { role: 'owner' },
+    expect(prismaMock.statusPage.updateManyAndReturn).not.toHaveBeenCalled();
+    expect(prismaMock.userDashboard.findFirst).toHaveBeenCalledWith({
+      where: { userId: 'user-2', dashboardId: 'dash-1', deletedAt: null },
+      select: { id: true },
     });
+    expect(prismaMock.userDashboard.create).toHaveBeenCalledWith({
+      data: { userId: 'user-2', dashboardId: 'dash-1', role: 'owner' },
+    });
+    expect(prismaMock.userDashboard.updateMany).toHaveBeenCalledWith({
+      where: { userId: 'user-1', deletedAt: null },
+      data: { deletedAt: expect.any(Date), deletedById: 'user-1' },
+    });
+  });
+
+  it("promotes the recipient's live membership to owner when they are already a member", async () => {
+    prismaMock.userDashboard.findMany.mockResolvedValue([{ dashboardId: 'dash-1' }]);
+    prismaMock.userDashboard.findFirst.mockResolvedValue({ id: 'ud-2' });
+    prismaMock.user.findFirst.mockResolvedValue({ id: 'user-2' });
+
+    await deleteUserAccount('user-1', {
+      guard: false,
+      ownedDashboards: { mode: 'transfer', toUserId: 'user-2' },
+      removedById: 'user-1',
+    });
+
+    expect(prismaMock.userDashboard.update).toHaveBeenCalledWith({ where: { id: 'ud-2' }, data: { role: 'owner' } });
+    expect(prismaMock.userDashboard.create).not.toHaveBeenCalled();
   });
 
   it('refuses a recipient that is not an enabled user, without writing', async () => {
@@ -302,19 +362,25 @@ describe('deleteUserAccount', () => {
     const outcome = await deleteUserAccount('user-1', {
       guard: false,
       ownedDashboards: { mode: 'transfer', toUserId: 'user-2' },
+      removedById: 'user-1',
     });
 
-    expect(outcome).toBe('invalid_recipient');
+    expect(outcome).toEqual({ outcome: 'invalid_recipient', releasedSlugs: [] });
     expect(prismaMock.user.update).not.toHaveBeenCalled();
-    expect(prismaMock.userDashboard.upsert).not.toHaveBeenCalled();
+    expect(prismaMock.userDashboard.create).not.toHaveBeenCalled();
+    expect(prismaMock.userDashboard.updateMany).not.toHaveBeenCalled();
   });
 
   it('refuses the last enabled admin without writing when guarded', async () => {
     prismaMock.user.findUnique.mockResolvedValue(enabledAdmin);
     mockCounts(1, 2);
 
-    expect(await deleteUserAccount('user-1', { ...deleteOwned, guard: true })).toBe('last_admin');
+    expect(await deleteUserAccount('user-1', { ...deleteOwned, guard: true })).toEqual({
+      outcome: 'last_admin',
+      releasedSlugs: [],
+    });
     expect(prismaMock.user.update).not.toHaveBeenCalled();
+    expect(prismaMock.userDashboard.updateMany).not.toHaveBeenCalled();
     expect(prismaMock.dashboard.updateMany).not.toHaveBeenCalled();
   });
 
@@ -427,7 +493,7 @@ describe('resetUserTwoFactor', () => {
     expect(prismaMock.twoFactor.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
     expect(prismaMock.user.update).toHaveBeenCalledWith({
       where: { id: 'user-1' },
-      data: { twoFactorEnabled: false, totpSecret: null },
+      data: { twoFactorEnabled: false },
     });
     expect(prismaMock.verification.deleteMany).toHaveBeenCalledWith({
       where: {

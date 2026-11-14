@@ -3,3 +3,6 @@ export const SIGNUP_DISABLED_MESSAGE = 'Registration is disabled on this instanc
 
 /** A verification link was sent too recently to send another. */
 export const VERIFICATION_EMAIL_THROTTLED = 'VERIFICATION_EMAIL_THROTTLED';
+
+/** An action on an MCP consent request that has expired or was already answered. */
+export const MCP_CONSENT_REQUEST_INVALID = 'MCP_CONSENT_REQUEST_INVALID';

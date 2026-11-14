@@ -1,6 +1,8 @@
 use std::collections::{HashMap, HashSet};
 use std::time::Duration as StdDuration;
 
+use chrono::{DateTime, Utc};
+
 use crate::monitor::{BackoffReason, BackoffSnapshot, MonitorCheck, ProbeOutcome};
 
 const DEFAULT_MULTIPLIER: u64 = 2;
@@ -28,6 +30,24 @@ impl Default for BackoffPolicy {
     }
 }
 
+/// The backoff level recorded on a check's latest result, used to restore it after a restart.
+#[derive(Clone, Debug)]
+pub struct BackoffSeed {
+    pub ts: DateTime<Utc>,
+    pub backoff_level: u8,
+}
+
+pub type BackoffSeeds = HashMap<String, BackoffSeed>;
+
+impl BackoffSeed {
+    /// A result from before the check was last saved says nothing about the check as it is
+    /// now. How long the backend was down does not matter: a recovered check is back at level
+    /// 0 after two successes either way.
+    fn applies_to(&self, check: &MonitorCheck) -> bool {
+        self.ts >= check.updated_at
+    }
+}
+
 #[derive(Clone, Debug)]
 struct BackoffState {
     base_interval: StdDuration,
@@ -36,43 +56,83 @@ struct BackoffState {
     consecutive_failures: u16,
     consecutive_successes: u16,
     reason: BackoffReason,
+    updated_at: DateTime<Utc>,
 }
 
 impl BackoffState {
-    fn new(base_interval: StdDuration, policy: &BackoffPolicy) -> Self {
-        let effective_interval = policy.interval_for_level(base_interval, 0);
+    fn new(check: &MonitorCheck, policy: &BackoffPolicy) -> Self {
+        let effective_interval = policy.interval_for_level(check.interval, 0);
         Self {
-            base_interval,
+            base_interval: check.interval,
             effective_interval,
             backoff_level: 0,
             consecutive_failures: 0,
             consecutive_successes: 0,
             reason: BackoffReason::None,
+            updated_at: check.updated_at,
         }
+    }
+
+    /// Re-applies the seed's level to the check's current interval. Streaks start at zero,
+    /// as on any restart.
+    fn restored(check: &MonitorCheck, seed: &BackoffSeed, policy: &BackoffPolicy) -> Self {
+        let mut state = Self::new(check, policy);
+        if !seed.applies_to(check) {
+            return state;
+        }
+        let level = seed.backoff_level.min(policy.max_level(check.interval));
+        if level > 0 {
+            state.backoff_level = level;
+            state.effective_interval = policy.interval_for_level(check.interval, level);
+            state.reason = BackoffReason::Failure;
+        }
+        state
     }
 }
 
 pub struct BackoffController {
     policy: BackoffPolicy,
     states: HashMap<String, BackoffState>,
+    seeds: BackoffSeeds,
 }
 
 impl BackoffController {
-    pub fn new(policy: BackoffPolicy) -> Self {
+    /// Each seed is used once, when its check is first seen.
+    pub fn new(policy: BackoffPolicy, seeds: BackoffSeeds) -> Self {
         Self {
             policy,
             states: HashMap::new(),
+            seeds,
         }
     }
 
     pub fn current_snapshot(&mut self, check: &MonitorCheck) -> BackoffSnapshot {
         let policy = self.policy;
-        let state = Self::ensure_state(policy, &mut self.states, check);
+        let state = Self::ensure_state(policy, &mut self.states, &mut self.seeds, check);
         Self::to_snapshot(state)
+    }
+
+    /// Drops a check back to level 0 when it was saved after its state was created, as the
+    /// user may just have fixed it. Streaks are kept so a save never delays a down alert.
+    /// Returns whether it was reset.
+    pub fn reset_if_saved(&mut self, check: &MonitorCheck) -> bool {
+        let Some(state) = self.states.get_mut(&check.id) else {
+            return false;
+        };
+        if check.updated_at <= state.updated_at {
+            return false;
+        }
+        state.updated_at = check.updated_at;
+        state.base_interval = check.interval;
+        state.backoff_level = 0;
+        state.effective_interval = self.policy.interval_for_level(check.interval, 0);
+        state.reason = BackoffReason::None;
+        true
     }
 
     pub fn prune_inactive(&mut self, active_ids: &HashSet<String>) {
         self.states.retain(|id, _| active_ids.contains(id));
+        self.seeds.retain(|id, _| active_ids.contains(id));
     }
 
     pub fn apply_outcome(
@@ -81,17 +141,15 @@ impl BackoffController {
         outcome: &ProbeOutcome,
     ) -> BackoffSnapshot {
         let policy = self.policy;
-        let state = Self::ensure_state(policy, &mut self.states, check);
+        let state = Self::ensure_state(policy, &mut self.states, &mut self.seeds, check);
 
         if outcome.success {
             state.consecutive_successes = state.consecutive_successes.saturating_add(1);
             state.consecutive_failures = 0;
             if state.backoff_level > 0 && state.consecutive_successes >= policy.success_threshold {
-                state.backoff_level = state.backoff_level.saturating_sub(1);
+                state.backoff_level = 0;
                 state.consecutive_successes = 0;
-                if state.backoff_level == 0 {
-                    state.reason = BackoffReason::None;
-                }
+                state.reason = BackoffReason::None;
             }
         } else {
             state.consecutive_failures = state.consecutive_failures.saturating_add(1);
@@ -115,11 +173,15 @@ impl BackoffController {
     fn ensure_state<'a>(
         policy: BackoffPolicy,
         states: &'a mut HashMap<String, BackoffState>,
+        seeds: &mut BackoffSeeds,
         check: &MonitorCheck,
     ) -> &'a mut BackoffState {
         let entry = states
             .entry(check.id.clone())
-            .or_insert_with(|| BackoffState::new(check.interval, &policy));
+            .or_insert_with(|| match seeds.remove(&check.id) {
+                Some(seed) => BackoffState::restored(check, &seed, &policy),
+                None => BackoffState::new(check, &policy),
+            });
 
         // If the monitor's base interval changed, update and clamp the level
         if entry.base_interval != check.interval {
@@ -218,6 +280,32 @@ mod tests {
         ProbeOutcome::failure(StdDuration::from_millis(50), Some(503), ReasonCode::Http5xx)
     }
 
+    fn minutes_ago(minutes: i64) -> DateTime<Utc> {
+        Utc::now() - chrono::Duration::minutes(minutes)
+    }
+
+    /// A check last saved an hour ago, so recent seeds apply to it.
+    fn saved_check(interval_secs: u64) -> MonitorCheck {
+        MonitorCheck {
+            updated_at: minutes_ago(60),
+            ..check(interval_secs)
+        }
+    }
+
+    fn seeds(level: u8, ts: DateTime<Utc>) -> BackoffSeeds {
+        let seed = BackoffSeed {
+            ts,
+            backoff_level: level,
+        };
+        HashMap::from([("check-1".to_string(), seed)])
+    }
+
+    fn escalate(controller: &mut BackoffController, check: &MonitorCheck, levels: u16) {
+        for _ in 0..policy().failure_threshold * levels {
+            controller.apply_outcome(check, &failure());
+        }
+    }
+
     #[test]
     fn level_zero_is_exactly_the_base_interval() {
         // 44 minutes is not a "round" value; it must not be snapped to anything else.
@@ -265,7 +353,7 @@ mod tests {
     #[test]
     fn controller_escalates_after_failure_threshold_and_recovers() {
         let p = policy();
-        let mut controller = BackoffController::new(p);
+        let mut controller = BackoffController::new(p, BackoffSeeds::new());
         let check = check(300);
 
         for _ in 0..p.failure_threshold - 1 {
@@ -282,12 +370,129 @@ mod tests {
         let snapshot = controller.apply_outcome(&check, &success());
         assert_eq!(snapshot.backoff_level, 0);
         assert_eq!(snapshot.effective_interval, check.interval);
+        assert_eq!(snapshot.backoff_reason, BackoffReason::None);
+    }
+
+    #[test]
+    fn two_successes_reset_a_deep_backoff_to_level_zero() {
+        let mut controller = BackoffController::new(policy(), BackoffSeeds::new());
+        let check = check(300);
+        escalate(&mut controller, &check, 3);
+        assert_eq!(controller.current_snapshot(&check).backoff_level, 3);
+
+        let snapshot = controller.apply_outcome(&check, &success());
+        assert_eq!(snapshot.backoff_level, 3);
+        let snapshot = controller.apply_outcome(&check, &success());
+        assert_eq!(snapshot.backoff_level, 0);
+        assert_eq!(snapshot.effective_interval, check.interval);
+        assert_eq!(snapshot.backoff_reason, BackoffReason::None);
+    }
+
+    #[test]
+    fn seed_restores_the_level_with_fresh_streaks() {
+        let check = saved_check(300);
+        let mut controller = BackoffController::new(policy(), seeds(3, minutes_ago(10)));
+
+        let snapshot = controller.current_snapshot(&check);
+        assert_eq!(snapshot.backoff_level, 3);
+        assert_eq!(snapshot.effective_interval, StdDuration::from_secs(2_400));
+        assert_eq!(snapshot.backoff_reason, BackoffReason::Failure);
+        assert_eq!(snapshot.consecutive_failures, 0);
+        assert_eq!(snapshot.consecutive_successes, 0);
+    }
+
+    #[test]
+    fn seed_level_applies_to_the_current_interval_capped_at_the_ceiling() {
+        // Recorded while the check ran every 5m; it now runs hourly, where level 5 hits 24h.
+        let check = saved_check(3_600);
+        let mut controller = BackoffController::new(policy(), seeds(8, minutes_ago(10)));
+
+        let snapshot = controller.current_snapshot(&check);
+        assert_eq!(snapshot.backoff_level, 5);
+        assert_eq!(
+            snapshot.effective_interval,
+            StdDuration::from_secs(DEFAULT_MAX_EFFECTIVE_SECS)
+        );
+    }
+
+    #[test]
+    fn seed_restores_the_level_however_long_the_backend_was_down() {
+        // A 10m result from before two days of downtime, for a check saved three days ago.
+        let check = MonitorCheck {
+            updated_at: minutes_ago(3 * 24 * 60),
+            ..check(300)
+        };
+        let mut controller = BackoffController::new(policy(), seeds(1, minutes_ago(2 * 24 * 60)));
+
+        let snapshot = controller.current_snapshot(&check);
+        assert_eq!(snapshot.backoff_level, 1);
+        assert_eq!(snapshot.effective_interval, StdDuration::from_secs(600));
+    }
+
+    #[test]
+    fn seed_from_before_the_last_save_starts_at_level_zero() {
+        let check = MonitorCheck {
+            updated_at: minutes_ago(5),
+            ..check(300)
+        };
+        let mut controller = BackoffController::new(policy(), seeds(3, minutes_ago(10)));
+
+        let snapshot = controller.current_snapshot(&check);
+        assert_eq!(snapshot.backoff_level, 0);
+        assert_eq!(snapshot.effective_interval, check.interval);
+    }
+
+    #[test]
+    fn restored_check_recovers_after_two_successes() {
+        let check = saved_check(300);
+        let mut controller = BackoffController::new(policy(), seeds(3, minutes_ago(10)));
+
+        assert_eq!(controller.apply_outcome(&check, &success()).backoff_level, 3);
+        let snapshot = controller.apply_outcome(&check, &success());
+        assert_eq!(snapshot.backoff_level, 0);
+        assert_eq!(snapshot.effective_interval, check.interval);
+    }
+
+    #[test]
+    fn saving_a_check_resets_its_level_but_keeps_its_streak() {
+        let mut controller = BackoffController::new(policy(), BackoffSeeds::new());
+        let check = saved_check(300);
+        escalate(&mut controller, &check, 2);
+        controller.apply_outcome(&check, &failure());
+        assert!(!controller.reset_if_saved(&check));
+
+        let saved = MonitorCheck {
+            updated_at: Utc::now(),
+            ..check.clone()
+        };
+        assert!(controller.reset_if_saved(&saved));
+        let snapshot = controller.current_snapshot(&saved);
+        assert_eq!(snapshot.backoff_level, 0);
+        assert_eq!(snapshot.effective_interval, saved.interval);
+        assert_eq!(snapshot.backoff_reason, BackoffReason::None);
+        assert_eq!(snapshot.consecutive_failures, 1);
+
+        assert!(!controller.reset_if_saved(&saved));
+    }
+
+    #[test]
+    fn saving_a_restored_check_resets_it() {
+        let check = saved_check(300);
+        let mut controller = BackoffController::new(policy(), seeds(3, minutes_ago(10)));
+        assert_eq!(controller.current_snapshot(&check).backoff_level, 3);
+
+        let saved = MonitorCheck {
+            updated_at: Utc::now(),
+            ..check
+        };
+        assert!(controller.reset_if_saved(&saved));
+        assert_eq!(controller.current_snapshot(&saved).backoff_level, 0);
     }
 
     #[test]
     fn base_interval_change_reclamps_the_level() {
         let p = policy();
-        let mut controller = BackoffController::new(p);
+        let mut controller = BackoffController::new(p, BackoffSeeds::new());
         let slow = check(86_400);
 
         // Escalate a 5m monitor one level, then simulate the user changing it to 24h.

@@ -32,12 +32,10 @@ export default function MapBackgroundLayer({ Polygon }: MapBackgroundLayerProps)
     setMapSelection({ hovered: undefined });
   }, [setMapSelection]);
 
+  // Overlays such as the filters card sit inside the map's rect, so containment decides
   const dismissIfOutside = useCallback(
     (e: MouseEvent) => {
-      const rect = map.getContainer().getBoundingClientRect();
-      if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
-        clearHovered();
-      }
+      if (!(e.target instanceof Node) || !map.getContainer().contains(e.target)) clearHovered();
     },
     [map, clearHovered],
   );

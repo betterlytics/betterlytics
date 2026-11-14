@@ -1,5 +1,6 @@
 import type { NextConfig } from 'next';
 import { HTML_LIMITED_BOT_UA_RE } from 'next/dist/shared/lib/router/utils/html-bots';
+import * as fs from 'fs';
 import * as path from 'path';
 import dotenv from 'dotenv';
 import createNextIntlPlugin from 'next-intl/plugin';
@@ -14,6 +15,11 @@ if (result.error) {
   console.warn('Could not load .env file from root:', result.error.message);
 }
 
+const BLOG_POST_SLUGS = fs
+  .readdirSync(path.join(process.cwd(), 'src/content/blog/posts'))
+  .filter((file) => file.endsWith('.mdx'))
+  .map((file) => file.slice(0, -'.mdx'.length));
+
 const nextConfig: NextConfig = {
   output: 'standalone',
   // Next's list omits Googlebot and AI crawlers; Google ignores canonical and hreflang streamed into <body>
@@ -27,12 +33,21 @@ const nextConfig: NextConfig = {
     webpackMemoryOptimizations: true,
     serverSourceMaps: true,
   },
+  // the daily re-render reads posts from disk, which the standalone trace can't follow on its own
+  outputFileTracingIncludes: {
+    '/blog/**': ['./src/content/blog/posts/**/*'],
+  },
   async redirects() {
     return [
       { source: '/login', destination: '/signin', permanent: true },
       { source: '/register', destination: '/signup', permanent: true },
       { source: '/:locale/login', destination: '/:locale/signin', permanent: true },
       { source: '/:locale/register', destination: '/:locale/signup', permanent: true },
+      {
+        source: `/:locale(${SUPPORTED_LANGUAGES.join('|')})/blog/:path*`,
+        destination: '/blog/:path*',
+        permanent: true,
+      },
     ];
   },
   async rewrites() {
@@ -43,6 +58,11 @@ const nextConfig: NextConfig = {
         {
           source: `/:segment((?!(?:${SUPPORTED_LANGUAGES.join('|')})$)[^/]+)`,
           destination: `/${process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE ?? 'en'}/:segment`,
+        },
+        // Likewise every unknown blog URL would cache its own 404, so they share one prerendered page
+        {
+          source: `/blog/:path((?!(?:${BLOG_POST_SLUGS.join('|')})$).+)`,
+          destination: '/blog/not_found',
         },
       ],
       fallback: [],

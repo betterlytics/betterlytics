@@ -56,6 +56,13 @@ pub struct MetricsCollector {
     monitor_probe_latency_seconds: HistogramVec,
     monitor_active_probes: Gauge,
 
+    // Session replay uploads
+    replay_segment_uploads_total: IntCounterVec,
+    replay_segment_stored_bytes_total: IntCounterVec,
+    replay_storage_operation_duration_seconds: HistogramVec,
+    replay_storage_operation_errors_total: IntCounterVec,
+    replay_metadata_upsert_failures_total: IntCounter,
+
     // System info
     system: Arc<RwLock<System>>,
     current_pid: Pid,
@@ -238,6 +245,43 @@ impl MetricsCollector {
             "Current number of concurrent monitor probes in flight",
         ))?;
 
+        let replay_segment_uploads_total = IntCounterVec::new(
+            Opts::new(
+                "replay_segment_uploads_total",
+                "Session replay segment uploads grouped by storage and outcome",
+            ),
+            &["storage", "outcome"],
+        )?;
+
+        let replay_segment_stored_bytes_total = IntCounterVec::new(
+            Opts::new(
+                "replay_segment_stored_bytes_total",
+                "Bytes written by stored session replay segments, grouped by storage",
+            ),
+            &["storage"],
+        )?;
+
+        let replay_storage_operation_duration_seconds = HistogramVec::new(
+            HistogramOpts::new(
+                "replay_storage_operation_duration_seconds",
+                "Session replay storage call latency in seconds, grouped by storage and operation",
+            ),
+            &["storage", "operation"],
+        )?;
+
+        let replay_storage_operation_errors_total = IntCounterVec::new(
+            Opts::new(
+                "replay_storage_operation_errors_total",
+                "Failed session replay storage calls, grouped by storage and operation",
+            ),
+            &["storage", "operation"],
+        )?;
+
+        let replay_metadata_upsert_failures_total = IntCounter::with_opts(Opts::new(
+            "replay_metadata_upsert_failures_total",
+            "Session replay metadata upserts that failed after the segment was stored",
+        ))?;
+
         registry.register(Box::new(system_cpu_usage.clone()))?;
         registry.register(Box::new(system_memory_usage.clone()))?;
         registry.register(Box::new(system_memory_total.clone()))?;
@@ -268,6 +312,11 @@ impl MetricsCollector {
         registry.register(Box::new(monitor_probe_total.clone()))?;
         registry.register(Box::new(monitor_probe_latency_seconds.clone()))?;
         registry.register(Box::new(monitor_active_probes.clone()))?;
+        registry.register(Box::new(replay_segment_uploads_total.clone()))?;
+        registry.register(Box::new(replay_segment_stored_bytes_total.clone()))?;
+        registry.register(Box::new(replay_storage_operation_duration_seconds.clone()))?;
+        registry.register(Box::new(replay_storage_operation_errors_total.clone()))?;
+        registry.register(Box::new(replay_metadata_upsert_failures_total.clone()))?;
 
         let mut system = System::new_all();
         system.refresh_all(); // This refresh is an attempt to ensure that when the metrics_updater starts it has accurate initial values
@@ -305,6 +354,11 @@ impl MetricsCollector {
             monitor_probe_total,
             monitor_probe_latency_seconds,
             monitor_active_probes,
+            replay_segment_uploads_total,
+            replay_segment_stored_bytes_total,
+            replay_storage_operation_duration_seconds,
+            replay_storage_operation_errors_total,
+            replay_metadata_upsert_failures_total,
             system: Arc::new(RwLock::new(system)),
             current_pid,
         };
@@ -473,6 +527,38 @@ impl MetricsCollector {
             .set(depth as f64);
     }
 
+    pub fn record_replay_upload(&self, storage: &str, outcome: &str, stored_bytes: u64) {
+        self.replay_segment_uploads_total
+            .with_label_values(&[storage, outcome])
+            .inc();
+        if stored_bytes > 0 {
+            self.replay_segment_stored_bytes_total
+                .with_label_values(&[storage])
+                .inc_by(stored_bytes);
+        }
+    }
+
+    pub fn record_replay_storage_operation(
+        &self,
+        storage: &str,
+        operation: &str,
+        latency: Duration,
+        failed: bool,
+    ) {
+        self.replay_storage_operation_duration_seconds
+            .with_label_values(&[storage, operation])
+            .observe(latency.as_secs_f64());
+        if failed {
+            self.replay_storage_operation_errors_total
+                .with_label_values(&[storage, operation])
+                .inc();
+        }
+    }
+
+    pub fn increment_replay_metadata_upsert_failures(&self) {
+        self.replay_metadata_upsert_failures_total.inc();
+    }
+
     pub fn export_metrics(&self) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
         let encoder = TextEncoder::new();
         let metric_families = self.registry.gather();
@@ -482,5 +568,26 @@ impl MetricsCollector {
         let metrics_string = String::from_utf8(buffer)?;
 
         Ok(metrics_string)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn replay_upload_metrics_are_labelled_by_storage_only() {
+        let metrics = MetricsCollector::new().unwrap();
+        metrics.record_replay_upload("clickhouse", "stored", 100);
+        metrics.record_replay_upload("clickhouse", "duplicate", 0);
+        metrics.record_replay_storage_operation("s3", "write", Duration::from_millis(20), true);
+        metrics.record_replay_storage_operation("s3", "exists", Duration::from_millis(5), false);
+        let out = metrics.export_metrics().unwrap();
+        assert!(out.contains(r#"replay_segment_uploads_total{outcome="stored",storage="clickhouse"} 1"#));
+        assert!(out.contains(r#"replay_segment_uploads_total{outcome="duplicate",storage="clickhouse"} 1"#));
+        assert!(out.contains(r#"replay_segment_stored_bytes_total{storage="clickhouse"} 100"#));
+        assert!(out.contains(r#"replay_storage_operation_errors_total{operation="write",storage="s3"} 1"#));
+        assert!(!out.contains(r#"replay_storage_operation_errors_total{operation="exists""#));
+        assert!(out.contains(r#"replay_storage_operation_duration_seconds_count{operation="exists",storage="s3"} 1"#));
     }
 }

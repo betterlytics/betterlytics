@@ -1,0 +1,683 @@
+@reference '../../../../landing.css';
+
+@layer components {
+  .film {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stage {
+    padding: 26px 30px 20px;
+    border-bottom: 1px solid var(--color-rule-08);
+    @apply bg-hatch;
+    @variant max-sm {
+      padding: 26px var(--pad) 16px;
+    }
+  }
+
+  .strip {
+    container: strip / inline-size;
+  }
+
+  /*
+   * Nine frames from 0.5s, each with a slot to its right for its label. The axis follows the frame centres, so 0s
+   * falls left of the strip: the line and the TTFB wait fade in from there instead.
+   */
+  .reel {
+    --gap: 44px;
+    --pitch: calc(100cqw / 9);
+    --w: calc(var(--pitch) - var(--gap));
+    --x0: calc(var(--w) / 2 - var(--pitch));
+    --span: 100cqw;
+    --lane: 64px;
+    --line: 12px;
+    position: relative;
+  }
+
+  .frames {
+    display: grid;
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+    gap: 18px 0;
+  }
+  .frames > li {
+    margin-right: var(--gap);
+  }
+
+  .frame {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+  }
+  .frame[data-pick] {
+    cursor: pointer;
+  }
+  /* a pick dims the other frames, but not their stretch of the axis */
+  .reel[data-picked] .frame:not([data-current]) > :is(.shot, .callout) {
+    opacity: 0.4;
+  }
+
+  .shot {
+    position: relative;
+    display: block;
+    container-type: inline-size;
+    aspect-ratio: 10 / 18;
+    overflow: hidden;
+    border: 1px solid var(--color-rule-22);
+    border-radius: 7px;
+    background: var(--color-canvas);
+    transition:
+      box-shadow 0.25s ease,
+      border-color 0.2s ease,
+      opacity 0.25s ease;
+  }
+  .frame[data-current] .shot {
+    box-shadow:
+      0 0 0 2px var(--color-panel),
+      0 0 0 3.5px var(--color-volt-lift),
+      0 10px 24px rgb(0 0 0 / 0.45);
+  }
+
+  /* the page inside a frame: sizes are in frame widths */
+  .page {
+    --push: 15cqw;
+    position: absolute;
+    inset: 0;
+    display: block;
+    padding: 8cqw 7cqw 0;
+  }
+  /* nothing new on screen since the frame before */
+  .frame:not([data-changed], [data-tap], :first-child) .page {
+    opacity: 0.42;
+  }
+  .page i {
+    display: block;
+  }
+
+  .banner {
+    position: absolute;
+    inset: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--push);
+    padding: 0 7cqw;
+    background: #2b2826;
+    opacity: 0;
+  }
+  .banner i:first-child {
+    width: 52%;
+    height: 3.2cqw;
+    border-radius: 99px;
+    background: --alpha(var(--color-fg) / 50%);
+  }
+  .banner i:last-child {
+    width: 5cqw;
+    height: 5cqw;
+    border-radius: 50%;
+    background: --alpha(var(--color-fg) / 30%);
+  }
+  .page[data-shifted] .banner {
+    opacity: 1;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 5cqw;
+  }
+  .page[data-shifted] .content {
+    translate: 0 var(--push);
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 6cqw;
+    border-bottom: 1px solid var(--color-rule-10);
+  }
+  .nav > i {
+    width: 10cqw;
+    height: 10cqw;
+    border-radius: 3cqw;
+    background: var(--color-volt-soft);
+  }
+  .nav span {
+    display: flex;
+    gap: 4cqw;
+  }
+  .nav span i {
+    width: 13cqw;
+    height: 3.2cqw;
+    border-radius: 99px;
+    background: --alpha(var(--color-fg) / 32%);
+  }
+  .heading {
+    display: flex;
+    flex-direction: column;
+    gap: 4cqw;
+    margin-top: 2cqw;
+    border-radius: 2cqw;
+  }
+  .heading i {
+    height: 7cqw;
+    border-radius: 1.6cqw;
+    background: --alpha(var(--color-fg) / 90%);
+  }
+  .heading i:last-child {
+    width: 64%;
+  }
+
+  .media {
+    position: relative;
+    display: block;
+    aspect-ratio: 1 / 0.74;
+    border-radius: 4cqw;
+    background: --alpha(var(--color-fg) / 5%);
+  }
+  .page[data-image] .media {
+    background:
+      radial-gradient(90% 70% at 72% 118%, --alpha(var(--color-glow) / 85%), transparent 70%),
+      linear-gradient(160deg, var(--color-volt-lift), var(--color-volt) 72%);
+  }
+  .ghost {
+    position: absolute;
+    inset: 0;
+    border: 1.5px dashed var(--level);
+    border-radius: inherit;
+    translate: 0 calc(-1 * var(--push));
+    opacity: 0;
+  }
+
+  .lines {
+    display: flex;
+    flex-direction: column;
+    gap: 3cqw;
+  }
+  .lines i {
+    height: 3.2cqw;
+    border-radius: 99px;
+    background: --alpha(var(--color-fg) / 30%);
+  }
+  .lines i:last-child {
+    width: 70%;
+  }
+
+  .button {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 13cqw;
+    border-radius: 99px;
+    background: --alpha(var(--color-fg) / 88%);
+  }
+  .button > * {
+    grid-area: 1 / 1;
+  }
+  .button i {
+    width: 34%;
+    height: 3.2cqw;
+    border-radius: 99px;
+    background: var(--color-canvas);
+  }
+  .button svg {
+    width: 8cqw;
+    height: 8cqw;
+    fill: none;
+    stroke: var(--color-on-volt);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0;
+  }
+  .page[data-responded] .button {
+    background: var(--color-volt-lift);
+  }
+  .page[data-responded] .button i {
+    opacity: 0;
+  }
+  .page[data-responded] .button svg {
+    opacity: 1;
+  }
+
+  .nav,
+  .heading {
+    opacity: 0;
+  }
+  .page[data-text] :is(.nav, .heading) {
+    opacity: 1;
+  }
+  .media,
+  .lines,
+  .button {
+    opacity: 0;
+  }
+  .page[data-body] :is(.media, .lines, .button) {
+    opacity: 1;
+  }
+
+  /* what the marked frame is about, in its metric's colour */
+  .frame[data-for='FCP'] .heading,
+  .frame[data-for='LCP'] .media,
+  .frame[data-for='CLS'] .media,
+  .frame[data-for='INP'] .button {
+    box-shadow:
+      0 0 0 1.5cqw var(--color-canvas),
+      0 0 0 3cqw var(--level);
+  }
+  .frame[data-for='CLS'] .ghost {
+    opacity: 0.9;
+  }
+  .frame[data-tap] .button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 66%;
+    width: 17cqw;
+    height: 17cqw;
+    border: 1.5px solid var(--color-volt-soft);
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--color-volt-soft) 0 22%, --alpha(var(--color-volt-lift) / 35%) 24%);
+    translate: -50% -50%;
+  }
+
+  /* a line from the element into the slot beside its frame, and the label there; the box is the shot's */
+  .callout {
+    --ink: color-mix(in oklab, var(--level, var(--color-volt-soft)) 80%, transparent);
+    position: absolute;
+    inset: 0 0 auto;
+    aspect-ratio: 10 / 18;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .callout i {
+    position: absolute;
+    top: calc(var(--y) * 100%);
+    left: 92.2%;
+    right: -5px;
+    border-top: 1px solid var(--ink);
+  }
+  .callout i::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -2.5px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--ink);
+  }
+  .callout b {
+    position: absolute;
+    top: calc(var(--y) * 100%);
+    left: calc(100% + 8px);
+    font-size: 11px;
+    line-height: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    color: --alpha(var(--color-fg) / 88%);
+    translate: 0 -50%;
+  }
+
+  /* a shift gets a bracket over the area it touched, its ends gripping the frame's edge */
+  .callout[data-span] i {
+    bottom: calc((1 - var(--to)) * 100%);
+    left: calc(100% - 3px);
+    right: -4px;
+    border: 1px solid var(--ink);
+    border-left: 0;
+    border-radius: 0 3px 3px 0;
+  }
+  .callout[data-span] i::before {
+    top: calc(50% - 0.5px);
+    left: 100%;
+    width: 5px;
+    height: 1px;
+    border-radius: 0;
+  }
+  .callout[data-span] b {
+    top: calc((var(--y) + var(--to)) * 50%);
+    left: calc(100% + 11px);
+  }
+
+  .lane {
+    position: relative;
+    height: var(--lane);
+    margin-top: 14px;
+    clip-path: inset(-40px 0 -40px -28px);
+  }
+  .lane::before {
+    content: '';
+    position: absolute;
+    top: var(--line);
+    left: var(--x0);
+    width: var(--span);
+    height: 1px;
+    background: var(--color-rule-30);
+  }
+  .lane::before,
+  .span[data-from-start] {
+    mask-image: linear-gradient(
+      to right,
+      transparent calc(-1 * var(--x0) - 28px),
+      #000 calc(-1 * var(--x0) + 12px)
+    );
+  }
+  .tick {
+    position: absolute;
+    top: calc(var(--line) - 3px);
+    left: 0;
+    width: 1px;
+    height: 7px;
+    background: var(--color-rule-30);
+    translate: calc(var(--x0) + var(--f) * var(--span)) 0;
+  }
+  .span {
+    position: absolute;
+    top: calc(var(--line) - 1px);
+    left: 0;
+    width: calc(var(--len) * var(--span));
+    height: 3px;
+    border-radius: 99px;
+    background: var(--level);
+    translate: calc(var(--x0) + var(--f) * var(--span)) 0;
+  }
+  .mark {
+    position: absolute;
+    top: calc(var(--line) - 4.5px);
+    left: 0;
+    translate: calc(var(--x0) + var(--f) * var(--span)) 0;
+  }
+  .mark::before {
+    content: '';
+    position: absolute;
+    left: -4.5px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--color-panel);
+    box-shadow: inset 0 0 0 4.5px var(--level);
+    transition: scale 0.2s ease;
+  }
+  .mark[data-spot]::before {
+    scale: 1.35;
+  }
+  .mark > span {
+    position: absolute;
+    top: 15px;
+    left: 0;
+    translate: -50% 0;
+    font-size: 11.5px;
+    line-height: 15px;
+    white-space: nowrap;
+    color: var(--level-text);
+  }
+  .mark > span b {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--color-fg);
+  }
+  .span,
+  .mark {
+    transition: opacity 0.25s ease;
+  }
+  .reel[data-picked] :is(.span, .mark):not([data-spot]) {
+    opacity: 0.3;
+  }
+
+  .deck {
+    container-type: inline-size;
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .card {
+    position: relative;
+    padding: 20px 22px 22px;
+    border-right: 1px solid var(--color-rule-08);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  .card:last-child {
+    border-right: 0;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 2px;
+    background: var(--color-volt-lift);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .card[data-active] {
+    background: --alpha(var(--color-fg) / 3%);
+  }
+  .card[data-active]::before {
+    opacity: 1;
+  }
+
+  .copy h3 {
+    font-size: var(--text-body-sm);
+    line-height: 22px;
+    font-weight: 500;
+  }
+  .copy button {
+    text-align: left;
+    color: var(--color-fg);
+  }
+  .copy p {
+    margin-top: 5px;
+    max-width: 48ch;
+    font-size: var(--text-label);
+    line-height: 21px;
+    color: var(--color-muted);
+  }
+
+  /* hovering something that picks a metric hints at the pick: a frame's edge and its number's dot, a card's line */
+  @media (hover: hover) {
+    .frame[data-pick]:hover .shot {
+      border-color: --alpha(var(--color-fg) / 40%);
+    }
+    .reel[data-picked] .frame[data-pick]:not([data-current]):hover > :is(.shot, .callout) {
+      opacity: 0.75;
+    }
+    .reel:has(.frame[data-pick='TTFB']:hover) .mark[data-metric='TTFB']::before,
+    .reel:has(.frame[data-pick='FCP']:hover) .mark[data-metric='FCP']::before,
+    .reel:has(.frame[data-pick='LCP']:hover) .mark[data-metric='LCP']::before,
+    .reel:has(.frame[data-pick='CLS']:hover) .mark[data-metric='CLS']::before,
+    .reel:has(.frame[data-pick='INP']:hover) .mark[data-metric='INP']::before {
+      scale: 1.35;
+    }
+    .card:not([data-active]):hover::before {
+      opacity: 0.35;
+    }
+  }
+
+  /*
+   * As the strip comes into view, the labels draw out from what they mark, one after another: a line from its dot, or a
+   * bracket opening from its middle, then the word.
+   */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .callout i {
+      animation: callout-line 0.4s var(--ease-out-expo) calc(var(--k) * 0.16s) backwards;
+    }
+    .callout[data-span] i {
+      animation-name: callout-bracket;
+    }
+    .callout b {
+      animation: callout-word 0.3s ease calc(var(--k) * 0.16s + 0.15s) backwards;
+    }
+    .reel:not([data-in]) .callout > * {
+      animation-play-state: paused;
+    }
+  }
+  @keyframes callout-line {
+    from {
+      clip-path: inset(-4px calc(100% + 4px) -4px -4px);
+    }
+    to {
+      clip-path: inset(-4px -1px -4px -4px);
+    }
+  }
+  @keyframes callout-bracket {
+    from {
+      clip-path: inset(50% -6px 50% -1px);
+    }
+    to {
+      clip-path: inset(-1px -6px -1px -1px);
+    }
+  }
+  @keyframes callout-word {
+    from {
+      opacity: 0;
+    }
+  }
+
+  .stamp {
+    display: none;
+  }
+
+  /*
+   * narrower: rows of five, then three. One axis under all the rows would line up with none of them, so each frame
+   * carries its own stretch of it, and every number sits under the frame where it's taken.
+   */
+  @container strip (width < 900px) {
+    /* each frame keeps a label slot on its right, so the rows hug the left edge: move them over by half a slot */
+    .reel {
+      --gap: 40px;
+      margin-inline: calc(var(--gap) / 2) calc(var(--gap) / -2);
+    }
+    /* the slots are 4px narrower here, so the labels sit closer to their frames to fit longer words */
+    .callout i {
+      right: -3px;
+    }
+    .callout b {
+      left: calc(100% + 6px);
+    }
+    .callout[data-span] i {
+      right: -2px;
+    }
+    .callout[data-span] b {
+      left: calc(100% + 9px);
+    }
+    .frames {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      row-gap: 24px;
+    }
+    .lane {
+      display: none;
+    }
+    .stamp {
+      --line: 9px;
+      --mid: calc((100% - var(--gap)) / 2);
+      position: relative;
+      display: block;
+      height: 36px;
+      margin-right: calc(-1 * var(--gap));
+    }
+    /* a tick under each frame, and a line from it to the next frame's: each row's line ends under its last frame */
+    .stamp::before,
+    .stamp::after {
+      content: '';
+      position: absolute;
+      background: var(--color-rule-30);
+    }
+    .stamp::before {
+      top: var(--line);
+      left: var(--mid);
+      right: calc(-1 * var(--mid));
+      height: 1px;
+    }
+    .frame:is(:nth-child(5n), :last-child) .stamp::before {
+      content: none;
+    }
+    /* the load starts before the first frame, so the first row's line fades in from its start, as on desktop */
+    .frame:first-child .stamp::before {
+      left: 0;
+      mask-image: linear-gradient(to right, transparent, #000 28px);
+    }
+    .stamp::after {
+      top: calc(var(--line) - 3px);
+      left: var(--mid);
+      width: 1px;
+      height: 7px;
+    }
+    .stamp:has(.mark)::after {
+      content: none;
+    }
+    .stamp .mark {
+      left: var(--mid);
+      translate: none;
+    }
+    .stamp .span {
+      left: var(--mid);
+      width: calc(var(--steps) * 100%);
+      translate: none;
+    }
+    /* TTFB's wait starts before the first frame, so it fades in from the row's start */
+    .stamp .span[data-from-start] {
+      left: 0;
+      width: var(--mid);
+      mask-image: linear-gradient(to right, transparent, #000 75%);
+    }
+  }
+  @container strip (width < 560px) {
+    /* in rows of three the right column's labels need most of their slot, so only a quarter moves */
+    .reel {
+      margin-inline: calc(var(--gap) / 4) calc(var(--gap) / -4);
+    }
+    .frames {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .frame:nth-child(5n) .stamp::before {
+      content: '';
+    }
+    .frame:nth-child(3n) .stamp::before {
+      content: none;
+    }
+  }
+
+  /* cards: three over two, then one per row */
+  @container (width < 1100px) {
+    .cards {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+    .card {
+      grid-column: span 2;
+    }
+    .card:nth-child(-n + 3) {
+      border-bottom: 1px solid var(--color-rule-08);
+    }
+    .card:nth-child(3) {
+      border-right: 0;
+    }
+    .card:nth-child(n + 4) {
+      grid-column: span 3;
+    }
+  }
+  @container (width < 640px) {
+    .cards {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .card,
+    .card:nth-child(n + 4) {
+      grid-column: auto;
+      padding: 14px var(--pad) 16px;
+      border-right: 0;
+      border-bottom: 1px solid var(--color-rule-08);
+    }
+    .card:last-child {
+      border-bottom: 0;
+    }
+    .card::before {
+      inset: 0 auto 0 0;
+      width: 2px;
+      height: auto;
+    }
+  }
+}
