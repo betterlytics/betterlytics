@@ -5,10 +5,14 @@ import * as Slider from '@radix-ui/react-slider';
 import NumberFlow from '@number-flow/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { EventCountFlow, EventCountText, FLUSH, QUICK_ROLL } from '@/components/pricing/EventCountFlow';
-import { usePlanCards, type PlanFeatureLabel, type VolumeLabel } from '@/components/pricing/usePlanFeatures';
+import {
+  usePlanCards,
+  type PlanCardPromo,
+  type PlanFeatureLabel,
+  type VolumeLabel,
+} from '@/components/pricing/usePlanFeatures';
 import { usePromo } from '@/contexts/PromoProvider';
 import { VOLUME_STOPS, type PlanId } from '@/lib/billing/catalog';
-import { promoCents } from '@/lib/billing/promo';
 import { formatEventCount } from '@/utils/pricing';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { Panel } from '@/landing/components/ui/frame';
@@ -26,10 +30,6 @@ const PRICE_FORMAT = { style: 'currency', currency: CURRENCY, maximumFractionDig
 const PROMO_PRICE_FORMAT = { style: 'currency', currency: CURRENCY } as const;
 // tabular figures give the decimal point a digit's width
 const NARROW_DECIMAL = '[&::part(decimal)]:[font-variant-numeric:proportional-nums]';
-
-function formatListPrice(cents: number, locale: string): string {
-  return new Intl.NumberFormat(locale, PRICE_FORMAT).format(cents / 100);
-}
 
 function Check() {
   return (
@@ -55,10 +55,7 @@ type PlanProps = {
   price: number | string;
   /** Reserves the struck-through price line on every plan, so prices stay level during a promo. */
   promoRow?: boolean;
-  /** Cents before a promo discount, shown struck through. */
-  listPrice?: number;
-  promoTag?: string;
-  promoNote?: string;
+  promo: PlanCardPromo | null;
   period?: string;
   volumeLabel: VolumeLabel;
   badge?: string;
@@ -74,9 +71,7 @@ function Plan({
   tagline,
   price,
   promoRow,
-  listPrice,
-  promoTag,
-  promoNote,
+  promo,
   period,
   volumeLabel,
   badge,
@@ -111,11 +106,13 @@ function Plan({
       <div className={cn('mb-2.5', promoRow && '@container')}>
         {promoRow ? (
           <p className='h-5 text-body leading-5 tracking-ui text-muted tabular-nums'>
-            {listPrice !== undefined ? <s>{formatListPrice(listPrice, locale)}</s> : null}
-            {listPrice !== undefined && promoTag ? (
-              <span className='ml-2 inline-block rounded-[4px] bg-volt-lift/22 px-1.5 align-[1px] text-[12.5px] leading-[18px] font-medium text-volt-soft'>
-                {promoTag}
-              </span>
+            {promo ? (
+              <>
+                <s>{promo.listLabel}</s>
+                <span className='ml-2 inline-block rounded-[4px] bg-volt-lift/22 px-1.5 align-[1px] text-[12.5px] leading-[18px] font-medium text-volt-soft'>
+                  {promo.tag}
+                </span>
+              </>
             ) : null}
           </p>
         ) : null}
@@ -134,7 +131,7 @@ function Plan({
                 className={cn(FLUSH, NARROW_DECIMAL)}
                 value={price / 100}
                 locales={locale}
-                format={listPrice !== undefined ? PROMO_PRICE_FORMAT : PRICE_FORMAT}
+                format={promo ? PROMO_PRICE_FORMAT : PRICE_FORMAT}
                 willChange
                 {...QUICK_ROLL}
               />
@@ -147,7 +144,7 @@ function Plan({
         <p className='mt-1.5 text-body-sm tracking-ui text-muted'>
           <EventCountText {...volumeLabel} />
         </p>
-        {promoNote ? <p className='mt-1 text-body-sm tracking-ui text-muted'>{promoNote}</p> : null}
+        {promo ? <p className='mt-1 text-body-sm tracking-ui text-muted'>{promo.note}</p> : null}
       </div>
       <div>
         <ul className='mt-3 mb-[26px] border-t border-rule-08 pt-[22px] transition-ink'>
@@ -182,7 +179,6 @@ function Plan({
 
 export function PricingPanel() {
   const t = useTranslations('landing.pricing');
-  const tPromo = useTranslations('promo');
   const locale = useLocale();
   const promo = usePromo();
   const [rangeIndex, setRangeIndex] = useState(0);
@@ -192,7 +188,7 @@ export function PricingPanel() {
 
   const events = VOLUME_STOPS[rangeIndex];
   const lastIndex = VOLUME_STOPS.length - 1;
-  const cards = usePlanCards(events, CURRENCY);
+  const cards = usePlanCards(events, CURRENCY, { promo });
 
   const sales: PlanCta = { label: t('contactCta'), destination: 'contact' };
 
@@ -263,38 +259,30 @@ export function PricingPanel() {
 
       <Panel flush>
         <div className='grid max-sm:-mx-(--pad) md:grid-cols-2 3xl:grid-cols-4'>
-          {cards.map(({ plan, offer, fits, isRecommended, volumeLabel, features }) => {
-            const listCents = offer.kind === 'paid' ? offer.cents : undefined;
-            const promoPrice = promo && listCents !== undefined ? promoCents(listCents, promo) : undefined;
-            return (
-              <Plan
-                key={plan.id}
-                tier={plan.id}
-                pick={isRecommended}
-                dimmed={!fits}
-                name={plan.name}
-                badge={isRecommended ? t('badge') : undefined}
-                tagline={t(`plans.${plan.id}.tagline`)}
-                price={promoPrice ?? listCents ?? (offer.kind === 'free' ? 0 : t('custom'))}
-                promoRow={promo !== null}
-                listPrice={promoPrice !== undefined ? listCents : undefined}
-                promoTag={promo ? tPromo('tag', { percent: promo.percentOff }) : undefined}
-                promoNote={
-                  promo && promoPrice !== undefined && listCents !== undefined
-                    ? tPromo('then', { months: promo.months, price: formatListPrice(listCents, locale) })
-                    : undefined
-                }
-                period={offer.kind === 'quoted' ? undefined : t('perMonth')}
-                volumeLabel={volumeLabel}
-                features={features}
-                cta={
-                  offer.kind === 'quoted'
-                    ? sales
-                    : { label: offer.kind === 'free' ? t('ctaFree') : t('cta'), destination: 'signup' }
-                }
-              />
-            );
-          })}
+          {cards.map(({ plan, offer, fits, isRecommended, volumeLabel, features, promo: cardPromo }) => (
+            <Plan
+              key={plan.id}
+              tier={plan.id}
+              pick={isRecommended}
+              dimmed={!fits}
+              name={plan.name}
+              badge={isRecommended ? t('badge') : undefined}
+              tagline={t(`plans.${plan.id}.tagline`)}
+              price={
+                cardPromo?.cents ?? (offer.kind === 'paid' ? offer.cents : offer.kind === 'free' ? 0 : t('custom'))
+              }
+              promoRow={promo !== null}
+              promo={cardPromo}
+              period={offer.kind === 'quoted' ? undefined : t('perMonth')}
+              volumeLabel={volumeLabel}
+              features={features}
+              cta={
+                offer.kind === 'quoted'
+                  ? sales
+                  : { label: offer.kind === 'free' ? t('ctaFree') : t('cta'), destination: 'signup' }
+              }
+            />
+          ))}
         </div>
       </Panel>
     </>

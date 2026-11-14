@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 import NumberFlow from '@number-flow/react';
 import { EventCountText, FLUSH, QUICK_ROLL } from './EventCountFlow';
 import { usePlanCards, usePlanFeatures, type PlanCard } from './usePlanFeatures';
-import { promoCents, type Promo } from '@/lib/billing/promo';
+import type { Promo } from '@/lib/billing/promo';
 
 interface PricingCardsProps {
   promo: Promo | null;
@@ -27,9 +27,8 @@ type BillingPlanCard = PlanCard & { description: string; isCurrent: boolean };
 
 export function PricingCards({ promo, volume, currency, onPlanSelect, billingData }: PricingCardsProps) {
   const t = useTranslations('pricingCards');
-  const tPromo = useTranslations('promo');
   const featuresFor = usePlanFeatures();
-  const planCards = usePlanCards(volume, currency);
+  const planCards = usePlanCards(volume, currency, { promo, priceLocale: 'en-US' });
 
   const cards: BillingPlanCard[] = useMemo(() => {
     const { subscription } = billingData;
@@ -86,13 +85,6 @@ export function PricingCards({ promo, volume, currency, onPlanSelect, billingDat
     <div className='bg-card grid overflow-hidden rounded-2xl border md:grid-cols-2 xl:grid-cols-4'>
       {cards.map((card) => {
         const { plan, offer } = card;
-        const promoPrice = promo && offer.kind === 'paid' ? promoCents(offer.cents, promo) : undefined;
-        const listLabel =
-          offer.kind === 'paid'
-            ? new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(
-                offer.cents / 100,
-              )
-            : null;
         return (
           <div
             key={plan.id}
@@ -124,11 +116,11 @@ export function PricingCards({ promo, volume, currency, onPlanSelect, billingDat
               {/* reserved on every card so prices stay level */}
               {promo && (
                 <p className='text-muted-foreground h-5 text-sm leading-5 tabular-nums'>
-                  {promoPrice !== undefined && listLabel && (
+                  {card.promo && (
                     <>
-                      <s>{listLabel}</s>
+                      <s>{card.promo.listLabel}</s>
                       <span className='bg-primary/15 text-primary dark:bg-primary/35 dark:text-primary-foreground ml-2 inline-block rounded px-1.5 align-[1px] text-xs leading-[18px] font-medium'>
-                        {tPromo('tag', { percent: promo.percentOff })}
+                        {card.promo.tag}
                       </span>
                     </>
                   )}
@@ -142,12 +134,12 @@ export function PricingCards({ promo, volume, currency, onPlanSelect, billingDat
                     <NumberFlow
                       // tabular figures give the decimal point a digit's width
                       className={cn(FLUSH, '[&::part(decimal)]:[font-variant-numeric:proportional-nums]')}
-                      value={(promoPrice ?? (offer.kind === 'paid' ? offer.cents : 0)) / 100}
+                      value={(card.promo?.cents ?? (offer.kind === 'paid' ? offer.cents : 0)) / 100}
                       locales='en-US'
                       format={{
                         style: 'currency',
                         currency,
-                        maximumFractionDigits: promoPrice !== undefined ? 2 : 0,
+                        maximumFractionDigits: card.promo ? 2 : 0,
                       }}
                       willChange
                       {...QUICK_ROLL}
@@ -161,11 +153,7 @@ export function PricingCards({ promo, volume, currency, onPlanSelect, billingDat
               <p className='text-foreground/80 mt-2.5 text-sm'>
                 <EventCountText {...card.volumeLabel} />
               </p>
-              {promoPrice !== undefined && promo && listLabel && (
-                <p className='text-muted-foreground mt-1 text-sm'>
-                  {tPromo('then', { months: promo.months, price: listLabel })}
-                </p>
-              )}
+              {card.promo && <p className='text-muted-foreground mt-1 text-sm'>{card.promo.note}</p>}
             </div>
             <div className='mt-6'>{renderButton(card)}</div>
             <ul className='mt-7 space-y-3 border-t pt-7'>

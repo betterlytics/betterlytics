@@ -12,6 +12,7 @@ import {
   type PlanOffer,
 } from '@/lib/billing/catalog';
 import { checkIntervalMinutes, isUnlimitedCount, retentionYears } from '@/lib/billing/capabilities';
+import { promoCents, type Promo } from '@/lib/billing/promo';
 import { formatEventCount } from '@/utils/pricing';
 
 export type PlanFeatureLabel = { kind: 'header' | 'feature'; label: string };
@@ -99,6 +100,8 @@ export function useOfferVolumeLabel() {
   );
 }
 
+export type PlanCardPromo = { cents: number; listLabel: string; tag: string; note: string };
+
 export type PlanCard = {
   plan: PlanDefinition;
   offer: PlanOffer;
@@ -106,11 +109,40 @@ export type PlanCard = {
   isRecommended: boolean;
   volumeLabel: VolumeLabel;
   features: PlanFeatureLabel[];
+  promo: PlanCardPromo | null;
 };
 
-export function usePlanCards(volume: number, currency: PlanCurrency): PlanCard[] {
+function usePromoPricing(promo: Promo | null, currency: PlanCurrency, priceLocale: string) {
+  const t = useTranslations('promo');
+
+  return useCallback(
+    (offer: PlanOffer): PlanCardPromo | null => {
+      if (!promo || offer.kind !== 'paid') return null;
+      const listLabel = new Intl.NumberFormat(priceLocale, {
+        style: 'currency',
+        currency,
+        maximumFractionDigits: 0,
+      }).format(offer.cents / 100);
+      return {
+        cents: promoCents(offer.cents, promo),
+        listLabel,
+        tag: t('tag', { percent: promo.percentOff }),
+        note: t('then', { months: promo.months, price: listLabel }),
+      };
+    },
+    [promo, currency, priceLocale, t],
+  );
+}
+
+export function usePlanCards(
+  volume: number,
+  currency: PlanCurrency,
+  { promo = null, priceLocale }: { promo?: Promo | null; priceLocale?: string } = {},
+): PlanCard[] {
+  const locale = useLocale();
   const featuresFor = usePlanFeatures();
   const volumeLabelFor = useOfferVolumeLabel();
+  const promoFor = usePromoPricing(promo, currency, priceLocale ?? locale);
 
   return useMemo(() => {
     const recommended = recommendedPlanFor(volume);
@@ -123,7 +155,8 @@ export function usePlanCards(volume: number, currency: PlanCurrency): PlanCard[]
         isRecommended: plan.id === recommended?.id,
         volumeLabel: volumeLabelFor(offer),
         features: featuresFor(plan),
+        promo: promoFor(offer),
       };
     });
-  }, [volume, currency, featuresFor, volumeLabelFor]);
+  }, [volume, currency, featuresFor, volumeLabelFor, promoFor]);
 }
