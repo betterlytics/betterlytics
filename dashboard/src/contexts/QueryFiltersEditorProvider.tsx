@@ -10,14 +10,17 @@ export type QueryFiltersEditorTarget = {
   part: QueryFilterPart;
 };
 
+// What the editor focuses on open: a part of an existing filter, or a new empty row
+export type QueryFiltersEditorFocus = QueryFiltersEditorTarget | { newFilter: true };
+
 type QueryFiltersEditorState = {
   isOpen: boolean;
-  target: QueryFiltersEditorTarget | null;
+  target: QueryFiltersEditorFocus | null;
 };
 
 type QueryFiltersEditorContextValue = QueryFiltersEditorState & {
   setIsOpen: Dispatch<boolean>;
-  openEditor: Dispatch<QueryFiltersEditorTarget>;
+  openEditor: Dispatch<QueryFiltersEditorFocus>;
 };
 
 const QueryFiltersEditorContext = createContext<QueryFiltersEditorContextValue | undefined>(undefined);
@@ -30,7 +33,7 @@ export function QueryFiltersEditorProvider({ children }: { children: ReactNode }
     (open: boolean) => setState((current) => ({ isOpen: open, target: open ? null : current.target })),
     [],
   );
-  const openEditor = useCallback((target: QueryFiltersEditorTarget) => setState({ isOpen: true, target }), []);
+  const openEditor = useCallback((target: QueryFiltersEditorFocus) => setState({ isOpen: true, target }), []);
 
   const value = useMemo(() => ({ ...state, setIsOpen, openEditor }), [state, setIsOpen, openEditor]);
 

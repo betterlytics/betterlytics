@@ -1,7 +1,7 @@
 import { useCallback, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import { flushSync } from 'react-dom';
 
-const PEEK_MIN_WIDTH = 40;
+const PEEK_MIN_WIDTH = 32;
 
 type FilterBandOverflowOptions = {
   bandRef: RefObject<HTMLElement | null>;
@@ -47,8 +47,7 @@ export function useFilterBandOverflow({
        */
       const content = row.getBoundingClientRect().width;
       const widths = items.map((item) => item.getBoundingClientRect().width);
-      const spare =
-        toggle.getBoundingClientRect().width - (toggle.lastElementChild?.getBoundingClientRect().width ?? 0);
+      const spare = toggle.firstElementChild?.getBoundingClientRect().width ?? 0;
       const needed = widths.reduce((sum, width) => sum + width, 0) + gap * (items.length - 1);
       const squeezed = widths.some((width) => width >= content - 0.5);
       if (!squeezed && needed <= content + spare - 0.5 && band.clientWidth > wrappedAtRef.current) first = -1;

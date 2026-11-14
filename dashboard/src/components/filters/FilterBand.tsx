@@ -2,8 +2,7 @@
 import { useRef, type MouseEvent, type MouseEventHandler, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { ChevronDown, FilterIcon, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui-extended/tooltip';
+import { FilterBandButton } from '@/components/filters/FilterBandButton';
 import { useFilterBandDisclosure } from '@/hooks/use-filter-band-disclosure';
 import { useFilterBandOverflow } from '@/hooks/use-filter-band-overflow';
 import { cn } from '@/lib/utils';
@@ -14,13 +13,15 @@ type FilterBandProps = {
   pillsKey: unknown;
   label: string;
   onClearAll: MouseEventHandler<HTMLElement>;
+  // Kept on row one, ahead of the toggle
+  action?: ReactNode;
 };
 
 /*
  * Pills always wrap at one width, so none moves on toggle: collapsed is the same list clipped to row one.
  * The space left on that row shows a faded peek, an inert copy of the next pill.
  */
-export function FilterBand({ pills, pillsKey, label, onClearAll }: FilterBandProps) {
+export function FilterBand({ pills, pillsKey, label, onClearAll, action }: FilterBandProps) {
   const t = useTranslations('components.filters');
   const bandRef = useRef<HTMLDivElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);
@@ -45,22 +46,7 @@ export function FilterBand({ pills, pillsKey, label, onClearAll }: FilterBandPro
     toggle();
   };
 
-  const clearAllButton = (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          variant='ghost'
-          title=''
-          aria-label={t('clearAll')}
-          className='text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground dark:hover:bg-primary-foreground/15 size-8.5 shrink-0 cursor-pointer'
-          onClick={onClearAll}
-        >
-          <Trash2 className='size-4' />
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>{t('clearAll')}</TooltipContent>
-    </Tooltip>
-  );
+  const clearAllButton = <FilterBandButton icon={<Trash2 />} tooltip={t('clearAll')} onClick={onClearAll} />;
 
   return (
     <div
@@ -103,7 +89,7 @@ export function FilterBand({ pills, pillsKey, label, onClearAll }: FilterBandPro
               'absolute top-0 right-0 flex h-8.5 overflow-clip transition-opacity duration-200 motion-reduce:transition-none',
               '[&_[data-filter-pill]]:max-w-80 [&_[data-filter-pill]]:animate-none',
               // Inside the peek, so fade and pill dim as one
-              'after:absolute after:inset-y-0 after:right-0 after:w-6 after:bg-linear-to-r after:from-transparent after:to-(--band-bg) sm:after:w-10',
+              'after:absolute after:inset-y-0 after:right-0 after:w-6 after:bg-linear-to-r after:from-transparent after:to-(--band-bg) sm:after:w-8',
               expanded && 'opacity-0',
             )}
           >
@@ -122,39 +108,42 @@ export function FilterBand({ pills, pillsKey, label, onClearAll }: FilterBandPro
         )}
       </div>
       <div className='flex shrink-0 flex-col items-end justify-between gap-1 self-stretch [--ring:var(--primary-foreground)]'>
-        {toggleable ? (
-          <div ref={toggleRef} className='flex h-8.5 items-center'>
-            <span
-              aria-hidden={expanded}
-              className={cn(
-                'text-xs font-medium whitespace-nowrap tabular-nums transition-opacity duration-200 motion-reduce:transition-none max-sm:hidden',
-                expanded && 'opacity-0',
-              )}
-            >
-              {t('pillMoreValues', { count: hidden })}
-            </span>
-            <button
-              type='button'
-              data-band-toggle=''
-              aria-expanded={expanded}
-              aria-label={t('toggleFilters')}
-              onClick={toggle}
-              className='group/toggle grid size-8.5 cursor-pointer place-items-center outline-none'
-            >
-              <ChevronDown
-                aria-hidden
+        <div className='flex items-center'>
+          {toggleable && (
+            <div ref={toggleRef} className='flex h-8.5 items-center'>
+              <span
+                aria-hidden={expanded}
                 className={cn(
-                  'size-4 rounded-md transition-transform duration-200 motion-reduce:transition-none',
-                  expanded && 'rotate-180',
-                  'group-focus-visible/toggle:ring-ring/50 group-focus-visible/toggle:ring-2',
-                  'group-focus-visible/toggle:border-ring group-focus-visible/toggle:border',
+                  'mr-1 -ml-1 text-xs font-medium whitespace-nowrap tabular-nums transition-opacity duration-200 motion-reduce:transition-none max-sm:hidden',
+                  expanded && 'opacity-0',
                 )}
-              />
-            </button>
-          </div>
-        ) : (
-          clearAllButton
-        )}
+              >
+                {t('pillMoreValues', { count: hidden })}
+              </span>
+              {action}
+              <button
+                type='button'
+                data-band-toggle=''
+                aria-expanded={expanded}
+                aria-label={t('toggleFilters')}
+                onClick={toggle}
+                className='group/toggle grid size-8.5 cursor-pointer place-items-center outline-none'
+              >
+                <ChevronDown
+                  aria-hidden
+                  className={cn(
+                    'size-4 rounded-md transition-transform duration-200 motion-reduce:transition-none',
+                    expanded && 'rotate-180',
+                    'group-focus-visible/toggle:ring-ring/50 group-focus-visible/toggle:ring-2',
+                    'group-focus-visible/toggle:border-ring group-focus-visible/toggle:border',
+                  )}
+                />
+              </button>
+            </div>
+          )}
+          {!toggleable && action}
+          {!toggleable && clearAllButton}
+        </div>
         {toggleable && open && clearAllButton}
       </div>
     </div>

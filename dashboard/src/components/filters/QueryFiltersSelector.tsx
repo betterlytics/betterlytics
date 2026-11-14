@@ -108,11 +108,12 @@ export default function QueryFiltersSelector({ anchor, ...props }: QueryFiltersS
     (e: Event) => {
       if (interactedOutsideRef.current) return;
       const band = document.querySelector<HTMLElement>('[data-slot=active-filters-band]');
-      const section = target
-        ? (band ?? document).querySelector<HTMLElement>(
-            `[data-filter-pill="${CSS.escape(target.filterId)}"] [data-pill-part="${target.part}"]`,
-          )
-        : null;
+      const section =
+        target && 'filterId' in target
+          ? (band ?? document).querySelector<HTMLElement>(
+              `[data-filter-pill="${CSS.escape(target.filterId)}"] [data-pill-part="${target.part}"]`,
+            )
+          : null;
       const next = section ?? band ?? triggerRef.current;
       if (!next) return;
       e.preventDefault();
@@ -121,10 +122,10 @@ export default function QueryFiltersSelector({ anchor, ...props }: QueryFiltersS
     [target],
   );
 
-  // A click on another pill section retargets the open editor instead of closing and reopening it.
+  // A click on another pill section or the band add button retargets the open editor instead of closing it
   const handlePointerDownOutside = useCallback((e: CustomEvent<{ originalEvent: Event }>) => {
     const origin = e.detail.originalEvent.target;
-    if (origin instanceof Element && origin.closest('[data-pill-part]')) e.preventDefault();
+    if (origin instanceof Element && origin.closest('[data-pill-part], [data-band-add]')) e.preventDefault();
   }, []);
 
   const activeFilterCount = useAllowedQueryFilters(nonEmptyFilters).length;
