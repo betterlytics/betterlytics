@@ -14,7 +14,7 @@ import { landingClientMessages } from '@/landing/lib/clientMessages';
 type Props = { params: Promise<{ locale: SupportedLanguages }> };
 
 export function featurePage(
-  feature: 'uptime' | 'replay' | 'errors' | 'mcpServer',
+  feature: 'uptime' | 'replay' | 'errors' | 'vitals' | 'mcpServer',
   path: string,
   Content: ComponentType,
 ) {
