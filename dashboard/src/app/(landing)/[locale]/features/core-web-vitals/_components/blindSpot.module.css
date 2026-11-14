@@ -30,14 +30,29 @@
     container-type: inline-size;
     display: flex;
     flex-direction: column;
+    isolation: isolate;
     background:
-      radial-gradient(60% 55% at 50% 100%, --alpha(var(--color-glow) / 30%), transparent 70%),
-      repeating-linear-gradient(315deg, rgb(242 245 255 / 0.09) 0 1px, transparent 0 50%) 0 0 / 10px 10px,
-      var(--color-volt);
+      radial-gradient(60% 55% at 50% 100%, --alpha(var(--color-glow) / 30%), transparent 70%), var(--color-volt);
     color: var(--color-on-volt);
     @variant max-lg {
       min-height: 400px;
     }
+  }
+  /* the hero's hatch turned inside out: the lines hold around the edges and fade away behind the gauges */
+  .measure::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: repeating-linear-gradient(315deg, rgb(242 245 255 / 0.09) 0 1px, transparent 0 50%) 0 0 / 10px 10px;
+    mask-image: radial-gradient(
+      50% 42% at 50% 57%,
+      transparent 68%,
+      rgb(0 0 0 / 0.15) 78%,
+      rgb(0 0 0 / 0.6) 90%,
+      #000 100%
+    );
+    pointer-events: none;
   }
 
   .heading {
@@ -170,6 +185,11 @@
       --zoom: 0.72;
     }
   }
+  /* the app's mint green leans toward the volt blue; a warmer, lighter green keeps "good" apart from the page */
+  .measure .gauges {
+    --cwv-threshold-good: oklch(84% 0.19 138);
+    --cwv-threshold-good-label: oklch(89% 0.17 138);
+  }
   .measure .gauges [data-level] {
     --level-text: var(--color-on-volt);
   }
@@ -182,6 +202,14 @@
   }
   .gauge > :first-child {
     zoom: var(--zoom);
+  }
+  /* on the volt blue the arcs blur into the page and each other: a faint dark halo outlines them, and the track reads as a groove */
+  .gauge svg {
+    filter: drop-shadow(0 0 1.5px rgb(8 12 60 / 0.55));
+  }
+  .gauge svg path[opacity] {
+    stroke: rgb(8 12 60);
+    opacity: 0.2;
   }
   .gauge > span {
     font-size: 13.5px;
