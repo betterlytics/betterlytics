@@ -4,15 +4,14 @@ import type { SubscriptionWithOwnedSites } from '@/entities/billing/billing.enti
 vi.mock('@/repositories/postgres/subscription.repository', () => ({}));
 vi.mock('@/repositories/clickhouse/usage.repository', () => ({}));
 
-const { indexUsageBySite, sumRecordedSessionsForSubscription } = await import(
-  '@/services/billing/usage-scan.service'
-);
+const { indexUsageBySite, sumRecordedSessionsForSubscription } =
+  await import('@/services/billing/usage-scan.service');
 
 const sub: SubscriptionWithOwnedSites = {
   userId: 'user-1',
   userEmail: 'user@example.com',
   userName: null,
-  tier: 'growth',
+  planId: 'free',
   eventLimit: 10_000,
   // Local midnight in Copenhagen, stored as 22:00 UTC the day before.
   currentPeriodStart: new Date('2026-10-23T22:00:00.000Z'),

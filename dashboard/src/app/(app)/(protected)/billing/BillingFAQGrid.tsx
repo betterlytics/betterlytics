@@ -1,22 +1,13 @@
-import { getTranslations } from 'next-intl/server';
+import { getBillingFaq } from '@/components/billing/billingFaq';
 
 export async function BillingFAQGrid() {
-  const t = await getTranslations('components.billing.faq');
-
-  const items = [
-    { q: t('items.changePlan.q'), a: t('items.changePlan.a') },
-    { q: t('items.exceedLimit.q'), a: t('items.exceedLimit.a') },
-    { q: t('items.annualBilling.q'), a: t('items.annualBilling.a') },
-    { q: t('items.freeOption.q'), a: t('items.freeOption.a') },
-    { q: t('items.cancelAnytime.q'), a: t('items.cancelAnytime.a') },
-    { q: t('items.paymentMethods.q'), a: t('items.paymentMethods.a') },
-  ];
+  const { title, subtitle, items } = await getBillingFaq();
 
   return (
     <div className='container mx-auto max-w-6xl px-4 py-8'>
       <div className='mb-12 text-center'>
-        <h3 className='mb-4 text-2xl font-bold'>{t('title')}</h3>
-        <p className='text-muted-foreground'>{t('subtitle')}</p>
+        <h3 className='mb-4 text-2xl font-bold'>{title}</h3>
+        <p className='text-muted-foreground'>{subtitle}</p>
       </div>
 
       <div className='grid gap-8 md:grid-cols-2 lg:grid-cols-3'>

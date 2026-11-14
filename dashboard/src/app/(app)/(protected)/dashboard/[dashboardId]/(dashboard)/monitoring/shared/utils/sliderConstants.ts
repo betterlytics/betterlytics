@@ -1,13 +1,10 @@
 import { type SliderMark } from '@/components/inputs/LabeledSlider';
 import { MONITOR_DEFAULTS, MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
 
-// Minute steps up to 1h, then hour steps up to the schema maximum, so every
-// selectable mark is guaranteed to pass MonitorCheckBaseSchema validation.
+// Minute steps up to 1h, then hour steps, so every mark passes MonitorCheckBaseSchema.
 export const MONITOR_INTERVAL_MARKS = [
-  ...Array.from(
-    { length: 60 - MONITOR_LIMITS.INTERVAL_MIN_SECONDS / 60 },
-    (_, i) => MONITOR_LIMITS.INTERVAL_MIN_SECONDS + i * 60,
-  ),
+  MONITOR_LIMITS.INTERVAL_MIN_SECONDS,
+  ...Array.from({ length: 59 }, (_, i) => (i + 1) * 60),
   ...Array.from({ length: MONITOR_LIMITS.INTERVAL_MAX_SECONDS / 3600 }, (_, i) => (i + 1) * 3600),
 ];
 
@@ -19,7 +16,7 @@ const intervalMark = (seconds: number, label: string): SliderMark => ({
 });
 
 export const INTERVAL_DISPLAY_MARKS: SliderMark[] = [
-  intervalMark(60, '1m'),
+  intervalMark(30, '30s'),
   intervalMark(300, '5m'),
   intervalMark(900, '15m'),
   intervalMark(1800, '30m'),

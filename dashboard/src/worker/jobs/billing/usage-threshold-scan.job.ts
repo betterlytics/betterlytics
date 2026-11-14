@@ -4,7 +4,6 @@ import type { Job } from '@/worker/jobs/types';
 import { usageThresholdScanJobDefinition } from '@/worker/jobs/definitions';
 import {
   classifyUsageThreshold,
-  formatPlanName,
   getScannableSubscriptions,
   loadRecordedSessionsForSubscriptions,
   loadUsageForSubscriptions,
@@ -14,7 +13,7 @@ import {
 import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { sharedEmailEnv } from '@/lib/env/shared.env';
-import { getRecordedSessionLimitForTier } from '@/lib/billing/capabilities';
+import { getPlan } from '@/lib/billing/catalog';
 import type { DailySiteUsage, SubscriptionWithOwnedSites } from '@/entities/billing/billing.entities';
 import type { UsageAlertQuota } from '@/services/email/template/usage-alert-mail';
 
@@ -41,7 +40,7 @@ async function enqueueUsageAlert(sub: SubscriptionWithOwnedSites, check: QuotaCh
       currentUsage: check.usage,
       usageLimit: check.limit,
       usagePercentage: pct,
-      planName: formatPlanName(sub.tier),
+      planName: getPlan(sub.planId).name,
       currentPeriodStart: sub.currentPeriodStart,
       currentPeriodEnd: sub.currentPeriodEnd,
       upgradeUrl,
@@ -88,7 +87,7 @@ async function runUsageThresholdScan(): Promise<void> {
       checks.push({
         quota: 'replays',
         usage: sumRecordedSessionsForSubscription(sub, replaysBySite),
-        limit: getRecordedSessionLimitForTier(sub.tier),
+        limit: getPlan(sub.planId).capabilities.sessionReplay.maxReplaysPerMonth,
         campaignPrefix: 'usage-alert:replay',
       });
     }

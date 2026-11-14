@@ -1,29 +1,32 @@
-import { type RawMonitorMetrics } from '@/entities/analytics/monitoring.entities';
+import { type MonitorUptimeBucket, type RawMonitorMetrics } from '@/entities/analytics/monitoring.entities';
 import { parseClickHouseDate } from '@/utils/dateHelpers';
 
-export function normalizeUptimeBuckets(data: RawMonitorMetrics['uptimeBuckets'], placeholderCount: number) {
-  const now = new Date();
-  const bucketMap = new Map<number, number | null>(
-    (data ?? []).map((point) => [parseClickHouseDateSafe(point.bucket).getTime(), point.upRatio]),
-  );
-  const end = floorToHour(now);
-  const buckets = [];
+const HOUR_MS = 60 * 60 * 1000;
 
-  for (let i = placeholderCount - 1; i >= 0; i -= 1) {
-    const d = new Date(end);
-    d.setHours(end.getHours() - i);
-    const key = d.getTime();
-    const fallback = null;
-    buckets.push({ bucket: d.toISOString(), upRatio: bucketMap.get(key) ?? fallback, totalSeconds: 60 * 60 });
+// Steps real hours from rangeStart, like the query's bucket grid, so DST days keep one slot per hour;
+// unmonitored hours have no ratio
+export function normalizeUptimeBuckets(
+  data: RawMonitorMetrics['uptimeBuckets'],
+  rangeStart: Date,
+  placeholderCount: number,
+): MonitorUptimeBucket[] {
+  const bucketMap = new Map<number, MonitorUptimeBucket>(
+    (data ?? []).map((point) => [parseClickHouseDateSafe(point.bucket).getTime(), point]),
+  );
+  const buckets: MonitorUptimeBucket[] = [];
+
+  for (let i = 0; i < placeholderCount; i += 1) {
+    const key = rangeStart.getTime() + i * HOUR_MS;
+    const point = bucketMap.get(key);
+    buckets.push({
+      bucket: new Date(key).toISOString(),
+      upRatio: point?.upRatio ?? null,
+      monitoredSeconds: point?.monitoredSeconds ?? 0,
+      upSeconds: point?.upSeconds ?? 0,
+    });
   }
 
   return buckets;
-}
-
-function floorToHour(date: Date) {
-  const d = new Date(date);
-  d.setMinutes(0, 0, 0);
-  return d;
 }
 
 function parseClickHouseDateSafe(value: string) {

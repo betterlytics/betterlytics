@@ -6,30 +6,31 @@ export const umami: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Umami: Session Replay og overvåking inkludert',
     description:
-      'Sammenlign Betterlytics med Umami. Samme lettvekts, personvernfokuserte analyse med innebygd session replay, brukerreiser og oppetidsovervåking. Gratisnivå tilgjengelig.',
+      'Sammenlign Betterlytics med Umami. Personvernfokusert analyse, pluss oppetidsovervåking, statussider og session replay på alle planer. Gratisnivå tilgjengelig.',
   },
   hero: {
     title: 'Ser du etter et alternativ til Umami?',
     titleHighlight: 'alternativ',
     subtitle:
-      'Liker du enkelheten i Umami? Få den samme lettvekts, personvernfokuserte analysen med innebygd session replay, brukerreiser og oppetidsovervåking.',
+      'Liker du enkelheten i Umami? Få den samme lettvekts, personvernfokuserte analysen, pluss oppetidsovervåking, statussider og session replay på alle planer.',
   },
   keyDifferentiators: [
     {
       title: 'Innebygd atferdsanalyse',
       betterlytics:
-        'Session replay og sporing av brukerreiser viser deg nøyaktig hvordan besøkende samhandler med nettstedet ditt.',
-      competitor: 'Fokuserer på aggregerte måltall. Ingen måte å se individuell brukeradferd eller navigasjonsstier på.',
+        'Session replay og sporing av brukerreiser viser deg nøyaktig hvordan besøkende samhandler med nettstedet ditt. Begge er med på alle planer, også gratisnivået.',
+      competitor:
+        'Rapporter for brukerreiser på alle planer. På Umami Cloud starter session replays på Business-planen til $200/måned.',
     },
     {
-      title: 'Oppetids- og ytelsesovervåking',
+      title: 'Innebygd oppetidsovervåking',
       betterlytics: 'Spor Core Web Vitals og tilgjengelighet for nettstedet fra samme dashbord som analysen din.',
-      competitor: 'Kun analyse. Oppetids- og ytelsesovervåking krever separate verktøy.',
+      competitor: 'Måler Core Web Vitals, men har ingen oppetidsovervåking. Det krever et separat verktøy.',
     },
     {
       title: 'Enklere oppsett for selvhosting',
       betterlytics: 'Docker-basert utrulling med minimal konfigurasjon. Oppe og går på minutter.',
-      competitor: 'Krever PostgreSQL eller MySQL og flere manuelle oppsettsteg.',
+      competitor: 'Krever PostgreSQL og flere manuelle oppsettsteg.',
     },
   ],
   comparison: {
@@ -49,7 +50,7 @@ export const umami: ComparisonLocaleContent = {
       {
         name: 'Ytelse og hastighet',
         features: [
-          { name: 'Skriptstørrelse', betterlytics: '~3,5KB', competitor: '~2–3KB' },
+          { name: 'Skriptstørrelse', betterlytics: '~3,5KB', competitor: '~4KB' },
           { name: 'Påvirkning på sidelasting', betterlytics: 'Minimal', competitor: 'Minimal' },
           { name: 'Fungerer med annonseblokkere', betterlytics: true, competitor: true },
         ],
@@ -59,15 +60,15 @@ export const umami: ComparisonLocaleContent = {
         features: [
           { name: 'Sanntidsdashbord', betterlytics: true, competitor: true },
           { name: 'Tilpassede hendelser', betterlytics: true, competitor: true },
-          { name: 'Globale egenskaper', betterlytics: true, competitor: false },
+          { name: 'Globale egenskaper', betterlytics: true, competitor: 'Via øktegenskaper' },
           { name: 'Kampanjesporing (UTM)', betterlytics: true, competitor: true },
           { name: 'Sporing av utgående lenker', betterlytics: true, competitor: true },
           { name: 'Traktanalyse', betterlytics: true, competitor: true },
           { name: 'Sporing av brukerreiser', betterlytics: true, competitor: true },
           { name: 'Brukerretensjon', betterlytics: false, competitor: true },
-          { name: 'Annotasjoner', betterlytics: true, competitor: false },
-          { name: 'Session replay', betterlytics: true, competitor: false },
-          { name: 'Ytelsesovervåking', betterlytics: true, competitor: false },
+          { name: 'Annotasjoner', betterlytics: true, competitor: true },
+          { name: 'Session replay', betterlytics: true, competitor: 'Fra $200/måned' },
+          { name: 'Ytelsesovervåking', betterlytics: true, competitor: true },
           { name: 'Oppetidsovervåking', betterlytics: true, competitor: false },
           { name: 'Offentlige statussider', betterlytics: true, competitor: false },
           { name: 'Varslingsintegrasjoner (Slack, Discord osv.)', betterlytics: true, competitor: false },
@@ -79,7 +80,7 @@ export const umami: ComparisonLocaleContent = {
           { name: 'Oppsettstid', betterlytics: '<5 minutter', competitor: '<5 minutter' },
           { name: 'Læringskurve', betterlytics: 'Mild', competitor: 'Mild' },
           { name: 'Enkelt og intuitivt grensesnitt', betterlytics: true, competitor: true },
-          { name: 'Datalagring', betterlytics: 'Opptil 5 år', competitor: 'Konfigurerbar' },
+          { name: 'Datalagring', betterlytics: 'Opptil 5 år', competitor: '6 måneder til 5 år' },
         ],
       },
       {
@@ -88,13 +89,13 @@ export const umami: ComparisonLocaleContent = {
           { name: 'Gratisnivå tilgjengelig', betterlytics: true, competitor: true },
           { name: 'Transparent prising', betterlytics: true, competitor: true },
           { name: 'Mulighet for selvhosting', betterlytics: true, competitor: true },
-          { name: 'E-poststøtte', betterlytics: true, competitor: 'Betalt på lavere planer' },
+          { name: 'E-poststøtte', betterlytics: true, competitor: 'Kun på betalte planer' },
         ],
       },
       {
         name: 'AI og integrasjoner',
         features: [
-          { name: 'MCP-server', betterlytics: true, competitor: false },
+          { name: 'MCP-server', betterlytics: true, competitor: true },
         ],
       },
     ],
@@ -107,22 +108,22 @@ export const umami: ComparisonLocaleContent = {
     },
     {
       title: 'Forstå "hvorfor" bak måltallene',
-      content: `Umami viser deg hva som skjedde: sidevisninger, henvisere, hendelser og konverteringer. Rent og rett frem.\n\nBetterlytics legger til session replay oppå dette. Du kan se hvordan brukere samhandler med nettstedet ditt, hvor de klikker eller skroller, og oppdage friksjonspunkter. Nyttig når du vil forstå atferd, ikke bare telle besøk.`,
+      content: `Umami viser deg hva som skjedde: sidevisninger, henvisere, hendelser, konverteringer og brukerreiser. Det har også session replays, men på Umami Cloud starter de på Business-planen til $200/måned.\n\nBetterlytics inkluderer session replay på alle planer, også gratisnivået. Du kan se hvordan brukere samhandler med nettstedet ditt, hvor de klikker eller skroller, og oppdage friksjonspunkter. Nyttig når du vil forstå atferd, ikke bare telle besøk.`,
       icon: 'eye',
     },
     {
       title: 'Ligg i forkant av nedetid',
-      content: `Umami fokuserer på analyse. For oppetids- eller ytelsesovervåking må du bruke et separat verktøy.\n\nBetterlytics inkluderer oppetidsovervåking og sporing av Core Web Vitals. Du får varsler via Slack, Discord, Teams eller webhooks når nettstedet er tregt eller nede, og kan se ytelsesdata sammen med trafikkstatistikk i samme dashbord.`,
+      content: `Umami måler Core Web Vitals, men har ingen oppetidsovervåking. For oppetidssjekker og varsler må du bruke et separat verktøy.\n\nBetterlytics inkluderer oppetidsovervåking og sporing av Core Web Vitals. Du får varsler via Slack, Discord, Teams eller webhooks når nettstedet er tregt eller nede, og kan se ytelsesdata sammen med trafikkstatistikk i samme dashbord.`,
       icon: 'gauge',
     },
     {
       title: 'Hostet eller selvhostet',
-      content: `Begge verktøyene støtter selvhosting. Umami fungerer med PostgreSQL eller MySQL. Betterlytics bruker Docker med ClickHouse.\n\nFor administrert hosting starter Betterlytics på $7/måned med gratisnivå. Umami Cloud starter på $20/måned. Begge gir full tilgang til funksjoner uten premium-tillegg.`,
+      content: `Begge verktøyene støtter selvhosting. Umami kjører på PostgreSQL. Betterlytics bruker Docker med ClickHouse.\n\nFor administrert hosting har begge et gratisnivå. Betalte planer starter på $9/måned hos Betterlytics og $20/måned hos Umami Cloud. Umami forbeholder session replays Business-planen til $200/måned.`,
       icon: 'server',
     },
     {
       title: 'Der Umami skinner',
-      content: `Umami gjør enkel analyse godt. Det har rapporter for brukerretensjon, offentlige delbare dashbord og et sterkt open source-miljø.\n\nBetterlytics passer godt hvis du også vil ha session replay, oppetidsovervåking eller ytelsessporing sammen med analysen. Samme personvernfokus, med noen flere verktøy inkludert.`,
+      content: `Umami gjør enkel analyse godt. Det har rapporter for brukerretensjon, offentlige delbare dashbord og et sterkt open source-miljø.\n\nBetterlytics passer godt hvis du også vil ha oppetidsovervåking, statussider og session replay på alle planer sammen med analysen. Samme personvernfokus, med noen flere verktøy inkludert.`,
       icon: 'target',
     },
   ],

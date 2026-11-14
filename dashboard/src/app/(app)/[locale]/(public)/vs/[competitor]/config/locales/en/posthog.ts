@@ -18,7 +18,7 @@ export const posthog: ComparisonLocaleContent = {
     {
       title: 'Truly Lightweight',
       betterlytics: '3.5KB script. Designed for minimal page performance impact.',
-      competitor: '~57KB script with a broad feature set and higher load overhead.',
+      competitor: '~120KB script with a broad feature set and higher load overhead.',
     },
     {
       title: 'Privacy by Default',
@@ -27,7 +27,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Simple, Predictable Pricing',
-      betterlytics: 'Free forever for small sites. Paid plans from $7/month with core features included.',
+      betterlytics: 'Free forever for small sites. Paid plans from $9/month with core features included.',
       competitor:
         'Generous free tier, but usage-based billing across multiple products gets complex as you scale.',
     },
@@ -51,7 +51,7 @@ export const posthog: ComparisonLocaleContent = {
       {
         name: 'Performance & Speed',
         features: [
-          { name: 'Script size', betterlytics: '~3.5KB', competitor: '~57KB' },
+          { name: 'Script size', betterlytics: '~3.5KB', competitor: '~120KB' },
           { name: 'Page load impact', betterlytics: 'Minimal', competitor: 'Moderate' },
           { name: 'Works with ad blockers', betterlytics: true, competitor: 'Partial' },
         ],
@@ -93,7 +93,7 @@ export const posthog: ComparisonLocaleContent = {
         features: [
           { name: 'Free tier available', betterlytics: true, competitor: true },
           { name: 'Predictable pricing', betterlytics: true, competitor: false },
-          { name: 'Email support', betterlytics: true, competitor: true },
+          { name: 'Email support', betterlytics: true, competitor: 'Paid plans only' },
         ],
       },
       {
@@ -112,7 +112,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Page Speed Matters',
-      content: `PostHog's script is around 57KB gzipped. That includes support for feature flags, session recording, autocapture, and other product features. On mobile or slower connections, that adds up.\n\nOur script? About 3.5KB. Your pages stay fast, Core Web Vitals stay green, and SEO stays happy. Analytics shouldn't slow your site down.`,
+      content: `PostHog's script is around 120KB gzipped. That includes support for feature flags, session recording, autocapture, and other product features. On mobile or slower connections, that adds up.\n\nOur script? About 3.5KB. Your pages stay fast, Core Web Vitals stay green, and SEO stays happy. Analytics shouldn't slow your site down.`,
       icon: 'zap',
     },
     {
@@ -122,7 +122,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Know What You Pay',
-      content: `PostHog bills separately for events, session recordings, feature flags, surveys, and more. Their free tier is generous, but costs can spike as you scale. This can make monthly costs harder to predict as usage grows.\n\nWe keep it simple: flat pricing from $7/month with clear event limits. Session replay, monitoring, and core analytics included. No spreadsheet required to figure out what you owe.`,
+      content: `PostHog bills separately for events, session recordings, feature flags, surveys, and more. Their free tier is generous, but costs can spike as you scale. This can make monthly costs harder to predict as usage grows.\n\nWe keep it simple: flat pricing from $9/month with clear event limits. Session replay, monitoring, and core analytics included. No spreadsheet required to figure out what you owe.`,
       icon: 'dollar',
     },
     {

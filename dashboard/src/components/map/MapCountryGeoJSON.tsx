@@ -56,10 +56,6 @@ export default function MapCountryGeoJSON({
       if (!country_code) return;
 
       let geoVisitor = visitorData.find((d) => d.country_code === country_code);
-      if (!geoVisitor?.visitors && country_code === 'AQ') {
-        layer.setStyle({ opacity: 0, fillOpacity: 0 });
-        return;
-      }
       if (!geoVisitor) {
         geoVisitor = { country_code, visitors: 0 };
       }
@@ -76,11 +72,7 @@ export default function MapCountryGeoJSON({
       layer.unbindTooltip();
       layer.unbindPopup();
 
-      layer.bindPopup(popupContainer, {
-        autoPan: true,
-        autoPanPadding: [25, 10],
-        closeButton: false,
-      });
+      layer.bindPopup(popupContainer, { autoPan: false, closeButton: false });
 
       layer.on({
         mouseover: (e) => {
@@ -137,10 +129,18 @@ export default function MapCountryGeoJSON({
     ],
   );
 
+  // An invisible path still catches clicks and hovers, so an empty Antarctica is left out entirely
+  const keepFeature = useCallback(
+    (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>) =>
+      getFeatureId(feature) !== 'AQ' || visitorData.some((d) => d.country_code === 'AQ' && d.visitors > 0),
+    [visitorData],
+  );
+
   return (
     <GeoJSON
       key={`${dataVersion.current}-${timeRangeCtx.compareMode}-${locale}`}
       data={geoData}
+      filter={keepFeature}
       onEachFeature={onEachFeature}
       {...DEFAULT_OPTS}
     />

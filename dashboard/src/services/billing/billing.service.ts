@@ -20,7 +20,7 @@ import {
   type UsageBreakdown,
 } from '@/entities/billing/billing.entities';
 import { UserException } from '@/lib/exceptions';
-import { getRecordedSessionLimitForTier } from '@/lib/billing/capabilities';
+import { getPlan } from '@/lib/billing/catalog';
 
 export async function getUserBillingStats(userId: string): Promise<UserBillingData> {
   try {
@@ -50,7 +50,7 @@ export async function getUserBillingStats(userId: string): Promise<UserBillingDa
       },
     };
 
-    const recordedSessionLimit = getRecordedSessionLimitForTier(subscription.tier);
+    const recordedSessionLimit = getPlan(subscription.planId).capabilities.sessionReplay.maxReplaysPerMonth;
     const replayUsage: ReplayUsageData = {
       current: recordedSessions,
       limit: recordedSessionLimit,
@@ -60,14 +60,12 @@ export async function getUserBillingStats(userId: string): Promise<UserBillingDa
     };
 
     const isExistingPaidSubscriber = subscription.paymentSubscriptionId !== null;
-    const isFreePlanUser = subscription.tier === 'growth' && subscription.pricePerMonth === 0;
 
     return UserBillingDataSchema.parse({
       subscription: { ...subscription },
       usage,
       replayUsage,
       isExistingPaidSubscriber,
-      isFreePlanUser,
     });
   } catch (error) {
     console.error('Failed to get billing stats:', error);

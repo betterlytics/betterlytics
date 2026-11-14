@@ -3,11 +3,16 @@ import { getBoss } from '@/lib/pgboss';
 import { workerEnv } from '@/lib/env/worker.env';
 import { register } from '@/worker/metrics';
 import { registerWorkersOnce } from '@/worker/runtime';
+import { flushTracing, registerTracing } from '@/observability/otel';
 
 async function main() {
   if (!workerEnv.BACKGROUND_JOBS_ENABLED) {
     console.info('BACKGROUND_JOBS_ENABLED=false, exiting');
     return;
+  }
+
+  if (workerEnv.ENABLE_MONITORING) {
+    await registerTracing(workerEnv.WORKER_OTEL_SERVICE_NAME);
   }
 
   const boss = await getBoss();
@@ -62,9 +67,11 @@ async function main() {
     try {
       await boss.stop({ graceful: true, timeout: 25_000 });
       console.info('Worker stopped');
+      await flushTracing();
       process.exit(0);
     } catch (err) {
       console.error({ event: 'worker:shutdown-failed', err });
+      await flushTracing();
       process.exit(1);
     }
   };

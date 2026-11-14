@@ -18,7 +18,7 @@ export const posthog: ComparisonLocaleContent = {
     {
       title: 'Virkelig lettvekts',
       betterlytics: 'Skript på 3,5KB. Designet for minimal påvirkning på sideytelse.',
-      competitor: '~57KB skript med bredt funksjonssett og høyere lasteoverhead.',
+      competitor: '~120KB skript med bredt funksjonssett og høyere lasteoverhead.',
     },
     {
       title: 'Personvern som standard',
@@ -27,7 +27,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Enkel og forutsigbar prising',
-      betterlytics: 'Gratis for alltid for små nettsteder. Betalte planer fra $7/måned med kjernefunksjoner inkludert.',
+      betterlytics: 'Gratis for alltid for små nettsteder. Betalte planer fra $9/måned med kjernefunksjoner inkludert.',
       competitor:
         'Generøst gratisnivå, men bruksbasert fakturering på tvers av flere produkter blir komplisert når du skalerer.',
     },
@@ -51,7 +51,7 @@ export const posthog: ComparisonLocaleContent = {
       {
         name: 'Ytelse og hastighet',
         features: [
-          { name: 'Skriptstørrelse', betterlytics: '~3,5KB', competitor: '~57KB' },
+          { name: 'Skriptstørrelse', betterlytics: '~3,5KB', competitor: '~120KB' },
           { name: 'Påvirkning på sidelasting', betterlytics: 'Minimal', competitor: 'Moderat' },
           { name: 'Fungerer med annonseblokkere', betterlytics: true, competitor: 'Delvis' },
         ],
@@ -92,7 +92,7 @@ export const posthog: ComparisonLocaleContent = {
         features: [
           { name: 'Gratisnivå tilgjengelig', betterlytics: true, competitor: true },
           { name: 'Forutsigbar prising', betterlytics: true, competitor: false },
-          { name: 'E-poststøtte', betterlytics: true, competitor: true },
+          { name: 'E-poststøtte', betterlytics: true, competitor: 'Kun på betalte planer' },
         ],
       },
       {
@@ -111,7 +111,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Sidehastighet betyr noe',
-      content: `PostHogs skript er rundt 57KB gzippet. Det inkluderer støtte for feature flags, øktopptak, auto-capture og andre produktfunksjoner. På mobil eller tregere forbindelser merkes det.\n\nVårt skript? Rundt 3,5KB. Sidene dine forblir raske, Core Web Vitals holder seg grønne, og SEO forblir solid. Analyse skal ikke gjøre nettstedet tregere.`,
+      content: `PostHogs skript er rundt 120KB gzippet. Det inkluderer støtte for feature flags, øktopptak, auto-capture og andre produktfunksjoner. På mobil eller tregere forbindelser merkes det.\n\nVårt skript? Rundt 3,5KB. Sidene dine forblir raske, Core Web Vitals holder seg grønne, og SEO forblir solid. Analyse skal ikke gjøre nettstedet tregere.`,
       icon: 'zap',
     },
     {
@@ -121,7 +121,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Vit hva du betaler for',
-      content: `PostHog fakturerer separat for hendelser, øktopptak, feature flags, undersøkelser og mer. Gratisnivået er generøst, men kostnadene kan øke raskt når du skalerer. Det gjør månedlige kostnader vanskeligere å forutsi når bruken vokser.\n\nVi holder det enkelt: fast prising fra $7/måned med tydelige hendelsesgrenser. Session replay, overvåking og kjerneanalyse inkludert. Ingen regneark nødvendig for å finne ut hva du skylder.`,
+      content: `PostHog fakturerer separat for hendelser, øktopptak, feature flags, undersøkelser og mer. Gratisnivået er generøst, men kostnadene kan øke raskt når du skalerer. Det gjør månedlige kostnader vanskeligere å forutsi når bruken vokser.\n\nVi holder det enkelt: fast prising fra $9/måned med tydelige hendelsesgrenser. Session replay, overvåking og kjerneanalyse inkludert. Ingen regneark nødvendig for å finne ut hva du skylder.`,
       icon: 'dollar',
     },
     {

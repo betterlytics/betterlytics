@@ -46,7 +46,7 @@ export default function UsageAlertBanner({ billingDataPromise }: UsageAlertBanne
       action: (
         <Button
           variant='default'
-          onClick={openPlanPicker}
+          onClick={() => openPlanPicker()}
           className='text-primary-foreground cursor-pointer border-1 border-white bg-amber-600/50 shadow-md hover:bg-amber-600/20'
           size='sm'
         >

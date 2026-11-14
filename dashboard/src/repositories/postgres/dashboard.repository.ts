@@ -18,7 +18,8 @@ import {
 import { DEFAULT_DASHBOARD_SETTINGS } from '@/entities/dashboard/dashboardSettings.entities';
 import { DEFAULT_SITE_CONFIG_VALUES } from '@/entities/dashboard/siteConfig.entities';
 import { DashboardMember, DashboardMemberSchema } from '@/entities/dashboard/invitation.entities';
-import { DashboardRole } from '@prisma/client';
+import { DashboardMembership, DashboardMembershipSchema } from '@/entities/dashboard/mcpOAuth.entities';
+import { DashboardRole, type Prisma } from '@prisma/client';
 
 export async function findDashboardById(dashboardId: string): Promise<Dashboard> {
   try {
@@ -39,6 +40,7 @@ export async function findUserDashboardOrNull(data: DashboardFindByUserData): Pr
     where: {
       dashboardId: validatedData.dashboardId,
       userId: validatedData.userId,
+      deletedAt: null,
       dashboard: { deletedAt: null },
     },
   });
@@ -50,7 +52,7 @@ export async function findUserDashboardOrNull(data: DashboardFindByUserData): Pr
 
 export async function findUserDashboardWithDashboardOrNull(data: DashboardFindByUserData) {
   const rel = await prisma.userDashboard.findFirst({
-    where: { dashboardId: data.dashboardId, userId: data.userId, dashboard: { deletedAt: null } },
+    where: { dashboardId: data.dashboardId, userId: data.userId, deletedAt: null, dashboard: { deletedAt: null } },
     include: { dashboard: true },
   });
 
@@ -67,6 +69,7 @@ export async function findFirstUserDashboard(userId: string): Promise<Dashboard 
     const prismaUserDashboard = await prisma.userDashboard.findFirst({
       where: {
         userId,
+        deletedAt: null,
         dashboard: { deletedAt: null },
       },
       include: {
@@ -90,6 +93,7 @@ export async function findSoleUserDashboard(userId: string): Promise<Dashboard |
     const prismaUserDashboards = await prisma.userDashboard.findMany({
       where: {
         userId,
+        deletedAt: null,
         dashboard: { deletedAt: null },
       },
       include: {
@@ -114,13 +118,14 @@ export async function findAllUserDashboards(userId: string): Promise<DashboardWi
     const prismaUserDashboards = await prisma.userDashboard.findMany({
       where: {
         userId,
+        deletedAt: null,
         dashboard: { deletedAt: null },
       },
       include: {
         dashboard: {
           include: {
             _count: {
-              select: { userAccess: true },
+              select: { userAccess: { where: { deletedAt: null } } },
             },
           },
         },
@@ -142,12 +147,31 @@ export async function findAllUserDashboards(userId: string): Promise<DashboardWi
   }
 }
 
+/** The user's live memberships on dashboards that aren't deleted, newest membership first. */
+export async function findUserMemberships(userId: string): Promise<DashboardMembership[]> {
+  const rows = await prisma.userDashboard.findMany({
+    where: { userId, deletedAt: null, dashboard: { deletedAt: null } },
+    select: { role: true, dashboard: { select: { id: true, siteId: true, domain: true } } },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return rows.map((row) =>
+    DashboardMembershipSchema.parse({
+      dashboardId: row.dashboard.id,
+      siteId: row.dashboard.siteId,
+      domain: row.dashboard.domain,
+      role: row.role,
+    }),
+  );
+}
+
 export async function findOwnedDashboards(userId: string): Promise<Dashboard[]> {
   try {
     const prismaUserDashboards = await prisma.userDashboard.findMany({
       where: {
         userId,
         role: 'owner',
+        deletedAt: null,
         dashboard: { deletedAt: null },
       },
       include: {
@@ -171,6 +195,7 @@ export async function findMemberDashboardsCount(userId: string): Promise<number>
       where: {
         userId,
         role: { notIn: ['owner'] },
+        deletedAt: null,
         dashboard: { deletedAt: null },
       },
     });
@@ -219,7 +244,7 @@ export async function createDashboard(data: DashboardWriteData): Promise<Dashboa
 export async function getUserSiteIds(userId: string): Promise<string[]> {
   try {
     const dashboards = await prisma.userDashboard.findMany({
-      where: { userId, dashboard: { deletedAt: null } },
+      where: { userId, deletedAt: null, dashboard: { deletedAt: null } },
       include: {
         dashboard: {
           select: { siteId: true },
@@ -240,6 +265,7 @@ export async function findDashboardOwner(dashboardId: string): Promise<{ userId:
       where: {
         dashboardId,
         role: 'owner',
+        deletedAt: null,
         dashboard: { deletedAt: null },
       },
       select: { userId: true },
@@ -265,6 +291,7 @@ export async function getOwnedSitesWithDomain(
       where: {
         userId,
         role: 'owner',
+        deletedAt: null,
         dashboard: includeDeleted ? {} : { deletedAt: null },
       },
       select: {
@@ -284,12 +311,32 @@ export async function getOwnedSitesWithDomain(
   }
 }
 
-export async function deleteDashboard(dashboardId: string): Promise<void> {
+/**
+ * The one place a dashboard is deleted: soft-deletes the dashboards, releases their live status pages'
+ * slugs and custom domains, and cancels pending invitations. The pages share the dashboards' deletedAt
+ * so a restore can tell them from pages the owner deleted earlier. Returns the released slugs.
+ */
+export async function softDeleteDashboardsWith(
+  tx: Prisma.TransactionClient,
+  dashboardIds: string[],
+): Promise<string[]> {
+  const deletedAt = new Date();
+  await tx.dashboard.updateMany({ where: { id: { in: dashboardIds }, deletedAt: null }, data: { deletedAt } });
+  const released = await tx.statusPage.updateManyAndReturn({
+    where: { dashboardId: { in: dashboardIds }, deletedAt: null },
+    data: { deletedAt },
+    select: { slug: true },
+  });
+  await tx.dashboardInvitation.updateMany({
+    where: { dashboardId: { in: dashboardIds }, status: 'pending' },
+    data: { status: 'cancelled' },
+  });
+  return released.map((page) => page.slug);
+}
+
+export async function deleteDashboard(dashboardId: string): Promise<string[]> {
   try {
-    await prisma.dashboard.update({
-      where: { id: dashboardId },
-      data: { deletedAt: new Date() },
-    });
+    return await prisma.$transaction((tx) => softDeleteDashboardsWith(tx, [dashboardId]));
   } catch (error) {
     console.error(`Error deleting dashboard ${dashboardId}:`, error);
     throw new Error(`Failed to delete dashboard ${dashboardId}.`);
@@ -330,6 +377,7 @@ export async function findOnboardingDashboardCandidates(
         userAccess: {
           some: {
             role: 'owner',
+            deletedAt: null,
             user: { deletedAt: null, disabledAt: null },
           },
         },
@@ -340,7 +388,7 @@ export async function findOnboardingDashboardCandidates(
         domain: true,
         createdAt: true,
         userAccess: {
-          where: { role: 'owner', user: { deletedAt: null, disabledAt: null } },
+          where: { role: 'owner', deletedAt: null, user: { deletedAt: null, disabledAt: null } },
           orderBy: { createdAt: 'asc' },
           take: 1,
           select: {
@@ -411,7 +459,7 @@ export async function findAllDashboardsWithSiteConfig(): Promise<DashboardWithSi
 export async function findDashboardMembers(dashboardId: string): Promise<DashboardMember[]> {
   try {
     const members = await prisma.userDashboard.findMany({
-      where: { dashboardId },
+      where: { dashboardId, deletedAt: null },
       include: {
         user: {
           select: {
@@ -469,13 +517,12 @@ export async function updateMemberRole(
   role: DashboardRole,
 ): Promise<DashboardMember> {
   try {
+    const liveMember = await prisma.userDashboard.findFirstOrThrow({
+      where: { userId, dashboardId, deletedAt: null },
+      select: { id: true },
+    });
     const member = await prisma.userDashboard.update({
-      where: {
-        userId_dashboardId: {
-          userId,
-          dashboardId,
-        },
-      },
+      where: { id: liveMember.id },
       data: { role },
       include: {
         user: {
@@ -496,16 +543,13 @@ export async function updateMemberRole(
   }
 }
 
-export async function removeMember(dashboardId: string, userId: string): Promise<void> {
+export async function removeMember(dashboardId: string, userId: string, removedById: string): Promise<void> {
   try {
-    await prisma.userDashboard.delete({
-      where: {
-        userId_dashboardId: {
-          userId,
-          dashboardId,
-        },
-      },
+    const { count } = await prisma.userDashboard.updateMany({
+      where: { userId, dashboardId, deletedAt: null },
+      data: { deletedAt: new Date(), deletedById: removedById },
     });
+    if (count === 0) throw new Error('No live membership to remove');
   } catch (error) {
     console.error('Error removing member:', error);
     throw new Error('Failed to remove member');

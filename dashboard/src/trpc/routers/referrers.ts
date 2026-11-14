@@ -12,6 +12,7 @@ import { getSortedCategories, toStackedAreaChart } from '@/presenters/toStackedA
 import { toDataTable } from '@/presenters/toDataTable';
 import { toHierarchicalDataTable } from '@/presenters/toHierarchicalDataTable';
 import { toSparklineSeries } from '@/presenters/toAreaChart';
+import { REFERRER_TABLE_KEY } from '@/entities/analytics/referrers.entities';
 
 const TOP_REFERRERS_LIMIT = 10;
 const REFERRER_TABLE_LIMIT = 100;
@@ -74,28 +75,17 @@ export const referrersRouter = createRouter({
 
   summary: analyticsProcedure.query(async ({ ctx }) => {
     const { main } = ctx;
-    const raw = await getReferrerSummaryWithChartsForSite(main);
-    const dateRange = { start: main.startDate, end: main.endDate };
+    const { chartData, ...summary } = await getReferrerSummaryWithChartsForSite(main);
+    const seriesBase = {
+      data: chartData,
+      granularity: main.granularity,
+      dateRange: { start: main.startDate, end: main.endDate },
+    };
     return {
-      ...raw,
-      referralSessionsChartData: toSparklineSeries({
-        data: raw.referralSessionsChartData,
-        granularity: main.granularity,
-        dataKey: 'referralSessions',
-        dateRange,
-      }),
-      referralPercentageChartData: toSparklineSeries({
-        data: raw.referralPercentageChartData,
-        granularity: main.granularity,
-        dataKey: 'referralPercentage',
-        dateRange,
-      }),
-      avgSessionDurationChartData: toSparklineSeries({
-        data: raw.avgSessionDurationChartData,
-        granularity: main.granularity,
-        dataKey: 'avgSessionDuration',
-        dateRange,
-      }),
+      ...summary,
+      referralSessionsChartData: toSparklineSeries({ ...seriesBase, dataKey: 'referralSessions' }),
+      referralPercentageChartData: toSparklineSeries({ ...seriesBase, dataKey: 'referralPercentage' }),
+      avgSessionDurationChartData: toSparklineSeries({ ...seriesBase, dataKey: 'avgSessionDuration' }),
     };
   }),
 
@@ -105,6 +95,6 @@ export const referrersRouter = createRouter({
       getReferrerTableDataForSite(main, REFERRER_TABLE_LIMIT),
       compare && getReferrerTableDataForSite(compare, REFERRER_TABLE_LIMIT),
     ]);
-    return toDataTable({ data, compare: compareData, categoryKey: 'source_url' });
+    return toDataTable({ data, compare: compareData, categoryKey: REFERRER_TABLE_KEY });
   }),
 });

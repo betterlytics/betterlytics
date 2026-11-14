@@ -16,7 +16,7 @@ import {
 } from '@/services/analytics/errors.service';
 import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
 
-export const McpListErrorsInputBaseSchema = McpDateRangeSchema.extend({
+const McpListErrorsInputBaseSchema = McpDateRangeSchema.extend({
   filters: McpFiltersSchema,
   search: z
     .string()
@@ -38,7 +38,7 @@ export const McpListErrorsInputBaseSchema = McpDateRangeSchema.extend({
     .describe('Max number of error groups to return (1-50). Defaults to 10.'),
 });
 
-const McpListErrorsInputSchema = McpListErrorsInputBaseSchema.refine(
+export const McpListErrorsInputSchema = McpListErrorsInputBaseSchema.refine(
   customDateRangeRefinement.check,
   customDateRangeRefinement,
 ).refine(dateOrderRefinement.check, dateOrderRefinement);

@@ -15,7 +15,7 @@ const McpFunnelStepSchema = z.object({
   filters: z.array(McpFunnelFilterSchema).min(1).describe('Filters for this step (AND logic between filters)'),
 });
 
-export const McpFunnelPreviewInputBaseSchema = McpDateRangeSchema.extend({
+const McpFunnelPreviewInputBaseSchema = McpDateRangeSchema.extend({
   steps: z
     .array(McpFunnelStepSchema)
     .min(2, 'At least 2 funnel steps are required')

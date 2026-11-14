@@ -1,0 +1,320 @@
+@reference '../../../landing.css';
+
+@layer components {
+  .split {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    @variant max-lg {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .guess,
+  .fix {
+    position: relative;
+    overflow: hidden;
+    min-height: 480px;
+    @variant max-sm {
+      min-height: 420px;
+    }
+  }
+  .guess {
+    border-right: 1px solid var(--color-rule-08);
+    @apply bg-hatch;
+    @variant max-lg {
+      border-right: 0;
+      border-bottom: 1px solid var(--color-rule-08);
+    }
+  }
+  .fix {
+    background:
+      radial-gradient(60% 55% at 50% 100%, --alpha(var(--color-glow) / 30%), transparent 70%),
+      repeating-linear-gradient(315deg, rgb(242 245 255 / 0.09) 0 1px, transparent 0 50%) 0 0 / 10px 10px,
+      var(--color-volt);
+    color: var(--color-on-volt);
+    @variant max-lg {
+      min-height: 400px;
+    }
+  }
+
+  .heading {
+    position: relative;
+    z-index: 4;
+    padding: 46px 32px 0;
+    text-align: center;
+    font-size: clamp(26px, 2.6vw, 34px);
+    line-height: 1.12;
+    font-weight: 500;
+    letter-spacing: -0.9px;
+    text-wrap: balance;
+    @variant max-sm {
+      padding: 36px var(--pad) 0;
+      font-size: 26px;
+      letter-spacing: -0.6px;
+    }
+  }
+  .guess .heading {
+    color: --alpha(var(--color-fg) / 88%);
+    text-shadow: 0 2px 18px var(--color-canvas);
+  }
+
+  .lanes {
+    position: absolute;
+    inset: 0;
+    container-type: inline-size;
+  }
+  /* --x is the resting spot (reduced motion); with motion each report crosses the half at its own pace */
+  .flyer {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 13px;
+    border: 1px solid var(--color-rule-10);
+    border-radius: 10px;
+    background-color: var(--color-canvas);
+    background-image: linear-gradient(180deg, --alpha(var(--color-fg) / 4.5%), --alpha(var(--color-fg) / 1.4%));
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.04) inset,
+      0 12px 26px rgb(0 0 0 / 0.42);
+    font-size: 13px;
+    line-height: 18px;
+    font-weight: 500;
+    white-space: nowrap;
+    color: var(--color-fg);
+    rotate: var(--r);
+  }
+  .flyer svg {
+    flex: none;
+    color: var(--color-muted);
+  }
+  .flyer small {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--color-muted);
+  }
+  .flyer[data-back] {
+    z-index: -1;
+    opacity: 0.45;
+    filter: blur(0.5px);
+    scale: 0.92;
+  }
+  .flyer[data-kind='sticky'] {
+    padding: 11px 15px 13px;
+    border-color: --alpha(var(--color-warn) / 30%);
+    border-radius: 3px;
+    background: #2a2416;
+    color: #f2d8a2;
+  }
+  .flyer[data-kind='ticket'] {
+    border-color: --alpha(var(--color-down) / 30%);
+  }
+  .p1 {
+    padding: 0 6px;
+    border-radius: 5px;
+    background: --alpha(var(--color-down) / 22%);
+    font-size: 11px;
+    line-height: 17px;
+    font-weight: 600;
+    color: #f8a1a1;
+  }
+  .dot {
+    width: 7px;
+    height: 7px;
+    margin-left: -2px;
+    border-radius: 50%;
+    background: var(--color-down);
+    box-shadow: 0 0 0 3px --alpha(var(--color-down) / 22%);
+  }
+
+  /* the same complaint three times: the flyer's own face is drawn by ::before so the copies can sit behind it */
+  .flyer[data-kind='stack'] {
+    border-color: transparent;
+    background: none;
+    box-shadow: none;
+  }
+  .flyer[data-kind='stack']::before,
+  .copy {
+    border: 1px solid var(--color-rule-10);
+    border-radius: 10px;
+    background-color: var(--color-canvas);
+    background-image: linear-gradient(180deg, --alpha(var(--color-fg) / 4.5%), --alpha(var(--color-fg) / 1.4%));
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.04) inset,
+      0 12px 26px rgb(0 0 0 / 0.42);
+  }
+  .flyer[data-kind='stack']::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+  }
+  .copy {
+    position: absolute;
+    inset: -1px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 13px;
+  }
+  .copy[data-depth='1'] {
+    z-index: -2;
+    translate: 22px -24px;
+    opacity: 0.9;
+  }
+  .copy[data-depth='2'] {
+    z-index: -3;
+    translate: 44px -48px;
+    opacity: 0.72;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .flyer {
+      left: 0;
+      animation: report-fly var(--dur) linear var(--delay) infinite;
+    }
+    .split:not([data-live]) .flyer {
+      animation-play-state: paused;
+    }
+  }
+
+  .issue {
+    position: absolute;
+    left: 50%;
+    top: 55%;
+    width: min(440px, calc(100% - 48px));
+    overflow: hidden;
+    border: 1px solid var(--color-rule-10);
+    border-radius: 12px;
+    background-color: var(--color-canvas);
+    background-image: linear-gradient(180deg, --alpha(var(--color-fg) / 4.5%), --alpha(var(--color-fg) / 1.4%));
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.05) inset,
+      0 24px 60px rgb(4 8 60 / 0.55),
+      0 0 0 6px rgb(242 245 255 / 0.06);
+    color: var(--color-fg);
+    translate: -50% -50%;
+    transition:
+      opacity 0.6s var(--ease-out-expo) 0.35s,
+      scale 0.8s var(--ease-out-expo) 0.35s;
+  }
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .split:not([data-in]) .issue {
+      opacity: 0;
+      scale: 0.96;
+    }
+  }
+  .issueHead {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 13px;
+    padding: 15px 17px 14px;
+  }
+  .icon {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: --alpha(var(--color-down) / 15%);
+    color: var(--color-down);
+  }
+  .icon svg {
+    width: 17px;
+    height: 17px;
+  }
+  .type {
+    display: block;
+    margin-bottom: 2px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    color: #f87171;
+  }
+  .message {
+    display: block;
+    overflow: hidden;
+    font-size: 13.5px;
+    letter-spacing: -0.15px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .frame {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 13px;
+    padding: 10px 17px;
+    border-block: 1px solid --alpha(var(--color-fg) / 7%);
+    background: --alpha(var(--color-volt-lift) / 8%);
+    box-shadow: inset 2px 0 0 var(--color-volt-soft);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-muted);
+  }
+  .frame + .frame {
+    border-top: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .frame + .frame .line,
+  .frame + .frame .call b {
+    color: var(--color-muted);
+  }
+  .line {
+    text-align: right;
+    color: var(--color-fg);
+    font-variant-numeric: tabular-nums;
+  }
+  .call {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .call b {
+    font-weight: 500;
+    color: var(--color-fg);
+  }
+  .inApp {
+    padding: 1px 7px;
+    border: 1px solid --alpha(var(--color-fg) / 10%);
+    border-radius: 5px;
+    background: --alpha(var(--color-fg) / 6%);
+    font-family: var(--font-sans);
+    font-size: 10px;
+    color: var(--color-fg);
+  }
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 17px 14px;
+    font-size: 12px;
+    color: var(--color-muted);
+  }
+  .who {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-fg);
+  }
+  .page {
+    padding-left: 12px;
+    border-left: 1px solid --alpha(var(--color-fg) / 10%);
+  }
+  .count {
+    margin-left: auto;
+    white-space: nowrap;
+  }
+}
+
+@keyframes report-fly {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100cqw);
+  }
+}

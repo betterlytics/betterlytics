@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { z } from 'zod';
-import { getIp } from 'better-auth/api';
+import { getIP } from 'better-auth/api';
 import { parseEnv } from '@/lib/env/parse-env';
 import { zTrustedProxies } from '@/lib/env/trusted-proxies';
 
@@ -8,7 +8,7 @@ const schema = z.object({ AUTH_TRUSTED_PROXIES: zTrustedProxies });
 const parse = (raw?: string) => parseEnv('test', schema, { AUTH_TRUSTED_PROXIES: raw }).AUTH_TRUSTED_PROXIES;
 
 const resolve = (forwardedFor: string, raw?: string) =>
-  getIp(new Headers({ 'x-forwarded-for': forwardedFor }), {
+  getIP(new Headers({ 'x-forwarded-for': forwardedFor }), {
     advanced: { ipAddress: { trustedProxies: parse(raw) } },
   });
 

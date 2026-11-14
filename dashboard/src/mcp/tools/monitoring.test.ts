@@ -44,7 +44,7 @@ const summary: MonitorRangeSummary = {
   backoffLevel: 2,
   uptimePercent: 99.98765,
   uptimeSeconds: 86391,
-  totalSeconds: 86400,
+  monitoredSeconds: 86400,
   latency: { avgMs: 120.456, minMs: 90.1, maxMs: 800.99 },
   tls: { ts: '2026-02-01T10:00:00.000Z', status: 'ok', reasonCode: null, tlsNotAfter: '2026-06-01T00:00:00.000Z' },
 };
@@ -68,11 +68,11 @@ beforeEach(() => {
 
 describe('McpListMonitorsInputSchema', () => {
   it('accepts valid input with just a time range', () => {
-    expect(McpListMonitorsInputSchema.safeParse({ timeRange: '24h' }).success).toBe(true);
+    expect(McpListMonitorsInputSchema.safeParse({ timeRange: '24h', timezone: 'UTC' }).success).toBe(true);
   });
 
   it('rejects custom time range without dates', () => {
-    expect(McpListMonitorsInputSchema.safeParse({ timeRange: 'custom' }).success).toBe(false);
+    expect(McpListMonitorsInputSchema.safeParse({ timeRange: 'custom', timezone: 'UTC' }).success).toBe(false);
   });
 });
 
@@ -80,7 +80,7 @@ describe('executeListMonitors', () => {
   it('returns monitors with operational state, uptime, and response times', async () => {
     getSummaries.mockResolvedValue([summary]);
 
-    const result = await executeListMonitors({ timeRange: '24h' }, 'site-1', 'dash-1');
+    const result = await executeListMonitors({ timeRange: '24h', timezone: 'UTC' }, 'site-1', 'dash-1');
 
     expect(getSummaries).toHaveBeenCalledOnce();
     expect(result.total).toBe(1);
@@ -89,7 +89,7 @@ describe('executeListMonitors', () => {
       name: 'API health',
       operational_state: 'up',
       last_status: 'ok',
-      uptime: { percent: 99.988, up_seconds: 86391, measured_seconds: 86400 },
+      uptime: { percent: 99.98, up_seconds: 86391, measured_seconds: 86400 },
       response_time_ms: { avg: 120.5, min: 90.1, max: 801 },
     });
   });
@@ -97,7 +97,7 @@ describe('executeListMonitors', () => {
   it('exposes cert staleness and the backed-off interval, not just the configured one', async () => {
     getSummaries.mockResolvedValue([summary]);
 
-    const result = await executeListMonitors({ timeRange: '24h' }, 'site-1', 'dash-1');
+    const result = await executeListMonitors({ timeRange: '24h', timezone: 'UTC' }, 'site-1', 'dash-1');
 
     expect(result.monitors[0]).toMatchObject({
       check_interval_seconds: 300,
@@ -119,17 +119,89 @@ describe('executeListMonitors', () => {
     }));
     getSummaries.mockResolvedValue(many);
 
-    const result = await executeListMonitors({ timeRange: '24h' }, 'site-1', 'dash-1');
+    const result = await executeListMonitors({ timeRange: '24h', timezone: 'UTC' }, 'site-1', 'dash-1');
 
     // A cap without an offset would strand the rest: nothing here can select a specific monitor.
     expect(result.monitors).toHaveLength(120);
     expect(result.total).toBe(120);
   });
 
-  it('reports null uptime when nothing was measured', async () => {
-    getSummaries.mockResolvedValue([{ ...summary, uptimePercent: null, uptimeSeconds: 0, totalSeconds: 0 }]);
+  it("rounds uptime down to the status page's two decimals, so any downtime never reads 100", async () => {
+    getSummaries.mockResolvedValue([{ ...summary, uptimePercent: 99.99965 }]);
 
-    const result = await executeListMonitors({ timeRange: '24h' }, 'site-1', 'dash-1');
+    const result = await executeListMonitors({ timeRange: '24h', timezone: 'UTC' }, 'site-1', 'dash-1');
+
+    expect(result.monitors[0].uptime.percent).toBe(99.99);
+  });
+
+  it('covers N calendar days including today for the day presets, as the monitor detail page does', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-23T12:00:00Z'));
+    getSummaries.mockResolvedValue([]);
+
+    try {
+      const result = await executeListMonitors({ timeRange: '7d', timezone: 'UTC' }, 'site-1', 'dash-1');
+
+      expect(getSummaries).toHaveBeenCalledWith(
+        'dash-1',
+        'site-1',
+        new Date('2026-10-17T00:00:00Z'),
+        new Date('2026-10-24T00:00:00Z'),
+      );
+      expect(result.time_range).toEqual({ start: '2026-10-17T00:00:00.000Z', end: '2026-10-23T23:59:59.000Z' });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('starts the day presets on the calendar day in the requested zone', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-23T12:00:00Z'));
+    getSummaries.mockResolvedValue([]);
+
+    try {
+      await executeListMonitors({ timeRange: '7d', timezone: 'Europe/Copenhagen' }, 'site-1', 'dash-1');
+
+      expect(getSummaries).toHaveBeenCalledWith(
+        'dash-1',
+        'site-1',
+        new Date('2026-10-16T22:00:00Z'),
+        new Date('2026-10-23T22:00:00Z'),
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('includes the last second of a custom range, so a fully monitored day is a whole day', async () => {
+    getSummaries.mockResolvedValue([]);
+
+    await executeListMonitors(
+      { timeRange: 'custom', startDate: '2026-10-22', endDate: '2026-10-22', timezone: 'UTC' },
+      'site-1',
+      'dash-1',
+    );
+
+    expect(getSummaries).toHaveBeenCalledWith(
+      'dash-1',
+      'site-1',
+      new Date('2026-10-22T00:00:00Z'),
+      new Date('2026-10-23T00:00:00Z'),
+    );
+  });
+
+  it('rounds the seconds to milliseconds', async () => {
+    getSummaries.mockResolvedValue([{ ...summary, uptimeSeconds: 250211.99899999998, monitoredSeconds: 259212 }]);
+
+    const result = await executeListMonitors({ timeRange: '24h', timezone: 'UTC' }, 'site-1', 'dash-1');
+
+    expect(result.monitors[0].uptime).toMatchObject({ up_seconds: 250211.999, measured_seconds: 259212 });
+  });
+
+  it('reports null uptime when nothing was measured', async () => {
+    getSummaries.mockResolvedValue([{ ...summary, uptimePercent: null, uptimeSeconds: 0, monitoredSeconds: 0 }]);
+
+    const result = await executeListMonitors({ timeRange: '24h', timezone: 'UTC' }, 'site-1', 'dash-1');
 
     expect(result.monitors[0].uptime.percent).toBeNull();
   });
@@ -137,7 +209,7 @@ describe('executeListMonitors', () => {
   it('errors instead of returning data when uptime monitoring is disabled', async () => {
     featureEnabled.mockReturnValue(false);
 
-    await expect(executeListMonitors({ timeRange: '24h' }, 'site-1', 'dash-1')).rejects.toThrow(
+    await expect(executeListMonitors({ timeRange: '24h', timezone: 'UTC' }, 'site-1', 'dash-1')).rejects.toThrow(
       'Uptime monitoring is not enabled',
     );
     expect(getSummaries).not.toHaveBeenCalled();
@@ -147,21 +219,27 @@ describe('executeListMonitors', () => {
 describe('McpListMonitorIncidentsInputSchema', () => {
   it('accepts a monitor and state filter', () => {
     expect(
-      McpListMonitorIncidentsInputSchema.safeParse({ timeRange: '7d', monitorId: 'mon-1', state: 'ongoing' })
-        .success,
+      McpListMonitorIncidentsInputSchema.safeParse({
+        timeRange: '7d',
+        timezone: 'UTC',
+        monitorId: 'mon-1',
+        state: 'ongoing',
+      }).success,
     ).toBe(true);
   });
 
   it('rejects an unknown incident state', () => {
-    expect(McpListMonitorIncidentsInputSchema.safeParse({ timeRange: '7d', state: 'flapping' }).success).toBe(
-      false,
-    );
+    expect(
+      McpListMonitorIncidentsInputSchema.safeParse({ timeRange: '7d', timezone: 'UTC', state: 'flapping' })
+        .success,
+    ).toBe(false);
   });
 
   it('rejects startDate after endDate', () => {
     expect(
       McpListMonitorIncidentsInputSchema.safeParse({
         timeRange: 'custom',
+        timezone: 'UTC',
         startDate: '2026-02-01',
         endDate: '2026-01-01',
       }).success,
@@ -173,7 +251,7 @@ describe('executeListMonitorIncidents', () => {
   it('returns incidents with the monitor, duration, and a readable reason', async () => {
     getIncidents.mockResolvedValue([incident]);
 
-    const result = await executeListMonitorIncidents({ timeRange: '7d' }, 'site-1', 'dash-1');
+    const result = await executeListMonitorIncidents({ timeRange: '7d', timezone: 'UTC' }, 'site-1', 'dash-1');
 
     expect(result.count).toBe(1);
     expect(result.truncated).toBe(false);
@@ -193,7 +271,7 @@ describe('executeListMonitorIncidents', () => {
     getIncidents.mockResolvedValue([]);
 
     await executeListMonitorIncidents(
-      { timeRange: '7d', monitorId: 'mon-1', state: 'ongoing', limit: 5 },
+      { timeRange: '7d', timezone: 'UTC', monitorId: 'mon-1', state: 'ongoing', limit: 5 },
       'site-1',
       'dash-1',
     );
@@ -201,10 +279,35 @@ describe('executeListMonitorIncidents', () => {
     expect(getIncidents.mock.calls[0][2]).toMatchObject({ monitorId: 'mon-1', state: 'ongoing', limit: 6 });
   });
 
+  it.each(['7d', '28d', '90d', '24h'])('searches the same %s window as list_monitors', async (timeRange) => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-23T12:00:00Z'));
+    getSummaries.mockResolvedValue([]);
+    getIncidents.mockResolvedValue([]);
+
+    try {
+      const input = { timeRange, timezone: 'Europe/Copenhagen' };
+      const monitors = await executeListMonitors(input, 'site-1', 'dash-1');
+      const incidents = await executeListMonitorIncidents(input, 'site-1', 'dash-1');
+
+      expect(incidents.time_range).toEqual(monitors.time_range);
+      expect(getIncidents.mock.calls[0][2]).toMatchObject({
+        start: new Date(monitors.time_range.start),
+        end: new Date(monitors.time_range.end),
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('does not flag truncation when the result lands exactly on the limit', async () => {
     getIncidents.mockResolvedValue([incident]);
 
-    const result = await executeListMonitorIncidents({ timeRange: '7d', limit: 1 }, 'site-1', 'dash-1');
+    const result = await executeListMonitorIncidents(
+      { timeRange: '7d', timezone: 'UTC', limit: 1 },
+      'site-1',
+      'dash-1',
+    );
 
     // One row came back for a limit of 1, but the service was asked for 2, so there is no more.
     expect(getIncidents.mock.calls[0][2]).toMatchObject({ limit: 2 });
@@ -215,7 +318,11 @@ describe('executeListMonitorIncidents', () => {
   it('flags truncation and trims the over-fetched row when more exist', async () => {
     getIncidents.mockResolvedValue([incident, { ...incident, incidentId: 'inc-2' }]);
 
-    const result = await executeListMonitorIncidents({ timeRange: '7d', limit: 1 }, 'site-1', 'dash-1');
+    const result = await executeListMonitorIncidents(
+      { timeRange: '7d', timezone: 'UTC', limit: 1 },
+      'site-1',
+      'dash-1',
+    );
 
     expect(result.incidents).toHaveLength(1);
     expect(result.count).toBe(1);
@@ -225,7 +332,7 @@ describe('executeListMonitorIncidents', () => {
   it('describes an unmapped reason code as unknown rather than dropping it', async () => {
     getIncidents.mockResolvedValue([{ ...incident, reason: null }]);
 
-    const result = await executeListMonitorIncidents({ timeRange: '7d' }, 'site-1', 'dash-1');
+    const result = await executeListMonitorIncidents({ timeRange: '7d', timezone: 'UTC' }, 'site-1', 'dash-1');
 
     expect(result.incidents[0].reason).toBeNull();
     expect(result.incidents[0].reason_description).toBe('Unknown error');
@@ -234,9 +341,9 @@ describe('executeListMonitorIncidents', () => {
   it('errors instead of returning data when uptime monitoring is disabled', async () => {
     featureEnabled.mockReturnValue(false);
 
-    await expect(executeListMonitorIncidents({ timeRange: '7d' }, 'site-1', 'dash-1')).rejects.toThrow(
-      'Uptime monitoring is not enabled',
-    );
+    await expect(
+      executeListMonitorIncidents({ timeRange: '7d', timezone: 'UTC' }, 'site-1', 'dash-1'),
+    ).rejects.toThrow('Uptime monitoring is not enabled');
     expect(getIncidents).not.toHaveBeenCalled();
   });
 });

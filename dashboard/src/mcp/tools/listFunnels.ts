@@ -2,7 +2,7 @@ import { McpDateRangeSchema, customDateRangeRefinement, dateOrderRefinement } fr
 import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
 import { getFunnelsByDashboardId } from '@/services/analytics/funnels.service';
 
-export const McpListFunnelsInputBaseSchema = McpDateRangeSchema;
+const McpListFunnelsInputBaseSchema = McpDateRangeSchema;
 
 export const McpListFunnelsInputSchema = McpListFunnelsInputBaseSchema
   .refine(customDateRangeRefinement.check, customDateRangeRefinement)

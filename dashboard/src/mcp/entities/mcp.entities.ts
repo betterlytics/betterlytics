@@ -6,6 +6,7 @@ import { SESSION_DIMENSION_KEYS } from '@/mcp/registry/sessionDimensions';
 import { FilterColumnSchema, FILTER_OPERATORS } from '@/entities/analytics/filter.entities';
 import { TIME_RANGE_VALUES, type TimeRangeValue } from '@/utils/timeRanges';
 import type { GranularityRangeValues } from '@/utils/granularityRanges';
+import { isValidDayKey, normalizeTimezone } from '@/utils/timezone';
 
 export const MCP_GRANULARITIES = ['hour', 'day'] as const satisfies readonly GranularityRangeValues[];
 
@@ -28,9 +29,23 @@ export const McpDateRangeSchema = z.object({
     .optional()
     .describe('End date in YYYY-MM-DD format (inclusive). Required when timeRange is "custom".'),
   timezone: z
-    .string()
-    .default('UTC')
-    .describe('IANA time zone identifier, e.g. "Europe/Berlin" or "America/New_York"'),
+    .string({
+      required_error: 'timezone is required. Use an IANA time zone identifier such as "Europe/Berlin" or "UTC".',
+    })
+    .describe(
+      'IANA time zone identifier, e.g. "Europe/Berlin", "America/New_York" or "UTC". Unknown time zones are rejected.',
+    )
+    .transform((tz, ctx) => {
+      const zone = normalizeTimezone(tz);
+      if (!zone) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Unknown timezone ${JSON.stringify(tz)}. Use an IANA time zone identifier such as "Europe/Berlin".`,
+        });
+        return z.NEVER;
+      }
+      return zone;
+    }),
 });
 
 export const McpFiltersSchema = z
@@ -44,7 +59,7 @@ export const McpFiltersSchema = z
   .optional()
   .describe('Filters to apply');
 
-export const McpQueryInputBaseSchema = McpDateRangeSchema.extend({
+const McpQueryInputBaseSchema = McpDateRangeSchema.extend({
   metrics: z.array(z.enum(METRIC_KEYS)).min(1).describe('Metrics to query, e.g. ["visitors", "pageviews"]'),
   dimensions: z.array(z.enum(DIMENSION_KEYS)).optional().describe('Dimensions to group by, e.g. ["device_type"]'),
   filters: McpFiltersSchema,
@@ -75,8 +90,10 @@ export const McpQueryInputBaseSchema = McpDateRangeSchema.extend({
 type DateRangeFields = { timeRange: TimeRangeValue; startDate?: string; endDate?: string };
 
 export const customDateRangeRefinement = {
-  check: (data: DateRangeFields) => data.timeRange !== 'custom' || (!!data.startDate && !!data.endDate),
-  message: 'startDate and endDate are required when timeRange is "custom"',
+  check: (data: DateRangeFields) =>
+    data.timeRange !== 'custom' ||
+    (!!data.startDate && !!data.endDate && isValidDayKey(data.startDate) && isValidDayKey(data.endDate)),
+  message: 'startDate and endDate are required when timeRange is "custom", and must be real calendar dates',
 };
 
 export const dateOrderRefinement = {
@@ -105,7 +122,7 @@ const McpSessionFiltersSchema = z
   .optional()
   .describe('Filters to apply. Accepts the query filter columns plus entry_page and exit_page.');
 
-export const McpQuerySessionsInputBaseSchema = McpDateRangeSchema.extend({
+const McpQuerySessionsInputBaseSchema = McpDateRangeSchema.extend({
   metrics: z
     .array(z.enum(SESSION_METRIC_KEYS))
     .min(1)

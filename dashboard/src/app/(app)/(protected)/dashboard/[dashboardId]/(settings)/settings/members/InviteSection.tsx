@@ -18,6 +18,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { UpgradeButton } from '@/components/billing/UpgradeButton';
+import { isUnlimitedCount } from '@/lib/billing/capabilities';
 
 const InviteFormSchema = CreateInvitationSchema.pick({ email: true, role: true });
 
@@ -52,7 +53,7 @@ export function InviteSection({
   const { caps, isLoading: capsLoading } = useCapabilities();
   const maxMembers = caps.dashboards.maxMembers;
   const seatsUsed = memberCount + pendingInvitations.length;
-  const showCounter = maxMembers < 9999;
+  const showCounter = !isUnlimitedCount(maxMembers);
   const atLimit = !capsLoading && seatsUsed >= maxMembers;
 
   const handleInvite = () => {

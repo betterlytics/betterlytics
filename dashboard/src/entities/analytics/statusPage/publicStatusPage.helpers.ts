@@ -9,6 +9,7 @@ import type {
   StatusPageIncidentImpact,
 } from './statusPageIncident.entities';
 import type { StatusPageVisibility } from './statusPage.entities';
+import { summarizeUptime, type UptimeTotals } from '@/entities/analytics/monitoring.helpers';
 
 // Self-hosted custom domains get no robots.txt, so the page itself must opt out of indexing.
 export function isStatusPageNoindex(
@@ -144,10 +145,9 @@ export function deriveStatusWithIncidents(
   return { monitorStatuses, overallStatus: escalateOverallStatus(rollup, impact) };
 }
 
-export function deriveOverallUptime(uptimes: Array<number | null>): number | null {
-  const known = uptimes.filter((uptime): uptime is number => uptime != null);
-  if (!known.length) return null;
-  return known.reduce((sum, uptime) => sum + uptime, 0) / known.length;
+// Total up time over total monitored time across the page's monitors
+export function deriveOverallUptime(monitorTotals: UptimeTotals[]): number | null {
+  return summarizeUptime(monitorTotals).percent;
 }
 
 export function toPublicIncident(

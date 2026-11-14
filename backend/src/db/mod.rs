@@ -544,7 +544,7 @@ mod tests {
         assert!(timeout(Duration::from_secs(600), handle).await.is_err());
     }
 
-    #[tokio::test(start_paused = true)]
+    #[tokio::test]
     async fn transient_failure_then_recovery_loses_no_events() {
         let mock = Mock::new();
         mock.add(handlers::failure(http::StatusCode::INTERNAL_SERVER_ERROR));
@@ -559,16 +559,18 @@ mod tests {
         }
         drop(tx);
 
-        timeout(Duration::from_secs(120), handle)
+        timeout(Duration::from_secs(30), handle)
             .await
             .expect("inserter did not recover from transient failure")
             .expect("inserter task panicked");
 
         let rows: Vec<EventRow> = recording.collect().await;
-        assert_eq!(rows.len(), 3);
+        let mut session_ids: Vec<u64> = rows.iter().map(|r| r.session_id).collect();
+        session_ids.sort_unstable();
+        assert_eq!(session_ids, vec![0, 1, 2], "each buffered event should be inserted exactly once");
     }
 
-    #[tokio::test(start_paused = true)]
+    #[tokio::test]
     async fn poison_batch_is_dropped_and_does_not_block_later_batches() {
         let mock = Mock::new();
         let recording = mock.add(handlers::record());
@@ -583,19 +585,22 @@ mod tests {
         poison.timestamp = chrono::DateTime::from_timestamp(5_000_000_000, 0).unwrap();
         tx.send(poison).await.unwrap();
 
-        // Long enough for the flush period plus every rejected attempt.
-        tokio::time::sleep(Duration::from_secs(30)).await;
+        // Filling the batch flushes it on size, without waiting out the period.
+        for n in 1..INSERTER_MAX_ROWS as u64 {
+            tx.send(test_event(n)).await.unwrap();
+        }
 
-        tx.send(test_event(1)).await.unwrap();
+        let healthy = INSERTER_MAX_ROWS as u64;
+        tx.send(test_event(healthy)).await.unwrap();
         drop(tx);
 
-        timeout(Duration::from_secs(120), handle)
+        timeout(Duration::from_secs(30), handle)
             .await
             .expect("inserter blocked on poison batch")
             .expect("inserter task panicked");
 
         let rows: Vec<EventRow> = recording.collect().await;
-        assert_eq!(rows.len(), 1, "only the healthy row should be inserted");
-        assert_eq!(rows[0].session_id, 1);
+        assert_eq!(rows.len(), 1, "only the row after the poison batch should be inserted");
+        assert_eq!(rows[0].session_id, healthy);
     }
 }

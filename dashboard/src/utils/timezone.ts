@@ -7,7 +7,13 @@ export type TimezoneSource = 'setting' | 'browser' | 'fallback';
 // The zone's correctly cased name, or null when unknown. Checked against moment's zone data, not Intl:
 // the server's ICU can lag behind tzdata, and Intl accepts letter cases ClickHouse rejects
 export function normalizeTimezone(tz: unknown): string | null {
-  return (typeof tz === 'string' && moment.tz.zone(tz)?.name) || null;
+  if (typeof tz !== 'string') return null;
+  try {
+    return moment.tz.zone(tz)?.name || null;
+  } catch {
+    // moment's lookup throws on Object.prototype keys such as "__proto__"
+    return null;
+  }
 }
 
 export function detectBrowserTimezone(): string | null {
@@ -71,6 +77,11 @@ export function formatDayKey(instant: Date, timeZone: string): string {
 // Midnight of a YYYY-MM-DD day in the zone, the inverse of formatDayKey
 export function parseDayKey(dayKey: string, timeZone: string): Date {
   return moment.tz(dayKey, timeZone).toDate();
+}
+
+// Whether a YYYY-MM-DD string names a day that exists, which parseDayKey needs
+export function isValidDayKey(dayKey: string): boolean {
+  return moment.utc(dayKey, 'YYYY-MM-DD', true).isValid();
 }
 
 export function getSupportedTimezones(): string[] {
