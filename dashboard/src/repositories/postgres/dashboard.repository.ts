@@ -433,6 +433,7 @@ export async function findTrackingSilentRecipients(siteIds: string[]): Promise<T
         userAccess: {
           some: {
             role: 'owner',
+            deletedAt: null,
             user: { deletedAt: null, disabledAt: null },
           },
         },
@@ -442,11 +443,17 @@ export async function findTrackingSilentRecipients(siteIds: string[]): Promise<T
         siteId: true,
         domain: true,
         userAccess: {
-          where: { role: 'owner', user: { deletedAt: null, disabledAt: null } },
+          where: { role: 'owner', deletedAt: null, user: { deletedAt: null, disabledAt: null } },
           orderBy: { createdAt: 'asc' },
           take: 1,
           select: {
-            user: { select: { email: true, name: true, settings: { select: { timezone: true } } } },
+            user: {
+              select: {
+                email: true,
+                name: true,
+                settings: { select: { timezone: true, emailNotifications: true } },
+              },
+            },
           },
         },
       },
@@ -454,7 +461,8 @@ export async function findTrackingSilentRecipients(siteIds: string[]): Promise<T
 
     return dashboards.flatMap((d) => {
       const owner = d.userAccess[0]?.user;
-      if (!owner) return [];
+      // No settings row means the schema default, which is on
+      if (!owner || owner.settings?.emailNotifications === false) return [];
       return [
         TrackingSilentRecipientSchema.parse({
           dashboardId: d.id,

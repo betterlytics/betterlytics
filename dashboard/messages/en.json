@@ -4230,6 +4230,8 @@
         },
         "notifications": {
           "title": "Notifications",
+          "trackingAlerts": "Tracking alerts",
+          "trackingAlertsDescription": "Email me when one of my sites stops sending data",
           "marketingEmails": "Marketing emails",
           "marketingEmailsDescription": "Product updates, announcements, and tips"
         }

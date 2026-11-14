@@ -4230,6 +4230,8 @@
         },
         "notifications": {
           "title": "Notifikationer",
+          "trackingAlerts": "Sporingsadvarsler",
+          "trackingAlertsDescription": "Send mig en e-mail, når et af mine websites holder op med at sende data",
           "marketingEmails": "Marketing-e-mails",
           "marketingEmailsDescription": "Produktopdateringer, meddelelser og tips"
         }

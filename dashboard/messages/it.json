@@ -4230,6 +4230,8 @@
         },
         "notifications": {
           "title": "Notifiche",
+          "trackingAlerts": "Avvisi di tracciamento",
+          "trackingAlertsDescription": "Inviami un'email quando uno dei miei siti smette di inviare dati",
           "marketingEmails": "Email marketing",
           "marketingEmailsDescription": "Aggiornamenti sul prodotto, annunci e consigli"
         }
