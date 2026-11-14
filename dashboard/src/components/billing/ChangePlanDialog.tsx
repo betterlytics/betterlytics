@@ -249,18 +249,16 @@ function PreviewBody({ query, targetPlan, locale }: PreviewBodyProps) {
     return <p className='text-destructive py-4 text-sm'>{t('error')}</p>;
   }
 
-  const { amountDue, currency, nextRenewalAmount, nextRenewalDate, appliedBalance, lines } = query.data;
+  const { amountDue, currency, nextRenewalAmount, nextRenewalDate, appliedBalance, lines, discount } = query.data;
   const { charge, credit } = summarizeProration(lines);
   const isCredit = amountDue < 0;
 
   const amountAbs = Math.abs(amountDue);
   const plan = getPlan(targetPlan.planId);
   const renewalAmount = nextRenewalAmount || (priceFor(plan, targetPlan.eventLimit, targetPlan.currency) ?? 0);
-  const renewalDateText = nextRenewalDate.toLocaleDateString(locale, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
+  const formatDate = (date: Date) =>
+    date.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' });
+  const renewalDateText = formatDate(nextRenewalDate);
 
   const summaryKey = isCredit ? 'summaryCredit' : 'summaryCharge';
   const summary = t(summaryKey, {
@@ -271,11 +269,20 @@ function PreviewBody({ query, targetPlan, locale }: PreviewBodyProps) {
     nextAmount: formatPrice(renewalAmount, currency, locale),
   });
 
+  const discountNote =
+    discount &&
+    (discount.endsAt
+      ? t('discountUntil', { percent: discount.percentOff, date: formatDate(discount.endsAt) })
+      : t('discountForever', { percent: discount.percentOff }));
+
   const hasLineItems = charge > 0 || credit > 0 || appliedBalance > 0;
 
   return (
     <div className='space-y-6 py-1 text-sm'>
-      <p className='text-muted-foreground leading-relaxed'>{summary}</p>
+      <p className='text-muted-foreground leading-relaxed'>
+        {summary}
+        {discountNote && ` ${discountNote}`}
+      </p>
 
       <div className='overflow-hidden rounded-lg border'>
         {hasLineItems && (

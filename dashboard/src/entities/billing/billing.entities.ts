@@ -35,6 +35,8 @@ export function buildSelfHostedBillingData(): UserBillingData {
       status: 'active' as const,
       cancelAtPeriodEnd: false,
       currentPeriodEnd: periodEnd,
+      discountPercentOff: null,
+      discountEndsAt: null,
     },
     usage: {
       current: 0,
@@ -67,6 +69,8 @@ export const SubscriptionSchema = z.object({
   paymentCustomerId: z.string().nullable(),
   paymentSubscriptionId: z.string().nullable(),
   paymentPriceId: z.string().nullable(),
+  discountPercentOff: z.number().nullable(),
+  discountEndsAt: z.date().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -85,6 +89,8 @@ export const UpsertSubscriptionSchema = z.object({
   paymentCustomerId: z.string().nullish(),
   paymentSubscriptionId: z.string().nullish(),
   paymentPriceId: z.string().nullish(),
+  discountPercentOff: z.number().nullish(),
+  discountEndsAt: z.date().nullish(),
 });
 
 export const UsageDataSchema = z.object({
@@ -183,6 +189,7 @@ export const SubscriptionChangePreviewSchema = z.object({
   nextRenewalDate: z.date(),
   appliedBalance: z.number(),
   lines: z.array(SubscriptionChangePreviewLineSchema),
+  discount: z.object({ percentOff: z.number(), endsAt: z.date().nullable() }).nullable(),
 });
 
 export const InvoiceStatusSchema = z.enum(['draft', 'open', 'paid', 'uncollectible', 'void']);
@@ -208,6 +215,8 @@ export const UserBillingDataSchema = z.object({
     currentPeriodEnd: z.date(),
     status: z.string(),
     cancelAtPeriodEnd: z.boolean(),
+    discountPercentOff: z.number().nullable().default(null),
+    discountEndsAt: z.date().nullable().default(null),
   }),
   usage: UsageDataSchema,
   isExistingPaidSubscriber: z.boolean(),

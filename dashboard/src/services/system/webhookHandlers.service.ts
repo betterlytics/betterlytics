@@ -3,6 +3,7 @@ import 'server-only';
 import Stripe from 'stripe';
 import { type Currency } from '@/entities/billing/billing.entities';
 import { stripe } from '@/lib/billing/stripe';
+import { DISCOUNT_EXPAND, percentDiscountOf } from '@/lib/billing/discount';
 import {
   freePlan,
   freeSubscriptionDefaults,
@@ -57,7 +58,9 @@ export async function handleCheckoutCompleted(session: Stripe.Checkout.Session, 
     }
 
     const { userId } = session.metadata;
-    const stripeSubscription = await stripe.subscriptions.retrieve(session.subscription as string);
+    const stripeSubscription = await stripe.subscriptions.retrieve(session.subscription as string, {
+      expand: DISCOUNT_EXPAND,
+    });
 
     const verdict = await resolveDuplicateSubscriptions(
       stripeSubscription.customer as string,
@@ -90,6 +93,7 @@ export async function handleCheckoutCompleted(session: Stripe.Checkout.Session, 
       paymentCustomerId: stripeSubscription.customer as string,
       paymentSubscriptionId: session.subscription as string,
       paymentPriceId: subscriptionItem.price.id,
+      ...discountFields(stripeSubscription),
     });
 
     await syncRetentionToPlan(userId, resolved.plan, eventId);
@@ -260,6 +264,8 @@ async function revokePaidEntitlement(
     paymentCustomerId: link?.customerId,
     paymentSubscriptionId: link ? link.subscriptionId : null,
     paymentPriceId: link ? link.priceId : null,
+    discountPercentOff: null,
+    discountEndsAt: null,
   });
 
   if (localSubscription.planId !== freePlan().id) {
@@ -292,7 +298,7 @@ export async function syncSubscriptionFromStripe(
   eventId: string,
 ): Promise<void> {
   const localSubscription = await findSubscriptionByPaymentId(subscription.id);
-  const fresh = await stripe.subscriptions.retrieve(subscription.id);
+  const fresh = await stripe.subscriptions.retrieve(subscription.id, { expand: DISCOUNT_EXPAND });
 
   if (!localSubscription) {
     if (TERMINAL_STATUSES.has(fresh.status)) {
@@ -338,11 +344,17 @@ export async function syncSubscriptionFromStripe(
     paymentCustomerId: fresh.customer as string,
     paymentSubscriptionId: fresh.id,
     paymentPriceId: subscriptionItem.price.id,
+    ...discountFields(fresh),
   });
 
   if (localSubscription.planId !== resolved.plan.id) {
     await syncRetentionToPlan(localSubscription.userId, resolved.plan, eventId);
   }
+}
+
+function discountFields(subscription: Stripe.Subscription) {
+  const discount = percentDiscountOf(subscription);
+  return { discountPercentOff: discount?.percentOff ?? null, discountEndsAt: discount?.endsAt ?? null };
 }
 
 async function syncRetentionToPlan(userId: string, plan: PlanDefinition, eventId: string): Promise<void> {

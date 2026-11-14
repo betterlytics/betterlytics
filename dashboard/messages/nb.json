@@ -3071,7 +3071,9 @@
           "cardDeclined": "Vi kunne ikke belaste betalingsmetoden din. Oppdater kortet ditt og prøv igjen.",
           "authenticationRetry": "Vi kunne ikke bekrefte betalingen din. Prøv igjen for å fullføre oppgraderingen.",
           "unexpected": "Noe gikk galt. Prøv igjen."
-        }
+        },
+        "discountUntil": "Rabatten din på {percent} % fortsetter til {date}.",
+        "discountForever": "Rabatten din på {percent} % fortsetter."
       },
       "creditBalance": {
         "label": "Kontokreditt",
@@ -3102,7 +3104,11 @@
         "pastDue": "Forfalt",
         "inactive": "Inaktiv"
       },
-      "planLabel": "{name}-plan"
+      "planLabel": "{name}-plan",
+      "discount": {
+        "until": "{percent} % rabatt til {date}",
+        "forever": "{percent} % rabatt"
+      }
     },
     "timeRange": {
       "disabled": "Deaktivert",

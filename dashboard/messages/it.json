@@ -3071,7 +3071,9 @@
           "cardDeclined": "Non è stato possibile addebitare il tuo metodo di pagamento. Aggiorna la tua carta e riprova.",
           "authenticationRetry": "Non è stato possibile verificare il pagamento. Riprova per completare l'aggiornamento.",
           "unexpected": "Qualcosa è andato storto. Riprova."
-        }
+        },
+        "discountUntil": "Il tuo sconto del {percent}% resta valido fino al {date}.",
+        "discountForever": "Il tuo sconto del {percent}% resta valido."
       },
       "creditBalance": {
         "label": "Credito sul conto",
@@ -3102,7 +3104,11 @@
         "pastDue": "Scaduto",
         "inactive": "Inattivo"
       },
-      "planLabel": "Piano {name}"
+      "planLabel": "Piano {name}",
+      "discount": {
+        "until": "{percent}% di sconto fino al {date}",
+        "forever": "{percent}% di sconto"
+      }
     },
     "timeRange": {
       "disabled": "Disattivato",

@@ -3071,7 +3071,9 @@
           "cardDeclined": "We could not charge your payment method. Please update your card and try again.",
           "authenticationRetry": "We couldn't verify your payment. Please try again to complete your upgrade.",
           "unexpected": "Something went wrong. Please try again."
-        }
+        },
+        "discountUntil": "Your {percent}% discount carries over until {date}.",
+        "discountForever": "Your {percent}% discount carries over."
       },
       "creditBalance": {
         "label": "Account credit",
@@ -3102,7 +3104,11 @@
         "pastDue": "Past due",
         "inactive": "Inactive"
       },
-      "planLabel": "{name} Plan"
+      "planLabel": "{name} Plan",
+      "discount": {
+        "until": "{percent}% off until {date}",
+        "forever": "{percent}% off"
+      }
     },
     "timeRange": {
       "disabled": "Disabled",
