@@ -1,5 +1,6 @@
 import { clickhouse } from '@/lib/clickhouse';
 import { safeSql } from '@/lib/safe-sql';
+import { TRACKING_EVENT_TYPES } from '@/entities/dashboard/verification.entities';
 
 export async function getLastEventAt(siteId: string): Promise<Date | null> {
   // usage_daily's last active day bounds the events scan to that day onwards
@@ -8,10 +9,12 @@ export async function getLastEventAt(siteId: string): Promise<Date | null> {
       SELECT max(date)
       FROM analytics.usage_daily
       WHERE site_id = {site_id:String}
+        AND event_type IN {event_types:Array(String)}
     ) AS last_active_day
     SELECT toUnixTimestamp(max(timestamp)) AS lastEventAt
     FROM analytics.events
     WHERE site_id = {site_id:String}
+      AND event_type IN {event_types:Array(String)}
       AND toDate(timestamp) >= last_active_day
   `;
 
@@ -20,6 +23,7 @@ export async function getLastEventAt(siteId: string): Promise<Date | null> {
       params: {
         ...query.taggedParams,
         site_id: siteId,
+        event_types: [...TRACKING_EVENT_TYPES],
       },
     })
     .toPromise()) as Array<{ lastEventAt: number | string }>;

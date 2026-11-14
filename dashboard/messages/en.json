@@ -4112,7 +4112,7 @@
       "dataReceiving": "Data Receiving",
       "analyticsDataFlowing": "Analytics data flowing",
       "lastEventReceived": "Last event received {time}",
-      "noRecentEvents": "No events in the last 24 hours. Check that the tracking script is still installed.",
+      "noRecentEvents": "No events in the last 48 hours. Check that the tracking script is still installed.",
       "needHelp": "Need Help?",
       "resourcesToGetStarted": "Resources to get started",
       "documentation": "Documentation",

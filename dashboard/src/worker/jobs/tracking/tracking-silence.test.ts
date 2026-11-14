@@ -76,9 +76,9 @@ describe('hasBaseline', () => {
 });
 
 describe('isSilent', () => {
-  it('turns silent once 24 hours pass with no events', () => {
-    expect(isSilent(new Date('2026-07-25T12:00:01Z'), NOW)).toBe(false);
-    expect(isSilent(new Date('2026-07-25T12:00:00Z'), NOW)).toBe(true);
+  it('turns silent once 48 hours pass with no events', () => {
+    expect(isSilent(new Date('2026-07-24T12:00:01Z'), NOW)).toBe(false);
+    expect(isSilent(new Date('2026-07-24T12:00:00Z'), NOW)).toBe(true);
   });
 });
 
@@ -95,18 +95,18 @@ describe('findSilenceCandidates', () => {
     const dailyBySite = new Map([
       ['silent', STEADY_UNTIL_JUL_24],
       ['active', ACTIVE_TODAY],
-      ['long-gone', days({ '2026-07-10': 100, '2026-07-20': 100 })],
+      ['long-gone', days({ '2026-07-10': 100, '2026-07-21': 100 })],
     ]);
     expect(findSilenceCandidates(dailyBySite, NOW)).toEqual(['silent']);
   });
 
   it('fetches enough history for the oldest baseline window', () => {
-    expect(earliestNeededDay(NOW)).toBe('2026-07-18');
+    expect(earliestNeededDay(NOW)).toBe('2026-07-17');
   });
 });
 
 describe('classifyTrackingSilence', () => {
-  it('flags a baseline site silent for 24 hours and counts active baseline sites', () => {
+  it('flags a baseline site silent for 48 hours and counts active baseline sites', () => {
     const dailyBySite = new Map([
       ['silent', STEADY_UNTIL_JUL_24],
       ['a', ACTIVE_TODAY],
@@ -114,23 +114,15 @@ describe('classifyTrackingSilence', () => {
       ['c', ACTIVE_TODAY],
       ['d', ACTIVE_TODAY],
     ]);
-    const lastEventAt = new Date('2026-07-24T15:30:00Z');
+    const lastEventAt = new Date('2026-07-24T10:00:00Z');
     const result = classifyTrackingSilence(dailyBySite, new Map([['silent', lastEventAt]]), NOW);
     expect(result).toEqual({ baselineSiteCount: 5, silent: [{ siteId: 'silent', lastEventAt }], isOutage: false });
   });
 
-  it('does not flag a candidate whose last event is under 24 hours old', () => {
-    const daily = days({
-      '2026-07-20': 30,
-      '2026-07-21': 30,
-      '2026-07-22': 30,
-      '2026-07-23': 30,
-      '2026-07-24': 30,
-      '2026-07-25': 30,
-    });
+  it('does not flag a candidate whose last event is under 48 hours old', () => {
     const result = classifyTrackingSilence(
-      new Map([['quiet-night', daily]]),
-      new Map([['quiet-night', new Date('2026-07-25T23:00:00Z')]]),
+      new Map([['quiet-night', STEADY_UNTIL_JUL_24]]),
+      new Map([['quiet-night', new Date('2026-07-24T12:00:01Z')]]),
       NOW,
     );
     expect(result).toEqual({ baselineSiteCount: 1, silent: [], isOutage: false });
@@ -183,17 +175,28 @@ describe('classifyTrackingSilence', () => {
     expect(result.silent).toEqual([]);
   });
 
-  it('ignores silences older than the lookback', () => {
-    const result = classifyTrackingSilence(
-      new Map([['old', STEADY_UNTIL_JUL_24]]),
-      new Map([['old', new Date('2026-07-24T15:30:00Z')]]),
-      new Date('2026-07-27T16:00:00Z'),
+  it('ignores silences older than 96 hours', () => {
+    const lastEventAt = new Date('2026-07-24T10:00:00Z');
+    const dailyBySite = new Map([['old', STEADY_UNTIL_JUL_24]]);
+    const lastEventAtByCandidate = new Map([['old', lastEventAt]]);
+
+    const justInside = new Date('2026-07-28T09:59:59Z');
+    expect(findSilenceCandidates(dailyBySite, justInside)).toEqual(['old']);
+    expect(classifyTrackingSilence(dailyBySite, lastEventAtByCandidate, justInside).silent).toEqual([
+      { siteId: 'old', lastEventAt },
+    ]);
+
+    expect(classifyTrackingSilence(dailyBySite, lastEventAtByCandidate, new Date('2026-07-28T10:00:00Z'))).toEqual(
+      {
+        baselineSiteCount: 0,
+        silent: [],
+        isOutage: false,
+      },
     );
-    expect(result).toEqual({ baselineSiteCount: 0, silent: [], isOutage: false });
   });
 
   it('reports an outage when more than 20% of baseline sites go silent in the same check', () => {
-    const lastEventAt = new Date('2026-07-24T15:30:00Z');
+    const lastEventAt = new Date('2026-07-24T10:00:00Z');
     const dailyBySite = new Map([
       ['s1', STEADY_UNTIL_JUL_24],
       ['s2', STEADY_UNTIL_JUL_24],
@@ -223,23 +226,24 @@ describe('isNewEpisode', () => {
   });
 
   it('rejects a new silence after a partial-day resume, even though no UTC day in the window was empty', () => {
-    // Quiet from Jul 24 15:00, emailed Jul 25 15:00, resumed Jul 25 18:00, quiet again from Jul 26 09:00
+    // Quiet from Jul 24 15:00, emailed Jul 26 15:00, resumed Jul 26 18:00, quiet again from Jul 31 09:00
     const daily = days({
-      '2026-07-21': 30,
-      '2026-07-22': 30,
-      '2026-07-23': 30,
       '2026-07-24': 20,
-      '2026-07-25': 10,
-      '2026-07-26': 15,
+      '2026-07-26': 10,
+      '2026-07-27': 30,
+      '2026-07-28': 30,
+      '2026-07-29': 30,
+      '2026-07-30': 30,
+      '2026-07-31': 15,
     });
-    const secondSilence = new Date('2026-07-26T09:00:00Z');
-    expect(hasBaseline(daily, '2026-07-26')).toBe(true);
+    const secondSilence = new Date('2026-07-31T09:00:00Z');
+    expect(hasBaseline(daily, '2026-07-31')).toBe(true);
     expect(isNewEpisode(secondSilence, [firstSilence])).toBe(false);
   });
 
   it('allows a new email once five full days after the day the silence was detected have events', () => {
-    expect(isNewEpisode(new Date('2026-07-30T09:00:00Z'), [firstSilence])).toBe(false);
-    expect(isNewEpisode(new Date('2026-07-31T09:00:00Z'), [firstSilence])).toBe(true);
+    expect(isNewEpisode(new Date('2026-07-31T09:00:00Z'), [firstSilence])).toBe(false);
+    expect(isNewEpisode(new Date('2026-08-01T09:00:00Z'), [firstSilence])).toBe(true);
   });
 
   it('allows the first episode for a dashboard', () => {

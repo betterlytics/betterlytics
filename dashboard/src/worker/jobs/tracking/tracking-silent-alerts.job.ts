@@ -4,7 +4,7 @@ import type { Job } from '@/worker/jobs/types';
 import { trackingSilentAlertsJobDefinition } from '@/worker/jobs/definitions';
 import { findTrackingSilentRecipients } from '@/repositories/postgres/dashboard.repository';
 import { findSentCampaignKeysByPrefix } from '@/repositories/postgres/sentEmail.repository';
-import { BILLABLE_EVENT_TYPES } from '@/entities/billing/billing.entities';
+import { TRACKING_EVENT_TYPES } from '@/entities/dashboard/verification.entities';
 import { enqueueEmail } from '@/services/email/email.service';
 import { createDashboardRecipientKey } from '@/services/email/recipient-key.service';
 import { sharedEmailEnv } from '@/lib/env/shared.env';
@@ -30,8 +30,9 @@ async function fetchDailyEventTotals(sinceDay: string): Promise<Map<string, Dail
     `SELECT site_id AS siteId, toString(date) AS day, sum(event_count) AS total
       FROM analytics.usage_daily
       WHERE date >= toDate({sinceDay:String})
+        AND event_type IN {eventTypes:Array(String)}
       GROUP BY site_id, date`,
-    { params: { sinceDay } },
+    { params: { sinceDay, eventTypes: [...TRACKING_EVENT_TYPES] } },
   );
   const rows = (await cursor.toPromise()) as Array<{ siteId: string; day: string; total: number | string }>;
 
@@ -60,7 +61,7 @@ async function fetchLastEventTimes(siteIds: string[], notBefore: Date): Promise<
     {
       params: {
         siteIds,
-        eventTypes: [...BILLABLE_EVENT_TYPES],
+        eventTypes: [...TRACKING_EVENT_TYPES],
         notBefore: Math.floor(notBefore.getTime() / 1000),
       },
     },

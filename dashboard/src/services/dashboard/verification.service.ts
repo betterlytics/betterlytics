@@ -1,9 +1,9 @@
 'server-only';
 
 import { getLastEventAt } from '@/repositories/clickhouse/verification.repository';
-import type { TrackingStatus } from '@/entities/dashboard/verification.entities';
+import { TRACKING_SILENCE_HOURS, type TrackingStatus } from '@/entities/dashboard/verification.entities';
 
-const RECENT_EVENT_WINDOW_MS = 24 * 60 * 60 * 1000;
+const RECENT_EVENT_WINDOW_MS = TRACKING_SILENCE_HOURS * 60 * 60 * 1000;
 
 export async function getTrackingStatus(siteId: string): Promise<TrackingStatus> {
   const lastEventAt = await getLastEventAt(siteId);

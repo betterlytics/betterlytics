@@ -4112,7 +4112,7 @@
       "dataReceiving": "Datamodtagelse",
       "analyticsDataFlowing": "Analytiske data flyder",
       "lastEventReceived": "Seneste hændelse modtaget {time}",
-      "noRecentEvents": "Ingen hændelser de seneste 24 timer. Tjek at sporingsscriptet stadig er installeret.",
+      "noRecentEvents": "Ingen hændelser de seneste 48 timer. Tjek at sporingsscriptet stadig er installeret.",
       "needHelp": "Brug for hjælp?",
       "resourcesToGetStarted": "Ressourcer til at komme i gang",
       "documentation": "Dokumentation",

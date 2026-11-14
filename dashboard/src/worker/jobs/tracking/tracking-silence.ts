@@ -1,11 +1,12 @@
+import { TRACKING_SILENCE_HOURS } from '@/entities/dashboard/verification.entities';
+
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
 
 export const BASELINE_DAYS = 5;
 export const BASELINE_MIN_DAILY_AVERAGE = 20;
-export const SILENCE_HOURS = 24;
 // Silences older than this are no longer new episodes, so a late or restarted worker can't email stale ones
-export const SILENCE_LOOKBACK_HOURS = 72;
+export const SILENCE_LOOKBACK_HOURS = 96;
 export const OUTAGE_SILENT_SHARE = 0.2;
 
 /** Event totals per UTC day (YYYY-MM-DD) for one site. */
@@ -56,7 +57,7 @@ export function hasBaseline(daily: DailyEventTotals, lastEventDay: string): bool
 }
 
 export function isSilent(lastEventAt: Date, now: Date): boolean {
-  return now.getTime() - lastEventAt.getTime() >= SILENCE_HOURS * HOUR_MS;
+  return now.getTime() - lastEventAt.getTime() >= TRACKING_SILENCE_HOURS * HOUR_MS;
 }
 
 export function isOutage(silentCount: number, baselineSiteCount: number): boolean {
@@ -128,6 +129,6 @@ export function parseTrackingSilentCampaignKey(campaignKey: string): Date | null
 export function isNewEpisode(lastEventAt: Date, previouslyEmailed: Date[]): boolean {
   const windowStart = shiftDayKey(utcDayKey(lastEventAt), -BASELINE_DAYS);
   return previouslyEmailed.every(
-    (previous) => windowStart > utcDayKey(new Date(previous.getTime() + SILENCE_HOURS * HOUR_MS)),
+    (previous) => windowStart > utcDayKey(new Date(previous.getTime() + TRACKING_SILENCE_HOURS * HOUR_MS)),
   );
 }
