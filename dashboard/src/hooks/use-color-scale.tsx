@@ -23,6 +23,19 @@ export type UseColorScaleProps = {
 
 export type ColorScale = (value: number) => string;
 
+const GAMMA = 1 / 4;
+
+// Gamma scale: great for exponentially distributed data (e.g., country visitor counts)
+export function createGammaScale(colors: string[], maxValue: number): ColorScale {
+  const scale = scaleLinear<string>().domain([0, 1]).range(colors).interpolate(interpolateLab).clamp(true);
+  const span = maxValue - 1;
+
+  return (value: number) => {
+    const normalized = span > 0 ? (value - 1) / span : value >= 1 ? 1 : 0;
+    return scale(Math.pow(Math.max(0, normalized), GAMMA));
+  };
+}
+
 export function useColorScale({ colors: colorVariables, maxValue, scaleType }: UseColorScaleProps): ColorScale {
   const colors = useCSSColors(colorVariables);
 
@@ -37,22 +50,8 @@ export function useColorScale({ colors: colorVariables, maxValue, scaleType }: U
       return (value: number) => scale(value);
     }
 
-    // Gamma scale: great for exponentially distributed data (e.g., country visitor counts)
     if (scaleType.startsWith('gamma')) {
-      const gamma = 1 / 4;
-
-      const base = scaleLinear<string>()
-        .domain([1, maxValue || 1])
-        .range(colors)
-        .interpolate(interpolateLab);
-
-      return (value: number) => {
-        const normalized = (value - 1) / ((maxValue || 1) - 1);
-        const adjusted = Math.pow(Math.max(0, normalized), gamma);
-        const result = base(1 + adjusted * ((maxValue || 1) - 1));
-
-        return result;
-      };
+      return createGammaScale(colors, maxValue);
     }
 
     if (scaleType.startsWith('log') || scaleType === 'ln') {
