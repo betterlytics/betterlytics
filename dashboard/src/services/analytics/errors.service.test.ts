@@ -53,6 +53,10 @@ vi.mock('@/repositories/postgres/errorGroup.repository', () => ({
   upsertErrorGroup: vi.fn(),
   bulkUpsertErrorGroup: vi.fn(),
 }));
+const flags = vi.hoisted(() => ({ isCloud: true }));
+vi.mock('@/lib/feature-flags', () => ({
+  isFeatureEnabled: (flag: string) => flag === 'isCloud' && flags.isCloud,
+}));
 
 const NOW = new Date('2026-10-23T14:23:00Z');
 const MEMBER: ErrorsContext = { siteId: 'site-1', dashboardId: 'dash-1', isDemo: false };
@@ -90,6 +94,7 @@ beforeEach(() => {
   vi.useFakeTimers();
   vi.setSystemTime(NOW);
   vi.clearAllMocks();
+  flags.isCloud = true;
 });
 
 afterEach(() => {
@@ -147,6 +152,41 @@ describe('error tracking on the public demo', () => {
 
     expect(errorsRepository.getErrorGroups).toHaveBeenCalled();
     expect(errorsRepository.getErrorGroup).toHaveBeenCalledWith('site-1', REAL_FINGERPRINT);
+  });
+
+  it('keeps real errors on a self-hosted public dashboard, without replay links', async () => {
+    flags.isCloud = false;
+    vi.mocked(sessionReplaysRepository.hasSessionReplay).mockResolvedValue(true);
+    vi.mocked(sessionReplaysRepository.findReplaySessionForError).mockResolvedValue('12345678901234567890');
+
+    await getErrorGroupsForSite(DEMO, siteQueryFor('7d', 'day'));
+    await getErrorGroupForSite(DEMO, REAL_FINGERPRINT);
+    await getErrorOccurrenceForSite(DEMO, REAL_FINGERPRINT, 0);
+
+    expect(errorsRepository.getErrorGroups).toHaveBeenCalled();
+    expect(errorsRepository.getErrorGroup).toHaveBeenCalledWith('site-1', REAL_FINGERPRINT);
+    expect(errorsRepository.getErrorOccurrence).toHaveBeenCalledWith('site-1', REAL_FINGERPRINT, 0);
+    // Its replay page lists the bundled demo recordings, so a real session id would open the wrong one
+    expect(await hasSessionReplayForSite(DEMO, '12345678901234567890')).toBe(false);
+    expect(await findReplaySessionForErrorGroup(DEMO, REAL_FINGERPRINT)).toBeNull();
+  });
+
+  it('builds one bounded series per known static error, whatever fingerprints are asked for', async () => {
+    const siteQuery = siteQueryFor('7d', 'day');
+    const [first, second] = DEMO_ERROR_GROUPS.map((group) => group.error_fingerprint);
+
+    const volumes = await getErrorGroupVolumesForSite(DEMO, siteQuery, [first, first, REAL_FINGERPRINT, second, first]);
+    const tenYears = await getErrorGroupVolumesForSite(
+      DEMO,
+      { ...siteQuery, startDate: new Date(NOW.getTime() - 10 * 365 * 24 * 60 * 60 * 1000), granularity: 'minute_1' },
+      [first],
+    );
+
+    expect(new Set(volumes.map((row) => row.error_fingerprint))).toEqual(new Set([first, second]));
+    expect(volumes.filter((row) => row.error_fingerprint === first)).toHaveLength(
+      volumes.filter((row) => row.error_fingerprint === second).length,
+    );
+    expect(tenYears).toEqual([]);
   });
 
   it('lists only the static errors seen in the selected date range, re-dated relative to now', async () => {
@@ -345,8 +385,7 @@ describe('demo errors linked to demo session replays', () => {
           device_type: replay.device_type,
           country_code: replay.country_code,
         });
-        const errorInReplay = replay.started_at.getTime() + secondsIntoRecording * 1000;
-        expect(Math.abs(occurrence.timestamp.getTime() - errorInReplay)).toBeLessThan(60_000);
+        expect(occurrence.timestamp.getTime()).toBe(replay.started_at.getTime() + secondsIntoRecording * 1000);
         expect(row.last_seen).toEqual(occurrence.timestamp);
 
         const recording = readRecording(sessionId);
