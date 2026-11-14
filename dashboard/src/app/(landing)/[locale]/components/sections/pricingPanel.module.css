@@ -7,6 +7,19 @@
       animation: thumb-nudge 1s ease-in-out 0.4s;
     }
   }
+
+  /* the plan's rows fade rather than the plan, so the rules between plans stay crisp */
+  .plan > * {
+    transition: opacity 0.2s ease;
+  }
+
+  .plan[data-dimmed] > * {
+    opacity: 0.5;
+  }
+
+  .plan[data-dimmed]:is(:hover, :focus-within) > * {
+    opacity: 1;
+  }
 }
 
 @keyframes thumb-nudge {

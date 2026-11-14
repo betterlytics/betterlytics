@@ -118,11 +118,11 @@
           },
           "freePlan": {
             "question": "Hva er inkludert i gratisplanen?",
-            "answer": "Den gratis Cloud-planen inkluderer opptil 10 000 sporede hendelser, full dashboard-tilgang og fellesskapsstøtte. Perfekt for å komme i gang! Ingen kredittkort kreves, ingen bindingstid. Selvhosting er gratis uten grense for hendelser."
+            "answer": "Free-planen i skyløsningen dekker {sites, plural, one {# nettsted} other {# nettsteder}} og opptil {events, number} sporede hendelser per måned. Den inkluderer nettanalyse, sesjonsopptak, feilsporing og oppetidsovervåking, pluss fellesskapsstøtte. Perfekt for å komme i gang! Ingen kredittkort kreves, ingen bindingstid. Selvhosting er gratis uten grense for hendelser."
           },
           "cloud": {
             "question": "Hvordan fungerer skyløsningen?",
-            "answer": "Skyhosting hos oss gir en fullstendig administrert Betterlytics-instans med automatiske oppdateringer, sikkerhetskopier og 99,9 % oppetidssgaranti (SLA). Ingen serveradministrasjon nødvendig!"
+            "answer": "Skyhosting hos oss gir en fullstendig administrert Betterlytics-instans med automatiske oppdateringer og sikkerhetskopier. Oppetidsgaranti (SLA) er tilgjengelig på Enterprise-planen. Ingen serveradministrasjon nødvendig!"
           },
           "support": {
             "question": "Tilbyr dere support for selvhostede instanser?",
@@ -358,7 +358,7 @@
         "freeTierTitle": "Gratisnivå",
         "freeTierBody": "Vi tilbyr et permanent gratisnivå med månedlig hendelsesgrense som oppgitt på prissiden vår. Kredittkort kreves ikke for gratisnivået. Vi selger aldri dataene dine, uansett hvilken plan du bruker.",
         "billingTitle": "Fakturering",
-        "billingBody": "Du kan bruke gratisnivået vårt på ubestemt tid innenfor de månedlige hendelsesgrensene. Ved høyere bruk må du oppgradere til en betalt plan og betale på forhånd. Hvis du overskrider plangrensene uten oppgradering, risikerer du å miste overskytende data. Hvis betalte kontoer forfaller, kan vi fryse kontoen til betaling er mottatt.",
+        "billingBody": "Du kan bruke gratisnivået vårt på ubestemt tid innenfor de månedlige hendelsesgrensene. Ved høyere bruk må du oppgradere til en betalt plan og betale på forhånd. Hvis du fortsetter å overskride plangrensene uten å oppgradere, kan vi låse kontoen din til du oppgraderer. Dataene dine beholdes. Hvis betalte kontoer forfaller, kan vi fryse kontoen til betaling er mottatt.",
         "limitsTitle": "Hendelsesgrenser",
         "limitsBody": "Hver plan inkluderer en månedlig grense for hendelser (sidevisninger, egendefinerte hendelser osv.). Ubrukte hendelser overføres ikke til neste måned. Du vil aldri bli belastet ekstra for sporadiske trafikkspiker. Hvis du konsekvent overskrider plangrensene i to påfølgende måneder, kontakter vi deg for å diskutere oppgradering.",
         "planChangesTitle": "Planendringer",
@@ -722,6 +722,58 @@
           "back": "Tilbake"
         }
       },
+      "consent": {
+        "title": "Koble til {client}",
+        "lede": "{client} vil ha tilgang til Betterlytics-kontoen din.",
+        "facts": {
+          "app": "App",
+          "identity": "Identitet",
+          "returnsTo": "Går tilbake til",
+          "verified": "Verifisert",
+          "unverified": "Ikke verifisert"
+        },
+        "warnings": {
+          "unverified": "{client} registrerte seg selv, så vi kan ikke bekrefte hvem som laget den.",
+          "loopback": "Startet du ikke dette fra {client}? Avbryt."
+        },
+        "permissions": {
+          "title": "Hva {client} kan gjøre",
+          "read": "Lese statistikk",
+          "readDescription": "Trafikk, hendelser, trakter og feil på dashbordene du velger.",
+          "roleNote": "Den kan aldri gjøre mer enn rollen din tillater."
+        },
+        "dashboards": {
+          "title": "Velg dashbord",
+          "modeAll": "Alle dashbord",
+          "modeSelected": "Bare valgte",
+          "allHint": "Inkluderer dashbord du legger til senere",
+          "search": "Søk i dashbord",
+          "selectAll": "Velg alle",
+          "selected": "<b>{selected}</b> av {total} valgt",
+          "pickOne": "Velg minst ett dashbord",
+          "noMatch": "Ingen dashbord samsvarer med søket.",
+          "empty": "Du har ingen dashbord ennå. <link>Legg til et nettsted</link>"
+        },
+        "roles": {
+          "owner": "Eier",
+          "admin": "Admin",
+          "editor": "Redaktør",
+          "viewer": "Leser"
+        },
+        "reconnect": {
+          "title": "{client} er allerede koblet til",
+          "body": "Den nåværende tilgangen din er valgt nedenfor. Hvis du kobler til, erstattes den."
+        },
+        "cancel": "Avbryt",
+        "connect": "Koble til",
+        "connecting": "Kobler til…",
+        "signedInAs": "Logget inn som",
+        "switchAccount": "Bytt konto",
+        "saveError": "Vi kunne ikke lagre valgene dine. Prøv igjen.",
+        "invalidTitle": "Denne tilkoblingsforespørselen er ikke lenger gyldig",
+        "invalidLede": "Start tilkoblingen på nytt fra appen din.",
+        "goToDashboards": "Gå til dashbord"
+      },
       "register": {
         "seo": {
           "title": "Opprett din gratis Betterlytics-konto",
@@ -836,7 +888,8 @@
         "originMismatch": "Denne siden er åpnet på {origin}, som ikke samsvarer med adressen denne Betterlytics-instansen er konfigurert for, så forespørselen ble blokkert. Åpne Betterlytics på den konfigurerte adressen. Hvis du drifter denne instansen, sørg for at den konfigurerte URL-en (protokoll, vert og port) samsvarer med adressen i nettleseren.",
         "accountLocked": "For mange feil koder. Innlogging med tofaktorautentisering er låst i 15 minutter.",
         "accountDisabled": "Denne kontoen er deaktivert. Kontakt administratoren din.",
-        "rateLimited": "For mange forsøk. Vent litt og prøv igjen."
+        "rateLimited": "For mange forsøk. Vent litt og prøv igjen.",
+        "connectionRequestInvalid": "Denne tilkoblingsforespørselen er ikke lenger gyldig. Start tilkoblingen på nytt fra appen din."
       }
     },
     "demo": {
@@ -1054,8 +1107,8 @@
           "description": "ClickHouse-drevet analysemotor gir responstid under ett sekund i alle skalaer."
         },
         "mcpServer": {
-          "title": "MCP-server",
-          "description": "Spør analysedataene dine fra AI-assistenter som Claude. Innebygd MCP-server for naturlig språktilgang til metrikker, funneler og brukerreiser."
+          "title": "MCP",
+          "description": "La AI-assistenter som Claude jobbe med analysedataene dine. Innebygd MCP lar deg spørre om metrikker, trakter og brukerreiser på vanlig norsk."
         },
         "emailSupport": {
           "title": "E-postsupport",
@@ -1097,6 +1150,7 @@
       "termsOfService": "Tjenestevilkår",
       "dpa": "Databehandleravtale",
       "documentation": "Dokumentasjon",
+      "blog": "Blogg",
       "changelog": "Endringslogg",
       "pricing": "Priser",
       "status": "Status",
@@ -1121,13 +1175,7 @@
       "seo": {
         "title": "Betterlytics-priser: start gratis, betal etter hendelser",
         "description": "Alle planer har nettanalyse, sesjonsopptak, feilsporing og oppetidsovervåking. Start gratis og betal etter hendelser per måned, eller host det selv gratis."
-      },
-      "titleEmphasis": "Enkle, transparente",
-      "titleRest": "priser",
-      "subtitle": "Start gratis, oppgrader når du trenger mer. Ingen skjulte avgifter, ingen overraskelser.",
-      "footer": "Start med gratisplanen vår — ingen kredittkort kreves.",
-      "comparisonTitle": "Sammenlign alle funksjoner",
-      "exploreFeaturesLink": "Utforsk alle funksjoner i detalj"
+      }
     },
     "shareImage": {
       "alt": "«You shouldn’t need five tools to understand one website» over Betterlytics-dashboardet"
@@ -1203,7 +1251,7 @@
     },
     "mcp": {
       "title": "Slipp din *egen*\nagent løs på dataene",
-      "lede": "Betterlytics har en innebygd MCP-server. Spør på vanlig norsk og få svar på tvers av alt sammen.",
+      "lede": "Betterlytics har innebygd MCP. Spør på vanlig norsk og få svar på tvers av alt sammen.",
       "lead": "Still spørsmål, ikke spørringer.",
       "body": "Agenten din leser skjemaet og kobler sammen trafikk, trakter, feil og oppetid.",
       "worksWith": "Fungerer med",
@@ -1249,25 +1297,35 @@
       "rangeLabel": "Antall hendelser per måned",
       "rangeValueText": "{events} hendelser",
       "perMonth": "/mnd",
-      "free": "Gratis",
       "custom": "Etter avtale",
-      "growth": {
-        "name": "Growth",
-        "tagline": "For sideprosjekter og små nettsteder.",
-        "ctaFree": "Kom i gang gratis",
-        "cta": "Kom i gang"
+      "badge": "Anbefalt",
+      "ctaFree": "Kom i gang gratis",
+      "contactCta": "Kontakt oss",
+      "plans": {
+        "free": {
+          "tagline": "For sideprosjekter og personlige nettsteder."
+        },
+        "plus": {
+          "tagline": "For sideprosjekter med mye trafikk og små bedrifter."
+        },
+        "business": {
+          "tagline": "For byråer, frilansere og voksende team."
+        },
+        "enterprise": {
+          "tagline": "For høy trafikk og organisasjoner med krav til sikkerhet eller samsvar."
+        },
+        "growth": {
+          "tagline": "For sideprosjekter og personlige nettsteder."
+        }
       },
-      "professional": {
-        "name": "Professional",
-        "tagline": "For team med flere produkter i drift.",
-        "cta": "Kom i gang",
-        "badge": "Mest populær"
-      },
-      "enterprise": {
-        "name": "Enterprise",
-        "tagline": "For høy trafikk, med SLA og dedikert support.",
-        "cta": "Kontakt salg"
-      }
+      "cta": "Kom i gang"
+    },
+    "pricingPage": {
+      "compareTitle": "Sammenlign alle funksjoner",
+      "faqTitle": "Ofte stilte spørsmål",
+      "note": "Gratis å starte, ingen kredittkort trengs.",
+      "included": "Inkludert",
+      "notIncluded": "Ikke inkludert"
     },
     "cta": {
       "title": "Legg inn ett skript og se den første besøkende tikke inn",
@@ -1292,6 +1350,7 @@
         "replay": "Sesjonsavspilling",
         "errors": "Feilsporing",
         "vitals": "Core Web Vitals",
+        "mcp": "MCP",
         "pricing": "Priser"
       },
       "company": {
@@ -1304,6 +1363,7 @@
       },
       "resources": {
         "docs": "Dokumentasjon",
+        "blog": "Blogg",
         "changelog": "Endringslogg",
         "status": "Driftsstatus"
       },
@@ -1385,7 +1445,7 @@
         "operational": "I drift"
       },
       "transcript": {
-        "alt": "En terminaløkt: En agent får spørsmål om hvilke sider som mistet trafikk etter redesignet i august. Den henter sidevisninger og feil via MCP-serveren i Betterlytics og finner ut at /pricing har falt 34 %, rammet av en TypeError som ble rullet ut samme dag.",
+        "alt": "En terminaløkt: En agent får spørsmål om hvilke sider som mistet trafikk etter redesignet i august. Den henter sidevisninger og feil via Betterlytics MCP og finner ut at /pricing har falt 34 %, rammet av en TypeError som ble rullet ut samme dag.",
         "redesign": {
           "question": "hvilke sider har mistet trafikk etter redesignet i august?",
           "say": "Jeg sammenligner daglige sidevisninger i juli og august, og ser så etter feil på sidene som falt.",
@@ -1407,7 +1467,7 @@
           "signups": "Google 164 · ChatGPT 71 · Hacker News 9",
           "answer": "ChatGPT sender en niendedel så mange besøkende som Google, men 3,4 % av dem registrerer seg, mot 0,9 % – nesten fire ganger så høy andel."
         },
-        "uptimeAlt": "En terminaløkt: En agent blir bedt om å undersøke et nedetidsvarsel for Checkout. Den leser den åpne hendelsen via MCP-serveren i Betterlytics, finner en commit som ble rullet ut tre minutter før driftsavbruddet, og tilbyr å reversere den. Deretter regner den ut hva gårsdagens driftsavbrudd i kassen kostet i salg.",
+        "uptimeAlt": "En terminaløkt: En agent blir bedt om å undersøke et nedetidsvarsel for Checkout. Den leser den åpne hendelsen via Betterlytics MCP, finner en commit som ble rullet ut tre minutter før driftsavbruddet, og tilbyr å reversere den. Deretter regner den ut hva gårsdagens driftsavbrudd i kassen kostet i salg.",
         "investigate": {
           "question": "checkout varsler at den er nede, kan du undersøke?",
           "say": "Jeg henter den åpne hendelsen fra Betterlytics og sjekker så hva som ble rullet ut rett før den startet.",
@@ -1415,7 +1475,7 @@
           "commits": "a41f2c9 10:09 Move Stripe keys to env vars",
           "answer": "Checkout har svart med 503 siden 10:12, tre minutter etter at a41f2c9 flyttet Stripe-nøklene til miljøvariabler. Skal jeg reversere den?"
         },
-        "debugAlt": "En terminaløkt: En agent får høre at det ikke skjer noe når man velger en plan. Den henter feilene på /pricing via MCP-serveren i Betterlytics, leser stack trace og sesjonsforløp for en TypeError, åpner pricing.js på linje 142 og foreslår en rettelse. Deretter får den spørsmål om hvilke feil som bør fikses først, sorterer ukens feil etter hvor mange sesjoner de har rammet, og velger den samme TypeError-en.",
+        "debugAlt": "En terminaløkt: En agent får høre at det ikke skjer noe når man velger en plan. Den henter feilene på /pricing via Betterlytics MCP, leser stack trace og sesjonsforløp for en TypeError, åpner pricing.js på linje 142 og foreslår en rettelse. Deretter får den spørsmål om hvilke feil som bør fikses først, sorterer ukens feil etter hvor mange sesjoner de har rammet, og velger den samme TypeError-en.",
         "debug": {
           "question": "folk sier det ikke skjer noe når de velger plan, kan du ta en titt?",
           "say": "Jeg sjekker feilene på /pricing først.",
@@ -1458,7 +1518,7 @@
         },
         "uptime": {
           "title": "Oppetidsovervåking",
-          "body": "Sjekker så ofte som hvert minutt, varsler der teamet ditt snakker sammen, og en statusside."
+          "body": "Sjekker så ofte som hvert 30. sekund, varsler der teamet ditt snakker sammen, og en statusside."
         }
       }
     },
@@ -1470,16 +1530,16 @@
       "hero": {
         "eyebrow": "Oppetidsovervåking",
         "title": "Vit når nettstedet ditt går ned, og hva det kostet deg",
-        "lede": "Sjekker helt ned til hvert minutt, varsler der teamet ditt snakker sammen, SSL-varsler og en offentlig statusside. I dashboardet som allerede viser trafikken din.",
+        "lede": "Sjekker helt ned til hvert 30. sekund, varsler der teamet ditt snakker sammen, SSL-varsler og en offentlig statusside. I dashboardet som allerede viser trafikken din.",
         "primary": "Start overvåking gratis",
         "secondary": "Les dokumentasjonen",
         "proof": "Vår egen statusside kjører på det"
       },
       "specs": {
         "interval": {
-          "unit": "min",
+          "unit": "sek.",
           "label": "Sjekkintervall",
-          "body": "Sjekk så ofte som hvert minutt, eller så sjelden som én gang i døgnet."
+          "body": "Sjekk så ofte som hvert 30. sekund, eller så sjelden som én gang i døgnet."
         },
         "ssl": {
           "unit": "dager",
@@ -1658,7 +1718,7 @@
       },
       "agent": {
         "title": "Spør agenten din *hvorfor* den gikk ned",
-        "lede": "Monitorer og hendelser ligger i den innebygde MCP-serveren, så agenten din kan granske et driftsavbrudd ved siden av koden, trafikken og feilene dine.",
+        "lede": "Monitorer og driftshendelser er tilgjengelige via innebygd MCP, så agenten din kan undersøke et driftsavbrudd sammen med koden, trafikken og feilene dine.",
         "lead": "Fra varsel til årsak med ett spørsmål",
         "body": "Agenten din leser den åpne hendelsen, sjekker hva som ble rullet ut rett før, og kommer tilbake med den sannsynlige årsaken og en rettelse du kan godkjenne. Eller legg et driftsavbrudd opp mot trafikk og salg for å se hva det kostet.",
         "cta": "Sett opp MCP"
@@ -1679,7 +1739,7 @@
           },
           "often": {
             "q": "Hvor ofte sjekker Betterlytics nettstedet mitt?",
-            "a": "Så ofte som hvert minutt, eller så sjelden som én gang i døgnet. Du velger intervallet for hver monitor."
+            "a": "Så ofte som hvert 30. sekund, eller så sjelden som én gang i døgnet. Du velger intervallet for hver monitor, og planen din bestemmer det korteste."
           },
           "false": {
             "q": "Hvordan unngår dere falske alarmer?",
@@ -1703,7 +1763,7 @@
           },
           "free": {
             "q": "Er oppetidsovervåking gratis?",
-            "a": "Gratisplanen inkluderer én monitor per nettsted, sjekket hvert femte minutt, og én statusside. Professional-planen gir deg mer avansert oppsett: sjekker hvert minutt, egne headere, godkjente statuskoder og nøkkelordsjekker, flere monitorer og statussider, og ditt eget domene."
+            "a": "Ja. Free-planen inkluderer én monitor, sjekket hvert femte minutt, og én offentlig statusside med Betterlytics-merking. Betalte planer gir flere monitorer, sjekker hvert minutt, nøkkelordsjekker, egne headere og godkjente statuskoder, og statussider på ditt eget domene. Business gir sjekker hvert 30. sekund og fjerner Betterlytics-merkingen."
           },
           "internal": {
             "q": "Kan jeg overvåke interne tjenester?",
@@ -2068,7 +2128,7 @@
       },
       "agent": {
         "title": "Overlat bugen *til agenten din*",
-        "lede": "Kodeagenten din kan slå opp feil via den innebygde MCP-serveren og jobbe med rettelsen rett ved siden av koden din.",
+        "lede": "Kodeagenten din kan slå opp feil via innebygd MCP og jobbe med rettelsen rett ved siden av koden din.",
         "lead": "Fra klage til rettelse med ett spørsmål",
         "body": "Spør Claude Code, Cursor eller en hvilken som helst MCP-klient om en klage. Den finner feilen som hører til, leser stack trace og sesjonsforløp, og åpner filen stacken peker på.",
         "cta": "Sett opp MCP"
@@ -2212,7 +2272,7 @@
           "FCP": "Første innhold vist",
           "TTFB": "Serverrespons"
         },
-        "source": "<link>Google fant</link> at risikoen for at besøkende forlater siden, øker med 32\u00a0% når lastetiden går fra 1 til 3 sekunder.",
+        "source": "<link>Google fant</link> at risikoen for at besøkende forlater siden, øker med 32 % når lastetiden går fra 1 til 3 sekunder.",
         "alt": "Til venstre driver tanker forbi som de besøkende har, men aldri sender: en side som fortsatt laster, et trykk på Betal som ikke gjorde noe, en layout som flyttet seg under noens finger, en tom skjerm og en meny som ikke vil åpne seg. Til høyre Betterlytics’ fem målere for kassesiden: hovedinnholdet vises etter 3,3 sekunder, som er middels; trykk får respons etter 520 millisekunder, som er dårlig; layoutforskyvningen er 0,05, som er bra; det første innholdet vises etter 2 sekunder, som er middels; og serveren svarer på 640 millisekunder, som er bra."
       },
       "field": {
@@ -2339,7 +2399,7 @@
           },
           "speed": {
             "q": "Blir nettstedet mitt tregere av målingen?",
-            "a": "Ikke slik at de besøkende merker det. Måleskriptet er på 2,6\u00a0KB gzippet og lastes inn uten å blokkere siden. Alle fem verdiene sendes i én liten forespørsel når den besøkende forlater siden eller bytter fane."
+            "a": "Ikke slik at de besøkende merker det. Måleskriptet er på 2,6 KB gzippet og lastes inn uten å blokkere siden. Alle fem verdiene sendes i én liten forespørsel når den besøkende forlater siden eller bytter fane."
           },
           "spa": {
             "q": "Fungerer det med single-page-apper?",
@@ -2365,6 +2425,272 @@
         "primary": "Start måling gratis",
         "secondary": "Les dokumentasjonen om Web Vitals"
       }
+    },
+    "mcpServer": {
+      "seo": {
+        "title": "MCP-server for nettanalyse med AI-agenter | Betterlytics",
+        "description": "Spør Claude, Cursor, Codex eller en annen MCP-klient om trafikk, trakter, feil og oppetid, og få svar basert på de faktiske dataene dine. Gratis på alle planer."
+      },
+      "hero": {
+        "eyebrow": "MCP",
+        "title": "Spør AI-agenten din om trafikk, feil og oppetid",
+        "lede": "Betterlytics har innebygd MCP. Spør Claude, Cursor eller Codex om nettstedet ditt og få svar basert på de faktiske tallene dine, i chatten, editoren eller terminalen du allerede bruker. Gratis på alle planer.",
+        "primary": "Koble til agenten din gratis",
+        "secondary": "Les oppsettsguiden"
+      },
+      "window": {
+        "label": "Eksempeløkter",
+        "note": "Eksempeløkter med fiktive data.",
+        "you": "Du",
+        "chat": {
+          "tab": "Hvorfor falt registreringene?",
+          "nav": {
+            "newChat": "New",
+            "search": "Search",
+            "projects": "Projects",
+            "artifacts": "Artifacts",
+            "scheduled": "Scheduled",
+            "customize": "Customize"
+          },
+          "recents": "Recents",
+          "chats": {
+            "drop": "Fall i registreringer 5. nov.",
+            "recap": "Ukentlig trafikkoversikt",
+            "pricing": "Feil på prissiden",
+            "friday": "Sjekkliste for Black Friday"
+          },
+          "viewAll": "View all",
+          "plan": "Pro",
+          "question": "Registreringene falt i går ettermiddag. Hva skjedde?",
+          "tools": "Used 3 Betterlytics tools",
+          "lead": "Checkout-tjenesten din var nede i 19 minutter, og registreringene falt samtidig.",
+          "chart": {
+            "signups": "Registreringer per time",
+            "failed": "Feilet mens checkout var nede",
+            "tipSignups": "{count} registreringer",
+            "tipFailed": "{count} feilet",
+            "summary": "Stolpediagram over registreringer per time fra 10:00 til 18:00: 431 til 524 hver time unntatt kl. 14:00, med 343 registreringer og 164 som feilet mens checkout var nede."
+          },
+          "points": {
+            "a": "Checkout svarte ikke fra 14:02 til 14:21.",
+            "b": "Registreringsskjemaet sendes til checkout.acme.com, så 211 forsøk feilet med «Failed to fetch», fordelt på 164 besøk.",
+            "c": "Registreringene var tilbake på normalt nivå innen kl. 15:00."
+          },
+          "close": "Med retry på registreringskallet ville de fleste ha gått gjennom. Skal jeg lage et utkast?",
+          "reply": "Reply…",
+          "connector": "Betterlytics",
+          "model": "Opus 5.5",
+          "effort": "Medium"
+        },
+        "cursor": {
+          "tab": "Fiks feilen på /pricing",
+          "review": "Ready for review",
+          "agents": {
+            "fix": {
+              "title": "Fiks planvelgeren",
+              "sub": "Tåler tidlige klikk"
+            },
+            "retry": {
+              "title": "Retry av registreringer",
+              "sub": "Retry med backoff"
+            },
+            "alerts": {
+              "title": "Checkout-timeoutvarsler",
+              "sub": "Tydeligere varseltekst"
+            },
+            "recap": {
+              "title": "Ukentlig trafikkoversikt",
+              "sub": "Oppsummering klar"
+            }
+          },
+          "question": "Folk sier at det ikke skjer noe når de velger en plan på /pricing. Kan du fikse det?",
+          "thought": "Thought",
+          "called": "Called",
+          "read": "Read",
+          "answer": "Betterlytics viser en TypeError på /pricing i 318 besøk denne uken. Klikk som kommer før planene er lastet inn, finner <c>selected</c> fortsatt null, så linje 142 kaster en feil. Jeg har lagt inn en sjekk, så et tidlig klikk blir ignorert i stedet for å ødelegge siden.",
+          "worked": "Worked for 38s",
+          "placeholder": "Add a follow-up…",
+          "mode": "Agent",
+          "undo": "Undo",
+          "keep": "Keep"
+        },
+        "codex": {
+          "tab": "Ødela deployen noe?",
+          "newChat": "New chat",
+          "projects": "Projects",
+          "recents": "Recents",
+          "showMore": "Show more",
+          "chats": {
+            "deploy": "Sjekk deployen kl. 15:30",
+            "pricing": "Fiks krasjet i planvelgeren",
+            "retry": "Retry av registreringer",
+            "recap": "Ukentlig trafikkoversikt",
+            "checkout": "Checkout-timeoutvarsler"
+          },
+          "question": "Ødela deployen kl. 15:30 noe?",
+          "say": "Jeg sjekker oppetid, feil og trafikk siden kl. 15:30.",
+          "called": "Called",
+          "monitors": "4 monitorer, alle oppe",
+          "incidents": "0 driftshendelser i dag",
+          "errors": "2 feilgrupper den siste timen, begge først sett før i dag",
+          "traffic": "15:00 → 1 284 og 16:00 → 1 311 sidevisninger (samme timer i går: 1 240 og 1 296)",
+          "answer": "Ingenting ble ødelagt. Alle monitorene holdt seg oppe, ingen nye feiltyper har dukket opp etter 15:30, og trafikken er på linje med i går.",
+          "worked": "Worked for 9s",
+          "placeholder": "Ask for follow-up changes",
+          "approve": "Approve for me",
+          "effort": "High"
+        }
+      },
+      "specs": {
+        "connection": {
+          "unit": "tilkobling",
+          "label": "Fra trakter til stack traces",
+          "body": "Trafikk, brukerreiser, trakter, feil, oppetid og statussider kan alle hentes via den samme tilkoblingen."
+        },
+        "free": {
+          "value": "Gratis",
+          "unit": "på alle planer",
+          "label": "Ingen tilleggskjøp",
+          "body": "Det er med i gratisplanen også, og ingenting agenten din slår opp, teller med i den månedlige hendelseskvoten din."
+        },
+        "thesis": {
+          "unit": "cookies",
+          "label": "Ingen personopplysninger å gi fra seg",
+          "body": "Betterlytics lagrer verken cookies eller IP-adresser, så agenten din ser bare personopplysninger hvis nettstedet ditt selv sender dem."
+        }
+      },
+      "tools": {
+        "title": "Ett spørsmål kan dekke *hele nettstedet ditt*",
+        "lede": "Agenten din kan sjekke trafikk, feil, oppetid og statussiden din før den svarer. Velg et eksempelspørsmål for å se hvilke verktøy den bruker.",
+        "agent": "Agenten din",
+        "agentBody": "Fungerer med Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Antigravity og Codex",
+        "server": "Betterlytics MCP",
+        "copy": "Kopier spørsmålet",
+        "copied": "Kopiert",
+        "pick": "Eksempelspørsmål",
+        "featured": "Utvalgte",
+        "groups": {
+          "analytics": "Nettanalyse",
+          "errors": "Feilsporing",
+          "uptime": "Oppetidsovervåking",
+          "status": "Statussider"
+        },
+        "questions": {
+          "morning": "Gi meg en morgensjekk av trafikk, feil, oppetid og statussiden vår.",
+          "launch": "Vi lanserte på Product Hunt i dag. Hvordan går det?",
+          "signups": "Registreringene falt i går ettermiddag. Hva skjedde?",
+          "pricing": "Folk sier at det ikke skjer noe når de velger en plan på /pricing. Hvorfor?",
+          "deploy": "Ødela deployen kl. 15:30 noe?",
+          "outage": "Checkout er nede. Koster det oss registreringer, og har vi lagt ut en driftsmelding?"
+        },
+        "asks": {
+          "describe": "Hva kan du slå opp i Betterlytics?",
+          "list_dashboards": "Hvilke av nettstedene våre kan du se?",
+          "query": "Hvilke sider fikk flest besøkende fra Hacker News denne uken?",
+          "query_sessions": "Hvilke landingssider har høyest fluktfrekvens denne måneden?",
+          "user_journeys": "Hvor går de besøkende videre fra prissiden?",
+          "funnel_preview": "Hvor mange av dem som begynner å registrere seg, fullfører faktisk?",
+          "list_funnels": "Hvilket trinn i onboarding-trakten vår mister flest?",
+          "list_global_properties": "Gir variant B av forsiden flere registreringer?",
+          "list_errors": "Hvilke feil skjer bare i Safari?",
+          "get_error": "Hva gjorde den besøkende rett før den siste TypeError-en?",
+          "list_monitors": "Er alt oppe, og går noen SSL-sertifikater snart ut?",
+          "list_monitor_incidents": "Hvor lenge varte hvert driftsavbrudd denne uken, og hvorfor?",
+          "list_status_pages": "Hva forteller statussiden vår de besøkende akkurat nå?",
+          "list_incident_suggestions": "Har vi glemt å legge ut en driftsmelding om et nylig driftsavbrudd?"
+        }
+      },
+      "setup": {
+        "title": "Legg det til i klienten du *allerede* bruker",
+        "lede": "Opprett en API-nøkkel i Betterlytics-innstillingene dine, lim inn én kodesnutt i klienten din og begynn å spørre. I VS Code holder det med ett klikk.",
+        "label": "Klienten din",
+        "other": "Eksterne MCP-klienter med API-nøkkel fungerer også.",
+        "install": {
+          "vs-code": "Installer i VS Code",
+          "cursor": "Legg til i Cursor"
+        },
+        "installNote": {
+          "vs-code": "Eller hopp over filen. VS Code åpnes og ber om API-nøkkelen din.",
+          "cursor": "Eller hopp over filen. Lim inn API-nøkkelen i oppsettsguiden, så tar Cursor seg av installasjonen."
+        },
+        "clients": {
+          "claude": "Åpne Developer under Settings, deretter Edit Config, og legg til dette.",
+          "claude-code": "Kjør dette i terminalen din.",
+          "cursor": "Legg dette til i prosjektet ditt.",
+          "vs-code": "Legg dette til i prosjektet ditt.",
+          "windsurf": "Legg dette til i MCP-konfigurasjonen til Windsurf.",
+          "antigravity": "Legg dette til i MCP-konfigurasjonen til Antigravity.",
+          "codex": "Legg dette til i Codex-konfigurasjonen din."
+        },
+        "notes": {
+          "claude": "Krever Node.js for å kjøre mcp-remote. På Windows bruker du konfigurasjonen i oppsettsguiden.",
+          "antigravity": "For ett enkelt workspace legger du det heller til i .agents/mcp_config.json."
+        },
+        "copy": "Kopier",
+        "copied": "Kopiert",
+        "guide": "Oppsettsguide",
+        "cta": "Les oppsettsguiden",
+        "trust": {
+          "read": {
+            "title": "Kun lesetilgang",
+            "body": "Alle de 14 verktøyene kan bare lese. Agenten din kan ikke endre innstillinger, slette data eller legge ut driftsmeldinger."
+          },
+          "scope": {
+            "title": "Du bestemmer hva den ser",
+            "body": "Hver API-nøkkel gjelder ett nettsted, så agenten din ser bare nettstedene du velger."
+          },
+          "revoke": {
+            "title": "Trekk tilbake når du vil",
+            "body": "Trekk tilbake en API-nøkkel når som helst, så stopper tilgangen med en gang. Eller gi den en utløpsdato."
+          }
+        }
+      },
+      "related": {
+        "lede": "MCP er én del av Betterlytics. Alt nedenfor ligger i samme dashboard, med samme innlogging og faktura."
+      },
+      "faq": {
+        "title": "Ofte stilte spørsmål",
+        "items": {
+          "what": {
+            "q": "Hva er MCP?",
+            "a": "MCP, Model Context Protocol, er en åpen standard som lar AI-agenter bruke verktøy i andre apper. Med Betterlytics MCP kan agenter som Claude, Cursor og Codex lese trafikk, feil, oppetid og statussider for nettstedet ditt, så de svarer med de faktiske tallene dine."
+          },
+          "free": {
+            "q": "Koster MCP ekstra?",
+            "a": "Nei. Det er inkludert i alle planer, også gratisplanen, og ingenting agenten din slår opp, teller med i den månedlige hendelseskvoten din."
+          },
+          "clients": {
+            "q": "Hvilke AI-klienter fungerer det med?",
+            "a": "Oppsettsguiden viser steg for steg hvordan du setter det opp i Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Antigravity og Codex. Andre klienter fungerer også, så lenge de kan koble til en ekstern MCP-server med en API-nøkkel."
+          },
+          "scope": {
+            "q": "Hva kan agenten min se?",
+            "a": "Nesten alt på nettstedet du kobler til: trafikk, sesjoner, hendelser, trakter, brukerreiser, globale egenskaper, feil med stack traces og sesjonsforløp, monitorer, driftshendelser og statussider."
+          },
+          "provider": {
+            "q": "Blir dataene mine sendt til AI-leverandøren?",
+            "a": "Det agenten din leser, blir en del av samtalen, så det håndteres av modellen og klienten du bruker, på deres vilkår. Betterlytics setter ingen cookies og lagrer ingen IP-adresser, så svarene kan knyttes til en person bare hvis nettstedet ditt selv sender data som kan identifisere noen."
+          },
+          "sites": {
+            "q": "Kan jeg koble til mer enn ett nettsted?",
+            "a": "Ja. Hver API-nøkkel gjelder ett nettsted, så opprett én for hvert nettsted og legg dem til i klienten under hvert sitt navn, for eksempel betterlytics-shop og betterlytics-blog."
+          },
+          "revoke": {
+            "q": "Hvordan fjerner jeg tilgangen?",
+            "a": "Slett API-nøkkelen i Betterlytics, så mister agenten din tilgangen med en gang. API-nøkler kan også utløpe av seg selv etter 30, 90 eller 180 dager."
+          },
+          "schema": {
+            "q": "Må jeg vite hvordan dataene er lagret?",
+            "a": "Nei. Agenten din slår opp hvilke metrikker, filtre og tidsperioder den kan bruke, velger riktige verktøy og henter dataene. Du trenger bare å spørre med dine egne ord."
+          }
+        }
+      },
+      "cta": {
+        "title": "Still ditt første spørsmål i dag",
+        "lede": "Registrer deg, legg til skriptet på nettstedet ditt og koble til agenten din. Gratis på alle planer.",
+        "primary": "Koble til agenten din gratis",
+        "secondary": "Les oppsettsguiden"
+      }
     }
   },
   "pricingSlider": {
@@ -2375,39 +2701,43 @@
   "pricingCards": {
     "periodPerMonth": "/måned",
     "descriptions": {
-      "growth": "Perfekt for små nettsteder og personlige prosjekter",
-      "professional": "Avanserte funksjoner for voksende virksomheter",
-      "enterprise": "Komplett løsning for store organisasjoner"
+      "free": "For sideprosjekter og personlige nettsteder",
+      "plus": "For sideprosjekter med mye trafikk og små bedrifter",
+      "business": "For byråer, frilansere og voksende team",
+      "enterprise": "For høy trafikk og organisasjoner med krav til sikkerhet eller samsvar",
+      "growth": "For sideprosjekter og personlige nettsteder"
     },
     "features": {
-      "upToEventsPerMonth": "Opptil {events} hendelser/måned",
-      "customEventVolume": "Tilpasset hendelsesvolum",
-      "twoSites": "Opptil 2 nettsteder",
-      "upTo50Sites": "Opptil 50 nettsteder",
+      "eventsPerMonth": "{events} hendelser/måned",
       "unlimitedSites": "Ubegrenset antall nettsteder",
-      "threeTeamMembers": "Opptil 3 teammedlemmer",
-      "upTo50TeamMembers": "Opptil 50 teammedlemmer",
       "unlimitedTeamMembers": "Ubegrenset antall teammedlemmer",
-      "retention1PlusYear": "1+ år datalagring",
-      "retention3PlusYears": "3+ år datalagring",
-      "retention5PlusYears": "5+ år datalagring",
       "fullDashboard": "Komplett dashboard for nettanalyse",
       "funnelsJourneys": "Trakter og brukerreiser",
-      "sessionReplay": "Sesjonsopptak",
       "errorTracking": "Feilsporing",
-      "uptime1": "1 oppetidsmonitor og offentlig statusside",
-      "uptime50": "50 oppetidsmonitorer med 1-minutts sjekker",
+      "advancedChecks": "Avanserte oppetidssjekker",
+      "replaysPerMonth": "{count, plural, one {# sesjonsopptak/måned} other {# sesjonsopptak/måned}}",
       "uptimeUnlimited": "Ubegrenset antall oppetidsmonitorer og statussider",
-      "statusPagesPro": "White-label statussider på ditt eget domene",
+      "statusPagesPro": "White-label statussider",
       "emailReports": "Planlagte e-postrapporter",
-      "dedicatedSupport": "Dedikert support",
-      "slaGuarantee": "SLA-garanti",
-      "everythingInStarter": "Alt i Growth, pluss:",
-      "everythingInProfessional": "Alt i Professional, pluss:"
+      "slaGuarantee": "Oppetids-SLA med prioritert support",
+      "sitesCount": "{count, plural, one {# nettsted} other {# nettsteder}}",
+      "teamMembersCount": "{count, plural, one {# teammedlem} other {# teammedlemmer per nettsted}}",
+      "retentionYears": "{count, plural, other {# år datalagring}}",
+      "uptimeMonitors": "{count, plural, one {# oppetidsmonitor} other {# oppetidsmonitorer}}, {minutes}-minutts sjekker",
+      "uptimeMonitorsSeconds": "{count, plural, one {# oppetidsmonitor} other {# oppetidsmonitorer}}, {seconds}-sekunders sjekker",
+      "everythingIn": "Alt i {name}, pluss:",
+      "statusPagesCount": "{count, plural, one {# offentlig statusside} other {# offentlige statussider}}",
+      "statusPageCustomDomain": "Statusside på ditt eget domene",
+      "prioritySupport": "Prioritert support",
+      "moreThanEventsPerMonth": "Mer enn {events} hendelser/måned",
+      "samlSso": "SAML SSO og SCIM",
+      "auditLog": "Revisjonslogg",
+      "dpaSecurityReviews": "DPA og sikkerhetsgjennomganger",
+      "customRetention": "Tilpasset datalagring",
+      "customContracts": "Årsavtaler, fakturering og tilpassede vilkår"
     },
     "cta": {
       "getStartedForFree": "Kom i gang gratis",
-      "contactSales": "Kontakt salg",
       "getStarted": "Kom i gang",
       "currentPlan": "Nåværende plan",
       "changeToThisPlan": "Bytt til denne planen",
@@ -2418,16 +2748,12 @@
       "current": "Nåværende"
     },
     "labels": {
-      "free": "Gratis",
       "custom": "Tilpasset"
     }
   },
   "pricingComparison": {
     "headers": {
-      "features": "Funksjoner",
-      "growth": "Vekst",
-      "professional": "Profesjonell",
-      "enterprise": "Bedrift"
+      "features": "Funksjoner"
     },
     "categories": {
       "usageLimits": "Bruk og grenser",
@@ -2445,24 +2771,21 @@
       "sites": {
         "name": "Nettsteder",
         "values": {
-          "upTo2": "Opptil 2",
-          "upTo50": "Opptil 50",
+          "count": "{count, number}",
           "unlimited": "Ubegrenset"
         }
       },
       "dataRetention": {
         "name": "Datalagring",
         "values": {
-          "1year": "1+ år",
-          "3years": "3+ år",
-          "5years": "5+ år"
+          "yearsCount": "{count, plural, one {# år} other {# år}}",
+          "custom": "Tilpasset"
         }
       },
       "teamMembers": {
-        "name": "Teammedlemmer",
+        "name": "Teammedlemmer per nettsted",
         "values": {
-          "upTo3": "Opptil 3",
-          "upTo50": "Opptil 50",
+          "count": "{count, number}",
           "unlimited": "Ubegrenset"
         }
       },
@@ -2470,7 +2793,11 @@
         "name": "Alle dashboardfunksjoner"
       },
       "sessionReplay": {
-        "name": "Sesjonsavspilling"
+        "name": "Sesjonsavspilling",
+        "values": {
+          "perMonth": "{count, number}/måned",
+          "custom": "Tilpasset"
+        }
       },
       "funnels": {
         "name": "Trakter og konverteringer"
@@ -2496,8 +2823,7 @@
       "uptimeMonitoring": {
         "name": "Nedetidsovervåking",
         "values": {
-          "1": "1 overvåker",
-          "50": "50 monitorer",
+          "monitorsCount": "{count, plural, one {# overvåker} other {# monitorer}}",
           "unlimited": "Ubegrenset antall monitorer"
         }
       },
@@ -2507,8 +2833,8 @@
       "checkInterval": {
         "name": "Minimum kontrollintervall",
         "values": {
-          "5min": "5 min.",
-          "1min": "1 min."
+          "minutesCount": "{count} min.",
+          "secondsCount": "{count} sek."
         }
       },
       "customHttpMethods": {
@@ -2520,14 +2846,16 @@
       "customStatusCodes": {
         "name": "Tilpassede godkjente statuskoder"
       },
+      "keywordChecks": {
+        "name": "Nøkkelordsjekker"
+      },
       "notificationIntegrations": {
         "name": "Varslingsintegrasjoner (Slack, Discord osv.)"
       },
       "statusPages": {
         "name": "Offentlige statussider",
         "values": {
-          "1": "1 statusside",
-          "3": "3 statussider",
+          "statusPagesCount": "{count, plural, one {# statusside} other {# statussider}}",
           "unlimited": "Ubegrenset antall statussider"
         }
       },
@@ -2548,27 +2876,6 @@
       },
       "slaGuarantee": {
         "name": "SLA-garanti"
-      }
-    },
-    "coreFeatures": {
-      "title": "Inkludert i alle planer",
-      "subtitle": "Hver plan kommer med hele analysepakken vår",
-      "items": {
-        "realtimeAnalytics": "Sanntidsanalyse",
-        "sessionReplay": "Sesjonsavspilling",
-        "geographicInsights": "Geografisk innsikt",
-        "trafficSources": "Trafikkilder",
-        "utmCampaigns": "UTM-kampanjesporing",
-        "customEvents": "Tilpassede hendelser",
-        "funnels": "Trakter og konverteringer",
-        "userJourneys": "Brukerreiser",
-        "webVitals": "Web-vitals",
-        "botFiltering": "Bot-filtrering",
-        "outboundLinks": "Sporing av utgående lenker",
-        "advancedFiltering": "Avansert filtrering",
-        "cookieFree": "Informasjonskapselfri",
-        "gdprCcpa": "Klar for GDPR og CCPA",
-        "errorTracking": "Klientside-feilsporing"
       }
     }
   },
@@ -2664,11 +2971,6 @@
     "createCard": {
       "title": "Opprett dashboard",
       "description": "Legg til et nytt dashboard"
-    },
-    "upgradeCard": {
-      "title": "Trenger du flere dashboard?",
-      "description": "Pro støtter opptil 50 nettsteder",
-      "cta": "Oppgrader til Pro"
     }
   },
   "monitoring": {
@@ -3156,8 +3458,7 @@
       "recommended": "anbefalt"
     },
     "proFeature": {
-      "badge": "Pro",
-      "upgradeRequired": "Oppgrader til Pro for å låse opp denne funksjonen"
+      "upgradeRequired": "Oppgrader til {plan} for å låse opp denne funksjonen"
     },
     "billing": {
       "navigation": {
@@ -3178,7 +3479,7 @@
           },
           "exceedLimit": {
             "q": "Hva skjer hvis jeg overskrider hendelsesgrensen min?",
-            "a": "Vi fortsetter å spore hendelsene dine og sender en e-post når du overskrider grensen. Hvis du overskrider grensen i mer enn 30 dager, kan overskytende data bli slettet."
+            "a": "Vi fortsetter å spore hendelsene dine og sender deg en e-post når du nærmer deg grensen eller passerer den. Hvis kontoen din fortsetter å gå over grensen uten oppgradering, kan vi låse den til du oppgraderer. Dataene dine beholdes uansett."
           },
           "annualBilling": {
             "q": "Tilbyr dere årlig fakturering?",
@@ -3186,7 +3487,7 @@
           },
           "freeOption": {
             "q": "Finnes det en gratis plan?",
-            "a": "Ja! Growth-planen vår inkluderer 10 000 gratis hendelser per måned for alltid. Ingen kredittkort kreves for å komme i gang."
+            "a": "Ja! Free-planen vår inkluderer {events, number} hendelser per måned, gratis for alltid. Ingen kredittkort kreves for å komme i gang."
           },
           "cancelAnytime": {
             "q": "Kan jeg si opp når som helst?",
@@ -3195,6 +3496,10 @@
           "paymentMethods": {
             "q": "Hvilke betalingsmetoder aksepterer dere?",
             "a": "Vi aksepterer alle større kredittkort (Visa, MasterCard, American Express) og støtter sikre betalinger via vår betalingsleverandør."
+          },
+          "payInEuros": {
+            "q": "Kan jeg betale i euro?",
+            "a": "Ja. Alle planer koster det samme beløpet i euro som i dollar, og du velger valuta når du oppgraderer."
           }
         }
       },
@@ -3277,11 +3582,7 @@
         "pastDue": "Forfalt",
         "inactive": "Inaktiv"
       },
-      "planNames": {
-        "growth": "Growth-plan",
-        "professional": "Pro-plan",
-        "enterprise": "Bedrift"
-      }
+      "planLabel": "{name}-plan"
     },
     "timeRange": {
       "disabled": "Deaktivert",
@@ -4300,16 +4601,17 @@
     "statusPageImageBadType": "Bildet må være et PNG-, JPEG- eller WebP-bilde",
     "statusPageImageSvgUnsafe": "SVG-filen inneholder innhold som ikke støttes eller er utrygt",
     "capabilities": {
-      "dashboardLimit": "Du har nådd grensen for dashboards. Oppgrader til Pro for å opprette flere dashboards.",
-      "monitorLimit": "Du har nådd grensen for monitorer. Oppgrader til Pro for å opprette flere monitorer.",
-      "minInterval": "Raskere overvåkingsintervaller krever en profesjonell plan",
-      "httpMethod": "Tilpassede HTTP-metoder krever en profesjonell plan",
-      "statusCodes": "Tilpassede statuskoder krever en profesjonell plan",
-      "customHeaders": "Tilpassede forespørselshoder krever en profesjonell plan",
-      "keywordValidation": "Nøkkelordvalidering krever en profesjonell plan",
-      "statusPageLimit": "Du har nådd grensen for statussider. Oppgrader til Pro for å opprette flere statussider.",
-      "statusPageCustomDomain": "Eget domene krever en profesjonell plan",
-      "statusPageBranding": "Å fjerne Betterlytics-merking krever en profesjonell plan"
+      "dashboardLimit": "Du har nådd grensen for dashboards. Oppgrader til {plan} for å opprette flere dashboards.",
+      "monitorLimit": "Du har nådd grensen for monitorer. Oppgrader til {plan} for å opprette flere monitorer.",
+      "minInterval": "Raskere overvåkingsintervaller krever {plan}-planen",
+      "httpMethod": "Tilpassede HTTP-metoder krever {plan}-planen",
+      "statusCodes": "Tilpassede statuskoder krever {plan}-planen",
+      "customHeaders": "Tilpassede forespørselshoder krever {plan}-planen",
+      "keywordValidation": "Nøkkelordvalidering krever {plan}-planen",
+      "statusPageLimit": "Du har nådd grensen for statussider. Oppgrader til {plan} for å opprette flere statussider.",
+      "statusPageCustomDomain": "Eget domene krever {plan}-planen",
+      "statusPageBranding": "Å fjerne Betterlytics-merking krever {plan}-planen",
+      "limitReached": "Du har nådd grensen for planen din. Kontakt oss hvis du trenger mer."
     },
     "account": {
       "lastAdminCannotBeDeleted": "Den eneste administratorkontoen på denne instansen kan ikke slettes.",

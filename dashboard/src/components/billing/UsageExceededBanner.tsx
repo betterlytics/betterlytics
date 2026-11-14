@@ -47,7 +47,7 @@ export default function UsageExceededBanner({ billingDataPromise }: UsageExceede
       action: (
         <Button
           variant='default'
-          onClick={openPlanPicker}
+          onClick={() => openPlanPicker()}
           className='text-primary-foreground cursor-pointer border-1 border-white bg-red-500 shadow-md hover:bg-red-400'
           size='sm'
         >

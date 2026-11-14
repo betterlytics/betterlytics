@@ -211,18 +211,18 @@ export async function getDeleteUserContext(actor: AdminActor, userId: string): P
   };
 }
 
-export async function deleteUser(actor: AdminActor, userId: string, input: AdminDeleteUserInput): Promise<void> {
+/** Returns the slugs of the status pages released with the user's deleted dashboards. */
+export async function deleteUser(actor: AdminActor, userId: string, input: AdminDeleteUserInput): Promise<string[]> {
   await requireTarget(actor, userId, 'delete');
 
   if (input.ownedDashboards === 'transfer') {
     if (actor.edition !== 'selfhost') {
       throw new UserException("Dashboards can't be transferred on this instance");
     }
-    await deleteUserAccount(userId, {
+    return deleteUserAccount(userId, {
       ownedDashboards: { mode: 'transfer', toUserId: input.transferToUserId },
       removedById: actor.userId,
     });
-    return;
   }
 
   if (env.DEMO_DASHBOARD_ID) {
@@ -232,5 +232,5 @@ export async function deleteUser(actor: AdminActor, userId: string, input: Admin
     }
   }
 
-  await deleteUserAccount(userId, { ownedDashboards: { mode: 'delete' }, removedById: actor.userId });
+  return deleteUserAccount(userId, { ownedDashboards: { mode: 'delete' }, removedById: actor.userId });
 }

@@ -9,6 +9,7 @@ import { CreateMonitorDialog } from './CreateMonitorDialog';
 import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 import { trpc } from '@/trpc/client';
+import { isUnlimitedCount } from '@/lib/billing/capabilities';
 
 type CreateMonitorButtonProps = {
   dashboardId: string;
@@ -43,9 +44,11 @@ export function CreateMonitorButton({
   const createButton = (featureDisabled: boolean) => (
     <Button variant='default' className='cursor-pointer whitespace-nowrap' disabled={disabled || featureDisabled}>
       {t('create')}
-      <span className='ml-1.5 text-xs opacity-70'>
-        ({monitorCount}/{maxMonitors})
-      </span>
+      {!isUnlimitedCount(maxMonitors) && (
+        <span className='ml-1.5 text-xs opacity-70'>
+          ({monitorCount}/{maxMonitors})
+        </span>
+      )}
     </Button>
   );
 

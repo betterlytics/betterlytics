@@ -1,5 +1,91 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v153ChangelogEntryDa: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.3',
+    releasedAt: '2026-11-08',
+    title: 'Forbedret overvågning & finpudset kort',
+    summary:
+      'Sidemenuen viser nu, når en monitor er nede, og oppetidsprocenterne er mere præcise og ens, uanset hvor du ser dem. Denne udgivelse blokerer også en bølge af referrer spam, finpudser geografikortet og retter en håndfuld fejl i overvågningen og under Henvisninger.',
+  },
+  sections: [
+    {
+      id: 'v153-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Menupunktet Overvågning i sidemenuen viser nu en rød prik, så længe en af dine monitorer er nede.',
+            'Perioder, hvor en monitor ikke blev tjekket, tæller ikke længere med som oppetid eller nedetid.',
+            'Når du sletter en monitor, får du nu en advarsel, hvis den bruges på en statusside.',
+            'Uptime-tjek er nu mere pålidelige.',
+            'Bot-filteret blokerer nu en bølge af referrer spam, der dukkede op som falske besøg blandt dine henvisninger.',
+            'Pop op-vinduer og filtre på geografikortet bliver ikke længere skjult bag andre dele af siden.',
+            'Diverse forbedringer af brugervenligheden på tværs af dashboardet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v153-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Rettet et problem, hvor oppetidsprocenterne kunne variere en smule fra sted til sted.',
+            'Besøgende fra Svalbard tælles nu korrekt med under Norge.',
+            'Alarmindstillingerne på en monitor viser nu korrekt, hvem e-mailalarmerne sendes til.',
+            'Filtre på henvisningskilde viser nu korrekt kategoriens navn, f.eks. "AI" eller "Søgning".',
+            'Rækker med "Ukendt" i tabellen under Henvisninger viser ikke længere den sammenligningsværdi, der hører til direkte trafik.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v153ChangelogModalDa: ChangelogEntryData = {
+  metadata: v153ChangelogEntryDa.metadata,
+  sections: [
+    {
+      id: 'v153-modal-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'En rød prik i sidemenuen viser, når en monitor er nede.',
+            'Perioder, hvor en monitor ikke blev tjekket, tæller ikke længere med i oppetiden.',
+            'Sletter du en monitor, får du en advarsel, hvis den bruges på en statusside.',
+            'Mere pålidelige uptime-tjek.',
+            'En bølge af referrer spam bliver nu blokeret.',
+            'Pop op-vinduer og filtre på geografikortet bliver ikke længere skjult.',
+            'Diverse forbedringer af brugervenligheden på tværs af dashboardet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v153-modal-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Oppetidsprocenterne er nu ens overalt.',
+            'Besøgende fra Svalbard tælles korrekt med under Norge.',
+            'Alarmindstillingerne på monitorer viser den rigtige e-mailmodtager.',
+            'Filtre på henvisningskilde viser det rigtige kategorinavn.',
+            'Ukendte henvisninger viser ikke længere sammenligningsværdien for direkte trafik.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v152ChangelogEntryDa: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.2',
@@ -800,9 +886,10 @@ const v144ChangelogEntryDa: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalDa = v152ChangelogModalDa;
+export const latestChangelogModalDa = v153ChangelogModalDa;
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  v153ChangelogEntryDa,
   v152ChangelogEntryDa,
   v151ChangelogEntryDa,
   v150ChangelogEntryDa,

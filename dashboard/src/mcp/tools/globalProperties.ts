@@ -1,9 +1,5 @@
 import { z } from 'zod';
-import {
-  McpDateRangeSchema,
-  customDateRangeRefinement,
-  dateOrderRefinement,
-} from '@/mcp/entities/mcp.entities';
+import { McpDateRangeSchema, customDateRangeRefinement, dateOrderRefinement } from '@/mcp/entities/mcp.entities';
 import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
 import { buildSiteQuery } from '@/mcp/utils/buildSiteQuery';
 import {
@@ -20,7 +16,9 @@ const GP_PREFIX = PROPERTY_SOURCES.gp.prefix;
 const GP_KEY_LIMIT = 100;
 const GP_VALUE_LIMIT = 20;
 
-export const McpListGlobalPropertiesInputBaseSchema = McpDateRangeSchema.extend({
+const bareGlobalPropertyKey = (key: string) => (key.startsWith(GP_PREFIX) ? key.slice(GP_PREFIX.length) : key);
+
+const McpListGlobalPropertiesInputBaseSchema = McpDateRangeSchema.extend({
   key: z
     .string()
     .optional()
@@ -29,9 +27,15 @@ export const McpListGlobalPropertiesInputBaseSchema = McpDateRangeSchema.extend(
     ),
 });
 
-export const McpListGlobalPropertiesInputSchema = McpListGlobalPropertiesInputBaseSchema
-  .refine(customDateRangeRefinement.check, customDateRangeRefinement)
-  .refine(dateOrderRefinement.check, dateOrderRefinement);
+export const McpListGlobalPropertiesInputSchema = McpListGlobalPropertiesInputBaseSchema.refine(
+  customDateRangeRefinement.check,
+  customDateRangeRefinement,
+)
+  .refine(dateOrderRefinement.check, dateOrderRefinement)
+  .refine(
+    ({ key }) => !key || FilterColumnSchema.safeParse(`${GP_PREFIX}${bareGlobalPropertyKey(key)}`).success,
+    ({ key }) => ({ message: `Invalid global property key: "${key}"` }),
+  );
 
 export async function executeListGlobalProperties(rawInput: unknown, siteId: string) {
   const input = McpListGlobalPropertiesInputSchema.parse(rawInput);
@@ -40,13 +44,8 @@ export async function executeListGlobalProperties(rawInput: unknown, siteId: str
   const siteQuery = buildSiteQuery({ siteId, timeRange, timezone: input.timezone });
 
   if (input.key) {
-    const bareKey = input.key.startsWith(GP_PREFIX) ? input.key.slice(GP_PREFIX.length) : input.key;
+    const bareKey = bareGlobalPropertyKey(input.key);
     const column = `${GP_PREFIX}${bareKey}`;
-    // FilterColumnSchema is a union, whose raw ZodError is an unreadable JSON dump —
-    // runTool surfaces error.message verbatim to the agent, so throw a concise one.
-    if (!FilterColumnSchema.safeParse(column).success) {
-      throw new Error(`Invalid global property key: "${input.key}"`);
-    }
     const values = await getTopGlobalPropertyValuesForKeys(siteQuery, [bareKey], GP_VALUE_LIMIT);
     return {
       column,

@@ -1,3 +1,4 @@
+import NextLink from 'next/link';
 import Logo from '@/components/logo';
 import { Link } from '@/i18n/navigation';
 import { GitHubIcon, DiscordIcon, BlueskyIcon } from '@/components/icons/SocialIcons';
@@ -70,6 +71,12 @@ export async function Footer() {
                 >
                   {t('documentation')}
                 </ExternalLink>
+              </li>
+              <li>
+                {/* not the i18n Link: the blog is English-only, so a locale prefix would only add a redirect */}
+                <NextLink href='/blog' prefetch={false} className='hover:text-foreground transition-colors'>
+                  {t('blog')}
+                </NextLink>
               </li>
               <li>
                 <Link href='/changelog' className='hover:text-foreground transition-colors'>

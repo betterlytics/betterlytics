@@ -24,7 +24,7 @@ const DEFAULT_IMAGE = {
 
 export async function generateSEO(
   { title, description, path, socialTitle = title, socialDescription = description }: SEOConfig,
-  options?: { locale?: string; robots?: Metadata['robots'] },
+  options?: { locale?: string; robots?: Metadata['robots']; localized?: boolean },
 ): Promise<Metadata> {
   const defaultLocale = routing.defaultLocale;
   const currentLocale = options?.locale ?? defaultLocale;
@@ -58,10 +58,7 @@ export async function generateSEO(
       telephone: false,
     },
     metadataBase: new URL(BASE_URL),
-    alternates: {
-      canonical: fullUrl,
-      languages,
-    },
+    alternates: options?.localized === false ? { canonical: fullUrl } : { canonical: fullUrl, languages },
     openGraph: {
       type: 'website',
       locale:

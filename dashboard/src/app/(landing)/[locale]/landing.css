@@ -5,6 +5,7 @@
 @import 'tailwindcss' source(none);
 
 @source './**/*.{ts,tsx}';
+@source '../blog/**/*.{ts,tsx}';
 @source '../../../components/gauge/**/*.tsx';
 
 /* `static` emits every token, so CSS modules and scripts can read them */

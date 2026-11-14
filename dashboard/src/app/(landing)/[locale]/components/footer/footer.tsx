@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Globe } from 'lucide-react';
+import NextLink from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { getCompetitorData } from '@/app/(app)/[locale]/(public)/vs/[competitor]/config';
 import { LANGUAGE_METADATA, SUPPORTED_LANGUAGES } from '@/constants/i18n';
@@ -97,6 +98,11 @@ export function LandingFooter() {
               </AppLink>
             </li>
             <li>
+              <AppLink className={LINK} href='/pricing'>
+                {t('product.pricing')}
+              </AppLink>
+            </li>
+            <li>
               <AppLink className={LINK} href='/features/uptime-monitoring'>
                 {t('product.uptime')}
               </AppLink>
@@ -117,8 +123,8 @@ export function LandingFooter() {
               </AppLink>
             </li>
             <li>
-              <AppLink className={LINK} href='/pricing'>
-                {t('product.pricing')}
+              <AppLink className={LINK} href='/features/mcp'>
+                {t('product.mcp')}
               </AppLink>
             </li>
           </Column>
@@ -159,6 +165,12 @@ export function LandingFooter() {
               <a className={LINK} href={LINKS.docs}>
                 {t('resources.docs')}
               </a>
+            </li>
+            <li>
+              {/* not AppLink: the blog is English-only, so a locale prefix would only add a redirect */}
+              <NextLink className={LINK} href='/blog' prefetch={false}>
+                {t('resources.blog')}
+              </NextLink>
             </li>
             <li>
               <AppLink className={LINK} href='/changelog'>

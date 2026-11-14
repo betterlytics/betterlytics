@@ -33,8 +33,12 @@ beforeEach(() => {
   vi.mocked(UserRepository.findUserById).mockResolvedValue(makeUser({ role: null }));
   vi.mocked(UserRepository.countActiveAdmins).mockResolvedValue(1);
   vi.mocked(UserRepository.countActiveUsers).mockResolvedValue(2);
-  vi.mocked(UserRepository.deleteUserAccount).mockResolvedValue(null);
+  vi.mocked(UserRepository.deleteUserAccount).mockResolvedValue({ outcome: null, releasedSlugs: [] });
 });
+
+function mockOutcome(outcome: Awaited<ReturnType<typeof UserRepository.deleteUserAccount>>['outcome']) {
+  vi.mocked(UserRepository.deleteUserAccount).mockResolvedValue({ outcome, releasedSlugs: [] });
+}
 
 describe('deleteUser', () => {
   it('deletes owned dashboards by default, guarded by the locked last-account check off-cloud', async () => {
@@ -45,6 +49,12 @@ describe('deleteUser', () => {
       ownedDashboards: { mode: 'delete' },
       removedById: 'user-1',
     });
+  });
+
+  it('returns the status page slugs released with the deleted dashboards', async () => {
+    vi.mocked(UserRepository.deleteUserAccount).mockResolvedValue({ outcome: null, releasedSlugs: ['acme'] });
+
+    expect(await deleteUser('user-1')).toEqual(['acme']);
   });
 
   it('passes a dashboard transfer through to the locked deletion', async () => {
@@ -80,7 +90,7 @@ describe('deleteUser', () => {
   });
 
   it('surfaces the last admin refusal as a user-facing error', async () => {
-    vi.mocked(UserRepository.deleteUserAccount).mockResolvedValue('last_admin');
+    mockOutcome('last_admin');
 
     const result = deleteUser('user-1');
 
@@ -89,13 +99,13 @@ describe('deleteUser', () => {
   });
 
   it('surfaces the last user refusal as a user-facing error', async () => {
-    vi.mocked(UserRepository.deleteUserAccount).mockResolvedValue('last_user');
+    mockOutcome('last_user');
 
     await expect(deleteUser('user-1')).rejects.toThrow('lastUserCannotBeDeleted');
   });
 
   it('surfaces a recipient that can no longer take the dashboards', async () => {
-    vi.mocked(UserRepository.deleteUserAccount).mockResolvedValue('invalid_recipient');
+    mockOutcome('invalid_recipient');
 
     const result = deleteUser('user-1', { ownedDashboards: { mode: 'transfer', toUserId: 'user-2' } });
 

@@ -11,18 +11,10 @@ export const ReferrerTrafficBySourceRowSchema = z.object({
   count: z.number(),
 });
 
-export const DailyReferralSessionsRowSchema = z.object({
+export const DailyReferralSummaryMetricsRowSchema = z.object({
   date: z.string(),
   referralSessions: z.number(),
-});
-
-export const DailyReferralPercentageRowSchema = z.object({
-  date: z.string(),
   referralPercentage: z.number(),
-});
-
-export const DailyReferralSessionDurationRowSchema = z.object({
-  date: z.string(),
   avgSessionDuration: z.number(),
 });
 
@@ -31,9 +23,7 @@ export const ReferrerSummaryWithChartsSchema = z.object({
   totalSessions: z.number().int().min(0),
   topReferrerSource: z.string().nullable(),
   avgSessionDuration: z.number().min(0),
-  referralSessionsChartData: z.array(DailyReferralSessionsRowSchema),
-  referralPercentageChartData: z.array(DailyReferralPercentageRowSchema),
-  avgSessionDurationChartData: z.array(DailyReferralSessionDurationRowSchema),
+  chartData: z.array(DailyReferralSummaryMetricsRowSchema),
 });
 
 export const ReferrerTableRowSchema = z.object({
@@ -62,9 +52,7 @@ export const TopChannelSchema = z.object({
 
 export type ReferrerSourceAggregation = z.infer<typeof ReferrerSourceAggregationSchema>;
 export type ReferrerTrafficBySourceRow = z.infer<typeof ReferrerTrafficBySourceRowSchema>;
-export type DailyReferralSessionsRow = z.infer<typeof DailyReferralSessionsRowSchema>;
-export type DailyReferralPercentageRow = z.infer<typeof DailyReferralPercentageRowSchema>;
-export type DailyReferralSessionDurationRow = z.infer<typeof DailyReferralSessionDurationRowSchema>;
+export type DailyReferralSummaryMetricsRow = z.infer<typeof DailyReferralSummaryMetricsRowSchema>;
 export type ReferrerSummaryWithCharts = z.infer<typeof ReferrerSummaryWithChartsSchema>;
 export type ReferrerTableRow = z.infer<typeof ReferrerTableRowSchema>;
 

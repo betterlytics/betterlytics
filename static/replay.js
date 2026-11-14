@@ -8423,6 +8423,11 @@ or you can use record.mirror to access the mirror instance during recording.`;
       rageTimer: null,
       // First page recorded in this page load; every segment reports it as the replay's start URL
       startUrl: null,
+      // Set while the visitor has withdrawn replay consent; blocks every start and upload path
+      consentWithdrawn: false,
+      // Bumped on each withdrawal so chunks built before it are never uploaded
+      consentEpoch: 0,
+      cancelErrorFlush: null,
     };
 
     var config = {
@@ -8543,6 +8548,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
     function buildChunk(events, lastEventTs, startedAtMs) {
       var seq = state.chunkSeq++;
       var chunkId = pageNonce + "-" + (seq < 10000 ? ("000" + seq).slice(-4) : seq);
+      var epoch = state.consentEpoch;
       var errors = collectChunkErrors(events);
       var rageClickCount = countRageClicks(events);
       return encodeReplayChunk(JSON.stringify(events)).then(function (enc) {
@@ -8560,11 +8566,15 @@ or you can use record.mirror to access the mirror instance during recording.`;
         enc.eventCount = events.length;
         enc.rageClickCount = rageClickCount;
         enc.chunkId = chunkId;
+        enc.epoch = epoch;
         return enc;
       });
     }
 
     function sendChunk(chunk) {
+      if (state.consentWithdrawn || chunk.epoch !== state.consentEpoch) {
+        return Promise.resolve();
+      }
       return uploadSegment(chunk).then(
         function () {
           state.consecutiveFlushErrors = 0;
@@ -8572,6 +8582,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
           if (idx !== -1) state.retryQueue.splice(idx, 1);
         },
         function (err) {
+          if (chunk.epoch !== state.consentEpoch) return;
           try {
             handleFlushError(chunk, err);
           } catch (_) {}
@@ -8613,7 +8624,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
     }
 
     function flush(force) {
-      if (state.disabled) return Promise.resolve();
+      if (state.disabled || state.consentWithdrawn) return Promise.resolve();
       if (state.ongoingFlush && !force) {
         state.flushRequested = true;
         return state.ongoingFlush;
@@ -8646,7 +8657,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
       state.ongoingFlush = upload;
       // Keep uploading back to back while a backlog remains, e.g. right after the hold ends
       return upload.then(function () {
-        if (state.disabled || state.retryQueue.length > 0) return;
+        if (state.disabled || state.consentWithdrawn || state.retryQueue.length > 0) return;
         if (
           leftBehind ||
           state.flushRequested ||
@@ -8659,7 +8670,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
 
     function flushAll() {
       return flush().then(function () {
-        if (state.disabled) return;
+        if (state.disabled || state.consentWithdrawn) return;
         if (!hasReachedMinDuration()) return;
         if (state.buffer.length === 0 && state.retryQueue.length === 0) return;
         return new Promise(function (r) {
@@ -8725,9 +8736,10 @@ or you can use record.mirror to access the mirror instance during recording.`;
     }
 
     function flushErrorMatrix() {
-      if (state.disabled) return Promise.resolve();
+      if (state.disabled || state.consentWithdrawn) return Promise.resolve();
       state.errorFlushPending = false;
       state.errorLastFlushAt = Date.now();
+      var epoch = state.consentEpoch;
 
       if (state.retryQueue.length > 0) {
         return sendChunk(state.retryQueue[0]).catch(function () {});
@@ -8754,7 +8766,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
       return groups
         .reduce(function (prev, group) {
           return prev.then(function () {
-            if (state.disabled) return;
+            // Groups split off before a withdrawal stay discarded, even after a quick re-grant
+            if (state.disabled || epoch !== state.consentEpoch) return;
             return buildEventsChunk(group).then(sendChunk);
           });
         }, Promise.resolve())
@@ -8762,6 +8775,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
     }
 
     function notifyError(errorType, errorExceptionsJson) {
+      if (state.consentWithdrawn) return;
       // Recording is stopped here, so an upload would hold no error marker
       if (!isReplayEnabledOnPage()) return;
       try {
@@ -8783,11 +8797,16 @@ or you can use record.mirror to access the mirror instance during recording.`;
       state.errorFlushPending = true;
       var timer = null;
 
-      function doFlush() {
-        if (!state.errorFlushPending) return;
+      function cancel() {
         state.errorFlushPending = false;
+        state.cancelErrorFlush = null;
         if (timer) { clearTimeout(timer); timer = null; }
         window.removeEventListener("beforeunload", doFlush);
+      }
+
+      function doFlush() {
+        if (!state.errorFlushPending) return;
+        cancel();
         if (isSampledRecording) {
           flush();
         } else if (enableReplayOnError) {
@@ -8795,6 +8814,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
         }
       }
 
+      state.cancelErrorFlush = cancel;
       window.addEventListener("beforeunload", doFlush);
       timer = setTimeout(doFlush, 3000);
     }
@@ -8802,6 +8822,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
     function stopRecording() {
       if (state.stopping) return;
       state.stopping = true;
+      var epoch = state.consentEpoch;
       endRageBurst();
       try {
         if (state.recordingStop) {
@@ -8814,10 +8835,102 @@ or you can use record.mirror to access the mirror instance during recording.`;
       flushAll()
         .catch(function () {})
         .finally(function () {
+          // A withdrawal already reset this state, and a resume may have started a new recording since
+          if (epoch !== state.consentEpoch) return;
           state.initialized = false;
           state.isRecording = false;
           state.stopping = false;
         });
+    }
+
+    function discardPending() {
+      state.buffer = [];
+      state.bufferSizes = [];
+      state.approxBytes = 0;
+      state.retryQueue = [];
+      state.errorMatrix = [[]];
+      state.ongoingFlush = null;
+      state.flushRequested = false;
+    }
+
+    // Unlike stopRecording, nothing recorded so far is uploaded, and nothing starts again until resume
+    function withdrawConsent() {
+      state.consentWithdrawn = true;
+      state.consentEpoch++;
+      if (state.cancelErrorFlush) state.cancelErrorFlush();
+      state.errorLastFlushAt = 0;
+      if (state.rageTimer) {
+        clearTimeout(state.rageTimer);
+        state.rageTimer = null;
+      }
+      state.rageBurst = null;
+      try {
+        if (state.recordingStop) {
+          state.recordingStop();
+          state.recordingStop = null;
+        }
+      } catch (e) {}
+      stopFlushTimer();
+      stopErrorCheckoutTimer();
+      discardPending();
+      state.initialized = false;
+      state.isRecording = false;
+      state.stopping = false;
+    }
+
+    var CONSENT_KEY = "betterlytics:replay_consent";
+
+    // What an older analytics.js checked before loading this script
+    function hasLegacyConsent() {
+      if (script.getAttribute("data-consent-replay") === "true") return true;
+      var stored;
+      try {
+        stored = localStorage.getItem(CONSENT_KEY);
+      } catch (_) {
+        return true;
+      }
+      try {
+        var data = JSON.parse(stored);
+        return !!data && data.consented === true && data.source === "custom";
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function setupLegacyConsent() {
+      var channel = null;
+      try {
+        channel = new BroadcastChannel(CONSENT_KEY);
+        channel.onmessage = function (e) {
+          if (e.data === "withdrawn") withdrawConsent();
+        };
+      } catch (_) {}
+      window.addEventListener("storage", function (e) {
+        if (e.key === CONSENT_KEY && e.newValue === null) withdrawConsent();
+      });
+      var api = window.betterlytics;
+      if (!api || typeof api.setReplayConsent !== "function") return;
+      var setReplayConsent = api.setReplayConsent;
+      api.setReplayConsent = function (consented) {
+        setReplayConsent.apply(this, arguments);
+        if (consented) {
+          resumeAfterConsent();
+          return;
+        }
+        // An older analytics.js skips stop when storage throws
+        withdrawConsent();
+        try {
+          if (channel) channel.postMessage("withdrawn");
+        } catch (_) {}
+      };
+    }
+
+    function resumeAfterConsent() {
+      if (!state.consentWithdrawn) return;
+      state.consentWithdrawn = false;
+      if (isReplayEnabledOnPage()) {
+        startRecordingDeferred();
+      }
     }
 
     function estimateEventSize(ev) {
@@ -8918,6 +9031,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
     }
 
     function handleRecordingEmit(e, isCheckout) {
+      if (state.consentWithdrawn) return;
       // Rage clicks are only built from clicks recorded on an enabled page, so a burst
       // flushed on navigation to a disabled page still gets through
       if (
@@ -8966,7 +9080,13 @@ or you can use record.mirror to access the mirror instance during recording.`;
 
     function startRecording() {
       // A deferred start can land after an in-app move to a page with replay turned off
-      if (!window.rrweb || state.initialized || state.disabled || !isReplayEnabledOnPage()) {
+      if (
+        !window.rrweb ||
+        state.initialized ||
+        state.disabled ||
+        state.consentWithdrawn ||
+        !isReplayEnabledOnPage()
+      ) {
         return;
       }
 
@@ -9072,6 +9192,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
     function handleNavigationChange() {
       if (currentPath === window.location.pathname) return;
       currentPath = window.location.pathname;
+      if (state.consentWithdrawn) return;
 
       if (isReplayEnabledOnPage()) {
         if (state.isRecording === false) {
@@ -9121,13 +9242,29 @@ or you can use record.mirror to access the mirror instance during recording.`;
     }
 
     window.__betterlytics_replay__ = {
-      stop: function () { stopRecording(); },
+      // analytics.js calls stop when replay consent is withdrawn
+      stop: withdrawConsent,
+      resume: resumeAfterConsent,
       notifyError: notifyError,
     };
 
     setupEventListeners();
 
-    if (isReplayEnabledOnPage()) {
+    // An older cached analytics.js has no hasConsent, never calls resume and hears no other tab
+    var legacyConsent = typeof handoff.hasConsent !== "function";
+
+    // Consent may have been withdrawn while this script was loading
+    try {
+      if (legacyConsent ? !hasLegacyConsent() : handoff.hasConsent() === false) {
+        state.consentWithdrawn = true;
+      }
+    } catch (_) {}
+
+    if (legacyConsent) setupLegacyConsent();
+
+    if (state.consentWithdrawn) {
+      // Nothing records until consent is granted again
+    } else if (isReplayEnabledOnPage()) {
       startRecordingDeferred();
     } else {
       emitReplayBlacklist();
