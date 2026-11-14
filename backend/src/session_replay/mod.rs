@@ -240,7 +240,8 @@ async fn store_segment(
         return Err(Rejection::invalid("url too long"));
     }
 
-    if processor.check_replay_request(
+    if processor.check_header_request(
+        "replay",
         &p.site_id,
         &client.ip,
         &client.user_agent,
@@ -280,7 +281,7 @@ async fn store_segment(
             os: Some(parsed.os.as_str()),
             root_domain: root_domain.as_deref(),
         };
-        visitor::identify(&p.site_id, &attrs, Utc::now())
+        visitor::identify(&p.site_id, &attrs, Utc::now(), false)
     };
 
     if body.is_empty() || body.len() as u64 > MAX_UPLOAD_BODY_BYTES {

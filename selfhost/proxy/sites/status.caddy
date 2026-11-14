@@ -32,7 +32,7 @@ https:// {
 		respond "Metrics endpoint is not publicly accessible" 403
 	}
 
-	# Dashboard only: no /event, /replay/segment or script paths on customer hostnames.
+	# Dashboard only: no /event, /replay/segment, /heatmap/clicks or script paths on customer hostnames.
 	# The app middleware rewrites / to the status page and 404s everything else.
 	handle {
 		import app_proxy 127.0.0.1:3000 1MiB

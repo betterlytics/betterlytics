@@ -14,6 +14,9 @@ pub const MAX_EVENTS_PER_MINUTE: u32 = 120;
 /// 256KB uncompressed, so mutation-heavy pages upload well above 12/min per visitor.
 pub const MAX_REPLAY_SEGMENTS_PER_MINUTE: u32 = 300;
 
+/// The heatmap client sends one click batch per page view, so this matches the event threshold.
+pub const MAX_HEATMAP_BATCHES_PER_MINUTE: u32 = 120;
+
 static WINDOWS: Lazy<Cache<u64, Arc<AtomicU32>>> = Lazy::new(|| {
     Cache::builder()
         .time_to_live(Duration::from_secs(60))
@@ -22,6 +25,13 @@ static WINDOWS: Lazy<Cache<u64, Arc<AtomicU32>>> = Lazy::new(|| {
 });
 
 static REPLAY_WINDOWS: Lazy<Cache<u64, Arc<AtomicU32>>> = Lazy::new(|| {
+    Cache::builder()
+        .time_to_live(Duration::from_secs(60))
+        .max_capacity(1_000_000)
+        .build()
+});
+
+static HEATMAP_WINDOWS: Lazy<Cache<u64, Arc<AtomicU32>>> = Lazy::new(|| {
     Cache::builder()
         .time_to_live(Duration::from_secs(60))
         .max_capacity(1_000_000)
@@ -56,6 +66,15 @@ pub fn check_replay(site_id: &str, ip_address: &str) -> bool {
 /// already rejected before this point, so later validation failures still spend budget
 pub fn record_replay(site_id: &str, ip_address: &str) {
     window(&REPLAY_WINDOWS, site_id, ip_address).fetch_add(1, Ordering::Relaxed);
+}
+
+pub fn check_heatmap(site_id: &str, ip_address: &str) -> bool {
+    window(&HEATMAP_WINDOWS, site_id, ip_address).load(Ordering::Relaxed) >= MAX_HEATMAP_BATCHES_PER_MINUTE
+}
+
+/// Counts one click batch, like `record_replay` counting requests rather than stored clicks
+pub fn record_heatmap(site_id: &str, ip_address: &str) {
+    window(&HEATMAP_WINDOWS, site_id, ip_address).fetch_add(1, Ordering::Relaxed);
 }
 
 #[cfg(test)]
@@ -119,5 +138,17 @@ mod tests {
         }
         assert!(check("site-isolated-2", "203.0.113.6"));
         assert!(!check_replay("site-isolated-2", "203.0.113.6"));
+    }
+
+    #[test]
+    fn heatmap_flags_once_the_window_reaches_the_threshold() {
+        for _ in 0..MAX_HEATMAP_BATCHES_PER_MINUTE - 1 {
+            record_heatmap("site-heatmap", "203.0.113.7");
+            assert!(!check_heatmap("site-heatmap", "203.0.113.7"));
+        }
+        record_heatmap("site-heatmap", "203.0.113.7");
+        assert!(check_heatmap("site-heatmap", "203.0.113.7"));
+        assert!(!check("site-heatmap", "203.0.113.7"));
+        assert!(!check_replay("site-heatmap", "203.0.113.7"));
     }
 }

@@ -97,6 +97,26 @@ impl BotEventRow {
     }
 }
 
+// Ensure field order exactly matches ClickHouse table schema
+#[derive(clickhouse::Row, Serialize, Debug, Clone, PartialEq)]
+pub struct HeatmapClickRow {
+    pub site_id: String,
+    pub session_id: u64,
+    pub visitor_id: u64,
+    pub url: String,
+    pub device: String,
+    pub viewport_width: u16,
+    pub document_height: u32,
+    pub page_x: u32,
+    pub page_y: u32,
+    pub selector: String,
+    pub offset_x: f32,
+    pub offset_y: f32,
+    pub is_fixed: bool,
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub timestamp: DateTime<Utc>,
+}
+
 /// One active session recovered from `analytics.sessions`, used to warm the in-memory
 /// session cache on boot. Field order must match the `SELECT` in `fetch_active_sessions`.
 #[derive(clickhouse::Row, Deserialize)]
@@ -106,6 +126,7 @@ pub struct ActiveSessionRow {
     pub session_id: u64,
     #[serde(with = "clickhouse::serde::chrono::datetime")]
     pub session_created_at: DateTime<Utc>,
+    pub has_pageview: bool,
 }
 
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]

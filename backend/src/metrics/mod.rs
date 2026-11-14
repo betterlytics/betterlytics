@@ -63,6 +63,11 @@ pub struct MetricsCollector {
     replay_storage_operation_errors_total: IntCounterVec,
     replay_metadata_upsert_failures_total: IntCounter,
 
+    // Heatmap click batches
+    heatmap_clicks_accepted_total: IntCounter,
+    heatmap_clicks_dropped_total: IntCounterVec,
+    heatmap_batches_refused_total: IntCounterVec,
+
     // System info
     system: Arc<RwLock<System>>,
     current_pid: Pid,
@@ -282,6 +287,27 @@ impl MetricsCollector {
             "Session replay metadata upserts that failed after the segment was stored",
         ))?;
 
+        let heatmap_clicks_accepted_total = IntCounter::with_opts(Opts::new(
+            "heatmap_clicks_accepted_total",
+            "Heatmap clicks accepted for storage",
+        ))?;
+
+        let heatmap_clicks_dropped_total = IntCounterVec::new(
+            Opts::new(
+                "heatmap_clicks_dropped_total",
+                "Heatmap clicks dropped from accepted batches, grouped by reason",
+            ),
+            &["reason"],
+        )?;
+
+        let heatmap_batches_refused_total = IntCounterVec::new(
+            Opts::new(
+                "heatmap_batches_refused_total",
+                "Heatmap click batches refused with an error status, grouped by reason",
+            ),
+            &["reason"],
+        )?;
+
         registry.register(Box::new(system_cpu_usage.clone()))?;
         registry.register(Box::new(system_memory_usage.clone()))?;
         registry.register(Box::new(system_memory_total.clone()))?;
@@ -317,6 +343,9 @@ impl MetricsCollector {
         registry.register(Box::new(replay_storage_operation_duration_seconds.clone()))?;
         registry.register(Box::new(replay_storage_operation_errors_total.clone()))?;
         registry.register(Box::new(replay_metadata_upsert_failures_total.clone()))?;
+        registry.register(Box::new(heatmap_clicks_accepted_total.clone()))?;
+        registry.register(Box::new(heatmap_clicks_dropped_total.clone()))?;
+        registry.register(Box::new(heatmap_batches_refused_total.clone()))?;
 
         let mut system = System::new_all();
         system.refresh_all(); // This refresh is an attempt to ensure that when the metrics_updater starts it has accurate initial values
@@ -359,6 +388,9 @@ impl MetricsCollector {
             replay_storage_operation_duration_seconds,
             replay_storage_operation_errors_total,
             replay_metadata_upsert_failures_total,
+            heatmap_clicks_accepted_total,
+            heatmap_clicks_dropped_total,
+            heatmap_batches_refused_total,
             system: Arc::new(RwLock::new(system)),
             current_pid,
         };
@@ -557,6 +589,22 @@ impl MetricsCollector {
 
     pub fn increment_replay_metadata_upsert_failures(&self) {
         self.replay_metadata_upsert_failures_total.inc();
+    }
+
+    pub fn increment_heatmap_clicks_accepted(&self, count: u64) {
+        self.heatmap_clicks_accepted_total.inc_by(count);
+    }
+
+    pub fn increment_heatmap_clicks_dropped(&self, reason: &str, count: u64) {
+        self.heatmap_clicks_dropped_total
+            .with_label_values(&[reason])
+            .inc_by(count);
+    }
+
+    pub fn increment_heatmap_batches_refused(&self, reason: &str) {
+        self.heatmap_batches_refused_total
+            .with_label_values(&[reason])
+            .inc();
     }
 
     pub fn export_metrics(&self) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {

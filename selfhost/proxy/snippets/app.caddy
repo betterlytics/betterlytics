@@ -30,6 +30,16 @@
 			events 300
 			window 1m
 		}
+		# One batch per page view, so a flood guard like the event zone; the backend enforces
+		# 120 a minute per site and network
+		zone heatmap {
+			match {
+				path /heatmap/clicks
+			}
+			key {client_ip}
+			events 1200
+			window 1m
+		}
 	}
 
 	@scripts path /analytics.js /replay.js /web-vitals.js
@@ -55,6 +65,11 @@
 	handle /replay/segment {
 		log_skip
 		import app_proxy 127.0.0.1:3001 6MiB
+	}
+
+	handle /heatmap/clicks {
+		log_skip
+		import app_proxy 127.0.0.1:3001 64KiB
 	}
 
 	handle {
