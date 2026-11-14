@@ -2,25 +2,29 @@ import { generateSEO } from '@/lib/seo';
 import { Link } from '@/i18n/navigation';
 import { redirect } from 'next/navigation';
 import { env } from '@/lib/env';
-import { getTranslations, getLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { StructuredData } from '@/components/StructuredData';
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
+type Props = { params: Promise<{ locale: SupportedLanguages }> };
+
+export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
+  setRequestLocale(locale);
   return generateSEO(await buildSEOConfig(SEO_CONFIGS.terms), { locale });
 }
 
 const UPDATED_AT = new Date('2025-01-12');
 
-export default async function TermsPage() {
+export default async function TermsPage({ params }: Props) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   if (!env.IS_CLOUD) {
     redirect('/');
   }
 
   const t = await getTranslations('public.terms');
-  const locale = await getLocale();
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.terms);
 
   const Heading = ({ num, children }: { num: number; children: React.ReactNode }) => (

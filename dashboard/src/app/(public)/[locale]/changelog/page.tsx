@@ -3,26 +3,30 @@ import { ChangelogFeed } from '@/components/changelog/ChangelogFeed';
 import { ChangelogEntryCard } from '@/components/changelog/ChangelogEntryCard';
 import { StructuredData } from '@/components/StructuredData';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
-import { getLocale, getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { CtaStrip } from '@/components/public/ctaStrip';
 import ScrollToTopFab from '@/components/ScrollToTopFab';
 import { env } from '@/lib/env';
 import { redirect } from 'next/navigation';
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
+type Props = { params: Promise<{ locale: SupportedLanguages }> };
+
+export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
+  setRequestLocale(locale);
   return generateSEO(await buildSEOConfig(SEO_CONFIGS.changelog), { locale });
 }
 
-export default async function ChangelogPage() {
+export default async function ChangelogPage({ params }: Props) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   if (!env.IS_CLOUD) {
     redirect('/');
   }
 
   const t = await getTranslations('public.changelog');
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.changelog);
-  const locale = await getLocale();
   const changelogEntries = getChangelogEntriesForLocale(locale);
 
   return (

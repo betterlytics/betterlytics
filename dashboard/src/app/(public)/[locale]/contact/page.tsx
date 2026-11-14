@@ -3,7 +3,7 @@ import { StructuredData } from '@/components/StructuredData';
 import { Mail, MessageCircle, FileText, ArrowRight, ArrowUpRight } from 'lucide-react';
 import { GitHubIcon, DiscordIcon, BlueskyIcon } from '@/components/icons/SocialIcons';
 import ExternalLink from '@/components/ExternalLink';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import type { SupportedLanguages } from '@/constants/i18n';
@@ -12,8 +12,11 @@ import { env } from '@/lib/env';
 import { redirect } from 'next/navigation';
 import { freePlan, freeSubscriptionDefaults } from '@/lib/billing/catalog';
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
+type Props = { params: Promise<{ locale: SupportedLanguages }> };
+
+export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
+  setRequestLocale(locale);
   return generateSEO(await buildSEOConfig(SEO_CONFIGS.contact), { locale });
 }
 
@@ -99,7 +102,8 @@ function FAQItem({ question, answer }: FAQItemProps) {
   );
 }
 
-export default async function ContactPage() {
+export default async function ContactPage({ params }: Props) {
+  setRequestLocale((await params).locale);
   if (!env.IS_CLOUD) {
     redirect('/');
   }

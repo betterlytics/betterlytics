@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Metadata } from 'next';
 import {
   ChevronRight,
@@ -27,6 +27,10 @@ import { CtaStrip } from '@/components/public/ctaStrip';
 import { getCompetitorData, getCompetitorSlugs, SUPPORTED_LOCALES, type ComparisonLocaleContent } from './config';
 import { generateSEO } from '@/lib/seo';
 import { env } from '@/lib/env';
+import type { SupportedLanguages } from '@/constants/i18n';
+
+// Unknown competitors 404 without each caching its own page
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
   const competitors = getCompetitorSlugs();
@@ -40,7 +44,7 @@ export async function generateStaticParams() {
 }
 
 interface PageProps {
-  params: Promise<{ competitor: string; locale: string }>;
+  params: Promise<{ competitor: string; locale: SupportedLanguages }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -208,11 +212,12 @@ function TimelineItem({
 }
 
 export default async function ComparisonPage({ params }: PageProps) {
+  const { competitor, locale } = await params;
+  setRequestLocale(locale);
   if (!env.IS_CLOUD) {
     redirect('/');
   }
 
-  const { competitor, locale } = await params;
   const data = getCompetitorData(competitor, locale);
   const t = await getTranslations('public.comparison');
 

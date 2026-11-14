@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Globe } from 'lucide-react';
 import NextLink from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
-import { getCompetitorData } from '@/app/(app)/[locale]/(public)/vs/[competitor]/config';
+import { getCompetitorData } from '@/app/(public)/[locale]/vs/[competitor]/config';
 import { LANGUAGE_METADATA, SUPPORTED_LANGUAGES } from '@/constants/i18n';
 import { Link } from '@/i18n/navigation';
 import { BlueskyIcon, DiscordIcon, GitHubIcon } from '@/components/icons/SocialIcons';

@@ -22,20 +22,28 @@ const robotoMono = Inter_Tight({
   subsets: ['latin'],
 });
 
-/** `lang` overrides the visitor's locale for pages that render in a fixed language. */
-export async function AppDocument({ children, lang }: { children: React.ReactNode; lang?: string }) {
+export type AppDocumentProps = {
+  children: React.ReactNode;
+  /** Overrides the visitor's locale, for pages in a fixed language or with the locale in their URL. */
+  lang?: string;
+  /** Reads nothing from the request (pass `lang` too), so `GlobalPropertiesUpdater` sets `logged_in` after load. */
+  cacheable?: boolean;
+};
+
+export async function AppDocument({ children, lang, cacheable = false }: AppDocumentProps) {
   const isCloud = isFeatureEnabled('isCloud');
   const [locale, seoConfig, sessionToken] = await Promise.all([
     lang ?? getLocale(),
     isCloud ? buildSEOConfig(SEO_CONFIGS.root) : null,
-    env.ENABLE_APP_TRACKING ? headers().then(getSessionCookie) : undefined,
+    env.ENABLE_APP_TRACKING && !cacheable ? headers().then(getSessionCookie) : undefined,
   ]);
+  const loggedIn = cacheable ? undefined : Boolean(sessionToken);
 
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
         <meta name='theme-color' content='#fff' />
-        <AppTrackingScript globalProperties={{ surface: 'app', logged_in: Boolean(sessionToken), locale }} />
+        <AppTrackingScript globalProperties={{ surface: 'app', logged_in: loggedIn, locale }} />
         {seoConfig && <StructuredData config={seoConfig} />}
       </head>
       <body className={`${robotoSans.variable} ${robotoMono.variable} antialiased`}>

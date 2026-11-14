@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
-import { getLocale } from 'next-intl/server';
+import { setRequestLocale } from 'next-intl/server';
 
 import { StructuredData } from '@/components/StructuredData';
+import type { SupportedLanguages } from '@/constants/i18n';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { FeaturesHero } from './components/FeaturesHero';
 import { FeatureCategories } from './components/FeatureCategories';
@@ -9,13 +10,17 @@ import { CtaStrip } from '@/components/public/ctaStrip';
 import { env } from '@/lib/env';
 import { redirect } from 'next/navigation';
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale();
+type Props = { params: Promise<{ locale: SupportedLanguages }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  setRequestLocale(locale);
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.features);
   return generateSEO(seoConfig, { locale });
 }
 
-export default async function FeaturesPage() {
+export default async function FeaturesPage({ params }: Props) {
+  setRequestLocale((await params).locale);
   if (!env.IS_CLOUD) {
     redirect('/');
   }

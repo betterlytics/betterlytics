@@ -3,7 +3,7 @@ import { getBlogPosts } from '@/content/blog';
 import { env } from '@/lib/env';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
-import { getCompetitorSlugs } from './(app)/[locale]/(public)/vs/[competitor]/config';
+import { getCompetitorSlugs } from './(public)/[locale]/vs/[competitor]/config';
 
 type PageCfg = {
   path: string;

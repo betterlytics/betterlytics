@@ -1,14 +1,17 @@
 import { redirect } from 'next/navigation';
 import { env } from '@/lib/env';
-import { getTranslations, getLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { StructuredData } from '@/components/StructuredData';
 import { Link } from '@/i18n/navigation';
 import { ExternalLink } from 'lucide-react';
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
+type Props = { params: Promise<{ locale: SupportedLanguages }> };
+
+export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
+  setRequestLocale(locale);
   return generateSEO(await buildSEOConfig(SEO_CONFIGS.subprocessors), { locale });
 }
 
@@ -33,13 +36,14 @@ const subprocessors = [
   },
 ] as const;
 
-export default async function SubprocessorsPage() {
+export default async function SubprocessorsPage({ params }: Props) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   if (!env.IS_CLOUD) {
     redirect('/');
   }
 
   const t = await getTranslations('public.subprocessors');
-  const locale = await getLocale();
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.subprocessors);
 
   return (

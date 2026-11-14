@@ -1,26 +1,30 @@
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { redirect } from 'next/navigation';
 import { env } from '@/lib/env';
-import { getTranslations, getLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { StructuredData } from '@/components/StructuredData';
 import { Link } from '@/i18n/navigation';
 import ExternalLink from '@/components/ExternalLink';
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
+type Props = { params: Promise<{ locale: SupportedLanguages }> };
+
+export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
+  setRequestLocale(locale);
   return generateSEO(await buildSEOConfig(SEO_CONFIGS.privacy), { locale });
 }
 
 const UPDATED_AT = new Date('2026-10-18');
 
-export default async function PrivacyPage() {
+export default async function PrivacyPage({ params }: Props) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   if (!env.IS_CLOUD) {
     redirect('/');
   }
 
   const t = await getTranslations('public.privacy');
-  const locale = await getLocale();
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.privacy);
 
   return (
