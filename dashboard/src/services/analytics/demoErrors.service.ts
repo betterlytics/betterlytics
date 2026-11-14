@@ -21,6 +21,7 @@ import type { ErrorGroupTimestamps } from '@/repositories/clickhouse/errors.repo
 import type { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { parseStackTrace } from '@/utils/parseStackTrace';
 import { toDateTimeString } from '@/utils/dateFormatters';
+import { BUCKET_STEP, bucketStarts, demoNow, demoReplayWindow, hashToUnit } from '@/utils/demoData';
 
 type DemoOccurrence = {
   timestamp: Date;
@@ -31,35 +32,6 @@ type DemoOccurrence = {
 const MINUTE_MS = 60_000;
 const SESSION_INDEX_DIGITS = 5;
 const ENVIRONMENT_LIMIT = 5;
-
-const BUCKET_STEP: Record<string, { amount: number; unit: moment.unitOfTime.DurationConstructor }> = {
-  minute_1: { amount: 1, unit: 'minutes' },
-  minute_15: { amount: 15, unit: 'minutes' },
-  minute_30: { amount: 30, unit: 'minutes' },
-  hour: { amount: 1, unit: 'hour' },
-  day: { amount: 1, unit: 'day' },
-  week: { amount: 1, unit: 'week' },
-  month: { amount: 1, unit: 'month' },
-};
-
-// Deterministic value in [0, 1), so every request spreads the occurrences the same way
-function hashToUnit(...parts: Array<string | number>): number {
-  let hash = 0x811c9dc5;
-  for (const char of parts.join('|')) {
-    hash ^= char.charCodeAt(0);
-    hash = Math.imul(hash, 0x01000193);
-  }
-  // Final mix, so inputs that differ only in their last characters still land far apart
-  hash = Math.imul(hash ^ (hash >>> 16), 0x85ebca6b);
-  hash = Math.imul(hash ^ (hash >>> 13), 0xc2b2ae35);
-  hash ^= hash >>> 16;
-  return (hash >>> 0) / 0x100000000;
-}
-
-// Whole minutes, so the occurrence list and a later session trail request agree on timestamps
-function demoNow(): number {
-  return Math.floor(Date.now() / MINUTE_MS) * MINUTE_MS;
-}
 
 function shapeAge(position: number, trend: DemoErrorGroup['trend']): number {
   if (trend === 'rising') return position * position;
@@ -77,12 +49,11 @@ function pickTemplate(group: DemoErrorGroup, index: number): DemoErrorOccurrence
   return group.occurrences[0];
 }
 
-// The moment of the error inside the recording, re-dated the way the demo replay list dates it
+// The moment of the error inside the recording, on the demo replay list's clock
 function replayErrorTime(replay: DemoErrorReplayLink, now: number): number {
   const recording = DEMO_SESSION_REPLAYS.find((candidate) => candidate.session_id === replay.sessionId);
   if (!recording) throw new Error(`Unknown demo replay ${replay.sessionId}`);
-  const startedAt = now - recording.endedMinutesAgo * MINUTE_MS - recording.duration * 1000;
-  return startedAt + replay.secondsIntoRecording * 1000;
+  return demoReplayWindow(recording, now).startedAt + replay.secondsIntoRecording * 1000;
 }
 
 // Every occurrence of a group, newest first, re-dated relative to now
@@ -144,25 +115,6 @@ function toEnvironmentRows(
     .slice(0, ENVIRONMENT_LIMIT);
 }
 
-// Bucket starts as ClickHouse's toStartOfInterval in the query timezone would produce them
-function bucketStarts(siteQuery: BASiteQuery): moment.Moment[] {
-  const step = BUCKET_STEP[siteQuery.granularity] ?? BUCKET_STEP.hour;
-  const cursor = moment.tz(siteQuery.startDate, siteQuery.timezone);
-  if (step.unit === 'minutes') {
-    cursor.startOf('minute').subtract(cursor.minute() % step.amount, 'minutes');
-  } else {
-    cursor.startOf(
-      step.unit === 'week' ? 'isoWeek' : step.unit === 'month' ? 'month' : step.unit === 'day' ? 'day' : 'hour',
-    );
-  }
-  const starts: moment.Moment[] = [];
-  while (cursor.valueOf() <= siteQuery.endDate.getTime()) {
-    starts.push(cursor.clone());
-    cursor.add(step.amount, step.unit);
-  }
-  return starts;
-}
-
 export function getDemoErrorGroups(siteQuery: BASiteQuery): ErrorGroupRow[] {
   const now = demoNow();
   const start = siteQuery.startDate.getTime();
@@ -217,20 +169,27 @@ export function getDemoErrorGroupVolumes(siteQuery: BASiteQuery, fingerprints: s
   const starts = bucketStarts(siteQuery);
   const rangeStart = siteQuery.startDate.getTime();
   const rangeEnd = siteQuery.endDate.getTime();
+  const buckets = starts.map((start) => ({
+    date: toDateTimeString(start.toDate()),
+    start: Math.max(start.valueOf(), rangeStart),
+    end: Math.min(start.clone().add(step.amount, step.unit).valueOf() - 1, rangeEnd),
+  }));
+  const groups = DEMO_ERROR_GROUPS.filter((group) => fingerprints.includes(group.error_fingerprint));
 
-  return fingerprints.flatMap((fingerprint) => {
-    const group = findGroup(fingerprint);
-    if (!group) return [];
-    const occurrences = buildOccurrences(group, now);
+  return groups.flatMap((group) => {
+    const oldestFirst = buildOccurrences(group, now)
+      .map(({ timestamp }) => timestamp.getTime())
+      .reverse();
+    let next = 0;
     // Zeros stay in so the sparkline dips between bursts
-    return starts.map((start) => {
-      const bucketStart = Math.max(start.valueOf(), rangeStart);
-      const bucketEnd = Math.min(start.clone().add(step.amount, step.unit).valueOf() - 1, rangeEnd);
-      return {
-        error_fingerprint: fingerprint,
-        date: toDateTimeString(start.toDate()),
-        error_count: countInRange(occurrences, bucketStart, bucketEnd),
-      };
+    return buckets.map(({ date, start, end }) => {
+      while (next < oldestFirst.length && oldestFirst[next] < start) next++;
+      let count = 0;
+      while (next < oldestFirst.length && oldestFirst[next] <= end) {
+        count++;
+        next++;
+      }
+      return { error_fingerprint: group.error_fingerprint, date, error_count: count };
     });
   });
 }
