@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { LabeledSlider } from '@/components/inputs/LabeledSlider';
 import { SettingToggle } from '@/components/inputs/SettingToggle';
-import { WarningBanner } from '@/components/WarningBanner';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 import { SectionHeader } from './SectionHeader';
 import { SSL_EXPIRY_MARKS, SSL_EXPIRY_DISPLAY_MARKS, RECOMMENDED_SSL_EXPIRY_DAYS } from '../utils/sliderConstants';
@@ -66,10 +66,10 @@ export function AlertsSection({
       <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-x-visible overflow-y-clip'>
         <div className='space-y-5 pt-4 pb-3'>
           {!alertEmailsEnabled && (
-            <WarningBanner
-              title={t('emailsNotConfigured.title')}
-              description={t('emailsNotConfigured.description')}
-            />
+            <Alert variant='warning'>
+              <AlertTitle>{t('emailsNotConfigured.title')}</AlertTitle>
+              <AlertDescription>{t('emailsNotConfigured.description')}</AlertDescription>
+            </Alert>
           )}
 
           <SettingToggle
