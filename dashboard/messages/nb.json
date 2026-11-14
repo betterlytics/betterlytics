@@ -3808,6 +3808,7 @@
       "notAvailableOnPage": "Ikke tilgjengelig på denne siden",
       "activeFilters": "Aktive filtre",
       "toggleFilters": "Vis/skjul filtre",
+      "editFilters": "Rediger filtre",
       "clearAll": "Fjern alle"
     },
     "funnels": {

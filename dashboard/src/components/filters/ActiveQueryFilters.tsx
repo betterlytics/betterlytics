@@ -20,7 +20,7 @@ export function ActiveQueryFilters({ variant = 'row' }: ActiveQueryFiltersProps)
   const { queryFilters, removeQueryFilter, setQueryFilters } = useQueryFiltersContext();
   const t = useTranslations('components.filters');
   const notifyFiltersUpdated = useNotifyFiltersUpdated();
-  const { openEditor } = useQueryFiltersEditor();
+  const { openEditor, isOpen: editorOpen, setIsOpen: setEditorOpen } = useQueryFiltersEditor();
   const { isDemo } = useDashboardAuth();
   const band = variant === 'band';
 
@@ -71,10 +71,12 @@ export function ActiveQueryFilters({ variant = 'row' }: ActiveQueryFiltersProps)
       pillsKey={queryFilters}
       label={t('activeFilters')}
       onClearAll={clearAll}
+      editorOpen={editorOpen}
+      onToggleEditor={() => setEditorOpen(!editorOpen)}
       action={
         canAddFilter && (
           <FilterBandButton
-            data-band-add=''
+            data-band-editor=''
             icon={<PlusIcon />}
             tooltip={t('selector.addFilter')}
             onClick={() => openEditor({ newFilter: true })}

@@ -3808,6 +3808,7 @@
       "notAvailableOnPage": "Non disponibile in questa pagina",
       "activeFilters": "Filtri attivi",
       "toggleFilters": "Mostra/nascondi filtri",
+      "editFilters": "Modifica filtri",
       "clearAll": "Rimuovi tutti"
     },
     "funnels": {
