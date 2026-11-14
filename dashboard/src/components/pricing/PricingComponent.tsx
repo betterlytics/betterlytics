@@ -11,7 +11,7 @@ import { VOLUME_STOPS } from '@/lib/billing/catalog';
 import { formatEventCount } from '@/utils/pricing';
 import { useUsageProjection } from '@/hooks/useUsageProjection';
 import type { Currency, UserBillingData } from '@/entities/billing/billing.entities';
-import { useCheckoutPromo } from './usePromo';
+import { useCheckoutPromo } from '@/contexts/PromoProvider';
 import {
   Select,
   SelectContent,

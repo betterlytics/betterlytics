@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { PricingComponent } from '@/components/pricing/PricingComponent';
-import { useCheckoutPromo, usePromoLastDay } from '@/components/pricing/usePromo';
+import { useCheckoutPromo, usePromoLastDay } from '@/contexts/PromoProvider';
 import { FeatureComparisonSection } from '@/components/billing/FeatureComparisonSection';
 import { VOLUME_STOPS } from '@/lib/billing/catalog';
 import type { SelectedPlan } from '@/types/pricing';

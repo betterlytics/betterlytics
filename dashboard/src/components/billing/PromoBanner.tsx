@@ -3,7 +3,7 @@
 import { use, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { usePromo, usePromoLastDay } from '@/components/pricing/usePromo';
+import { usePromo, usePromoLastDay } from '@/contexts/PromoProvider';
 import { useBannerContext } from '@/contexts/BannerProvider';
 import { useBillingFlow } from '@/contexts/BillingFlowProvider';
 import { getUserBillingData } from '@/actions/billing.action';

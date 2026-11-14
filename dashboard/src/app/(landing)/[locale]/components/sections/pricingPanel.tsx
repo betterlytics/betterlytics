@@ -6,7 +6,7 @@ import NumberFlow from '@number-flow/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { EventCountFlow, EventCountText, FLUSH, QUICK_ROLL } from '@/components/pricing/EventCountFlow';
 import { usePlanCards, type PlanFeatureLabel, type VolumeLabel } from '@/components/pricing/usePlanFeatures';
-import { usePromo } from '@/components/pricing/usePromo';
+import { usePromo } from '@/contexts/PromoProvider';
 import { VOLUME_STOPS, type PlanId } from '@/lib/billing/catalog';
 import { promoCents } from '@/lib/billing/promo';
 import { formatEventCount } from '@/utils/pricing';

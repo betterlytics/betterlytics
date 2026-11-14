@@ -8,7 +8,7 @@ import { GlobalPropertiesUpdater } from '@/components/tracking/GlobalPropertiesU
 import { env } from '@/lib/env';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { livePromo } from '@/lib/billing/promo';
-import { PromoProvider } from '@/components/pricing/usePromo';
+import { PromoProvider } from '@/contexts/PromoProvider';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {

@@ -12,7 +12,7 @@ import { isFeatureEnabled } from '@/lib/feature-flags';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
 import { landingClientMessages } from '@/landing/lib/clientMessages';
 import { LandingProviders } from '@/landing/providers';
-import { PromoProvider } from '@/components/pricing/usePromo';
+import { PromoProvider } from '@/contexts/PromoProvider';
 import { livePromo } from '@/lib/billing/promo';
 import '@/landing/landing.css';
 

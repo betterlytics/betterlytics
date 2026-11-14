@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { usePromo, usePromoLastDay } from '@/components/pricing/usePromo';
+import { usePromo, usePromoLastDay } from '@/contexts/PromoProvider';
 import { AppLink } from '@/landing/components/ui/appLink';
 import { track } from '@/landing/lib/analytics';
 

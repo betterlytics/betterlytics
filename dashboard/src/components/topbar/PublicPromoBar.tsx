@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
-import { usePromo, usePromoLastDay } from '@/components/pricing/usePromo';
+import { usePromo, usePromoLastDay } from '@/contexts/PromoProvider';
 import { baEvent } from '@/lib/ba-event';
 
 // the sales pages in this layout; legal pages, contact and the demo stay free of the promo
