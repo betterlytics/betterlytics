@@ -10,11 +10,11 @@ import { useBannerContext } from '@/contexts/BannerProvider';
 export function IntegrationBanner() {
   const t = useTranslations('banners.integrationSetup');
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const { isVerified, isLoading } = useTrackingVerification();
+  const { hasReceivedData, isLoading } = useTrackingVerification();
   const { addBanner, removeBanner } = useBannerContext();
 
   useEffect(() => {
-    if (!isLoading && !isVerified) {
+    if (!isLoading && !hasReceivedData) {
       addBanner({
         id: 'integration-banner',
         level: 'warning',
@@ -38,7 +38,7 @@ export function IntegrationBanner() {
     }
 
     return () => removeBanner('integration-banner');
-  }, [isLoading, isVerified, addBanner, removeBanner, t]);
+  }, [isLoading, hasReceivedData, addBanner, removeBanner, t]);
 
   return <IntegrationSheet open={isSheetOpen} onOpenChange={setIsSheetOpen} />;
 }
