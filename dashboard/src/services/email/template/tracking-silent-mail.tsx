@@ -72,6 +72,10 @@ export function TrackingSilentEmail({
         <PrimaryLink href='mailto:support@betterlytics.io'>support@betterlytics.io</PrimaryLink> and we'll take a
         look.
       </P>
+
+      <P className='text-sm text-slate-500'>
+        You can turn off these tracking alerts under Settings &rarr; Preferences.
+      </P>
     </EmailLayout>
   );
 }
