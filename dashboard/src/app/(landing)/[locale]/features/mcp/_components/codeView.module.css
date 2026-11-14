@@ -1,0 +1,36 @@
+@reference '../../../landing.css';
+
+@layer components {
+  .code {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 1.7;
+    color: var(--color-muted);
+    white-space: pre;
+    tab-size: 2;
+  }
+  .key {
+    color: var(--color-fg);
+    opacity: 0.86;
+  }
+  .string {
+    color: var(--color-volt-soft);
+  }
+  .number,
+  .literal {
+    color: var(--color-fg);
+  }
+  .comment {
+    color: --alpha(var(--color-muted) / 62%);
+    font-style: italic;
+  }
+  /* the negative margin cancels the padding, so the tint never shifts a column */
+  .mark {
+    margin: 0 -2px;
+    padding: 0 2px;
+    border-radius: 3px;
+    background: --alpha(var(--color-volt-lift) / 22%);
+    color: var(--color-fg);
+  }
+}

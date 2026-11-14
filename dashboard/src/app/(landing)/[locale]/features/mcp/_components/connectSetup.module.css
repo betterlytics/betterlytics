@@ -1,0 +1,223 @@
+@reference '../../../landing.css';
+
+@layer components {
+  /* thirds, so the client column's rule runs on into the trust row's first one */
+  .setup {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    @variant max-lg {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .side {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border-right: 1px solid var(--color-rule-08);
+    @variant max-lg {
+      border-right: 0;
+      border-bottom: 1px solid var(--color-rule-10);
+    }
+  }
+  .clients {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 20px 16px;
+    @variant max-lg {
+      flex-direction: row;
+      padding: 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      &[data-more-right] {
+        mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent);
+      }
+      &[data-more-left] {
+        mask-image: linear-gradient(to left, #000 calc(100% - 56px), transparent);
+      }
+      &[data-more-left][data-more-right] {
+        mask-image: linear-gradient(to right, transparent, #000 56px, #000 calc(100% - 56px), transparent);
+      }
+    }
+  }
+  .other {
+    margin-top: auto;
+    padding: 16px 28px 0;
+    font-size: var(--text-label);
+    line-height: 20px;
+    color: var(--color-muted);
+    text-wrap: pretty;
+    @variant max-lg {
+      display: none;
+    }
+  }
+  /* 30px from the bottom like the pane, so the button sits level with the footer row */
+  .docs {
+    padding: 16px 28px 30px;
+    @variant max-lg {
+      display: none;
+    }
+  }
+  .client {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    text-align: left;
+    color: var(--color-muted);
+    transition:
+      background-color 0.18s var(--ease-out-expo),
+      border-color 0.18s var(--ease-out-expo),
+      color 0.18s var(--ease-out-expo);
+    @variant max-lg {
+      border-color: var(--color-rule-22);
+    }
+  }
+  .client:hover {
+    color: var(--color-fg);
+    background: --alpha(var(--color-fg) / 3%);
+  }
+  .client[aria-selected='true'] {
+    color: var(--color-fg);
+    border-color: --alpha(var(--color-fg) / 22%);
+    background: --alpha(var(--color-fg) / 5.5%);
+  }
+  .clientIcon {
+    flex: none;
+    width: 17px;
+    height: 17px;
+  }
+  .clientName {
+    font-size: var(--text-body-sm);
+    line-height: 20px;
+    letter-spacing: var(--tracking-ui);
+  }
+
+  .panes {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
+    padding: 28px 32px 30px;
+    @variant max-sm {
+      padding: 22px 16px 24px;
+    }
+  }
+  .pane {
+    grid-area: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    visibility: hidden;
+  }
+  .pane[data-active] {
+    visibility: visible;
+  }
+  .body {
+    max-width: 60ch;
+    font-size: var(--text-body-sm);
+    line-height: 22px;
+    color: var(--color-muted);
+    text-wrap: pretty;
+  }
+
+  .code {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    margin-top: 12px;
+    border: 1px solid --alpha(var(--color-fg) / 9%);
+    border-radius: 10px;
+    background: var(--color-terminal);
+    overflow: hidden;
+  }
+  .codeBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 7px 8px 7px 14px;
+    border-bottom: 1px solid --alpha(var(--color-fg) / 7%);
+  }
+  .file {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 12px;
+    color: var(--color-muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .copy {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 9px;
+    border-radius: 6px;
+    font-size: var(--text-caption);
+    line-height: 16px;
+    color: var(--color-muted);
+    transition:
+      background-color 0.18s var(--ease-out-expo),
+      color 0.18s var(--ease-out-expo);
+  }
+  .copy:hover {
+    color: var(--color-fg);
+    background: --alpha(var(--color-fg) / 6%);
+  }
+  .snippet {
+    flex: 1;
+    padding: 14px 16px 16px;
+    overflow-x: auto;
+    font-size: 12px;
+    scrollbar-width: thin;
+  }
+  /* drawn inside, since the rounded box clips anything outside it */
+  .snippet:focus-visible {
+    outline-offset: -2px;
+    border-radius: 0 0 9px 9px;
+  }
+
+  .footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    min-height: 41px;
+    margin-top: 16px;
+  }
+  .note {
+    max-width: 80ch;
+    font-size: var(--text-label);
+    line-height: 20px;
+    color: var(--color-muted);
+    text-wrap: pretty;
+    @variant max-lg {
+      order: 1;
+      flex-basis: 100%;
+    }
+  }
+  .guide {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--text-label);
+    line-height: 20px;
+    color: var(--color-volt-text);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.18s var(--ease-out-expo);
+    /* the client column's button takes over from lg up */
+    @variant lg {
+      display: none;
+    }
+  }
+  .guide:hover {
+    text-decoration-color: currentColor;
+  }
+}

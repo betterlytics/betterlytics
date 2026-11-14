@@ -1107,8 +1107,8 @@
           "description": "ClickHouse-powered analytics engine delivers sub-second query times at any scale."
         },
         "mcpServer": {
-          "title": "MCP Server",
-          "description": "Query your analytics data from AI assistants like Claude. Built-in MCP server for natural language access to metrics, funnels, and user journeys."
+          "title": "MCP",
+          "description": "Query your analytics data from AI assistants like Claude. Built-in MCP for natural language access to metrics, funnels, and user journeys."
         },
         "emailSupport": {
           "title": "Email Support",
@@ -1251,7 +1251,7 @@
     },
     "mcp": {
       "title": "Point your *own*\nagent at it",
-      "lede": "An MCP server is built in. Ask in plain language, get answers across all of it.",
+      "lede": "MCP is built in. Ask in plain language, get answers across all of it.",
       "lead": "Ask questions, not queries.",
       "body": "Your agent reads the schema and joins across traffic, funnels, errors and uptime.",
       "worksWith": "Works with",
@@ -1349,6 +1349,7 @@
         "uptime": "Uptime monitoring",
         "replay": "Session replay",
         "errors": "Error tracking",
+        "mcp": "MCP",
         "pricing": "Pricing"
       },
       "company": {
@@ -1443,7 +1444,7 @@
         "operational": "Operational"
       },
       "transcript": {
-        "alt": "A terminal session: asked which pages lost traffic after the August redesign, an agent queries pageviews and errors through the Betterlytics MCP server and finds /pricing down 34%, hit by a TypeError shipped the same day.",
+        "alt": "A terminal session: asked which pages lost traffic after the August redesign, an agent queries pageviews and errors through Betterlytics MCP and finds /pricing down 34%, hit by a TypeError shipped the same day.",
         "redesign": {
           "question": "which pages lost traffic after the August redesign?",
           "say": "I'll compare daily pageviews across July and August, then look for errors on anything that dropped.",
@@ -1465,7 +1466,7 @@
           "signups": "Google 164 · ChatGPT 71 · Hacker News 9",
           "answer": "ChatGPT sends a ninth of the visitors Google does, but 3.4% of them sign up against 0.9% — nearly four times the rate."
         },
-        "uptimeAlt": "A terminal session: asked to investigate a Checkout downtime alert, an agent reads the open incident through the Betterlytics MCP server, finds a commit shipped three minutes before the outage and offers to revert it. Then it works out what last night's checkout outage cost in sales.",
+        "uptimeAlt": "A terminal session: asked to investigate a Checkout downtime alert, an agent reads the open incident through Betterlytics MCP, finds a commit shipped three minutes before the outage and offers to revert it. Then it works out what last night's checkout outage cost in sales.",
         "investigate": {
           "question": "checkout is alerting as down, can you investigate?",
           "say": "I'll pull the open incident from Betterlytics, then check what shipped just before it started.",
@@ -1473,7 +1474,7 @@
           "commits": "a41f2c9 10:09 Move Stripe keys to env vars",
           "answer": "Checkout has returned 503s since 10:12, three minutes after a41f2c9 moved the Stripe keys to env vars. Want me to revert it?"
         },
-        "debugAlt": "A terminal session: told that choosing a plan does nothing, an agent lists errors on /pricing through the Betterlytics MCP server, reads the TypeError's stack trace and session trail, opens pricing.js at line 142 and offers a fix. Then, asked which errors to fix first, it sorts this week's errors by sessions hit and picks that TypeError.",
+        "debugAlt": "A terminal session: told that choosing a plan does nothing, an agent lists errors on /pricing through Betterlytics MCP, reads the TypeError's stack trace and session trail, opens pricing.js at line 142 and offers a fix. Then, asked which errors to fix first, it sorts this week's errors by sessions hit and picks that TypeError.",
         "debug": {
           "question": "people say choosing a plan does nothing, can you look?",
           "say": "I'll check errors on /pricing first.",
@@ -1716,7 +1717,7 @@
       },
       "agent": {
         "title": "Ask your agent *why* it went down",
-        "lede": "Monitors and incidents are in the built-in MCP server, so your agent can look into an outage next to your code, traffic and errors.",
+        "lede": "Monitors and incidents are part of the built-in MCP, so your agent can look into an outage next to your code, traffic and errors.",
         "lead": "From alert to cause in one question",
         "body": "Your agent reads the open incident, checks what shipped just before it, and comes back with the likely cause and a fix for you to approve. Or line an outage up against your traffic and sales to see what it cost.",
         "cta": "Set up MCP"
@@ -2126,7 +2127,7 @@
       },
       "agent": {
         "title": "Hand the bug *to your agent*",
-        "lede": "Your coding agent can look up errors through the built-in MCP server and work on the fix right next to your code.",
+        "lede": "Your coding agent can look up errors through the built-in MCP and work on the fix right next to your code.",
         "lead": "From complaint to fix in one question",
         "body": "Ask Claude Code, Cursor or any MCP client about a complaint. It looks up the matching error, reads the stack trace and session trail, and opens the file the stack points to.",
         "cta": "Set up MCP"
@@ -2210,6 +2211,272 @@
         "lede": "Add the Betterlytics script, or one attribute if you already have it, and errors start showing up in your dashboard. Free on every plan.",
         "primary": "Start tracking errors free",
         "secondary": "Read the error docs"
+      }
+    },
+    "mcpServer": {
+      "seo": {
+        "title": "Web analytics MCP server for AI agents | Betterlytics",
+        "description": "Ask Claude, Cursor, Codex or another MCP client about your traffic, funnels, errors and uptime, and get answers from your real data. Free on every plan."
+      },
+      "hero": {
+        "eyebrow": "MCP",
+        "title": "Ask your AI agent about your traffic, errors and uptime",
+        "lede": "Betterlytics has MCP built in. Ask Claude, Cursor or Codex about your site and get answers from your real numbers, in the chat, editor or terminal you already use. Free on every plan.",
+        "primary": "Connect your agent free",
+        "secondary": "Read the setup guide"
+      },
+      "window": {
+        "label": "Sample sessions",
+        "note": "Illustrative sessions with sample data.",
+        "you": "You",
+        "chat": {
+          "tab": "Why did signups drop?",
+          "nav": {
+            "newChat": "New",
+            "search": "Search",
+            "projects": "Projects",
+            "artifacts": "Artifacts",
+            "scheduled": "Scheduled",
+            "customize": "Customize"
+          },
+          "recents": "Recents",
+          "chats": {
+            "drop": "Signup drop on Nov 5",
+            "recap": "Weekly traffic recap",
+            "pricing": "Pricing page errors",
+            "friday": "Black Friday checklist"
+          },
+          "viewAll": "View all",
+          "plan": "Pro",
+          "question": "Signups dropped yesterday afternoon. What happened?",
+          "tools": "Used 3 Betterlytics tools",
+          "lead": "Your checkout service went down for 19 minutes, and signups fell with it.",
+          "chart": {
+            "signups": "Signups per hour",
+            "failed": "Failed while checkout was down",
+            "tipSignups": "{count} signups",
+            "tipFailed": "{count} failed",
+            "summary": "Bar chart of signups per hour from 10:00 to 18:00: 431 to 524 every hour except 14:00, with 343 signups and 164 that failed while checkout was down."
+          },
+          "points": {
+            "a": "Checkout timed out from 14:02 to 14:21.",
+            "b": "The signup form posts to checkout.acme.com, so 211 attempts failed with “Failed to fetch”, across 164 visits.",
+            "c": "Signups were back to normal by 15:00."
+          },
+          "close": "A retry on the signup request would have caught most of these. Want me to draft one?",
+          "reply": "Reply…",
+          "connector": "Betterlytics",
+          "model": "Opus 5.5",
+          "effort": "Medium"
+        },
+        "cursor": {
+          "tab": "Fix the bug on /pricing",
+          "review": "Ready for review",
+          "agents": {
+            "fix": {
+              "title": "Fix plan picker on /pricing",
+              "sub": "Guarded early clicks"
+            },
+            "retry": {
+              "title": "Retry failed signups",
+              "sub": "Retry with backoff"
+            },
+            "alerts": {
+              "title": "Checkout timeout alerts",
+              "sub": "Clearer alert copy"
+            },
+            "recap": {
+              "title": "Weekly traffic recap",
+              "sub": "Summary ready"
+            }
+          },
+          "question": "People say picking a plan on /pricing does nothing. Can you fix it?",
+          "thought": "Thought",
+          "called": "Called",
+          "read": "Read",
+          "answer": "Betterlytics shows a TypeError on /pricing in 318 visits this week. Clicks that land before the plans load find <c>selected</c> still null, so line 142 throws. I added a guard, so an early click is ignored instead of breaking the page.",
+          "worked": "Worked for 38s",
+          "placeholder": "Add a follow-up…",
+          "mode": "Agent",
+          "undo": "Undo",
+          "keep": "Keep"
+        },
+        "codex": {
+          "tab": "Did the deploy break anything?",
+          "newChat": "New chat",
+          "projects": "Projects",
+          "recents": "Recents",
+          "showMore": "Show more",
+          "chats": {
+            "deploy": "Check the 15:30 deploy",
+            "pricing": "Fix the plan picker crash",
+            "retry": "Retry failed signups",
+            "recap": "Weekly traffic recap",
+            "checkout": "Checkout timeout alerts"
+          },
+          "question": "Did the 15:30 deploy break anything?",
+          "say": "I'll check uptime, errors and traffic since 15:30.",
+          "called": "Called",
+          "monitors": "4 monitors, all up",
+          "incidents": "0 incidents today",
+          "errors": "2 error groups in the last hour, both first seen before today",
+          "traffic": "15:00 → 1,284 and 16:00 → 1,311 pageviews (same hours yesterday: 1,240 and 1,296)",
+          "answer": "Nothing broke. Every monitor stayed up, no new error types showed up after 15:30, and traffic is in line with yesterday.",
+          "worked": "Worked for 9s",
+          "placeholder": "Ask for follow-up changes",
+          "approve": "Approve for me",
+          "effort": "High"
+        }
+      },
+      "specs": {
+        "connection": {
+          "unit": "connection",
+          "label": "From funnels to stack traces",
+          "body": "Traffic, journeys, funnels, errors, uptime and status pages all answer through the same connection."
+        },
+        "free": {
+          "value": "Free",
+          "unit": "on every plan",
+          "label": "No add-on to buy",
+          "body": "The free plan includes it too, and nothing your agent looks up counts toward your monthly event limit."
+        },
+        "thesis": {
+          "unit": "cookies",
+          "label": "Nothing personal to hand over",
+          "body": "Betterlytics stores no cookies or IP addresses, so your agent only sees personal data if your own site sends it."
+        }
+      },
+      "tools": {
+        "title": "One question can cover *your whole site*",
+        "lede": "Your agent can check traffic, errors, uptime and your status page before it answers. Pick an example question to see which tools it calls.",
+        "agent": "Your agent",
+        "agentBody": "Works with Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Antigravity and Codex",
+        "server": "Betterlytics MCP",
+        "copy": "Copy question",
+        "copied": "Copied",
+        "pick": "Example question",
+        "featured": "Featured",
+        "groups": {
+          "analytics": "Web analytics",
+          "errors": "Error tracking",
+          "uptime": "Uptime monitoring",
+          "status": "Status pages"
+        },
+        "questions": {
+          "morning": "Give me a morning check on traffic, errors, uptime and our status page.",
+          "launch": "We launched on Product Hunt today. How's it going?",
+          "signups": "Signups dropped yesterday afternoon. What happened?",
+          "pricing": "People say picking a plan on /pricing does nothing. Why?",
+          "deploy": "Did the 15:30 deploy break anything?",
+          "outage": "Checkout is down. Is it costing us signups, and have we posted an incident?"
+        },
+        "asks": {
+          "describe": "What can you look up in Betterlytics?",
+          "list_dashboards": "Which of our sites can you see?",
+          "query": "Which pages got the most visitors from Hacker News this week?",
+          "query_sessions": "Which landing pages have the highest bounce rate this month?",
+          "user_journeys": "Where do visitors go after the pricing page?",
+          "funnel_preview": "How many people who start signing up actually finish?",
+          "list_funnels": "Which step of our onboarding funnel loses the most people?",
+          "list_global_properties": "Is variant B of the homepage getting more signups?",
+          "list_errors": "Which errors only happen on Safari?",
+          "get_error": "What did the visitor do right before the latest TypeError?",
+          "list_monitors": "Is everything up, and do any SSL certificates expire soon?",
+          "list_monitor_incidents": "How long was each outage this week, and why?",
+          "list_status_pages": "What does our status page tell visitors right now?",
+          "list_incident_suggestions": "Did we forget to post an incident for a recent outage?"
+        }
+      },
+      "setup": {
+        "title": "Add it to the client you *already* use",
+        "lede": "Create a token in your Betterlytics settings, paste one snippet into your client and start asking. In VS Code it's a single click.",
+        "label": "Your client",
+        "other": "Any remote MCP client that accepts a token works too.",
+        "install": {
+          "vs-code": "Install in VS Code",
+          "cursor": "Add to Cursor"
+        },
+        "installNote": {
+          "vs-code": "Or skip the file. VS Code opens and asks for your token.",
+          "cursor": "Or skip the file. Paste your token in the setup guide and Cursor installs it."
+        },
+        "clients": {
+          "claude": "In Settings, open Developer, then Edit Config, and add this.",
+          "claude-code": "Run this in your terminal.",
+          "cursor": "Add this to your project.",
+          "vs-code": "Add this to your project.",
+          "windsurf": "Add this to Windsurf's MCP config.",
+          "antigravity": "Add this to Antigravity's MCP config.",
+          "codex": "Add this to your Codex config."
+        },
+        "notes": {
+          "claude": "Needs Node.js to run mcp-remote. On Windows, use the config in the setup guide.",
+          "antigravity": "For one workspace, add it to .agents/mcp_config.json instead."
+        },
+        "copy": "Copy",
+        "copied": "Copied",
+        "guide": "Setup guide",
+        "cta": "Read the setup guide",
+        "trust": {
+          "read": {
+            "title": "Reads only",
+            "body": "All 14 tools only read. Your agent can't change settings, delete data or post incidents."
+          },
+          "scope": {
+            "title": "You choose what it sees",
+            "body": "Each token covers one site, so your agent only sees the sites you choose."
+          },
+          "revoke": {
+            "title": "Yours to revoke",
+            "body": "Revoke a token any time and its access ends at once. Or set it to expire on its own."
+          }
+        }
+      },
+      "related": {
+        "lede": "MCP is one part of Betterlytics. Everything below lives in the same dashboard, with the same login and bill."
+      },
+      "faq": {
+        "title": "Frequently asked questions",
+        "items": {
+          "what": {
+            "q": "What is MCP?",
+            "a": "MCP, the Model Context Protocol, is an open standard that lets AI agents call tools in other apps. With Betterlytics MCP, agents like Claude, Cursor and Codex can read your traffic, errors, uptime and status pages, so they answer with your real numbers."
+          },
+          "free": {
+            "q": "Does MCP cost extra?",
+            "a": "No. It's on every plan, including the free one, and nothing your agent looks up counts toward your monthly event limit."
+          },
+          "clients": {
+            "q": "Which AI clients work with it?",
+            "a": "The setup guide has steps for Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Antigravity and Codex. Any other client works too if it can connect to a remote MCP server with an API token."
+          },
+          "scope": {
+            "q": "What can my agent see?",
+            "a": "Nearly everything on the site you connect: traffic, sessions, events, funnels, journeys, global properties, errors with their stack traces and session trails, monitors, incidents and status pages."
+          },
+          "provider": {
+            "q": "Does my data go to the AI provider?",
+            "a": "What your agent reads goes into its conversation, so it's handled by the model and client you use, under their terms. Betterlytics sets no cookies and stores no IP addresses, so answers only point to a person if your own site sends identifying data."
+          },
+          "sites": {
+            "q": "Can I connect more than one site?",
+            "a": "Yes. Each token covers one site, so create one for each and add them to your client under their own names, like betterlytics-shop and betterlytics-blog."
+          },
+          "revoke": {
+            "q": "How do I take access away?",
+            "a": "Delete the token in Betterlytics and your agent loses access right away. Tokens can also expire on their own after 30, 90 or 180 days."
+          },
+          "schema": {
+            "q": "Do I need to know how the data is stored?",
+            "a": "No. Your agent looks up the metrics, filters and time ranges it can use, picks the right tools and queries your data. You just ask in your own words."
+          }
+        }
+      },
+      "cta": {
+        "title": "Ask your first question today",
+        "lede": "Sign up, add the script to your site and connect your agent. Free on every plan.",
+        "primary": "Connect your agent free",
+        "secondary": "Read the setup guide"
       }
     }
   },

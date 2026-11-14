@@ -1107,8 +1107,8 @@
           "description": "ClickHouse-drevet analysemotor leverer sub-sekund query-tider ved enhver skala."
         },
         "mcpServer": {
-          "title": "MCP-server",
-          "description": "Forespørg dine analysedata fra AI-assistenter som Claude. Indbygget MCP-server til naturlig sprogadgang til metrics, funnels og brugerrejser."
+          "title": "MCP",
+          "description": "Lad AI-assistenter som Claude arbejde med dine analysedata. Den indbyggede MCP giver adgang til metrics, funnels og brugerrejser, så du kan spørge på almindeligt dansk."
         },
         "emailSupport": {
           "title": "E-mail-support",
@@ -1251,7 +1251,7 @@
     },
     "mcp": {
       "title": "Sæt din *egen*\nagent på sagen",
-      "lede": "Der er indbygget en MCP-server. Spørg på almindeligt dansk og få svar på tværs af det hele.",
+      "lede": "MCP er indbygget. Spørg på almindeligt dansk, og få svar på tværs af det hele.",
       "lead": "Stil spørgsmål, ikke queries.",
       "body": "Din agent læser skemaet og kobler trafik, funnels, fejl og oppetid sammen.",
       "worksWith": "Virker med",
@@ -1349,6 +1349,7 @@
         "uptime": "Oppetidsovervågning",
         "replay": "Session replay",
         "errors": "Fejlsporing",
+        "mcp": "MCP",
         "pricing": "Priser"
       },
       "company": {
@@ -1443,7 +1444,7 @@
         "operational": "I drift"
       },
       "transcript": {
-        "alt": "En terminalsession: En agent bliver spurgt hvilke sider der mistede trafik efter redesignet i august. Den henter sidevisninger og fejl via Betterlytics’ MCP-server og finder ud af at /pricing er faldet 34 %, ramt af en TypeError der gik i produktion samme dag.",
+        "alt": "En terminalsession: En agent bliver spurgt, hvilke sider der mistede trafik efter redesignet i august. Den henter sidevisninger og fejl via Betterlytics MCP og finder ud af, at /pricing er faldet 34 %, ramt af en TypeError, der gik i produktion samme dag.",
         "redesign": {
           "question": "hvilke sider mistede trafik efter redesignet i august?",
           "say": "Jeg sammenligner de daglige sidevisninger for juli og august og kigger så efter fejl på de sider der er faldet.",
@@ -1465,7 +1466,7 @@
           "signups": "Google 164 · ChatGPT 71 · Hacker News 9",
           "answer": "ChatGPT sender en niendedel så mange besøgende som Google, men 3,4 % af dem tilmelder sig mod 0,9 %. Det er næsten fire gange så højt."
         },
-        "uptimeAlt": "En terminalsession: En agent bliver bedt om at undersøge en nedetidsalarm for Checkout. Den læser den åbne hændelse via Betterlytics’ MCP-server, finder et commit der gik i produktion tre minutter før nedbruddet, og tilbyder at rulle det tilbage. Bagefter regner den ud, hvad nattens checkout-nedbrud kostede i salg.",
+        "uptimeAlt": "En terminalsession: En agent bliver bedt om at undersøge en nedetidsalarm for Checkout. Den læser den åbne hændelse via Betterlytics MCP, finder et commit, der gik i produktion tre minutter før nedbruddet, og tilbyder at rulle det tilbage. Bagefter regner den ud, hvad nattens checkout-nedbrud kostede i salg.",
         "investigate": {
           "question": "der er alarm om at checkout er nede, kan du undersøge det?",
           "say": "Jeg henter den åbne hændelse fra Betterlytics og tjekker så, hvad der gik i produktion lige før den startede.",
@@ -1473,7 +1474,7 @@
           "commits": "a41f2c9 10:09 Move Stripe keys to env vars",
           "answer": "Checkout har svaret med 503 siden 10:12, tre minutter efter at a41f2c9 flyttede Stripe-nøglerne til env vars. Skal jeg rulle det tilbage?"
         },
-        "debugAlt": "En terminalsession: En agent får at vide, at der ikke sker noget, når man vælger en plan. Den henter fejlene på /pricing via Betterlytics’ MCP-server, læser stack trace og sessionsforløb for en TypeError, åbner pricing.js på linje 142 og foreslår en rettelse. Bagefter bliver den spurgt, hvilke fejl der skal rettes først, sorterer ugens fejl efter, hvor mange sessioner de har ramt, og peger på den samme TypeError.",
+        "debugAlt": "En terminalsession: En agent får at vide, at der ikke sker noget, når man vælger en plan. Den henter fejlene på /pricing via Betterlytics MCP, læser stack trace og sessionsforløb for en TypeError, åbner pricing.js på linje 142 og foreslår en rettelse. Bagefter bliver den spurgt, hvilke fejl der skal rettes først. Den sorterer ugens fejl efter, hvor mange sessioner de har ramt, og peger på den samme TypeError.",
         "debug": {
           "question": "folk siger der ikke sker noget når de vælger en plan, kan du kigge på det?",
           "say": "Jeg tjekker først fejlene på /pricing.",
@@ -1716,7 +1717,7 @@
       },
       "agent": {
         "title": "Spørg din agent, *hvorfor* det gik ned",
-        "lede": "Monitorer og hændelser ligger i den indbyggede MCP-server, så din agent kan undersøge et nedbrud side om side med din kode, din trafik og dine fejl.",
+        "lede": "Monitorer og hændelser er en del af den indbyggede MCP, så din agent kan undersøge et nedbrud side om side med din kode, din trafik og dine fejl.",
         "lead": "Fra alarm til årsag med ét spørgsmål",
         "body": "Din agent læser den åbne hændelse, tjekker hvad der gik i produktion lige før, og kommer tilbage med den sandsynlige årsag og en rettelse, du kan godkende. Eller hold et nedbrud op mod din trafik og dit salg for at se, hvad det kostede.",
         "cta": "Sæt MCP op"
@@ -2126,7 +2127,7 @@
       },
       "agent": {
         "title": "Overlad fejlen *til din agent*",
-        "lede": "Din kodeagent kan slå fejl op via den indbyggede MCP-server og arbejde på rettelsen lige ved siden af din kode.",
+        "lede": "Din kodeagent kan slå fejl op via den indbyggede MCP og arbejde på rettelsen lige ved siden af din kode.",
         "lead": "Fra klage til rettelse med ét spørgsmål",
         "body": "Spørg Claude Code, Cursor eller enhver anden MCP-klient om en klage. Den finder den tilhørende fejl, læser stack trace og sessionsforløb og åbner den fil, stacken peger på.",
         "cta": "Sæt MCP op"
@@ -2210,6 +2211,272 @@
         "lede": "Tilføj Betterlytics-scriptet, eller én attribut, hvis du allerede har det, så begynder fejlene at dukke op i dit dashboard. Gratis i alle planer.",
         "primary": "Start gratis fejlsporing",
         "secondary": "Læs dokumentationen om fejlsporing"
+      }
+    },
+    "mcpServer": {
+      "seo": {
+        "title": "MCP-server til webanalyse med AI-agenter | Betterlytics",
+        "description": "Spørg Claude, Cursor, Codex eller en anden MCP-klient om trafik, funnels, fejl og oppetid, og få svar ud fra dine rigtige data. Gratis i alle planer."
+      },
+      "hero": {
+        "eyebrow": "MCP",
+        "title": "Spørg din AI-agent om trafik, fejl og oppetid",
+        "lede": "Betterlytics har MCP indbygget. Spørg Claude, Cursor eller Codex om dit website, og få svar ud fra dine rigtige tal, i den chat, editor eller terminal, du allerede bruger. Gratis i alle planer.",
+        "primary": "Forbind din agent gratis",
+        "secondary": "Læs opsætningsguiden"
+      },
+      "window": {
+        "label": "Eksempelsessioner",
+        "note": "Eksempelsessioner med fiktive data.",
+        "you": "Du",
+        "chat": {
+          "tab": "Hvorfor faldt tilmeldingerne?",
+          "nav": {
+            "newChat": "New",
+            "search": "Search",
+            "projects": "Projects",
+            "artifacts": "Artifacts",
+            "scheduled": "Scheduled",
+            "customize": "Customize"
+          },
+          "recents": "Recents",
+          "chats": {
+            "drop": "Fald i tilmeldinger 5. nov.",
+            "recap": "Ugentligt trafikoverblik",
+            "pricing": "Fejl på prissiden",
+            "friday": "Tjekliste til Black Friday"
+          },
+          "viewAll": "View all",
+          "plan": "Pro",
+          "question": "Tilmeldingerne faldt i går eftermiddag. Hvad skete der?",
+          "tools": "Used 3 Betterlytics tools",
+          "lead": "Din checkout-tjeneste var nede i 19 minutter, og tilmeldingerne fulgte med ned.",
+          "chart": {
+            "signups": "Tilmeldinger pr. time",
+            "failed": "Fejlede under checkout-nedbruddet",
+            "tipSignups": "{count} tilmeldinger",
+            "tipFailed": "{count} fejlede",
+            "summary": "Søjlediagram over tilmeldinger pr. time fra 10:00 til 18:00: 431 til 524 hver time undtagen kl. 14:00, hvor der var 343 tilmeldinger og 164, der fejlede under checkout-nedbruddet."
+          },
+          "points": {
+            "a": "Checkout svarede ikke fra 14:02 til 14:21.",
+            "b": "Tilmeldingsformularen sender til checkout.acme.com, så 211 forsøg fejlede med »Failed to fetch« fordelt på 164 besøg.",
+            "c": "Tilmeldingerne var tilbage på normalt niveau kl. 15:00."
+          },
+          "close": "Med et retry på tilmeldingskaldet var de fleste af dem gået igennem. Skal jeg lave et udkast?",
+          "reply": "Reply…",
+          "connector": "Betterlytics",
+          "model": "Opus 5.5",
+          "effort": "Medium"
+        },
+        "cursor": {
+          "tab": "Ret fejlen på /pricing",
+          "review": "Ready for review",
+          "agents": {
+            "fix": {
+              "title": "Ret planvælgeren",
+              "sub": "Tåler tidlige klik"
+            },
+            "retry": {
+              "title": "Retry ved fejlet tilmelding",
+              "sub": "Retry med backoff"
+            },
+            "alerts": {
+              "title": "Checkout-timeoutalarmer",
+              "sub": "Tydeligere alarmtekst"
+            },
+            "recap": {
+              "title": "Ugentligt trafikoverblik",
+              "sub": "Opsummering klar"
+            }
+          },
+          "question": "Folk siger, at der ikke sker noget, når de vælger en plan på /pricing. Kan du rette det?",
+          "thought": "Thought",
+          "called": "Called",
+          "read": "Read",
+          "answer": "Betterlytics viser en TypeError på /pricing i 318 besøg i denne uge. Klikker man, før planerne er indlæst, er <c>selected</c> stadig null, så linje 142 kaster en fejl. Jeg har tilføjet et tjek, så et tidligt klik bliver ignoreret i stedet for at ødelægge siden.",
+          "worked": "Worked for 38s",
+          "placeholder": "Add a follow-up…",
+          "mode": "Agent",
+          "undo": "Undo",
+          "keep": "Keep"
+        },
+        "codex": {
+          "tab": "Ødelagde deployet noget?",
+          "newChat": "New chat",
+          "projects": "Projects",
+          "recents": "Recents",
+          "showMore": "Show more",
+          "chats": {
+            "deploy": "Tjek deployet kl. 15:30",
+            "pricing": "Ret crashet i planvælgeren",
+            "retry": "Retry ved fejlet tilmelding",
+            "recap": "Ugentligt trafikoverblik",
+            "checkout": "Checkout-timeoutalarmer"
+          },
+          "question": "Ødelagde deployet kl. 15:30 noget?",
+          "say": "Jeg tjekker oppetid, fejl og trafik siden kl. 15:30.",
+          "called": "Called",
+          "monitors": "4 monitorer, alle oppe",
+          "incidents": "0 hændelser i dag",
+          "errors": "2 fejlgrupper i den seneste time, begge set første gang før i dag",
+          "traffic": "15:00 → 1.284 og 16:00 → 1.311 sidevisninger (samme timer i går: 1.240 og 1.296)",
+          "answer": "Der gik ikke noget i stykker. Alle monitorer var oppe hele tiden, der er ikke dukket nye fejltyper op efter 15:30, og trafikken ligger på niveau med i går.",
+          "worked": "Worked for 9s",
+          "placeholder": "Ask for follow-up changes",
+          "approve": "Approve for me",
+          "effort": "High"
+        }
+      },
+      "specs": {
+        "connection": {
+          "unit": "forbindelse",
+          "label": "Fra funnels til stack traces",
+          "body": "Trafik, brugerrejser, funnels, fejl, oppetid og statussider kan alle hentes via den samme forbindelse."
+        },
+        "free": {
+          "value": "Gratis",
+          "unit": "i alle planer",
+          "label": "Intet tilkøb",
+          "body": "Det er også med i den gratis plan, og intet af det, din agent slår op, tæller med i din månedlige kvote."
+        },
+        "thesis": {
+          "unit": "cookies",
+          "label": "Ingen persondata at give videre",
+          "body": "Betterlytics gemmer hverken cookies eller IP-adresser, så din agent ser kun persondata, hvis dit eget website sender dem."
+        }
+      },
+      "tools": {
+        "title": "Ét spørgsmål kan dække *hele dit website*",
+        "lede": "Din agent kan tjekke trafik, fejl, oppetid og din statusside, før den svarer. Vælg et eksempelspørgsmål for at se, hvilke værktøjer den bruger.",
+        "agent": "Din agent",
+        "agentBody": "Virker med Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Antigravity og Codex",
+        "server": "Betterlytics MCP",
+        "copy": "Kopiér spørgsmål",
+        "copied": "Kopieret",
+        "pick": "Eksempelspørgsmål",
+        "featured": "Udvalgte",
+        "groups": {
+          "analytics": "Webanalyse",
+          "errors": "Fejlsporing",
+          "uptime": "Oppetidsovervågning",
+          "status": "Statussider"
+        },
+        "questions": {
+          "morning": "Giv mig et morgentjek af trafik, fejl, oppetid og vores statusside.",
+          "launch": "Vi lancerede på Product Hunt i dag. Hvordan går det?",
+          "signups": "Tilmeldingerne faldt i går eftermiddag. Hvad skete der?",
+          "pricing": "Folk siger, at der ikke sker noget, når de vælger en plan på /pricing. Hvorfor?",
+          "deploy": "Ødelagde deployet kl. 15:30 noget?",
+          "outage": "Checkout er nede. Koster det os tilmeldinger, og har vi meldt det ud på statussiden?"
+        },
+        "asks": {
+          "describe": "Hvad kan du slå op i Betterlytics?",
+          "list_dashboards": "Hvilke af vores websites kan du se?",
+          "query": "Hvilke sider fik flest besøgende fra Hacker News i denne uge?",
+          "query_sessions": "Hvilke landingssider har den højeste afvisningsrate i denne måned?",
+          "user_journeys": "Hvor går de besøgende hen efter prissiden?",
+          "funnel_preview": "Hvor mange af dem, der begynder at tilmelde sig, gennemfører faktisk?",
+          "list_funnels": "Ved hvilket trin i vores onboarding-funnel falder flest fra?",
+          "list_global_properties": "Giver variant B af forsiden flere tilmeldinger?",
+          "list_errors": "Hvilke fejl sker kun i Safari?",
+          "get_error": "Hvad gjorde den besøgende lige før den seneste TypeError?",
+          "list_monitors": "Er alt oppe, og udløber der snart nogen SSL-certifikater?",
+          "list_monitor_incidents": "Hvor længe varede hvert nedbrud i denne uge, og hvorfor?",
+          "list_status_pages": "Hvad fortæller vores statusside de besøgende lige nu?",
+          "list_incident_suggestions": "Har vi glemt at melde et nyligt nedbrud ud på statussiden?"
+        }
+      },
+      "setup": {
+        "title": "Tilføj det til den klient, du *allerede* bruger",
+        "lede": "Opret en token i dine Betterlytics-indstillinger, indsæt ét kodestykke i din klient, og begynd at spørge. I VS Code er det ét klik.",
+        "label": "Din klient",
+        "other": "Alle remote MCP-klienter med en token virker også.",
+        "install": {
+          "vs-code": "Installér i VS Code",
+          "cursor": "Tilføj til Cursor"
+        },
+        "installNote": {
+          "vs-code": "Eller spring filen over. VS Code åbner og beder om din token.",
+          "cursor": "Eller spring filen over. Indsæt din token i opsætningsguiden, så klarer Cursor resten."
+        },
+        "clients": {
+          "claude": "Åbn Developer under Settings, klik på Edit Config, og tilføj dette.",
+          "claude-code": "Kør dette i din terminal.",
+          "cursor": "Tilføj dette til dit projekt.",
+          "vs-code": "Tilføj dette til dit projekt.",
+          "windsurf": "Tilføj dette til Windsurfs MCP-konfiguration.",
+          "antigravity": "Tilføj dette til Antigravitys MCP-konfiguration.",
+          "codex": "Tilføj dette til din Codex-konfiguration."
+        },
+        "notes": {
+          "claude": "Kræver Node.js for at køre mcp-remote. På Windows skal du bruge konfigurationen fra opsætningsguiden.",
+          "antigravity": "Til et enkelt workspace skal du i stedet tilføje det til .agents/mcp_config.json."
+        },
+        "copy": "Kopiér",
+        "copied": "Kopieret",
+        "guide": "Opsætningsguide",
+        "cta": "Læs opsætningsguiden",
+        "trust": {
+          "read": {
+            "title": "Kun læseadgang",
+            "body": "Alle 14 værktøjer kan kun læse. Din agent kan ikke ændre indstillinger, slette data eller oprette hændelser."
+          },
+          "scope": {
+            "title": "Du bestemmer, hvad den ser",
+            "body": "Hver token dækker ét website, så din agent ser kun de websites, du vælger."
+          },
+          "revoke": {
+            "title": "Tilbagekald, når du vil",
+            "body": "Tilbagekald en token når som helst, så stopper adgangen med det samme. Eller giv den en udløbsdato."
+          }
+        }
+      },
+      "related": {
+        "lede": "MCP er én del af Betterlytics. Alt nedenfor ligger i det samme dashboard, med samme login og regning."
+      },
+      "faq": {
+        "title": "Ofte stillede spørgsmål",
+        "items": {
+          "what": {
+            "q": "Hvad er MCP?",
+            "a": "MCP, Model Context Protocol, er en åben standard, der lader AI-agenter bruge værktøjer i andre apps. Med Betterlytics MCP kan agenter som Claude, Cursor og Codex læse trafik, fejl, oppetid og statussider for dit website, så de svarer ud fra dine rigtige tal."
+          },
+          "free": {
+            "q": "Koster MCP ekstra?",
+            "a": "Nej. Det er med i alle planer, også den gratis, og intet af det, din agent slår op, tæller med i din månedlige kvote."
+          },
+          "clients": {
+            "q": "Hvilke AI-klienter virker det med?",
+            "a": "Opsætningsguiden har en vejledning til Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Antigravity og Codex. Andre klienter virker også, hvis de kan oprette forbindelse til en remote MCP-server med en API-token."
+          },
+          "scope": {
+            "q": "Hvad kan min agent se?",
+            "a": "Næsten alt på det website, du forbinder: trafik, sessioner, events, funnels, brugerrejser, globale egenskaber, fejl med stack traces og sessionsforløb, monitorer, hændelser og statussider."
+          },
+          "provider": {
+            "q": "Bliver mine data sendt til AI-udbyderen?",
+            "a": "Det, din agent læser, bliver en del af samtalen, så det behandles af den model og klient, du bruger, på deres vilkår. Betterlytics sætter ingen cookies og gemmer ingen IP-adresser, så svarene kan kun føres tilbage til en person, hvis dit eget website sender data, der kan identificere nogen."
+          },
+          "sites": {
+            "q": "Kan jeg forbinde mere end ét website?",
+            "a": "Ja. Hver token dækker ét website, så opret én til hvert website, og tilføj dem til din klient under hvert sit navn, fx betterlytics-shop og betterlytics-blog."
+          },
+          "revoke": {
+            "q": "Hvordan fjerner jeg adgangen igen?",
+            "a": "Slet din token i Betterlytics, så mister din agent adgangen med det samme. Tokens kan også udløbe af sig selv efter 30, 90 eller 180 dage."
+          },
+          "schema": {
+            "q": "Skal jeg vide, hvordan dataene er gemt?",
+            "a": "Nej. Din agent slår selv op, hvilke metrics, filtre og tidsperioder den kan bruge, vælger de rigtige værktøjer og henter dine data. Du spørger bare med dine egne ord."
+          }
+        }
+      },
+      "cta": {
+        "title": "Stil dit første spørgsmål i dag",
+        "lede": "Tilmeld dig, tilføj scriptet til dit website, og forbind din agent. Gratis i alle planer.",
+        "primary": "Forbind din agent gratis",
+        "secondary": "Læs opsætningsguiden"
       }
     }
   },

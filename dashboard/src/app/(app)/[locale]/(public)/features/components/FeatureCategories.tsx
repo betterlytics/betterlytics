@@ -50,6 +50,7 @@ import { MCPIcon } from '@/components/icons';
 const UPTIME = '/features/uptime-monitoring';
 const REPLAY = '/features/session-replay';
 const ERRORS = '/features/error-tracking';
+const MCP = '/features/mcp';
 
 const CATEGORIES = [
   {
@@ -121,7 +122,7 @@ const CATEGORIES = [
       { id: 'fullyManaged', icon: Cloud },
       { id: 'lightweightScript', icon: Zap },
       { id: 'highPerformance', icon: Gauge },
-      { id: 'mcpServer', icon: MCPIcon },
+      { id: 'mcpServer', icon: MCPIcon, href: MCP },
     ],
   },
   {

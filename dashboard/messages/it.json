@@ -1107,8 +1107,8 @@
           "description": "Motore analytics basato su ClickHouse con tempi di query sotto il secondo a qualsiasi scala."
         },
         "mcpServer": {
-          "title": "Server MCP",
-          "description": "Interroga i tuoi dati analytics da assistenti AI come Claude. Server MCP integrato per accesso in linguaggio naturale a metriche, funnel e percorsi utente."
+          "title": "MCP",
+          "description": "Interroga i tuoi dati analytics da assistenti AI come Claude. MCP integrato per accedere in linguaggio naturale a metriche, funnel e percorsi utente."
         },
         "emailSupport": {
           "title": "Supporto Email",
@@ -1251,7 +1251,7 @@
     },
     "mcp": {
       "title": "Collega il *tuo*\nagente",
-      "lede": "Il server MCP è già integrato. Fai domande in linguaggio naturale e ottieni risposte su tutti i tuoi dati.",
+      "lede": "MCP è già integrato. Fai domande in linguaggio naturale e ottieni risposte su tutti i tuoi dati.",
       "lead": "Fai domande, non query.",
       "body": "Il tuo agente legge lo schema e incrocia traffico, funnel, errori e uptime.",
       "worksWith": "Funziona con",
@@ -1349,6 +1349,7 @@
         "uptime": "Monitoraggio uptime",
         "replay": "Session replay",
         "errors": "Tracciamento errori",
+        "mcp": "MCP",
         "pricing": "Prezzi"
       },
       "company": {
@@ -1443,7 +1444,7 @@
         "operational": "Operativo"
       },
       "transcript": {
-        "alt": "Una sessione nel terminale: alla domanda su quali pagine abbiano perso traffico dopo il restyling di agosto, un agente consulta visualizzazioni ed errori tramite il server MCP di Betterlytics e scopre che /pricing ha perso il 34% ed è stata colpita da un TypeError finito in produzione lo stesso giorno.",
+        "alt": "Una sessione nel terminale: alla domanda su quali pagine abbiano perso traffico dopo il restyling di agosto, un agente consulta visualizzazioni ed errori tramite Betterlytics MCP e scopre che /pricing ha perso il 34% ed è stata colpita da un TypeError finito in produzione lo stesso giorno.",
         "redesign": {
           "question": "quali pagine hanno perso traffico dopo il restyling di agosto?",
           "say": "Confronto le visualizzazioni giornaliere di luglio e agosto, poi cerco errori nelle pagine in calo.",
@@ -1465,7 +1466,7 @@
           "signups": "Google 164 · ChatGPT 71 · Hacker News 9",
           "answer": "ChatGPT porta un nono dei visitatori di Google, ma il 3,4% di loro si registra contro lo 0,9%: un tasso quasi quattro volte più alto."
         },
-        "uptimeAlt": "Una sessione nel terminale: alla richiesta di indagare su un avviso di down del Checkout, un agente legge l’incidente aperto tramite il server MCP di Betterlytics, trova un commit rilasciato tre minuti prima del disservizio e propone di annullarlo. Poi calcola quanto è costato in vendite il down del checkout di ieri sera.",
+        "uptimeAlt": "Una sessione nel terminale: alla richiesta di indagare su un avviso di down del Checkout, un agente legge l’incidente aperto tramite Betterlytics MCP, trova un commit rilasciato tre minuti prima del disservizio e propone di annullarlo. Poi calcola quanto è costato in vendite il down del checkout di ieri sera.",
         "investigate": {
           "question": "il checkout risulta offline, puoi indagare?",
           "say": "Recupero l’incidente aperto da Betterlytics, poi controllo cosa è stato rilasciato poco prima che iniziasse.",
@@ -1473,7 +1474,7 @@
           "commits": "a41f2c9 10:09 Move Stripe keys to env vars",
           "answer": "Il checkout restituisce 503 dalle 10:12, tre minuti dopo che a41f2c9 ha spostato le chiavi Stripe nelle variabili d’ambiente. Vuoi che lo annulli?"
         },
-        "debugAlt": "Una sessione nel terminale: avvisato che scegliere un piano non ha alcun effetto, un agente elenca gli errori su /pricing tramite il server MCP di Betterlytics, legge lo stack trace e la traccia della sessione del TypeError, apre pricing.js alla riga 142 e propone una correzione. Poi, alla domanda su quali errori correggere per primi, ordina gli errori della settimana per sessioni colpite e sceglie proprio quel TypeError.",
+        "debugAlt": "Una sessione nel terminale: avvisato che scegliere un piano non ha alcun effetto, un agente elenca gli errori su /pricing tramite Betterlytics MCP, legge lo stack trace e la traccia della sessione del TypeError, apre pricing.js alla riga 142 e propone una correzione. Poi, alla domanda su quali errori correggere per primi, ordina gli errori della settimana per sessioni colpite e sceglie proprio quel TypeError.",
         "debug": {
           "question": "dicono che scegliere un piano non fa niente, puoi dare un’occhiata?",
           "say": "Per prima cosa controllo gli errori su /pricing.",
@@ -1716,7 +1717,7 @@
       },
       "agent": {
         "title": "Chiedi al tuo agente *perché* è andato offline",
-        "lede": "Monitor e incidenti sono nel server MCP integrato, così il tuo agente può analizzare un disservizio accanto al tuo codice, al traffico e agli errori.",
+        "lede": "Monitor e incidenti fanno parte dell’MCP integrato, così il tuo agente può analizzare un disservizio accanto al tuo codice, al traffico e agli errori.",
         "lead": "Dall’avviso alla causa con una sola domanda",
         "body": "Il tuo agente legge l’incidente aperto, controlla cosa è stato rilasciato poco prima e torna con la causa probabile e una correzione da approvare. Oppure confronta un disservizio con traffico e vendite per capire quanto è costato.",
         "cta": "Configura MCP"
@@ -2126,7 +2127,7 @@
       },
       "agent": {
         "title": "Passa il bug *al tuo agente*",
-        "lede": "Il tuo agente di coding può consultare gli errori tramite il server MCP integrato e lavorare alla correzione direttamente accanto al tuo codice.",
+        "lede": "Il tuo agente di coding può consultare gli errori tramite l’MCP integrato e lavorare alla correzione direttamente accanto al tuo codice.",
         "lead": "Dalla lamentela alla correzione con una sola domanda",
         "body": "Riporta la lamentela di un utente a Claude Code, Cursor o a qualsiasi client MCP. L’agente trova l’errore corrispondente, legge lo stack trace e la traccia della sessione e apre il file indicato dallo stack.",
         "cta": "Configura MCP"
@@ -2210,6 +2211,272 @@
         "lede": "Aggiungi lo script di Betterlytics, o un attributo se lo hai già, e gli errori iniziano ad arrivare nella tua dashboard. Gratis in tutti i piani.",
         "primary": "Inizia a tracciare gli errori gratis",
         "secondary": "Leggi la documentazione sugli errori"
+      }
+    },
+    "mcpServer": {
+      "seo": {
+        "title": "Server MCP di web analytics per agenti AI | Betterlytics",
+        "description": "Fai domande a Claude, Cursor, Codex o a un altro client MCP su traffico, funnel, errori e uptime, con risposte basate sui tuoi dati reali. Gratis in tutti i piani."
+      },
+      "hero": {
+        "eyebrow": "MCP",
+        "title": "Fai domande al tuo agente AI su traffico, errori e uptime",
+        "lede": "MCP è già integrato in Betterlytics. Fai domande a Claude, Cursor o Codex sul tuo sito e ricevi risposte basate sui tuoi numeri reali, nella chat, nell’editor o nel terminale che usi già. Gratis in tutti i piani.",
+        "primary": "Collega il tuo agente gratis",
+        "secondary": "Leggi la guida alla configurazione"
+      },
+      "window": {
+        "label": "Sessioni di esempio",
+        "note": "Esempi illustrativi con dati fittizi.",
+        "you": "Tu",
+        "chat": {
+          "tab": "Perché sono calate le registrazioni?",
+          "nav": {
+            "newChat": "New",
+            "search": "Search",
+            "projects": "Projects",
+            "artifacts": "Artifacts",
+            "scheduled": "Scheduled",
+            "customize": "Customize"
+          },
+          "recents": "Recents",
+          "chats": {
+            "drop": "Calo registrazioni del 5 nov",
+            "recap": "Traffico settimanale",
+            "pricing": "Errori nella pagina dei prezzi",
+            "friday": "Checklist per il Black Friday"
+          },
+          "viewAll": "View all",
+          "plan": "Pro",
+          "question": "Ieri pomeriggio le registrazioni sono calate. Cos’è successo?",
+          "tools": "Used 3 Betterlytics tools",
+          "lead": "Il servizio di checkout è andato offline per 19 minuti e le registrazioni sono calate di conseguenza.",
+          "chart": {
+            "signups": "Registrazioni all’ora",
+            "failed": "Non riuscite con il checkout offline",
+            "tipSignups": "{count} registrazioni",
+            "tipFailed": "{count} non riuscite",
+            "summary": "Grafico a barre delle registrazioni all’ora dalle 10:00 alle 18:00: da 431 a 524 ogni ora tranne alle 14:00, con 343 registrazioni e 164 non riuscite con il checkout offline."
+          },
+          "points": {
+            "a": "Il checkout è andato in timeout dalle 14:02 alle 14:21.",
+            "b": "Il modulo di registrazione invia i dati a checkout.acme.com, quindi 211 tentativi sono falliti con “Failed to fetch”, distribuiti su 164 visite.",
+            "c": "Alle 15:00 le registrazioni erano tornate alla normalità."
+          },
+          "close": "Con un retry sulla richiesta di registrazione, la maggior parte di quei tentativi sarebbe andata a buon fine. Vuoi che te ne prepari uno?",
+          "reply": "Reply…",
+          "connector": "Betterlytics",
+          "model": "Opus 5.5",
+          "effort": "Medium"
+        },
+        "cursor": {
+          "tab": "Correggi il bug su /pricing",
+          "review": "Ready for review",
+          "agents": {
+            "fix": {
+              "title": "Correggi selettore piani",
+              "sub": "Clic precoci ignorati"
+            },
+            "retry": {
+              "title": "Retry delle registrazioni",
+              "sub": "Retry con backoff"
+            },
+            "alerts": {
+              "title": "Avvisi di timeout checkout",
+              "sub": "Avvisi più chiari"
+            },
+            "recap": {
+              "title": "Traffico settimanale",
+              "sub": "Riepilogo pronto"
+            }
+          },
+          "question": "Dicono che scegliere un piano su /pricing non fa niente. Puoi sistemarlo?",
+          "thought": "Thought",
+          "called": "Called",
+          "read": "Read",
+          "answer": "Betterlytics mostra un TypeError su /pricing in 318 visite questa settimana. I clic che arrivano prima che i piani siano caricati trovano <c>selected</c> ancora a null, quindi la riga 142 lancia un’eccezione. Ho aggiunto un controllo, così un clic anticipato viene ignorato invece di rompere la pagina.",
+          "worked": "Worked for 38s",
+          "placeholder": "Add a follow-up…",
+          "mode": "Agent",
+          "undo": "Undo",
+          "keep": "Keep"
+        },
+        "codex": {
+          "tab": "Il deploy ha rotto qualcosa?",
+          "newChat": "New chat",
+          "projects": "Projects",
+          "recents": "Recents",
+          "showMore": "Show more",
+          "chats": {
+            "deploy": "Controlla il deploy delle 15:30",
+            "pricing": "Correggi crash selettore piani",
+            "retry": "Retry delle registrazioni",
+            "recap": "Traffico settimanale",
+            "checkout": "Avvisi di timeout checkout"
+          },
+          "question": "Il deploy delle 15:30 ha rotto qualcosa?",
+          "say": "Controllo uptime, errori e traffico dalle 15:30.",
+          "called": "Called",
+          "monitors": "4 monitor, tutti online",
+          "incidents": "0 incidenti oggi",
+          "errors": "2 gruppi di errori nell’ultima ora, entrambi già visti prima di oggi",
+          "traffic": "15:00 → 1.284 e 16:00 → 1.311 visualizzazioni (stesse ore di ieri: 1.240 e 1.296)",
+          "answer": "Non si è rotto niente. Tutti i monitor sono rimasti online, dopo le 15:30 non sono comparsi nuovi tipi di errore e il traffico è in linea con ieri.",
+          "worked": "Worked for 9s",
+          "placeholder": "Ask for follow-up changes",
+          "approve": "Approve for me",
+          "effort": "High"
+        }
+      },
+      "specs": {
+        "connection": {
+          "unit": "connessione",
+          "label": "Dai funnel agli stack trace",
+          "body": "Traffico, percorsi utente, funnel, errori, uptime e pagine di stato passano tutti dalla stessa connessione."
+        },
+        "free": {
+          "value": "Gratis",
+          "unit": "in tutti i piani",
+          "label": "Nessun extra da pagare",
+          "body": "È incluso anche nel piano gratuito, e ciò che il tuo agente consulta non pesa sul tuo limite mensile di eventi."
+        },
+        "thesis": {
+          "unit": "cookie",
+          "label": "Nessun dato personale da consegnare",
+          "body": "Betterlytics non salva cookie né indirizzi IP, quindi il tuo agente vede dati personali solo se è il tuo sito a inviarli."
+        }
+      },
+      "tools": {
+        "title": "Una sola domanda può coprire *tutto il tuo sito*",
+        "lede": "Il tuo agente può controllare traffico, errori, uptime e la tua pagina di stato prima di rispondere. Scegli una domanda di esempio per vedere quali strumenti usa.",
+        "agent": "Il tuo agente",
+        "agentBody": "Funziona con Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Antigravity e Codex",
+        "server": "Betterlytics MCP",
+        "copy": "Copia la domanda",
+        "copied": "Copiata",
+        "pick": "Domanda di esempio",
+        "featured": "In evidenza",
+        "groups": {
+          "analytics": "Web analytics",
+          "errors": "Tracciamento errori",
+          "uptime": "Monitoraggio uptime",
+          "status": "Pagine di stato"
+        },
+        "questions": {
+          "morning": "Fammi il punto del mattino su traffico, errori, uptime e pagina di stato.",
+          "launch": "Oggi siamo usciti su Product Hunt. Come sta andando?",
+          "signups": "Ieri pomeriggio le registrazioni sono calate. Cos’è successo?",
+          "pricing": "Dicono che scegliere un piano su /pricing non fa niente. Perché?",
+          "deploy": "Il deploy delle 15:30 ha rotto qualcosa?",
+          "outage": "Il checkout è offline. Ci sta facendo perdere registrazioni? E abbiamo pubblicato un incidente?"
+        },
+        "asks": {
+          "describe": "Cosa puoi consultare in Betterlytics?",
+          "list_dashboards": "Quali dei nostri siti riesci a vedere?",
+          "query": "Quali pagine hanno ricevuto più visitatori da Hacker News questa settimana?",
+          "query_sessions": "Quali landing page hanno la frequenza di rimbalzo più alta questo mese?",
+          "user_journeys": "Dove vanno i visitatori dopo la pagina dei prezzi?",
+          "funnel_preview": "Quante persone che iniziano a registrarsi arrivano davvero in fondo?",
+          "list_funnels": "Quale passaggio del nostro funnel di onboarding perde più persone?",
+          "list_global_properties": "La variante B della homepage porta più registrazioni?",
+          "list_errors": "Quali errori si verificano solo su Safari?",
+          "get_error": "Cosa ha fatto il visitatore subito prima dell’ultimo TypeError?",
+          "list_monitors": "È tutto online? E ci sono certificati SSL in scadenza?",
+          "list_monitor_incidents": "Quanto è durato ogni disservizio questa settimana, e perché?",
+          "list_status_pages": "Cosa dice adesso ai visitatori la nostra pagina di stato?",
+          "list_incident_suggestions": "Abbiamo dimenticato di pubblicare un incidente per un disservizio recente?"
+        }
+      },
+      "setup": {
+        "title": "Aggiungilo al client che usi *già*",
+        "lede": "Crea un token nelle impostazioni di Betterlytics, incolla uno snippet nel tuo client e inizia a fare domande. In VS Code basta un clic.",
+        "label": "Il tuo client",
+        "other": "Funziona anche qualsiasi client MCP remoto con token.",
+        "install": {
+          "vs-code": "Installa in VS Code",
+          "cursor": "Aggiungi a Cursor"
+        },
+        "installNote": {
+          "vs-code": "Oppure salta il file: VS Code si apre e ti chiede il token.",
+          "cursor": "Oppure salta il file: incolla il token nella guida alla configurazione e Cursor fa il resto."
+        },
+        "clients": {
+          "claude": "Apri Settings, vai su Developer, poi su Edit Config e aggiungi questo.",
+          "claude-code": "Esegui questo comando nel terminale.",
+          "cursor": "Aggiungi questo al tuo progetto.",
+          "vs-code": "Aggiungi questo al tuo progetto.",
+          "windsurf": "Aggiungi questo alla configurazione MCP di Windsurf.",
+          "antigravity": "Aggiungi questo alla configurazione MCP di Antigravity.",
+          "codex": "Aggiungi questo alla configurazione di Codex."
+        },
+        "notes": {
+          "claude": "Serve Node.js per eseguire mcp-remote. Su Windows usa la configurazione indicata nella guida.",
+          "antigravity": "Per un solo workspace, aggiungilo invece a .agents/mcp_config.json."
+        },
+        "copy": "Copia",
+        "copied": "Copiato",
+        "guide": "Guida alla configurazione",
+        "cta": "Leggi la guida alla configurazione",
+        "trust": {
+          "read": {
+            "title": "Sola lettura",
+            "body": "Tutti i 14 strumenti sono in sola lettura. Il tuo agente non può modificare impostazioni, eliminare dati o pubblicare incidenti."
+          },
+          "scope": {
+            "title": "Decidi tu cosa vede",
+            "body": "Ogni token copre un solo sito, quindi il tuo agente vede solo i siti che scegli tu."
+          },
+          "revoke": {
+            "title": "Revoca quando vuoi",
+            "body": "Revoca un token in qualsiasi momento e l’accesso termina subito. Oppure imposta una scadenza automatica."
+          }
+        }
+      },
+      "related": {
+        "lede": "MCP è solo una parte di Betterlytics. Tutto ciò che trovi qui sotto è nella stessa dashboard, con lo stesso login e la stessa fattura."
+      },
+      "faq": {
+        "title": "Domande frequenti",
+        "items": {
+          "what": {
+            "q": "Cos’è MCP?",
+            "a": "MCP, il Model Context Protocol, è uno standard aperto che permette agli agenti AI di usare strumenti di altre app. Con Betterlytics MCP, agenti come Claude, Cursor e Codex possono leggere traffico, errori, uptime e pagine di stato del tuo sito, così rispondono con i tuoi numeri reali."
+          },
+          "free": {
+            "q": "MCP ha un costo aggiuntivo?",
+            "a": "No. È incluso in tutti i piani, compreso quello gratuito, e ciò che il tuo agente consulta non pesa sul tuo limite mensile di eventi."
+          },
+          "clients": {
+            "q": "Quali client AI sono compatibili?",
+            "a": "La guida alla configurazione spiega i passaggi per Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Antigravity e Codex. Funziona anche qualsiasi altro client in grado di connettersi a un server MCP remoto con un token API."
+          },
+          "scope": {
+            "q": "Cosa può vedere il mio agente?",
+            "a": "Quasi tutti i dati del sito che colleghi: traffico, sessioni, eventi, funnel, percorsi utente, proprietà globali, errori con stack trace e traccia della sessione, monitor, incidenti e pagine di stato."
+          },
+          "provider": {
+            "q": "I miei dati vengono inviati al provider AI?",
+            "a": "Ciò che il tuo agente legge entra nella conversazione, quindi viene gestito dal modello e dal client che usi, secondo le loro condizioni. Betterlytics non imposta cookie e non salva indirizzi IP, quindi le risposte possono ricondurre a una persona solo se è il tuo sito a inviare dati identificativi."
+          },
+          "sites": {
+            "q": "Posso collegare più di un sito?",
+            "a": "Sì. Ogni token copre un solo sito, quindi creane uno per ciascuno e aggiungili al tuo client con nomi diversi, come betterlytics-shop e betterlytics-blog."
+          },
+          "revoke": {
+            "q": "Come revoco l’accesso?",
+            "a": "Elimina il token in Betterlytics e il tuo agente perde subito l’accesso. I token possono anche scadere automaticamente dopo 30, 90 o 180 giorni."
+          },
+          "schema": {
+            "q": "Devo sapere come sono archiviati i dati?",
+            "a": "No. Il tuo agente verifica quali metriche, filtri e intervalli di tempo può usare, sceglie gli strumenti giusti e interroga i tuoi dati. A te basta chiedere con parole tue."
+          }
+        }
+      },
+      "cta": {
+        "title": "Fai la tua prima domanda oggi stesso",
+        "lede": "Registrati, aggiungi lo script al tuo sito e collega il tuo agente. Gratis in tutti i piani.",
+        "primary": "Collega il tuo agente gratis",
+        "secondary": "Leggi la guida alla configurazione"
       }
     }
   },
