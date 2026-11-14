@@ -12,8 +12,10 @@ import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/au
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { BATimeZone } from '@/entities/analytics/analyticsQuery.entities';
 import { type ErrorGroupRow, ErrorGroupStatusValueSchema } from '@/entities/analytics/errors.entities';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 
-const STATIC_DEMO = { demoCache: false };
+// Only Cloud serves the static demo errors; self-hosted public dashboards show real ones
+const STATIC_DEMO = { demoCache: !isFeatureEnabled('isCloud') };
 
 export const fetchErrorGroupAction = withDashboardAuthContext(
   async (ctx: AuthContext, fingerprint: string): Promise<ErrorGroupRow | null> => {

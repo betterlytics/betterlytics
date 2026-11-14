@@ -10,9 +10,11 @@ import {
   hasSessionReplayForSite,
 } from '@/services/analytics/errors.service';
 import { toGroupedTimeSeries } from '@/presenters/toTimeSeries';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 
 const INITIAL_PAGE_SIZE = 10;
-const STATIC_DEMO = { demoCache: false };
+// Only Cloud serves the static demo errors; self-hosted public dashboards show real ones
+const STATIC_DEMO = { demoCache: !isFeatureEnabled('isCloud') };
 
 export const errorsRouter = createRouter({
   errorGroups: analyticsProcedure.meta(STATIC_DEMO).query(async ({ ctx }) => {
