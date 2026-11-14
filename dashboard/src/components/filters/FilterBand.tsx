@@ -103,7 +103,7 @@ export function FilterBand({
             <FilterIcon />
             <span
               aria-hidden
-              className='bg-primary-foreground text-primary absolute right-0.5 bottom-1 grid h-3.5 min-w-3.5 place-items-center rounded-full px-0.5 text-[10px] leading-none font-semibold tabular-nums select-none'
+              className='bg-primary-foreground text-primary absolute right-1 bottom-1 grid h-3 min-w-3 place-items-center rounded-full px-0.5 text-[10px] leading-none font-semibold tabular-nums select-none'
             >
               {count}
             </span>
