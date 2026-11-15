@@ -156,6 +156,8 @@ model User {
   oauthRefreshTokens OauthRefreshToken[]
   oauthAccessTokens OauthAccessToken[]
   oauthConsents OauthConsent[]
+  heatmapCaptureLinks HeatmapCaptureLink[]
+  heatmapCaptures HeatmapCapture[]
 
   lastActiveAt DateTime?
   disabledAt   DateTime?
@@ -233,6 +235,8 @@ model Dashboard {
   integrations DashboardIntegration[]
   errorGroups ErrorGroup[]
   mcpGrants McpGrantDashboard[]
+  heatmapCaptureLinks HeatmapCaptureLink[]
+  heatmapCaptures HeatmapCapture[]
 
   @@index([createdAt])
 }
@@ -965,4 +969,44 @@ model McpGrantDashboard {
 
   @@id([grantId, dashboardId])
   @@index([dashboardId])
+}
+
+// One-time link that lets the tracker upload a heatmap capture. The backend claims it
+// (sets usedAt) in the same transaction that stores the capture.
+model HeatmapCaptureLink {
+  id          String    @id @default(cuid())
+  tokenHash   String    @unique
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  dashboardId String
+  path        String
+  // phone | tablet | desktop
+  device      String
+  createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdById String
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime
+  usedAt      DateTime?
+
+  @@index([dashboardId, createdById])
+  @@index([expiresAt])
+}
+
+// Written by the backend; the snapshot itself is in ClickHouse or S3 depending on `storage`.
+model HeatmapCapture {
+  id             String    @id
+  dashboard      Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  dashboardId    String
+  path           String
+  device         String
+  viewportWidth  Int
+  documentHeight Int
+  // clickhouse | s3
+  storage        String
+  storageKey     String
+  sizeBytes      Int
+  createdBy      User?     @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById    String?
+  createdAt      DateTime  @default(now())
+
+  @@index([dashboardId, path, device, createdAt])
 }
