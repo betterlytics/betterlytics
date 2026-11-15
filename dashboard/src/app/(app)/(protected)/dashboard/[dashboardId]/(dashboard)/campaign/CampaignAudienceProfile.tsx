@@ -5,11 +5,11 @@ import { useLocale } from 'next-intl';
 import { BrowserIcon, DeviceIcon, FlagIcon, OSIcon, type FlagIconProps } from '@/components/icons';
 import { getCountryName } from '@/utils/countryCodes';
 import { useTranslations } from 'next-intl';
-import { capitalizeFirstLetter } from '@/utils/formatters';
+import { capitalizeFirstLetter, formatPercentage } from '@/utils/formatters';
 
 export type AudienceShare = {
   label: string;
-  value: string;
+  value: number;
 };
 
 export type CampaignAudienceProfileProps = {
@@ -63,7 +63,9 @@ const CampaignAudienceProfile = memo(
                         {icon}
                         <span className='block max-w-[7.5rem] truncate'>{label}</span>
                       </div>
-                      <span className='text-foreground ml-2 shrink-0 font-medium tabular-nums'>{item.value}</span>
+                      <span className='text-foreground ml-2 shrink-0 font-medium tabular-nums'>
+                        {formatPercentage(item.value, locale, { maximumFractionDigits: 0 })}
+                      </span>
                     </div>
                   );
                 })}

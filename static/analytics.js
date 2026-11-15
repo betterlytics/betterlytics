@@ -203,11 +203,12 @@
         } else {
           localStorage.removeItem(CONSENT_KEY);
         }
-        for (var i = 0; i < replayConsentCallbacks.length; i++) {
-          replayConsentCallbacks[i](consented);
-        }
       } catch (e) {
         console.error("Failed to set replay consent:", e);
+      }
+      // Applies to this page load even when storage is unavailable
+      for (var i = 0; i < replayConsentCallbacks.length; i++) {
+        replayConsentCallbacks[i](!!consented);
       }
     },
   };
@@ -526,6 +527,31 @@
     });
 
     if (enableConsoleErrors) {
+      // Fallback for browsers without Error.isError: the tag check also covers Errors from other frames
+      function isError(a) {
+        if (Error.isError) return Error.isError(a);
+        return a instanceof Error || Object.prototype.toString.call(a) === "[object Error]";
+      }
+
+      function formatError(e) {
+        var name = e.name ? String(e.name) : "Error";
+        var message = e.message != null ? String(e.message) : "";
+        return message ? name + ": " + message : name;
+      }
+
+      // Errors serialize to {}, so write them as text; circular objects and BigInts throw, so fall back to String
+      function formatArg(a) {
+        if (isError(a)) return formatError(a);
+        if (a == null || typeof a !== "object") return String(a);
+        try {
+          return JSON.stringify(a, function (k, v) {
+            return isError(v) ? formatError(v) : v;
+          });
+        } catch (e) {
+          return String(a);
+        }
+      }
+
       var _origConsoleError = console.error;
       var _inConsoleCapture = false;
       console.error = function () {
@@ -535,26 +561,42 @@
         try {
           var args = Array.prototype.slice.call(arguments);
           var first = args[0];
-          if (first != null && typeof first === "object") {
+          if (isError(first)) {
+            var message = first.message != null ? String(first.message) : "";
+            if (args.length > 1) {
+              message =
+                (message ? message + " " : "") +
+                args.slice(1).map(formatArg).join(" ");
+            }
+            captureError(
+              { name: first.name, message: message, stack: first.stack },
+              "onconsole",
+            );
+          } else if (first != null && typeof first === "object") {
             if (!first.name) {
               first = Object.assign({ name: "ConsoleError" }, first);
             }
+            if (first.message == null) {
+              first = {
+                name: first.name,
+                message: formatArg(first),
+                stack: first.stack,
+              };
+            }
             captureError(first, "onconsole");
           } else {
+            var firstError = args.filter(isError)[0];
             captureError(
               {
                 name: "ConsoleError",
-                message: args
-                  .map(function (a) {
-                    return typeof a === "object"
-                      ? JSON.stringify(a)
-                      : String(a);
-                  })
-                  .join(" "),
+                message: args.map(formatArg).join(" "),
+                stack: firstError ? firstError.stack : undefined,
               },
               "onconsole",
             );
           }
+        } catch (e) {
+          // Capture must never throw into the page's console.error call
         } finally {
           _inConsoleCapture = false;
         }
@@ -568,14 +610,20 @@
       siteId: siteId,
       serverUrl: serverUrl,
       script: script,
+      hasConsent: checkReplayConsent,
     };
 
     var REPLAY_STORAGE_KEY = "betterlytics:replay_sample";
     var CONSENT_KEY = "betterlytics:replay_consent";
     var THIRTY_MIN_MS = 30 * 60 * 1000;
     var replayLoaded = false;
+    // The latest setReplayConsent call in this page load wins over data-consent-replay and storage
+    var pageReplayConsent = null;
 
     function checkReplayConsent() {
+      if (pageReplayConsent !== null) {
+        return pageReplayConsent;
+      }
       if (consentReplay) {
         return true;
       }
@@ -635,7 +683,8 @@
       }
     }
 
-    replayConsentCallbacks.push(function (consented) {
+    function applyReplayConsent(consented) {
+      pageReplayConsent = consented;
       if (consented && !replayLoaded) {
         var sampled = enableReplay && shouldSample();
         if (sampled || enableReplayOnError) {
@@ -643,8 +692,32 @@
           replayLoaded = true;
           loadScript(replayScriptUrl);
         }
-      } else if (!consented && replayLoaded) {
+      } else if (consented) {
+        window.__betterlytics_replay__?.resume?.();
+      } else if (replayLoaded) {
         window.__betterlytics_replay__?.stop();
+      }
+    }
+
+    // A withdrawal in another tab applies here too; a grant there only applies on the next load
+    var withdrawalChannel = null;
+    try {
+      withdrawalChannel = new BroadcastChannel(CONSENT_KEY);
+      withdrawalChannel.onmessage = function (e) {
+        if (e.data === "withdrawn") applyReplayConsent(false);
+      };
+    } catch (e) {}
+    // Older cached analytics.js in another tab only removes the stored consent
+    window.addEventListener("storage", function (e) {
+      if (e.key === CONSENT_KEY && e.newValue === null) applyReplayConsent(false);
+    });
+
+    replayConsentCallbacks.push(function (consented) {
+      applyReplayConsent(consented);
+      if (!consented && withdrawalChannel) {
+        try {
+          withdrawalChannel.postMessage("withdrawn");
+        } catch (e) {}
       }
     });
 

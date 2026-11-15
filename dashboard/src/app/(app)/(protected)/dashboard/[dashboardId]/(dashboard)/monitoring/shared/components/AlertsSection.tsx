@@ -14,7 +14,7 @@ import type { MonitorFormInterface } from '../types';
 export type AlertsSectionProps = {
   form: MonitorFormInterface;
   isPending: boolean;
-  userEmail: string;
+  alertRecipients: string[];
   sslMonitoringEnabled: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -24,7 +24,7 @@ export type AlertsSectionProps = {
 export function AlertsSection({
   form,
   isPending,
-  userEmail,
+  alertRecipients,
   sslMonitoringEnabled,
   open,
   onOpenChange,
@@ -74,10 +74,11 @@ export function AlertsSection({
 
           <SettingToggle
             id='alerts-enabled'
-            label={
-              <>
-                {t('enableAlerts')} <span className='text-muted-foreground font-normal'>({userEmail})</span>
-              </>
+            label={t('enableAlerts')}
+            description={
+              alertRecipients.length > 0
+                ? t('emailRecipients', { recipients: alertRecipients.join(', ') })
+                : t('noEmailRecipient')
             }
             checked={alertsActive}
             onCheckedChange={setField('alertsEnabled')}

@@ -6,7 +6,7 @@ export const fathom: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Fathom Analytics: Più funzionalità a un prezzo inferiore',
     description:
-      'Confronta Betterlytics con Fathom Analytics. Stesso approccio privacy-first con session replay, funnel e percorsi utente inclusi. Piano gratuito disponibile, da $7/mese.',
+      'Confronta Betterlytics con Fathom Analytics. Stesso approccio privacy-first con session replay, funnel e percorsi utente inclusi. Piano gratuito disponibile, piani a pagamento da $9/mese.',
   },
   hero: {
     title: 'Cerchi un’alternativa a Fathom Analytics?',
@@ -27,7 +27,7 @@ export const fathom: ComparisonLocaleContent = {
     },
     {
       title: 'Prezzo di partenza più basso',
-      betterlytics: 'Da $7/mese con un piano gratuito per siti più piccoli.',
+      betterlytics: 'Da $9/mese con un piano gratuito per siti più piccoli.',
       competitor: 'Da $15/mese. Nessun piano gratuito.',
     },
   ],
@@ -39,7 +39,11 @@ export const fathom: ComparisonLocaleContent = {
           { name: 'Tracciamento senza cookie', betterlytics: true, competitor: true },
           { name: 'Pronto per il GDPR di default', betterlytics: true, competitor: true },
           { name: 'Nessun banner cookie necessario', betterlytics: true, competitor: true },
-          { name: 'Hosting dei dati in UE', betterlytics: true, competitor: 'Opzionale' },
+          {
+            name: 'Hosting dei dati in UE',
+            betterlytics: true,
+            competitor: 'Elaborazione in UE, archiviazione negli USA',
+          },
           { name: 'Privacy-first di default', betterlytics: true, competitor: true },
           { name: 'Nessun cross-site tracking', betterlytics: true, competitor: true },
           { name: 'Open source', betterlytics: true, competitor: false },
@@ -49,9 +53,9 @@ export const fathom: ComparisonLocaleContent = {
       {
         name: 'Performance e velocità',
         features: [
-          { name: 'Dimensione dello script', betterlytics: '~3,5KB', competitor: '<2KB' },
+          { name: 'Dimensione dello script', betterlytics: '~3,5KB', competitor: '~2KB' },
           { name: 'Impatto sul caricamento della pagina', betterlytics: 'Minimo', competitor: 'Minimo' },
-          { name: 'Funziona con ad blocker', betterlytics: true, competitor: true },
+          { name: 'Funziona con ad blocker', betterlytics: true, competitor: 'Parziale' },
         ],
       },
       {
@@ -64,7 +68,7 @@ export const fathom: ComparisonLocaleContent = {
           { name: 'Tracciamento link in uscita', betterlytics: true, competitor: true },
           { name: 'Analisi dei funnel', betterlytics: true, competitor: false },
           { name: 'Tracciamento dei percorsi utente', betterlytics: true, competitor: false },
-          { name: 'Annotazioni', betterlytics: true, competitor: false },
+          { name: 'Annotazioni', betterlytics: true, competitor: true },
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Monitoring delle performance', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
@@ -79,14 +83,18 @@ export const fathom: ComparisonLocaleContent = {
           { name: 'Tempo di configurazione', betterlytics: '<5 minuti', competitor: '<5 minuti' },
           { name: 'Curva di apprendimento', betterlytics: 'Bassa', competitor: 'Bassa' },
           { name: 'Interfaccia semplice e intuitiva', betterlytics: true, competitor: true },
-          { name: 'Conservazione dei dati', betterlytics: 'Fino a 5 anni', competitor: 'Illimitata' },
+          {
+            name: 'Conservazione dei dati',
+            betterlytics: 'Fino a 5 anni',
+            competitor: 'Storico completo finché sei abbonato',
+          },
         ],
       },
       {
         name: 'Prezzi e supporto',
         features: [
           { name: 'Piano gratuito disponibile', betterlytics: true, competitor: false },
-          { name: 'Prezzo di partenza', betterlytics: 'Da $7/mese', competitor: 'Da $15/mese' },
+          { name: 'Prezzo di partenza', betterlytics: 'Da $9/mese', competitor: 'Da $15/mese' },
           { name: 'Prezzi trasparenti', betterlytics: true, competitor: true },
           { name: 'Supporto via email', betterlytics: true, competitor: true },
         ],
@@ -112,12 +120,12 @@ export const fathom: ComparisonLocaleContent = {
     },
     {
       title: 'Prezzo vs valore',
-      content: `Fathom parte da $15/mese per 100.000 pageview. Nessun piano gratuito e pagamento richiesto fin dall’inizio.\n\nBetterlytics parte da $7/mese, meno della metà, con un piano gratuito per siti più piccoli. Ottieni più funzionalità (session replay, funnel, percorsi utente) a un prezzo inferiore. Entrambi offrono prezzi trasparenti.`,
+      content: `Fathom parte da $15/mese per 100.000 pageview. Nessun piano gratuito e pagamento richiesto fin dall’inizio.\n\nBetterlytics parte da $9/mese, con un piano gratuito per siti più piccoli. Ottieni più funzionalità (session replay, funnel, percorsi utente) a un prezzo inferiore. Entrambi offrono prezzi trasparenti.`,
       icon: 'dollar',
     },
     {
       title: 'Dove Fathom eccelle',
-      content: `Fathom offre conservazione dei dati illimitata (noi fino a 5 anni), un importer GA4 per migrare i dati storici e domini personalizzati per ridurre l’impatto degli ad blocker. È una piattaforma solida con una lunga esperienza.\n\nMa se cerchi session replay, funnel, percorsi utente e più insight a un prezzo inferiore, con un piano gratuito per iniziare, Betterlytics offre più valore.`,
+      content: `Fathom conserva tutto lo storico finché sei abbonato (noi fino a 5 anni) e offre un importer GA4 per migrare i dati storici. È una piattaforma solida con una lunga esperienza.\n\nMa se cerchi dati archiviati in UE, session replay, funnel, percorsi utente e più insight a un prezzo inferiore, con un piano gratuito per iniziare, Betterlytics offre più valore.`,
       icon: 'target',
     },
   ],

@@ -181,7 +181,7 @@ impl Alert {
     }
 }
 
-fn expiry_bucket(expiry_date: Option<DateTime<Utc>>) -> String {
+pub(crate) fn expiry_bucket(expiry_date: Option<DateTime<Utc>>) -> String {
     expiry_date
         .map(|d| d.timestamp().to_string())
         .unwrap_or_else(|| "unknown".to_string())

@@ -2,14 +2,14 @@
 
 import * as SliderPrimitive from '@radix-ui/react-slider';
 import { ChevronDown } from 'lucide-react';
-import { EVENT_RANGES, EventRange } from '@/lib/billing/plans';
+import { VOLUME_STOPS } from '@/lib/billing/catalog';
 import { cn } from '@/lib/utils';
 import { formatEventCount } from '@/utils/pricing';
 import { EventCountFlow } from '@/components/pricing/EventCountFlow';
 import { useLocale, useTranslations } from 'next-intl';
 
 interface PricingSliderProps {
-  currentRange: EventRange;
+  currentVolume: number;
   selectedRangeIndex: number;
   onSelectIndex: (index: number) => void;
   suggestedRangeIndex?: number;
@@ -17,7 +17,7 @@ interface PricingSliderProps {
 }
 
 export function PricingSlider({
-  currentRange,
+  currentVolume,
   selectedRangeIndex,
   onSelectIndex,
   suggestedRangeIndex,
@@ -26,7 +26,7 @@ export function PricingSlider({
   const t = useTranslations('pricingSlider');
   const locale = useLocale();
 
-  const lastIndex = EVENT_RANGES.length - 1;
+  const lastIndex = VOLUME_STOPS.length - 1;
   const suggestedLeft =
     suggestedRangeIndex === undefined
       ? undefined
@@ -35,7 +35,7 @@ export function PricingSlider({
   return (
     <div className={className}>
       <div className='mb-3 flex items-baseline justify-center gap-2'>
-        <EventCountFlow className='text-2xl font-semibold tabular-nums' value={currentRange.value} />
+        <EventCountFlow className='text-2xl font-semibold tabular-nums' value={currentVolume} />
         <span className='text-muted-foreground text-sm'>{t('monthlyEvents')}</span>
       </div>
 
@@ -68,12 +68,12 @@ export function PricingSlider({
       </SliderPrimitive.Root>
 
       <div className='relative mt-3 h-4 w-full'>
-        {EVENT_RANGES.map((range, index) => {
-          const isActive = range.value === currentRange.value;
-          const label = formatEventCount(range.value, locale);
+        {VOLUME_STOPS.map((stop, index) => {
+          const isActive = stop === currentVolume;
+          const label = formatEventCount(stop, locale);
           return (
             <button
-              key={range.value}
+              key={stop}
               type='button'
               onClick={() => onSelectIndex(index)}
               className={cn(

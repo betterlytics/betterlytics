@@ -1,0 +1,25 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* the app's dark-theme Core Web Vitals colours, under the same names; the landing doesn't sit under that theme */
+  .levels {
+    --cwv-threshold-good: rgb(88 207 146);
+    --cwv-threshold-fair: oklch(80% 0.18 80);
+    --cwv-threshold-poor: rgb(212 89 81);
+    --cwv-threshold-good-label: rgb(100 220 160);
+    --cwv-threshold-fair-label: oklch(85% 0.16 80);
+    --cwv-threshold-poor-label: rgb(230 105 95);
+  }
+  .levels [data-level='good'] {
+    --level: var(--cwv-threshold-good);
+    --level-text: var(--cwv-threshold-good-label);
+  }
+  .levels [data-level='fair'] {
+    --level: var(--cwv-threshold-fair);
+    --level-text: var(--cwv-threshold-fair-label);
+  }
+  .levels [data-level='poor'] {
+    --level: var(--cwv-threshold-poor);
+    --level-text: var(--cwv-threshold-poor-label);
+  }
+}

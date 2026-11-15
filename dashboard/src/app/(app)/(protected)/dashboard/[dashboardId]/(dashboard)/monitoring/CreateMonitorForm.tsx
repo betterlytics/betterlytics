@@ -97,7 +97,7 @@ export function CreateMonitorForm({ create, domain, onCancel }: CreateMonitorFor
             <AlertsSection
               form={form}
               isPending={isPending}
-              userEmail={session?.user.email}
+              alertRecipients={[session.user.email]}
               sslMonitoringEnabled={sslMonitoringEnabled}
               open={expandedSection === 'alerts'}
               onOpenChange={(isOpen) => setExpandedSection(isOpen ? 'alerts' : null)}

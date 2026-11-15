@@ -1,22 +1,7 @@
 import moment from 'moment-timezone';
 import { type MonitorDailyUptime } from '@/entities/analytics/monitoring.entities';
+import { summarizeUptime } from '@/entities/analytics/monitoring.helpers';
 import { computeDowntimeFromUptimeDays, type DowntimeMetadata } from '@/utils/formatters';
-
-export type PresentedMonitorUptimeDay = {
-  date: string;
-  upRatio: number | null;
-  totalSeconds: number | null;
-};
-
-export function toMonitorUptimeDays(rows: MonitorDailyUptime[]): PresentedMonitorUptimeDay[] {
-  return [...rows]
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    .map((row) => ({
-      date: row.date,
-      upRatio: row.upRatio,
-      totalSeconds: row.totalSeconds,
-    }));
-}
 
 export type PresentedMonitorUptimeCell = {
   key: string;
@@ -43,15 +28,14 @@ export function toMonitorUptimePresentation(
   totalDays = 180,
   windows: number[] = [7, 30, 90, totalDays],
 ): PresentedMonitorUptime {
-  const days = toMonitorUptimeDays(rows);
-  const grid = buildUptimeGrid(days, totalDays, timezone);
-  const stats = computeUptimeStats(days, windows);
+  const grid = buildUptimeGrid(rows, totalDays, timezone);
+  const stats = computeUptimeStats(rows, windows, timezone);
 
   return { grid, stats, totalDays };
 }
 
 function buildUptimeGrid(
-  days: PresentedMonitorUptimeDay[],
+  days: MonitorDailyUptime[],
   totalDays: number,
   timezone: string,
 ): PresentedMonitorUptimeCell[] {
@@ -75,24 +59,26 @@ function buildUptimeGrid(
   return cells;
 }
 
-function computeUptimeStats(days: PresentedMonitorUptimeDay[], windows: number[]): PresentedMonitorUptimeStat[] {
-  return windows.map((w) => {
-    const slice = sliceLastDays(days, w);
-    const totalSeconds = slice.reduce((acc, d) => acc + (d.totalSeconds ?? 0), 0);
-    const uptimeSeconds = slice.reduce((acc, d) => acc + (d.upRatio ?? 0) * (d.totalSeconds ?? 0), 0);
+// A "last N days" window is N calendar days in the zone, today included, whatever was monitored
+function computeUptimeStats(
+  days: MonitorDailyUptime[],
+  windows: number[],
+  timezone: string,
+): PresentedMonitorUptimeStat[] {
+  const today = moment.tz(timezone).startOf('day');
 
-    const percent = totalSeconds > 0 ? (uptimeSeconds / totalSeconds) * 100 : null;
+  return windows.map((w) => {
+    const firstDay = today
+      .clone()
+      .subtract(w - 1, 'days')
+      .format('YYYY-MM-DD');
+    const { percent, monitoredSeconds } = summarizeUptime(days.filter((d) => d.date >= firstDay));
+
     return {
       label: `last-${w}-days`,
       windowDays: w,
       percent,
-      downtime: percent != null ? computeDowntimeFromUptimeDays(percent, totalSeconds / 86400) : null,
+      downtime: percent != null ? computeDowntimeFromUptimeDays(percent, monitoredSeconds / 86400) : null,
     };
   });
-}
-
-function sliceLastDays(days: PresentedMonitorUptimeDay[], count: number) {
-  if (!days || days.length === 0) return [];
-  const sorted = [...days].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  return sorted.slice(-count);
 }

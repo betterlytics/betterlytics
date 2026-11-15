@@ -155,6 +155,25 @@ describe('buildSessionsQuery', () => {
     expect(result.taggedSql).toContain("entry_page = ''");
   });
 
+  it('matches %, _ and \\ in page filters literally', () => {
+    const result = buildSessionsQuery(
+      input({ filters: [{ column: 'entry_page', operator: '=', values: ['/plan_pro/100%*', '/a\\b'] }] }),
+      siteId,
+    );
+
+    expect(result.taggedParams.mcp_page_filter_0).toEqual(['/plan\\_pro/100\\%%', '/a\\\\b']);
+  });
+
+  it('treats a bare % page filter as a literal percent sign, not any value', () => {
+    const result = buildSessionsQuery(
+      input({ filters: [{ column: 'entry_page', operator: '=', values: ['%'] }] }),
+      siteId,
+    );
+
+    expect(result.taggedSql).not.toContain("entry_page != ''");
+    expect(result.taggedParams.mcp_page_filter_0).toEqual(['\\%']);
+  });
+
   it('skips incomplete page filters like the other filters', () => {
     const result = buildSessionsQuery(
       input({ filters: [{ column: 'entry_page', operator: '=', values: [''] }] }),

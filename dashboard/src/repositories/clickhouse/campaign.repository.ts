@@ -315,7 +315,7 @@ const CampaignAudienceProfileRowSchema = z.object({
   visitors: z.number(),
 });
 
-type CampaignAudienceProfileRow = z.infer<typeof CampaignAudienceProfileRowSchema>;
+export type CampaignAudienceProfileRow = z.infer<typeof CampaignAudienceProfileRowSchema>;
 
 export async function getCampaignAudienceProfileData(
   siteQuery: BASiteQuery,

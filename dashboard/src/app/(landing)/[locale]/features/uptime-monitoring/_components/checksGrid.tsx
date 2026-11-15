@@ -1,11 +1,8 @@
 import type { ComponentType } from 'react';
 import { Bell, Check, ChevronDown, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Stage } from '@/landing/components/feature/stage';
-import { Corners } from '@/landing/components/ui/frame';
-import { Reveal } from '@/landing/components/ui/reveal';
-import ruled from '@/landing/components/ui/ruledGrid.module.css';
-import { cn } from '@/landing/lib/cn';
+import { FeatureGrid } from '@/landing/components/feature/featureGrid';
+import grid from '@/landing/components/feature/featureGrid.module.css';
 import { vars } from '@/landing/lib/cssVars';
 import styles from './checksGrid.module.css';
 
@@ -24,8 +21,8 @@ function CheckBadge({ className }: { className?: string }) {
 
 function Request({ t }: { t: Art }) {
   return (
-    <div className={styles.comp}>
-      <div className={`${styles.card} ${styles.reqCard}`}>
+    <div className={grid.comp}>
+      <div className={`${grid.card} ${styles.reqCard}`}>
         <div className={styles.reqHead}>
           <span>{t('request')}</span>
           <span className={styles.select}>
@@ -59,8 +56,8 @@ const SKELETON = [46, 40, 46, 32];
 
 function Keyword() {
   return (
-    <div className={styles.comp}>
-      <div className={`${styles.card} ${styles.browser}`}>
+    <div className={grid.comp}>
+      <div className={`${grid.card} ${styles.browser}`}>
         <div className={styles.lights}>
           <i />
           <i />
@@ -85,7 +82,7 @@ function Keyword() {
 
 function Certificate() {
   return (
-    <div className={`${styles.comp} ${styles.certComp}`}>
+    <div className={`${grid.comp} ${styles.certComp}`}>
       <svg className={styles.shield} viewBox='0 0 80 92' fill='none'>
         <defs>
           <linearGradient id='checks-shield' x1='0' x2='0' y1='0' y2='1'>
@@ -153,7 +150,7 @@ function WarnGlyph() {
 
 function Threshold() {
   return (
-    <div className={`${styles.comp} ${styles.tilesComp}`}>
+    <div className={`${grid.comp} ${styles.tilesComp}`}>
       <div className={styles.tiles}>
         {TILES.map((state, i) => (
           <span key={i} className={styles.tile} data-state={state} style={vars({ '--i': i })}>
@@ -188,7 +185,7 @@ function path(series: number[]) {
 function Latency({ t }: { t: Art }) {
   const line = path(TODAY);
   return (
-    <div className={`${styles.comp} ${styles.chartComp}`}>
+    <div className={`${grid.comp} ${styles.chartComp}`}>
       <div className={styles.chartHead}>
         <span>{t('response')}</span>
         <span>{t('lastDay')}</span>
@@ -222,8 +219,8 @@ function Reasons({ t }: { t: Art }) {
     { label: t('reasonKeyword'), count: 1, tone: 'volt' },
   ];
   return (
-    <div className={styles.comp}>
-      <div className={`${styles.card} ${styles.list}`}>
+    <div className={grid.comp}>
+      <div className={`${grid.card} ${styles.list}`}>
         {rows.map((row, i) => (
           <span key={row.label} className={styles.reason} data-lit={i === 0 || undefined}>
             <i data-tone={row.tone} />
@@ -235,7 +232,7 @@ function Reasons({ t }: { t: Art }) {
       <svg className={styles.listWire} viewBox='0 0 34 30' fill='none'>
         <path d='M0 2h10c6 0 8 4 8 9v8c0 5 3 9 9 9h7' pathLength={1} />
       </svg>
-      <div className={`${styles.card} ${styles.detail}`}>
+      <div className={`${grid.card} ${styles.detail}`}>
         {[54, 40, 46, 30].map((w, i) => (
           <i key={i} style={vars({ '--w': `${w}px` })} />
         ))}
@@ -259,22 +256,13 @@ export function ChecksGrid() {
   const t = useTranslations('landing.uptime.checks');
   const art = useTranslations('landing.uptime.checks.art');
   return (
-    <ul className={cn(ruled.grid, ruled.cols3)}>
-      {KEYS.map((key, i) => {
+    <FeatureGrid
+      items={KEYS.map((key) => {
         const Scene = SCENES[key];
-        return (
-          <li key={key} className={styles.cell}>
-            <Corners />
-            <Stage className={key === 'ssl' ? `${styles.stage} ${styles.litStage}` : styles.stage}>
-              <Scene t={art} />
-            </Stage>
-            <Reveal index={i % 3} className={styles.copy}>
-              <h3 className='text-title leading-6 font-medium tracking-ui'>{t(`items.${key}.title`)}</h3>
-              <p className='mt-2 text-label leading-[22px] text-muted'>{t(`items.${key}.body`)}</p>
-            </Reveal>
-          </li>
-        );
+        return { key, title: t(`items.${key}.title`), body: t(`items.${key}.body`), scene: <Scene t={art} /> };
       })}
-    </ul>
+      stageClassName={styles.stage}
+      lit={{ key: 'ssl', className: styles.litStage }}
+    />
   );
 }

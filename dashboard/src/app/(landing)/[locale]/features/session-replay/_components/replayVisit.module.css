@@ -1,0 +1,727 @@
+@reference '../../../landing.css';
+
+/* registered so it can transition */
+@property --visit-glow {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+
+/* transform and origin numbers are the geometry of what each piece lands on or grows out of */
+@layer components {
+  .visit {
+    --ease-morph: cubic-bezier(0.65, 0, 0.35, 1);
+    --visit-glow: var(--color-volt-soft);
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    transition: --visit-glow 0.6s ease;
+  }
+  .visit:is([data-step='1'], [data-step='3']) {
+    --visit-glow: var(--color-down);
+  }
+  /* the stage's bg-hatch angle and tile, so the lines overlap */
+  .visit::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(315deg, --alpha(var(--visit-glow) / 22%) 0 1px, transparent 0 50%) 0 0 / 10px 10px,
+      radial-gradient(closest-side, --alpha(var(--visit-glow) / 5%), transparent);
+    -webkit-mask-image: radial-gradient(52% 58% at 50% 50%, #000, transparent);
+    mask-image: radial-gradient(52% 58% at 50% 50%, #000, transparent);
+    pointer-events: none;
+  }
+
+  .canvas {
+    position: relative;
+    width: 620px;
+    height: 340px;
+    @variant max-md {
+      zoom: 0.84;
+    }
+    @variant max-sm {
+      zoom: 0.54;
+      transform: var(--camera);
+      transition: transform 0.9s var(--ease-morph);
+    }
+  }
+  /* phones zoom in on each step's focus: scale, then centre it */
+  .visit[data-step='0'] {
+    --camera: scale(1.3) translateY(14px);
+  }
+  .visit[data-step='1'] {
+    --camera: scale(1.3) translate(-61px, 14px);
+  }
+  .visit[data-step='2'] {
+    --camera: scale(1.3) translate(41px, 29px);
+  }
+  .visit[data-step='3'] {
+    --camera: scale(1.36);
+  }
+  .visit[data-step='4'] {
+    --camera: scale(1.5) translate(102px, -94px);
+  }
+
+  .win {
+    position: absolute;
+    top: 0;
+    left: 80px;
+    width: 460px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 22px 50px rgb(0 0 0 / 0.5);
+    /* negative inset keeps the shadow */
+    clip-path: inset(-60px round 12px);
+    transform-origin: 0 0;
+    transition:
+      transform 0.9s var(--ease-morph),
+      clip-path 0.9s var(--ease-morph),
+      border-radius 0.9s var(--ease-morph),
+      filter 0.6s ease;
+  }
+  .page {
+    zoom: 0.62;
+  }
+  .visit[data-step='1'] .win {
+    filter: brightness(0.6) saturate(0.7);
+    transition-delay: 0s, 0s, 0s, 1.1s;
+  }
+  .visit[data-step='2'] .win {
+    transform: translate(-21px, 89.5px) scale(0.113);
+    border-radius: 44px;
+    transition-delay: 0.15s;
+  }
+  .visit[data-step='3'] .win {
+    transform: translate(19.1px, 13.7px) scale(0.917);
+    clip-path: inset(33px 1px 1px 1px round 7px);
+    transition-delay: 0.1s;
+  }
+  .visit[data-step='4'] .win {
+    transform: translate(-69.8px, -176.8px) scale(1.444);
+    clip-path: inset(164px 190px 4px 4px round 10px);
+  }
+  .masked {
+    position: absolute;
+    inset: 0;
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 0.9s var(--ease-morph);
+  }
+  .visit:is([data-step='3'], [data-step='4']) .masked {
+    clip-path: inset(0);
+  }
+  .visit[data-step='3'] .masked {
+    transition-delay: 0.7s;
+  }
+  .payClick {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30px;
+    height: 30px;
+    margin: -15px 0 0 -15px;
+    border-radius: 50%;
+    border: 2px solid var(--color-volt-lift);
+    opacity: 0;
+  }
+  [data-in] .visit[data-step='1'] .payClick {
+    animation: visit-click 0.7s var(--ease-out-expo) 0.6s both;
+  }
+
+  .tape {
+    position: absolute;
+    top: 292px;
+    left: 80px;
+    width: 460px;
+    height: 20px;
+    transform-origin: 0 0;
+    transition: transform 0.9s var(--ease-morph);
+  }
+  .visit[data-step='2'] .tape {
+    transform: translate(147px, -189.5px) scale(0.326, 0.3);
+    transition-delay: 0.45s;
+  }
+  .visit[data-step='3'] .tape {
+    transform: translate(24px, -12px) scale(0.896, 1);
+    transition-delay: 0.15s;
+  }
+  .visit[data-step='4'] .tape {
+    transform: translate(-64px, -52px) scale(0.835, 1);
+  }
+  .rail {
+    position: absolute;
+    top: 8px;
+    right: 0;
+    left: 0;
+    height: 4px;
+    overflow: hidden;
+    border-radius: 2px;
+    background: color-mix(in oklab, var(--color-canvas), var(--color-fg) 14%);
+  }
+  .played {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: calc(var(--head-from) * 100%);
+    background: var(--color-volt-lift);
+  }
+  [data-in] .played {
+    animation: visit-played var(--dur) var(--ease) var(--delay) both;
+  }
+  .track > i[data-kind] {
+    --tick: #38bdf8;
+    --size: 6px;
+    position: absolute;
+    top: 50%;
+    left: calc(var(--x) * 100%);
+    width: var(--size);
+    height: var(--size);
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: var(--tick);
+    box-shadow: 0 0 0 1.5px var(--color-canvas);
+    opacity: 0;
+  }
+  .track > i[data-kind='scroll'] {
+    --tick: #fbbf24;
+  }
+  .track > i[data-kind='input'] {
+    --tick: #fb7185;
+  }
+  .track > i[data-kind='rage'] {
+    --tick: #e879f9;
+    --size: 7px;
+  }
+  .track > i[data-kind='error'] {
+    --tick: #f87171;
+    --size: 8px;
+  }
+  .track > i[data-state='shown'] {
+    opacity: 1;
+  }
+  [data-in] .track > i[data-state='due'] {
+    animation: visit-tick 0.35s var(--ease-out-expo) var(--d) both;
+  }
+  .head {
+    position: absolute;
+    top: 50%;
+    left: calc(var(--head-from) * 100%);
+    width: 12px;
+    height: 12px;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: var(--color-white);
+    box-shadow:
+      0 0 0 2px var(--color-canvas),
+      0 1px 4px rgb(0 0 0 / 0.5);
+    transition: opacity 0.2s;
+  }
+  [data-in] .head {
+    animation: visit-head var(--dur) var(--ease) var(--delay) both;
+  }
+  .visit[data-step='2'] .head {
+    opacity: 0;
+    transition-delay: 0.4s;
+  }
+  /* undo the tape's x-scale, so the head stays round */
+  .visit[data-step='3'] .head {
+    scale: 1.116 1;
+    transition-delay: 1s;
+  }
+  .visit[data-step='4'] .head {
+    scale: 1.198 1;
+  }
+  /* the tape's size and step-2 shrink, so they match the first row */
+  .mini {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 460px;
+    height: 20px;
+    transform: scale(0.326, 0.3);
+    transform-origin: 0 0;
+  }
+  .mini .played {
+    width: 100%;
+    animation: none;
+  }
+  .tip {
+    position: absolute;
+    top: 252px;
+    left: 413px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: var(--color-down);
+    color: var(--color-white);
+    font-size: 10.5px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    translate: -50% 4px;
+    transition:
+      opacity 0.3s var(--ease-out-expo),
+      translate 0.4s var(--ease-out-expo);
+  }
+  .visit[data-step='3'] .tip {
+    opacity: 1;
+    translate: -50% 0;
+    transition-delay: 2.3s;
+  }
+
+  .error {
+    position: absolute;
+    bottom: 58px;
+    left: 300px;
+    width: 300px;
+    opacity: 0;
+    transform: scale(0.06);
+    transform-origin: 127px 100%;
+    transition:
+      transform 0.7s var(--ease-out-expo),
+      opacity 0.3s ease;
+  }
+  .visit[data-step='1'] .error {
+    opacity: 1;
+    transform: none;
+    transition-delay: 1.25s;
+  }
+  .visit:is([data-step='2'], [data-step='3'], [data-step='4']) .error {
+    transform: translate(105px, -178px) scale(0.05);
+    transition:
+      transform 0.6s var(--ease-morph),
+      opacity 0.4s ease 0.15s;
+  }
+
+  .list {
+    position: absolute;
+    top: 34px;
+    left: 40px;
+    width: 540px;
+    opacity: 0;
+    @variant max-sm {
+      width: 458px;
+    }
+    translate: 0 10px;
+    transition:
+      opacity 0.4s var(--ease-out-expo),
+      translate 0.6s var(--ease-out-expo);
+  }
+  .visit[data-step='2'] .list {
+    opacity: 1;
+    translate: 0;
+    transition-delay: 0.35s;
+  }
+  .visit[data-step='3'] .list {
+    translate: 0;
+    transition-delay: 0.15s;
+  }
+  .listHead {
+    height: 42px;
+    padding: 14px 18px 0;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.1px;
+  }
+  .row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 52px 92px 150px 44px 70px 28px;
+    @variant max-sm {
+      grid-template-columns: 52px 92px 150px 44px 28px;
+    }
+    column-gap: 12px;
+    align-items: center;
+    height: 56px;
+    padding: 0 18px;
+    border-top: 1px solid var(--color-rule-08);
+    font-size: 11.5px;
+    color: var(--color-muted);
+    transition:
+      opacity 0.4s var(--ease-out-expo),
+      translate 0.5s var(--ease-out-expo),
+      background-color 0.4s ease;
+  }
+  .row:not([data-own]) {
+    opacity: 0;
+    translate: 0 8px;
+  }
+  .visit:is([data-step='2'], [data-step='3']) .row:not([data-own]) {
+    opacity: 1;
+    translate: 0;
+  }
+  .visit[data-step='2'] .row:not([data-own]) {
+    transition-delay: calc(0.5s + var(--i) * 0.1s);
+  }
+  .row[data-own] > * {
+    opacity: 0;
+    transition: opacity 0.4s var(--ease-out-expo);
+  }
+  .visit:is([data-step='2'], [data-step='3']) .row[data-own] {
+    background-color: --alpha(var(--color-volt-lift) / 9%);
+    color: var(--color-fg);
+  }
+  .visit:is([data-step='2'], [data-step='3']) .row[data-own] > * {
+    opacity: 1;
+  }
+  .visit[data-step='2'] .row[data-own],
+  .visit[data-step='2'] .row[data-own] > * {
+    transition-delay: 1.2s;
+  }
+  /* the window and tape land here */
+  .row[data-own] > .thumb,
+  .row[data-own] > .bar {
+    visibility: hidden;
+  }
+
+  .row > .meta {
+    @variant max-sm {
+      display: none;
+    }
+  }
+
+  .thumb {
+    display: grid;
+    align-content: start;
+    gap: 3px;
+    height: 32px;
+    padding: 6px 7px;
+    border-radius: 5px;
+    background: #efebe6;
+  }
+  .thumb i {
+    height: 3px;
+    border-radius: 1.5px;
+    background: #d9d2ca;
+  }
+  .thumb i:first-child {
+    width: 40%;
+    background: #b9afa6;
+  }
+  .thumb i:last-child {
+    width: 70%;
+  }
+  .who {
+    display: grid;
+    gap: 1px;
+    min-width: 0;
+    font-size: 10.5px;
+    white-space: nowrap;
+  }
+  .who b {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--color-fg);
+  }
+  .bar {
+    position: relative;
+    height: 6px;
+  }
+  .duration {
+    font-variant-numeric: tabular-nums;
+  }
+  .badges {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .bug,
+  .rage {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    color: #f08b98;
+    font-variant-numeric: tabular-nums;
+  }
+  .rage {
+    color: #e879f9;
+  }
+  .bug svg,
+  .rage svg {
+    width: 12px;
+    height: 12px;
+  }
+  .player {
+    position: absolute;
+    top: 0;
+    left: 90px;
+    width: 440px;
+    height: 340px;
+    border-radius: 12px;
+    border: 1px solid var(--color-rule-10);
+    background-color: var(--color-canvas);
+    background-image: linear-gradient(180deg, --alpha(var(--color-fg) / 4.5%), --alpha(var(--color-fg) / 1.4%));
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.05) inset,
+      0 22px 50px rgb(0 0 0 / 0.5);
+    opacity: 0;
+    scale: 0.97;
+    transition:
+      opacity 0.5s var(--ease-out-expo),
+      scale 0.7s var(--ease-out-expo);
+  }
+  .visit[data-step='3'] .player {
+    opacity: 1;
+    scale: 1;
+    transition-delay: 0.3s;
+  }
+  .playerTop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 34px;
+    padding: 0 14px;
+    border-bottom: 1px solid var(--color-rule-10);
+    font-size: 11px;
+    color: var(--color-muted);
+  }
+  .playerTop b {
+    font-weight: 400;
+    color: var(--color-fg);
+  }
+  .controls {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 36px;
+    padding: 0 14px;
+    font-size: 11px;
+    color: var(--color-muted);
+  }
+  .controls > svg {
+    width: 13px;
+    height: 13px;
+    fill: var(--color-fg);
+    color: var(--color-fg);
+  }
+  .clock {
+    font-variant-numeric: tabular-nums;
+    color: var(--color-fg);
+  }
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-left: auto;
+  }
+  .toggle i {
+    position: relative;
+    width: 24px;
+    height: 14px;
+    border-radius: 999px;
+    background: var(--color-volt-lift);
+  }
+  .toggle i::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-white);
+  }
+  .controls > b {
+    padding: 2px 7px;
+    border-radius: 5px;
+    border: 1px solid var(--color-rule-22);
+    font-weight: 500;
+    color: var(--color-fg);
+  }
+
+  .note {
+    position: absolute;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: 0 8px 20px rgb(0 0 0 / 0.35);
+    opacity: 0;
+    translate: 0 6px;
+    transition:
+      opacity 0.4s var(--ease-out-expo),
+      translate 0.5s var(--ease-out-expo);
+  }
+  .visit[data-step='4'] .note {
+    opacity: 1;
+    translate: 0;
+  }
+  .note[data-note='empty'] {
+    top: 0;
+    left: 52%;
+    margin-top: -10px;
+    background: var(--color-down);
+    color: var(--color-white);
+  }
+  .visit[data-step='4'] .note[data-note='empty'] {
+    transition-delay: 1s;
+  }
+  .clicks {
+    position: absolute;
+    top: 50%;
+    left: 38%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .visit[data-step='4'] .clicks {
+    opacity: 1;
+    transition-delay: 1.2s;
+  }
+  .clicks > i {
+    position: absolute;
+    top: -14px;
+    left: -14px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid #e879f9;
+    opacity: 0;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .visit[data-step='4'] .clicks > i {
+      animation: visit-ring 2.4s var(--ease-out-expo) 1.3s infinite;
+    }
+    .visit[data-step='4'] .clicks > i:nth-child(2) {
+      animation-delay: 1.48s;
+    }
+    .visit[data-step='4'] .clicks > i:nth-child(3) {
+      animation-delay: 1.66s;
+    }
+  }
+  .cursor {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    width: 22px;
+    height: 22px;
+  }
+
+  .events {
+    position: absolute;
+    top: 60px;
+    left: 420px;
+    width: 184px;
+    opacity: 0;
+    transform: scale(0.05);
+    transform-origin: -116px 190px;
+    /* stacked under the replay on phones */
+    @variant max-sm {
+      top: 272px;
+      left: 116px;
+      transform-origin: 188px -22px;
+    }
+    transition:
+      transform 0.7s var(--ease-out-expo),
+      opacity 0.3s ease;
+  }
+  .visit[data-step='4'] .events {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0.8s;
+  }
+  .events ul {
+    display: grid;
+    padding: 0 8px 10px;
+  }
+  .events li {
+    --tone: #38bdf8;
+    display: grid;
+    grid-template-columns: 30px 15px 1fr;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 10px;
+    border-radius: 7px;
+    font-size: 12px;
+    opacity: 0;
+    translate: 0 6px;
+    transition:
+      opacity 0.4s var(--ease-out-expo),
+      translate 0.5s var(--ease-out-expo);
+  }
+  .visit[data-step='4'] .events li {
+    opacity: 1;
+    translate: 0;
+    transition-delay: calc(1.1s + var(--i) * 0.15s);
+  }
+  .events li[data-kind='input'] {
+    --tone: #fb7185;
+  }
+  .events li[data-kind='rageClick'] {
+    --tone: #e879f9;
+  }
+  .events li[data-kind='clientError'] {
+    --tone: #f87171;
+    background: --alpha(var(--color-down) / 12%);
+    color: #f6a3ae;
+  }
+  .events time {
+    font-variant-numeric: tabular-nums;
+    color: var(--color-muted);
+  }
+  .events li > svg {
+    width: 15px;
+    height: 15px;
+    color: var(--tone);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .visit *,
+    .visit *::before,
+    .visit *::after {
+      transition-delay: 0s !important;
+      animation-delay: 0s !important;
+    }
+  }
+}
+
+@keyframes visit-head {
+  from {
+    left: calc(var(--head-from) * 100%);
+  }
+  to {
+    left: calc(var(--head-to) * 100%);
+  }
+}
+@keyframes visit-played {
+  from {
+    width: calc(var(--head-from) * 100%);
+  }
+  to {
+    width: calc(var(--head-to) * 100%);
+  }
+}
+@keyframes visit-tick {
+  from {
+    opacity: 0;
+    scale: 0.3;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+@keyframes visit-click {
+  0% {
+    opacity: 0.9;
+    scale: 0.3;
+  }
+  100% {
+    opacity: 0;
+    scale: 1.6;
+  }
+}
+@keyframes visit-ring {
+  0% {
+    opacity: 0.9;
+    scale: 0.4;
+  }
+  70%,
+  100% {
+    opacity: 0;
+    scale: 1.6;
+  }
+}

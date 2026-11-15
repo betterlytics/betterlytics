@@ -6,13 +6,13 @@ export const plausible: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Plausible: Più funzionalità, stessa privacy',
     description:
-      'Confronta Betterlytics con Plausible. Stesso approccio privacy-first, con session replay, percorsi utente e monitoraggio inclusi. Piano gratuito disponibile, da $7/mese.',
+      'Confronta Betterlytics con Plausible. Approccio privacy-first, più session replay, uptime monitoring e percorsi utente in ogni piano. Gratis o piani a pagamento da $9/mese.',
   },
   hero: {
     title: 'Cerchi un’alternativa a Plausible?',
     titleHighlight: 'alternativa',
     subtitle:
-      'Tutto ciò che offre Plausible, più session replay, percorsi utente, monitoring e molto altro. Stesso approccio privacy-first, insight più profondi.',
+      'Stesso approccio privacy-first di Plausible, più session replay, monitoraggio dell’uptime e percorsi utente in ogni piano.',
   },
   keyDifferentiators: [
     {
@@ -22,8 +22,8 @@ export const plausible: ComparisonLocaleContent = {
     },
     {
       title: 'Tracciamento dei percorsi utente',
-      betterlytics: 'Visualizza come gli utenti navigano nel tuo sito, pagina per pagina.',
-      competitor: 'Solo analisi dei funnel. Nessuna visualizzazione dei singoli percorsi utente.',
+      betterlytics: 'Visualizza come gli utenti navigano nel tuo sito, pagina per pagina. Incluso in ogni piano.',
+      competitor: 'Percorsi utente e funnel richiedono il piano Business, da $19/mese.',
     },
     {
       title: 'Monitoring integrato',
@@ -48,7 +48,7 @@ export const plausible: ComparisonLocaleContent = {
       {
         name: 'Performance e velocità',
         features: [
-          { name: 'Dimensione dello script', betterlytics: '~3,5KB', competitor: '<2KB' },
+          { name: 'Dimensione dello script', betterlytics: '~3,5KB', competitor: '~2,5KB' },
           { name: 'Impatto sul caricamento della pagina', betterlytics: 'Minimo', competitor: 'Minimo' },
           { name: 'Funziona con ad blocker', betterlytics: true, competitor: 'Parziale' },
         ],
@@ -62,13 +62,17 @@ export const plausible: ComparisonLocaleContent = {
           { name: 'Analisi dei funnel', betterlytics: true, competitor: true },
           { name: 'Tracciamento campagne (UTM)', betterlytics: true, competitor: true },
           { name: 'Tracciamento dei link in uscita', betterlytics: true, competitor: true },
-          { name: 'Tracciamento dei percorsi utente', betterlytics: true, competitor: false },
-          { name: 'Annotazioni', betterlytics: true, competitor: false },
+          { name: 'Tracciamento dei percorsi utente', betterlytics: true, competitor: 'Solo piano Business' },
+          { name: 'Annotazioni', betterlytics: true, competitor: true },
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Monitoring delle performance', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
           { name: 'Pagine di stato pubbliche', betterlytics: true, competitor: false },
-          { name: 'Integrazioni di notifica (Slack, Discord, ecc.)', betterlytics: true, competitor: false },
+          {
+            name: 'Integrazioni di notifica (Slack, Discord, ecc.)',
+            betterlytics: true,
+            competitor: 'Report via email/Slack',
+          },
         ],
       },
       {
@@ -101,7 +105,7 @@ export const plausible: ComparisonLocaleContent = {
   detailedComparison: [
     {
       title: 'Stessi valori, strumenti diversi',
-      content: `Plausible e Betterlytics condividono lo stesso DNA: privacy-first, leggeri, senza cookie e pronti per il GDPR fin da subito. Entrambi sono ottime alternative a Google Analytics se la privacy è una priorità.\n\nLa differenza? Betterlytics include session replay, tracciamento dei percorsi utente e monitoring. Plausible sceglie volutamente un approccio minimal. Se hai bisogno di insight comportamentali oltre a pageview e conversioni, Betterlytics fa la differenza.`,
+      content: `Plausible e Betterlytics condividono lo stesso DNA: privacy-first, leggeri, senza cookie e pronti per il GDPR fin da subito. Entrambi sono ottime alternative a Google Analytics se la privacy è una priorità.\n\nLa differenza? Betterlytics include session replay e monitoring, oltre ai percorsi utente in ogni piano. Plausible sceglie volutamente un approccio minimal. Se hai bisogno di insight comportamentali oltre a pageview e conversioni, Betterlytics fa la differenza.`,
       icon: 'shield',
     },
     {
@@ -116,12 +120,12 @@ export const plausible: ComparisonLocaleContent = {
     },
     {
       title: 'Confronto dei prezzi',
-      content: `Plausible parte da $9/mese per 10.000 pageview. Nessun piano gratuito sulla versione hosted, anche se il self-hosting è gratuito se gestisci l’infrastruttura.\n\nBetterlytics parte da $7/mese con un piano gratuito per siti più piccoli. Session replay, monitoring e percorsi utente inclusi. Più funzionalità, prezzo di partenza più basso.`,
+      content: `Plausible parte da $9/mese per 10.000 pageview. Nessun piano gratuito sulla versione hosted, anche se il self-hosting è gratuito se gestisci l’infrastruttura.\n\nAnche i piani a pagamento di Betterlytics partono da $9/mese, e c’è un piano gratuito per siti più piccoli. Session replay, monitoring e percorsi utente inclusi. Più funzionalità allo stesso prezzo.`,
       icon: 'dollar',
     },
     {
       title: 'Quando Plausible è la scelta migliore',
-      content: `Plausible mantiene volutamente un ambito ristretto: analisi del traffico orientata alla privacy con una UI notoriamente minimalista. Se ti servono solo visualizzazioni di pagina, referrer e obiettivi di conversione senza funzionalità aggiuntive, il prodotto focalizzato e il brand consolidato di Plausible possono risultare la scelta più rassicurante.\n\nBetterlytics aggiunge session replay, percorsi utente, insight sulle prestazioni e monitoraggio senza rinunciare alla base privacy-first. Se sei pronto per un’analisi comportamentale più approfondita e meno fornitori da gestire, le funzionalità extra sono già incluse — senza dover integrare strumenti separati.`,
+      content: `Plausible mantiene volutamente un ambito ristretto: analisi del traffico orientata alla privacy con una UI notoriamente minimalista. Se ti servono solo visualizzazioni di pagina, referrer e obiettivi di conversione senza funzionalità aggiuntive, il prodotto focalizzato e il brand consolidato di Plausible possono risultare la scelta più rassicurante.\n\nBetterlytics aggiunge session replay, insight sulle prestazioni e monitoraggio senza rinunciare alla base privacy-first. I percorsi utente sono inclusi in ogni piano. Se sei pronto per un’analisi comportamentale più approfondita e meno fornitori da gestire, le funzionalità extra sono già incluse — senza dover integrare strumenti separati.`,
       icon: 'target',
     },
   ],

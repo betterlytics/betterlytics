@@ -27,6 +27,7 @@ export type LabeledSliderProps = {
   recommendedValue?: number;
   disabled?: boolean;
   minAllowed?: number;
+  lockedMessage?: string;
 };
 
 export function LabeledSlider({
@@ -43,10 +44,10 @@ export function LabeledSlider({
   recommendedValue,
   disabled,
   minAllowed,
+  lockedMessage,
 }: LabeledSliderProps) {
   const locale = useLocale();
   const t = useTranslations('components.slider');
-  const tProFeature = useTranslations('components.proFeature');
   const isRecommended = recommendedValue !== undefined && value === recommendedValue;
   const totalSteps = max - min;
 
@@ -55,13 +56,13 @@ export function LabeledSlider({
 
   const showLockedToast = useCallback(() => {
     const now = Date.now();
-    if (now - lastToastRef.current > TOAST_DEBOUNCE_MS) {
+    if (lockedMessage && now - lastToastRef.current > TOAST_DEBOUNCE_MS) {
       lastToastRef.current = now;
-      toast.info(tProFeature('upgradeRequired'), {
+      toast.info(lockedMessage, {
         duration: 3000,
       });
     }
-  }, [tProFeature]);
+  }, [lockedMessage]);
 
   const handleValueChange = (newValue: number) => {
     if (minAllowed !== undefined && newValue < minAllowed) {

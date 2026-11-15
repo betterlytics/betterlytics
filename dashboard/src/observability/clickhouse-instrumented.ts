@@ -2,6 +2,7 @@ import { createHash } from 'crypto';
 import { trace, SpanStatusCode } from '@opentelemetry/api';
 import { env } from '@/lib/env';
 import type { QueryCursorLike, ClickHouseAdapterClient, AdapterQueryOptions } from '@/lib/clickhouse';
+import type { AdapterCommandOptions } from '@/lib/clickhouseAdapter';
 
 const tracer = trace.getTracer('dashboard');
 
@@ -46,41 +47,46 @@ export function instrumentClickHouse<T extends ClickHouseAdapterClient>(
 
   const dbName = options?.dbName ?? 'default';
 
+  function traced<R>(sql: string, run: () => Promise<R>): Promise<R> {
+    const operation = inferOperation(sql);
+    const { hash: queryHash, normalized: queryNormalized } = normalizeQuery(sql);
+
+    return tracer.startActiveSpan(`db.clickhouse.${operation.toLowerCase()}`, async (span) => {
+      span.setAttributes({
+        'db.system': 'clickhouse',
+        'db.operation': operation,
+        'db.name': dbName,
+        'db.statement': sanitizeStatement(sql),
+        'db.query.name': queryHash,
+        'db.query.normalized': queryNormalized,
+      });
+      try {
+        const out = await run();
+        span.setStatus({ code: SpanStatusCode.OK });
+        return out;
+      } catch (e) {
+        const err = e as Error;
+        span.recordException(err);
+        span.setStatus({ code: SpanStatusCode.ERROR, message: err.message });
+        throw err;
+      } finally {
+        span.end();
+      }
+    });
+  }
+
   return new Proxy(client, {
     get(target, prop, receiver) {
       if (prop === 'query') {
         return function (sql: string, reqParams?: AdapterQueryOptions): QueryCursorLike {
-          const operation = inferOperation(sql);
-          const { hash: queryHash, normalized: queryNormalized } = normalizeQuery(sql);
-          const sanitized = sanitizeStatement(sql);
-
           const cursor = (target.query as T['query']).call(target, sql, reqParams) as QueryCursorLike;
+          return { toPromise: () => traced(sql, () => cursor.toPromise()) };
+        };
+      }
 
-          return {
-            toPromise: async (): Promise<unknown[]> =>
-              tracer.startActiveSpan(`db.clickhouse.${operation.toLowerCase()}`, async (span) => {
-                span.setAttributes({
-                  'db.system': 'clickhouse',
-                  'db.operation': operation,
-                  'db.name': dbName,
-                  'db.statement': sanitized,
-                  'db.query.name': queryHash,
-                  'db.query.normalized': queryNormalized,
-                });
-                try {
-                  const out = await cursor.toPromise();
-                  span.setStatus({ code: SpanStatusCode.OK });
-                  return out;
-                } catch (e) {
-                  const err = e as Error;
-                  span.recordException(err);
-                  span.setStatus({ code: SpanStatusCode.ERROR, message: err.message });
-                  throw err;
-                } finally {
-                  span.end();
-                }
-              }),
-          };
+      if (prop === 'command') {
+        return function (sql: string, reqParams?: AdapterCommandOptions): Promise<void> {
+          return traced(sql, () => (target.command as T['command']).call(target, sql, reqParams));
         };
       }
 

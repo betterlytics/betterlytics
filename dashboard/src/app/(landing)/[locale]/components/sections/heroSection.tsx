@@ -33,7 +33,7 @@ export function HeroSection({ copy, breadcrumb, note, titleClassName }: HeroSect
               <li>
                 <AppLink
                   href='/features'
-                  className='opacity-72 transition-opacity duration-180 ease-out-expo hover:opacity-100'
+                  className='-my-1 inline-block py-1 opacity-72 transition-opacity duration-180 ease-out-expo hover:opacity-100'
                 >
                   {tFeature('features')}
                 </AppLink>

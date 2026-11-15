@@ -1,8 +1,10 @@
 import prisma from '@/lib/postgres';
 import {
   MonitorCheckSchema,
+  MonitorDeletionImpactPageSchema,
   MonitorPausePeriodSchema,
   type MonitorCheck,
+  type MonitorDeletionImpactPage,
   type MonitorCheckCreate,
   type MonitorCheckUpdate,
   type MonitorPausePeriod,
@@ -148,13 +150,51 @@ export async function listMonitorPauseState(
 }
 
 export async function deleteMonitorCheck(dashboardId: string, monitorId: string): Promise<void> {
-  await prisma.monitorCheck.update({
+  await prisma.$transaction([
+    prisma.statusPageMonitor.deleteMany({ where: { dashboardId, monitorCheckId: monitorId } }),
+    prisma.monitorCheck.update({
+      where: {
+        id_dashboardId: {
+          id: monitorId,
+          dashboardId,
+        },
+      },
+      data: { deletedAt: new Date() },
+    }),
+  ]);
+}
+
+export async function getMonitorDeletionImpact(
+  dashboardId: string,
+  monitorId: string,
+): Promise<MonitorDeletionImpactPage[]> {
+  const rows = await prisma.statusPage.findMany({
     where: {
-      id_dashboardId: {
-        id: monitorId,
-        dashboardId,
+      dashboardId,
+      deletedAt: null,
+      monitors: { some: { monitorCheckId: monitorId } },
+    },
+    select: {
+      id: true,
+      name: true,
+      isPublished: true,
+      _count: {
+        select: {
+          monitors: {
+            // Paused monitors are still public components, so isEnabled is deliberately not filtered
+            where: { monitorCheckId: { not: monitorId }, monitorCheck: { deletedAt: null } },
+          },
+        },
       },
     },
-    data: { deletedAt: new Date() },
+    orderBy: [{ name: 'asc' }, { id: 'asc' }],
   });
+
+  return rows.map((row) =>
+    MonitorDeletionImpactPageSchema.parse({
+      id: row.id,
+      name: row.name,
+      willBeEmpty: row.isPublished && row._count.monitors === 0,
+    }),
+  );
 }

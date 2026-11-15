@@ -7,14 +7,12 @@ import {
   upsertSubscription as upsertSubscriptionRepository,
   updateSubscriptionStatus as updateSubscriptionStatusRepository,
 } from '@/repositories/postgres/subscription.repository';
-import { buildStarterSubscription } from '@/entities/billing/billing.entities';
+import { buildFreeSubscription } from '@/entities/billing/billing.entities';
 
-export async function createStarterSubscriptionForUser(userId: string): Promise<void> {
-  const starterSubscription = buildStarterSubscription();
-
+export async function createFreeSubscriptionForUser(userId: string): Promise<void> {
   await upsertSubscriptionRepository({
     userId,
-    ...starterSubscription,
+    ...buildFreeSubscription(),
   });
 }
 
