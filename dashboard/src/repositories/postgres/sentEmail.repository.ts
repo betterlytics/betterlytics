@@ -31,3 +31,25 @@ export async function findSentRecipientKeys(recipientKeys: string[], campaignKey
   });
   return new Set(rows.map((r) => r.recipientKey));
 }
+
+/**
+ * Returns the sent campaignKeys per recipientKey, limited to the given recipients and campaigns.
+ * Use to bulk pre-dedup when the campaign key differs per recipient.
+ */
+export async function findSentCampaignKeysByRecipient(
+  recipientKeys: string[],
+  campaignKeys: string[],
+): Promise<Map<string, Set<string>>> {
+  const out = new Map<string, Set<string>>();
+  if (recipientKeys.length === 0 || campaignKeys.length === 0) return out;
+  const rows = await prisma.sentEmail.findMany({
+    where: { recipientKey: { in: recipientKeys }, campaignKey: { in: campaignKeys } },
+    select: { recipientKey: true, campaignKey: true },
+  });
+  for (const row of rows) {
+    const keys = out.get(row.recipientKey);
+    if (keys) keys.add(row.campaignKey);
+    else out.set(row.recipientKey, new Set([row.campaignKey]));
+  }
+  return out;
+}
