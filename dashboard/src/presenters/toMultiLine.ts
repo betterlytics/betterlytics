@@ -1,50 +1,35 @@
-import { CoreWebVitalName, CoreWebVitalNamedPercentilesRow } from '@/entities/analytics/webVitals.entities';
-import { getDateKey } from '@/utils/dateHelpers';
+import {
+  CORE_WEB_VITAL_NAMES,
+  CoreWebVitalName,
+  CoreWebVitalNamedPercentilesRow,
+} from '@/entities/analytics/webVitals.entities';
+import { parseClickHouseDate } from '@/utils/dateHelpers';
 
-export type PercentilePoint = { date: number; value: [number, number, number, number] };
+type Percentiles = [number | null, number | null, number | null, number | null];
+export type PercentilePoint = { date: number; value: Percentiles };
 export type CoreWebVitalsSeries = Record<CoreWebVitalName, PercentilePoint[]>;
 
-export function toWebVitalsPercentileChart(
-  rows: CoreWebVitalNamedPercentilesRow[],
-): Record<CoreWebVitalName, PercentilePoint[]> {
-  const byMetric: Record<CoreWebVitalName, Record<string, [number, number, number, number]>> = {
-    CLS: {},
-    LCP: {},
-    INP: {},
-    FCP: {},
-    TTFB: {},
-  };
+export function toWebVitalsPercentileChart(rows: CoreWebVitalNamedPercentilesRow[]): CoreWebVitalsSeries {
+  const periods = new Set<number>();
+  const byMetric = Object.fromEntries(
+    CORE_WEB_VITAL_NAMES.map((name) => [name, new Map<number, Percentiles>()]),
+  ) as Record<CoreWebVitalName, Map<number, Percentiles>>;
 
-  for (const r of rows) {
-    const key = getDateKey(r.date);
-    const value: [number, number, number, number] = [r.p50 ?? 0, r.p75 ?? 0, r.p90 ?? 0, r.p99 ?? 0];
-
-    if (r.name !== '') {
-      byMetric[r.name][key] = value;
-    } else {
-      (Object.keys(byMetric) as CoreWebVitalName[]).forEach((name) => {
-        byMetric[name][key] = value;
-      });
+  for (const row of rows) {
+    const date = parseClickHouseDate(row.date).valueOf();
+    periods.add(date);
+    // Rows without a name are the query's period filling: they add a period, not samples
+    if (row.name !== '') {
+      byMetric[row.name].set(date, [row.p50, row.p75, row.p90, row.p99]);
     }
   }
 
-  const result: Record<CoreWebVitalName, PercentilePoint[]> = {
-    CLS: [],
-    LCP: [],
-    INP: [],
-    FCP: [],
-    TTFB: [],
-  };
+  const timeline = [...periods].sort((a, b) => a - b);
 
-  (Object.keys(result) as CoreWebVitalName[]).forEach((name) => {
-    const keys = Object.keys(byMetric[name])
-      .map((k) => Number(k))
-      .sort((a, b) => a - b);
-    for (const ts of keys) {
-      const vals = byMetric[name][String(ts)] ?? [0, 0, 0, 0];
-      result[name].push({ date: ts, value: vals });
-    }
-  });
-
-  return result;
+  return Object.fromEntries(
+    CORE_WEB_VITAL_NAMES.map((name) => [
+      name,
+      timeline.map((date) => ({ date, value: byMetric[name].get(date) ?? [null, null, null, null] })),
+    ]),
+  ) as CoreWebVitalsSeries;
 }
