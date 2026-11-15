@@ -1,12 +1,11 @@
 'use client';
 
-import Link from 'next/link';
 import { Play } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent } from '@/components/ui/card';
-import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
+import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 
 type ReplayCardProps = {
   replaySessionId: string;
@@ -14,7 +13,6 @@ type ReplayCardProps = {
 
 export function ReplayCard({ replaySessionId }: ReplayCardProps) {
   const t = useTranslations('errors.detail.sidebar');
-  const { resolveHref } = useDashboardNavigation();
   const { isDemo } = useDashboardAuth();
 
   const content = (
@@ -43,9 +41,9 @@ export function ReplayCard({ replaySessionId }: ReplayCardProps) {
     <PermissionGate allowViewer>
       {() => (
         isDemo ? card : (
-          <Link href={resolveHref(`/replay?sessionId=${replaySessionId}`)}>
+          <FilterPreservingLink href={`/replay?sessionId=${replaySessionId}`}>
             {card}
-          </Link>
+          </FilterPreservingLink>
         )
       )}
     </PermissionGate>

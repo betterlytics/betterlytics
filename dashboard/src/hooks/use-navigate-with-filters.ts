@@ -21,20 +21,26 @@ export function useNavigateWithFilters() {
     [navigation],
   );
 
+  // Use this for link and/or external navigation
+  const getHrefWithFilters = useCallback(
+    (href: string): string => {
+      const url = new URL(resolveHref(href), 'http://placeholder');
+
+      // Preserve current search params; the new URL's own params take precedence
+      const params = new URLSearchParams(searchParams?.toString());
+      EXCLUDED_PARAMS.forEach((p) => params.delete(p));
+      url.searchParams.forEach((value, key) => params.set(key, value));
+      url.search = params.toString();
+
+      return url.pathname + url.search + url.hash;
+    },
+    [resolveHref, searchParams],
+  );
+
   // Use this for actions triggered by button clicks or other client-side events
   const navigate = useCallback(
     (href: string, options?: { replace?: boolean }) => {
-      const resolvedHref = resolveHref(href);
-      const url = new URL(resolvedHref, 'http://placeholder');
-
-      // Preserve current search params if the new URL doesn't have any
-      if (!url.search && searchParams?.toString()) {
-        const filtered = new URLSearchParams(searchParams.toString());
-        EXCLUDED_PARAMS.forEach((p) => filtered.delete(p));
-        url.search = filtered.toString();
-      }
-
-      const finalUrl = url.pathname + url.search + url.hash;
+      const finalUrl = getHrefWithFilters(href);
 
       if (options?.replace) {
         router.replace(finalUrl);
@@ -42,25 +48,7 @@ export function useNavigateWithFilters() {
         router.push(finalUrl);
       }
     },
-    [resolveHref, router, searchParams],
-  );
-
-  // Use this for link and/or external navigation
-  const getHrefWithFilters = useCallback(
-    (href: string): string => {
-      const resolvedHref = resolveHref(href);
-      const url = new URL(resolvedHref, 'http://placeholder');
-
-      // Preserve current search params if the new URL doesn't have any
-      if (!url.search && searchParams?.toString()) {
-        const filtered = new URLSearchParams(searchParams.toString());
-        EXCLUDED_PARAMS.forEach((p) => filtered.delete(p));
-        url.search = filtered.toString();
-      }
-
-      return url.pathname + url.search + url.hash;
-    },
-    [resolveHref, searchParams],
+    [getHrefWithFilters, router],
   );
 
   return {
