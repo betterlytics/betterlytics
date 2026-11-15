@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-  excludePausedTime,
   monitorsWithUnrecordedPause,
   pausedOverlapMs,
   unpausedDurationMs,
@@ -33,51 +32,6 @@ describe('unpausedDurationMs', () => {
   it('leaves paused time out of an incident that stayed open across a pause', () => {
     // Down from 0h to 10h, paused 2h to 7h.
     expect(unpausedDurationMs([pause(2, 7)], at(0) * 1000, at(10) * 1000)).toBe(5 * HOUR * 1000);
-  });
-});
-
-describe('excludePausedTime', () => {
-  const day = { totalSeconds: 24 * HOUR, windowStart: at(0), windowEnd: at(24) };
-
-  it('changes nothing without pauses', () => {
-    const window = { ...day, uptimeSeconds: 20 * HOUR, downtime: [[at(1), at(5)]] as Array<[number, number]> };
-    expect(excludePausedTime(window, [])).toEqual({ totalSeconds: 24 * HOUR, uptimeSeconds: 20 * HOUR });
-  });
-
-  it('leaves paused up time out of the total', () => {
-    // Up all day, paused for 6 hours: 18 of 18 monitored hours up.
-    const window = { ...day, uptimeSeconds: 24 * HOUR, downtime: [] };
-    expect(excludePausedTime(window, [pause(6, 12)])).toEqual({
-      totalSeconds: 18 * HOUR,
-      uptimeSeconds: 18 * HOUR,
-    });
-  });
-
-  it('counts paused time during an incident as neither up nor down', () => {
-    // Down 4h to 16h (12h), paused 6h to 12h: 6h of the downtime was paused.
-    const window = { ...day, uptimeSeconds: 12 * HOUR, downtime: [[at(4), at(16)]] as Array<[number, number]> };
-    expect(excludePausedTime(window, [pause(6, 12)])).toEqual({
-      totalSeconds: 18 * HOUR,
-      uptimeSeconds: 12 * HOUR,
-    });
-  });
-
-  it('gives a fully paused window no data', () => {
-    const window = { ...day, uptimeSeconds: 0, downtime: [[at(0), at(24)]] as Array<[number, number]> };
-    expect(excludePausedTime(window, [pause(-5, null)])).toEqual({ totalSeconds: 0, uptimeSeconds: null });
-  });
-
-  it('keeps a window without data without data', () => {
-    const window = { ...day, uptimeSeconds: null, downtime: [] };
-    expect(excludePausedTime(window, [pause(6, 12)])).toEqual({ totalSeconds: 18 * HOUR, uptimeSeconds: null });
-  });
-
-  it('ignores pauses outside the window', () => {
-    const window = { ...day, uptimeSeconds: 24 * HOUR, downtime: [] };
-    expect(excludePausedTime(window, [pause(30, 40)])).toEqual({
-      totalSeconds: 24 * HOUR,
-      uptimeSeconds: 24 * HOUR,
-    });
   });
 });
 

@@ -1,7 +1,5 @@
 import type { MonitorPausePeriod } from './monitoring.entities';
 
-// Paused time counts as neither up nor down: it is left out of the monitored time and of the downtime.
-
 export function pausesForMonitor(pauses: MonitorPausePeriod[], monitorCheckId: string): MonitorPausePeriod[] {
   return pauses.filter((pause) => pause.monitorCheckId === monitorCheckId);
 }
@@ -33,37 +31,6 @@ export function pausedOverlapMs(pauses: MonitorPausePeriod[], startMs: number, e
 /** An incident's duration without the time its monitor was paused. */
 export function unpausedDurationMs(pauses: MonitorPausePeriod[], startMs: number, endMs: number): number {
   return Math.max(0, endMs - startMs - pausedOverlapMs(pauses, startMs, endMs));
-}
-
-export type UptimeWindow = {
-  totalSeconds: number;
-  /** Null when the window has no data. */
-  uptimeSeconds: number | null;
-  /** The monitored window, in unix seconds. */
-  windowStart: number;
-  windowEnd: number;
-  /** Incident stretches inside the window, in unix seconds. */
-  downtime: Array<[number, number]>;
-};
-
-/** Removes paused time from a window's total and downtime; a fully paused window has no data. */
-export function excludePausedTime(
-  window: UptimeWindow,
-  pauses: MonitorPausePeriod[],
-): { totalSeconds: number; uptimeSeconds: number | null } {
-  if (!pauses.length) return { totalSeconds: window.totalSeconds, uptimeSeconds: window.uptimeSeconds };
-
-  const pausedSeconds = pausedOverlapMs(pauses, window.windowStart * 1000, window.windowEnd * 1000) / 1000;
-  const pausedDownSeconds = window.downtime.reduce(
-    (sum, [start, end]) => sum + pausedOverlapMs(pauses, start * 1000, end * 1000) / 1000,
-    0,
-  );
-
-  const totalSeconds = Math.max(0, window.totalSeconds - pausedSeconds);
-  if (window.uptimeSeconds == null || totalSeconds === 0) return { totalSeconds, uptimeSeconds: null };
-
-  const uptimeSeconds = window.uptimeSeconds - pausedSeconds + pausedDownSeconds;
-  return { totalSeconds, uptimeSeconds: Math.min(totalSeconds, Math.max(0, uptimeSeconds)) };
 }
 
 /** Paused monitors with no open period recorded: paused before pause times were recorded. */
