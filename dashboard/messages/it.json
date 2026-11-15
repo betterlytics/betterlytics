@@ -3991,6 +3991,7 @@
         "fair": "Discreto",
         "poor": "Scarso"
       },
+      "noSamples": "Nessun campione in questo periodo",
       "table": {
         "title": "Analisi prestazioni",
         "performance": "Prestazioni",

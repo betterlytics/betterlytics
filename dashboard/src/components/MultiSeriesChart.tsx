@@ -75,6 +75,7 @@ interface MultiSeriesChartProps {
   className?: string;
   contentClassName?: string;
   showSinglePoints?: boolean;
+  emptyMessage?: React.ReactNode;
 }
 
 const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
@@ -94,6 +95,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
     className,
     contentClassName,
     showSinglePoints,
+    emptyMessage,
   }) => {
     const locale = useLocale();
     const { axisFormatter, labelFormatter } = useChartDateFormatters(granularity);
@@ -104,6 +106,10 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
       };
     }, [formatValue, locale]);
     const isMobile = useIsMobile();
+    const hasValues = useMemo(
+      () => data.some((point) => point.value.some((v) => typeof v === 'number')),
+      [data],
+    );
 
     return (
       <Card className={cn('px-3 pt-2 pb-4 sm:px-2 sm:pt-4 sm:pb-5', className)}>
@@ -121,6 +127,10 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
           {loading ? (
             <div className='relative h-80 py-1 sm:px-2 md:px-4'>
               <Skeleton className='h-80 w-full' />
+            </div>
+          ) : emptyMessage && !hasValues ? (
+            <div className='text-muted-foreground flex h-80 items-center justify-center py-1 text-sm font-medium md:px-4'>
+              {emptyMessage}
             </div>
           ) : (
           <div className='h-80 overflow-hidden py-1 md:px-4'>

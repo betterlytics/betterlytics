@@ -93,6 +93,8 @@ export default function InteractiveWebVitalsChartSection() {
           series={SERIES_DEFS}
           yReferenceAreas={yReferenceAreas}
           headerContent={gaugeContent}
+          showSinglePoints
+          emptyMessage={t('noSamples')}
         />
       </div>
     </div>

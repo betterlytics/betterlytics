@@ -3991,6 +3991,7 @@
         "fair": "Middel",
         "poor": "Dårlig"
       },
+      "noSamples": "Ingen målinger i denne periode",
       "table": {
         "title": "Performance-opdeling",
         "performance": "Ydelse",

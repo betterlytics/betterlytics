@@ -3991,6 +3991,7 @@
         "fair": "Fair",
         "poor": "Poor"
       },
+      "noSamples": "No samples in this period",
       "table": {
         "title": "Performance breakdown",
         "performance": "Performance",
