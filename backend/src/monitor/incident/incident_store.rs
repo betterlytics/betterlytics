@@ -192,7 +192,7 @@ impl From<IncidentSeedRow> for IncidentSeed {
 
 const INCIDENT_BATCH_SIZE: usize = 200;
 const INCIDENT_CHANNEL_CAPACITY: usize = 2_000;
-// About 6 minutes of retries before a row is given up on.
+// About 4 minutes of retries before a row is given up on.
 const INCIDENT_WRITE_RETRY: RetryPolicy = RetryPolicy {
     max_attempts: 10,
     base_delay: Duration::from_secs(1),
