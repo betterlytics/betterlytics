@@ -18,6 +18,7 @@ import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { BASessionQuery } from '@/lib/ba-session-query';
+import { SessionMetricSql } from '@/lib/session-metrics-sql';
 
 export async function getTotalPageViews(siteQuery: BASiteQuery): Promise<TotalPageViewsRow[]> {
   const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
@@ -324,10 +325,10 @@ export async function getEntryPageAnalytics(siteQuery: BASiteQuery, limit = 100)
       entry_agg AS (
         SELECT
           entry_page              AS path,
-          count()                 AS visitors,
-          countIf(pageview_count = 1) AS bounce_sessions,
-          sum(pageview_count)     AS pageviews,
-          avg(dateDiff('second', session_start, session_end)) AS avg_session_time
+          ${SessionMetricSql.sessions} AS visitors,
+          round(${SessionMetricSql.bounceRate}, 2) AS bounce_rate,
+          ${SessionMetricSql.pageviews} AS pageviews,
+          ${SessionMetricSql.avgVisitDuration} AS avg_session_time
         FROM filtered_sessions
         WHERE entry_page != ''
         GROUP BY entry_page
@@ -336,7 +337,7 @@ export async function getEntryPageAnalytics(siteQuery: BASiteQuery, limit = 100)
       ea.path                                                                  AS path,
       ea.visitors                                                              AS visitors,
       ea.pageviews                                                             AS pageviews,
-      if(ea.visitors > 0, round(ea.bounce_sessions / ea.visitors * 100, 2), 0) AS bounceRate,
+      ea.bounce_rate                                                           AS bounceRate,
       ea.avg_session_time                                                      AS avgTime,
       if(ts.n > 0, round(ea.visitors / ts.n * 100, 2), 0)                      AS entryRate,
       NULL                                                                     AS avgScrollDepth
@@ -391,9 +392,9 @@ export async function getExitPageAnalytics(siteQuery: BASiteQuery, limit = 100):
       exit_agg AS (
         SELECT
           exit_page               AS path,
-          count()                 AS visitors,
-          sum(pageview_count)     AS pageviews,
-          avg(dateDiff('second', session_start, session_end)) AS avg_session_time
+          ${SessionMetricSql.sessions} AS visitors,
+          ${SessionMetricSql.pageviews} AS pageviews,
+          ${SessionMetricSql.avgVisitDuration} AS avg_session_time
         FROM filtered_sessions
         WHERE exit_page != ''
         GROUP BY exit_page
