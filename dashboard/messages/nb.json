@@ -4587,6 +4587,7 @@
   },
   "validation": {
     "termsOfServiceRequired": "Du må godta vilkårene for å fortsette.",
+    "onboardingAlreadyComplete": "Introduksjonen er allerede fullført.",
     "urlMustBeOnDomain": "URL-en må være på {domain} eller et underdomene",
     "monitorAlreadyExists": "En monitor for denne URL-en finnes allerede",
     "statusPageSlugTaken": "Denne URL-sluggen er allerede i bruk",
