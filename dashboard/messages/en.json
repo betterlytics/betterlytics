@@ -4145,6 +4145,10 @@
       "invitationExpired": "This invitation has expired",
       "invitationEmailMismatch": "This invitation was sent to a different email address",
       "invitationNotFound": "Invitation not found"
+    },
+    "heatmapCaptures": {
+      "demoDashboard": "Heatmap captures are not available on the demo dashboard.",
+      "storageNotConfigured": "Heatmap captures need storage: this server is set to store replays in S3, but S3 is not configured. Configure S3 or set REPLAY_STORAGE=clickhouse."
     }
   },
   "banners": {

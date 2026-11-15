@@ -4145,6 +4145,10 @@
       "invitationExpired": "Questo invito è scaduto",
       "invitationEmailMismatch": "Questo invito è stato inviato a un indirizzo email diverso",
       "invitationNotFound": "Invito non trovato"
+    },
+    "heatmapCaptures": {
+      "demoDashboard": "Le acquisizioni per le heatmap non sono disponibili nella dashboard demo.",
+      "storageNotConfigured": "Le acquisizioni per le heatmap richiedono uno spazio di archiviazione: questo server è impostato per salvare i replay su S3, ma S3 non è configurato. Configura S3 oppure imposta REPLAY_STORAGE=clickhouse."
     }
   },
   "banners": {

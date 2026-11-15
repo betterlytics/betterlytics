@@ -19,6 +19,7 @@ import { savedFiltersRouter } from '@/trpc/routers/savedFilters';
 import { annotationsRouter } from '@/trpc/routers/annotations';
 import { systemRouter } from '@/trpc/routers/system';
 import { monitorsRouter } from '@/trpc/routers/monitors';
+import { heatmapCapturesRouter } from '@/trpc/routers/heatmapCaptures';
 
 export const appRouter = createRouter({
   overview: overviewRouter,
@@ -41,6 +42,7 @@ export const appRouter = createRouter({
   annotations: annotationsRouter,
   system: systemRouter,
   monitors: monitorsRouter,
+  heatmapCaptures: heatmapCapturesRouter,
 });
 
 export type AppRouter = typeof appRouter;

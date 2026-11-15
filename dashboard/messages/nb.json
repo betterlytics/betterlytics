@@ -4145,6 +4145,10 @@
       "invitationExpired": "Denne invitasjonen er utløpt",
       "invitationEmailMismatch": "Denne invitasjonen ble sendt til en annen e-postadresse",
       "invitationNotFound": "Invitasjon ikke funnet"
+    },
+    "heatmapCaptures": {
+      "demoDashboard": "Heatmap-opptak er ikke tilgjengelig på demo-dashbordet.",
+      "storageNotConfigured": "Heatmap-opptak trenger lagring: serveren er satt til å lagre replays i S3, men S3 er ikke konfigurert. Konfigurer S3, eller sett REPLAY_STORAGE=clickhouse."
     }
   },
   "banners": {
