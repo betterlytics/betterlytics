@@ -45,7 +45,7 @@ describe('average visit duration outside the Overview', () => {
     expect(sql()).toContain(
       'round(if(count() > 0, 100 * (count() - countIf(pageview_count > 1)) / count(), 0), 1) AS bounce_rate',
     );
-    expect(sql()).toContain(`${AVG_VISIT_DURATION} AS avg_visit_duration`);
+    expect(sql()).toContain(`round(${AVG_VISIT_DURATION}) AS avg_visit_duration`);
     expect(sql()).toContain("referrer_source_effective != 'internal'");
     expect(sql()).toContain('GROUP BY source_type, source_name, source_url');
   });
@@ -55,7 +55,7 @@ describe('average visit duration outside the Overview', () => {
     await getExitPageAnalytics(siteQuery);
 
     for (const [entrySql] of query.mock.calls) {
-      expect(entrySql).toContain(`${AVG_VISIT_DURATION} AS avg_session_time`);
+      expect(entrySql).toContain(`round(${AVG_VISIT_DURATION}) AS avg_session_time`);
     }
   });
 

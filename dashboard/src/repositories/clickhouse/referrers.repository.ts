@@ -125,7 +125,7 @@ export async function getReferrerTableData(siteQuery: BASiteQuery, limit: number
       referrer_url AS source_url,
       ${SessionMetricSql.sessions} AS visits,
       round(${SessionMetricSql.bounceRate}, 1) AS bounce_rate,
-      ${SessionMetricSql.avgVisitDuration} AS avg_visit_duration
+      round(${SessionMetricSql.avgVisitDuration}) AS avg_visit_duration
     FROM ${sessionSubQuery}
     WHERE referrer_source_effective != 'internal'
     GROUP BY source_type, source_name, source_url

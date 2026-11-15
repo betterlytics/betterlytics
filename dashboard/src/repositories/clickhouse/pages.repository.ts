@@ -328,7 +328,7 @@ export async function getEntryPageAnalytics(siteQuery: BASiteQuery, limit = 100)
           ${SessionMetricSql.sessions} AS visitors,
           round(${SessionMetricSql.bounceRate}, 2) AS bounce_rate,
           ${SessionMetricSql.pageviews} AS pageviews,
-          ${SessionMetricSql.avgVisitDuration} AS avg_session_time
+          round(${SessionMetricSql.avgVisitDuration}) AS avg_session_time
         FROM filtered_sessions
         WHERE entry_page != ''
         GROUP BY entry_page
@@ -394,7 +394,7 @@ export async function getExitPageAnalytics(siteQuery: BASiteQuery, limit = 100):
           exit_page               AS path,
           ${SessionMetricSql.sessions} AS visitors,
           ${SessionMetricSql.pageviews} AS pageviews,
-          ${SessionMetricSql.avgVisitDuration} AS avg_session_time
+          round(${SessionMetricSql.avgVisitDuration}) AS avg_session_time
         FROM filtered_sessions
         WHERE exit_page != ''
         GROUP BY exit_page
