@@ -4051,7 +4051,9 @@
           "description": "Try expanding your time range or adjusting filters."
         },
         "sessionErrorsTooltip": "{count, plural, one {This session captured {count} client-side error} other {This session captured {count} client-side errors}}",
-        "sessionRageClicksTooltip": "{count, plural, one {This session has {count} rage click} other {This session has {count} rage clicks}}"
+        "sessionRageClicksTooltip": "{count, plural, one {This session has {count} rage click} other {This session has {count} rage clicks}}",
+        "linked": "Linked",
+        "linkedSession": "Linked session"
       },
       "playerTopbar": {
         "startLabel": "Start:",
@@ -4082,7 +4084,11 @@
       "player": {
         "skipInactive": "Skip inactivity",
         "playbackSpeedAria": "Playback speed",
-        "recordingDisabled": "Recording is disabled on this page"
+        "recordingDisabled": "Recording is disabled on this page",
+        "notFound": {
+          "title": "Recording no longer available",
+          "description": "This session recording doesn't exist or has expired. Recordings are kept for 2 months."
+        }
       }
     },
     "integration": {

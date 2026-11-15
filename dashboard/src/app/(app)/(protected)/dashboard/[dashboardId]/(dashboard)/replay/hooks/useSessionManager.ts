@@ -9,6 +9,8 @@ import { useUrlSearchParam } from '@/hooks/use-sync-url-filters';
 export type UseSessionManagerReturn = {
   sessions: SessionReplay[];
   selectedSession: SessionReplay | null;
+  linkedSession: SessionReplay | null;
+  isLinkedSessionNotFound: boolean;
   isLoading: boolean;
   error: string | null;
   selectSession: (session: SessionReplay) => void;
@@ -20,7 +22,7 @@ export type UseSessionManagerReturn = {
 const PAGE_SIZE = 20;
 
 export function useSessionManager(): UseSessionManagerReturn {
-  const [selectedSession, setSelectedSession] = useState<SessionReplay | null>(null);
+  const [picked, setPicked] = useState<{ session: SessionReplay; awaitingUrl: boolean } | null>(null);
   const [sessionIdParam, setSessionIdParam] = useUrlSearchParam('sessionId');
   const { input, options } = useBAQueryParams();
 
@@ -36,36 +38,52 @@ export function useSessionManager(): UseSessionManagerReturn {
 
   const sessions = useMemo(() => sessionQuery.data?.pages.flatMap((page) => page) ?? [], [sessionQuery.data]);
 
+  // A pick shows at once, before the URL catches up
+  const pickedSession =
+    picked && (picked.awaitingUrl || sessionIdParam === picked.session.session_id) ? picked.session : null;
+
   useEffect(() => {
-    if (sessions.length === 0) {
-      setSelectedSession(null);
-      return;
+    if (picked?.awaitingUrl && sessionIdParam === picked.session.session_id) {
+      setPicked({ session: picked.session, awaitingUrl: false });
     }
+  }, [picked, sessionIdParam]);
 
-    const chosen =
-      (sessionIdParam ? sessions.find((s) => s.session_id === sessionIdParam) : undefined) ?? sessions[0];
+  // A session id in the URL that the user didn't pick from the list came from a link
+  const linkedSessionId = !pickedSession && sessionIdParam ? sessionIdParam : undefined;
 
-    setSelectedSession((prev) => {
-      if (prev?.session_id === chosen.session_id) {
-        return prev;
-      }
-      return chosen;
-    });
-  }, [sessionIdParam, sessions]);
+  const linkedSessionQuery = trpc.sessionReplays.byId.useQuery(
+    { dashboardId: input.dashboardId, sessionId: linkedSessionId ?? '' },
+    { enabled: Boolean(linkedSessionId) },
+  );
+
+  const listedLinkedSession = linkedSessionId ? sessions.find((s) => s.session_id === linkedSessionId) : undefined;
+  const linkedSession = linkedSessionId ? (listedLinkedSession ?? linkedSessionQuery.data ?? null) : null;
+  const isLinkedSessionNotFound =
+    Boolean(linkedSessionId) && !listedLinkedSession && linkedSessionQuery.isSuccess && !linkedSessionQuery.data;
+
+  const selectedSession = useMemo(() => {
+    if (pickedSession) return sessions.find((s) => s.session_id === pickedSession.session_id) ?? pickedSession;
+    if (linkedSessionId) return linkedSession;
+    return sessions[0] ?? null;
+  }, [pickedSession, linkedSessionId, linkedSession, sessions]);
 
   const selectSession = (session: SessionReplay) => {
     if (selectedSession?.session_id === session.session_id) {
       return;
     }
+    setPicked({ session, awaitingUrl: true });
     setSessionIdParam(session.session_id);
-    setSelectedSession(session);
   };
+
+  const linkedSessionError = linkedSessionId && !listedLinkedSession ? linkedSessionQuery.error : null;
 
   return {
     sessions,
     selectedSession,
+    linkedSession,
+    isLinkedSessionNotFound,
     isLoading: sessionQuery.isLoading,
-    error: (sessionQuery.error as Error | null)?.message ?? null,
+    error: (sessionQuery.error ?? linkedSessionError)?.message ?? null,
     selectSession,
     fetchNextPage: () => {
       if (sessionQuery.hasNextPage && !sessionQuery.isFetchingNextPage) void sessionQuery.fetchNextPage();
