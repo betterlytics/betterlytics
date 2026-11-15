@@ -1,9 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { deleteMonitorCheck, getMonitorDeletionImpact } from '@/repositories/postgres/monitoring.repository';
+import {
+  deleteMonitorCheck,
+  getMonitorDeletionImpact,
+  updateMonitorCheck,
+} from '@/repositories/postgres/monitoring.repository';
 
 const prismaMock = vi.hoisted(() => ({
   monitorCheck: {
     update: vi.fn(),
+    updateMany: vi.fn(),
+  },
+  monitorPausePeriod: {
+    create: vi.fn(),
+    updateMany: vi.fn(),
   },
   statusPageMonitor: {
     deleteMany: vi.fn(),
@@ -109,5 +118,99 @@ describe('getMonitorDeletionImpact', () => {
     prismaMock.statusPage.findMany.mockRejectedValue(new Error('db down'));
 
     await expect(getMonitorDeletionImpact(DASHBOARD_ID, MONITOR_ID)).rejects.toThrow('db down');
+  });
+});
+
+describe('updateMonitorCheck pause recording', () => {
+  const UNRECORDED_PAUSED_AT = new Date('2026-11-01T10:00:00Z');
+
+  beforeEach(() => {
+    prismaMock.$transaction.mockImplementation(async (run) => run(prismaMock));
+    prismaMock.monitorCheck.update.mockImplementation(async ({ data }) => ({
+      id: MONITOR_ID,
+      dashboardId: DASHBOARD_ID,
+      url: 'https://example.com',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      ...data,
+    }));
+    prismaMock.monitorPausePeriod.updateMany.mockResolvedValue({ count: 0 });
+  });
+
+  it('opens a pause period when pausing', async () => {
+    prismaMock.monitorCheck.updateMany.mockResolvedValue({ count: 1 });
+
+    await updateMonitorCheck(DASHBOARD_ID, { id: MONITOR_ID, isEnabled: false });
+
+    expect(prismaMock.monitorCheck.updateMany).toHaveBeenCalledWith({
+      where: { id: MONITOR_ID, dashboardId: DASHBOARD_ID, isEnabled: true },
+      data: { isEnabled: false },
+    });
+    expect(prismaMock.monitorPausePeriod.create).toHaveBeenCalledWith({
+      data: { monitorCheckId: MONITOR_ID, pausedAt: expect.any(Date) },
+    });
+    expect(prismaMock.monitorPausePeriod.updateMany).not.toHaveBeenCalled();
+  });
+
+  it('closes the open pause period when resuming', async () => {
+    prismaMock.monitorCheck.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.monitorPausePeriod.updateMany.mockResolvedValue({ count: 1 });
+
+    await updateMonitorCheck(
+      DASHBOARD_ID,
+      { id: MONITOR_ID, isEnabled: true },
+      { unrecordedPausedAt: UNRECORDED_PAUSED_AT },
+    );
+
+    expect(prismaMock.monitorCheck.updateMany).toHaveBeenCalledWith({
+      where: { id: MONITOR_ID, dashboardId: DASHBOARD_ID, isEnabled: false },
+      data: { isEnabled: true },
+    });
+    expect(prismaMock.monitorPausePeriod.updateMany).toHaveBeenCalledWith({
+      where: { monitorCheckId: MONITOR_ID, resumedAt: null },
+      data: { resumedAt: expect.any(Date) },
+    });
+    expect(prismaMock.monitorPausePeriod.create).not.toHaveBeenCalled();
+  });
+
+  it('records a closed period from the last check when resuming a monitor paused before pauses were recorded', async () => {
+    prismaMock.monitorCheck.updateMany.mockResolvedValue({ count: 1 });
+
+    await updateMonitorCheck(
+      DASHBOARD_ID,
+      { id: MONITOR_ID, isEnabled: true },
+      { unrecordedPausedAt: UNRECORDED_PAUSED_AT },
+    );
+
+    expect(prismaMock.monitorPausePeriod.create).toHaveBeenCalledWith({
+      data: { monitorCheckId: MONITOR_ID, pausedAt: UNRECORDED_PAUSED_AT, resumedAt: expect.any(Date) },
+    });
+  });
+
+  it.each([
+    { name: 'pausing an already paused monitor', isEnabled: false },
+    { name: 'resuming an already running monitor', isEnabled: true },
+  ])('records nothing when $name', async ({ isEnabled }) => {
+    prismaMock.monitorCheck.updateMany.mockResolvedValue({ count: 0 });
+
+    await updateMonitorCheck(
+      DASHBOARD_ID,
+      { id: MONITOR_ID, isEnabled },
+      { unrecordedPausedAt: UNRECORDED_PAUSED_AT },
+    );
+
+    expect(prismaMock.monitorPausePeriod.create).not.toHaveBeenCalled();
+    expect(prismaMock.monitorPausePeriod.updateMany).not.toHaveBeenCalled();
+  });
+
+  it('leaves pause state alone for an edit that does not touch isEnabled', async () => {
+    await updateMonitorCheck(DASHBOARD_ID, { id: MONITOR_ID, name: 'Renamed' });
+
+    expect(prismaMock.monitorCheck.updateMany).not.toHaveBeenCalled();
+    expect(prismaMock.monitorPausePeriod.create).not.toHaveBeenCalled();
+    expect(prismaMock.monitorPausePeriod.updateMany).not.toHaveBeenCalled();
+    expect(prismaMock.monitorCheck.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ name: 'Renamed' }) }),
+    );
   });
 });
