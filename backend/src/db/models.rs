@@ -183,6 +183,14 @@ pub struct SessionReplaySegmentRow {
 }
 
 #[derive(clickhouse::Row, Serialize, Debug)]
+pub struct HeatmapCaptureRow {
+    pub site_id: String,
+    pub capture_id: String,
+    pub size_bytes: u64,
+    pub data: String,
+}
+
+#[derive(clickhouse::Row, Serialize, Debug)]
 pub struct TelemetryPingRow {
     #[serde(with = "clickhouse::serde::chrono::date")]
     pub date: NaiveDate,

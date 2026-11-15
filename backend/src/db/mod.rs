@@ -13,7 +13,7 @@ use crate::metrics::MetricsCollector;
 use crate::processing::{BotEvent, ProcessedEvent};
 
 mod models;
-pub use models::{ActiveSessionRow, BotEventRow, EventRow, HeatmapClickRow, ReferrerSourceCategoryRow, SessionReplayMetaRow, SessionReplayRow, SessionReplaySegmentRow, TelemetryPingRow};
+pub use models::{ActiveSessionRow, BotEventRow, EventRow, HeatmapCaptureRow, HeatmapClickRow, ReferrerSourceCategoryRow, SessionReplayMetaRow, SessionReplayRow, SessionReplaySegmentRow, TelemetryPingRow};
 
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
 const BOT_CHANNEL_CAPACITY: usize = 10_000;
@@ -22,6 +22,7 @@ const INSERTER_TIMEOUT_SECS: u64 = 5;
 /// Cap on awaiting the insert acknowledgement, so a black-hole connection
 /// surfaces as a retryable timeout instead of hanging the flush.
 const INSERTER_END_TIMEOUT_SECS: u64 = 10;
+const HEATMAP_CAPTURE_TIMEOUT_SECS: u64 = 30;
 const INSERTER_PERIOD_SECS: u64 = 10;
 /// Flush when the batch reaches this many rows. Sized so even validation's
 /// worst-case event (~30 KB of properties + error payload) keeps a batch
@@ -243,6 +244,28 @@ impl Database {
 
     pub async fn insert_replay_segment(&self, row: SessionReplaySegmentRow) -> Result<()> {
         self.insert_one("analytics.session_replay_segments", &row).await
+    }
+
+    /// A plain insert: async_insert would buffer a snapshot of up to 40 MB in the server's queue
+    pub async fn insert_heatmap_capture(&self, row: HeatmapCaptureRow) -> Result<()> {
+        let mut insert = self.clickhouse.inner().insert::<HeatmapCaptureRow>("analytics.heatmap_captures")?;
+        insert.write(&row).await?;
+        tokio::time::timeout(Duration::from_secs(HEATMAP_CAPTURE_TIMEOUT_SECS), insert.end())
+            .await
+            .map_err(|_| anyhow::anyhow!("heatmap capture insert timed out"))??;
+        Ok(())
+    }
+
+    pub async fn delete_heatmap_captures(&self, site_id: &str, capture_ids: &[String]) -> Result<()> {
+        let delete = self.clickhouse.inner()
+            .query("DELETE FROM analytics.heatmap_captures WHERE site_id = ? AND has(?, capture_id)")
+            .bind(site_id)
+            .bind(capture_ids)
+            .execute();
+        tokio::time::timeout(Duration::from_secs(HEATMAP_CAPTURE_TIMEOUT_SECS), delete)
+            .await
+            .map_err(|_| anyhow::anyhow!("heatmap capture delete timed out"))??;
+        Ok(())
     }
 
     pub async fn insert_telemetry_ping(&self, row: TelemetryPingRow) -> Result<()> {
