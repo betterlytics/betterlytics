@@ -48,24 +48,27 @@ export function useSessionManager(): UseSessionManagerReturn {
     }
   }, [picked, sessionIdParam]);
 
-  // A session id in the URL that the user didn't pick from the list came from a link
-  const linkedSessionId = !pickedSession && sessionIdParam ? sessionIdParam : undefined;
+  // A session id in the URL that the user didn't pick from the list came from a link; an empty one is malformed
+  const linkedSessionId = !pickedSession && sessionIdParam !== undefined ? sessionIdParam : undefined;
+  const hasLinkedSession = linkedSessionId !== undefined;
 
   const linkedSessionQuery = trpc.sessionReplays.byId.useQuery(
     { dashboardId: input.dashboardId, sessionId: linkedSessionId ?? '' },
-    { enabled: Boolean(linkedSessionId) },
+    { enabled: hasLinkedSession },
   );
 
-  const listedLinkedSession = linkedSessionId ? sessions.find((s) => s.session_id === linkedSessionId) : undefined;
-  const linkedSession = linkedSessionId ? (listedLinkedSession ?? linkedSessionQuery.data ?? null) : null;
+  const listedLinkedSession = hasLinkedSession
+    ? sessions.find((s) => s.session_id === linkedSessionId)
+    : undefined;
+  const linkedSession = hasLinkedSession ? (listedLinkedSession ?? linkedSessionQuery.data ?? null) : null;
   const isLinkedSessionNotFound =
-    Boolean(linkedSessionId) && !listedLinkedSession && linkedSessionQuery.isSuccess && !linkedSessionQuery.data;
+    hasLinkedSession && !listedLinkedSession && linkedSessionQuery.isSuccess && !linkedSessionQuery.data;
 
   const selectedSession = useMemo(() => {
     if (pickedSession) return sessions.find((s) => s.session_id === pickedSession.session_id) ?? pickedSession;
-    if (linkedSessionId) return linkedSession;
+    if (hasLinkedSession) return linkedSession;
     return sessions[0] ?? null;
-  }, [pickedSession, linkedSessionId, linkedSession, sessions]);
+  }, [pickedSession, hasLinkedSession, linkedSession, sessions]);
 
   const selectSession = (session: SessionReplay) => {
     if (selectedSession?.session_id === session.session_id) {
@@ -75,7 +78,7 @@ export function useSessionManager(): UseSessionManagerReturn {
     setSessionIdParam(session.session_id);
   };
 
-  const linkedSessionError = linkedSessionId && !listedLinkedSession ? linkedSessionQuery.error : null;
+  const linkedSessionError = hasLinkedSession && !listedLinkedSession ? linkedSessionQuery.error : null;
 
   return {
     sessions,
