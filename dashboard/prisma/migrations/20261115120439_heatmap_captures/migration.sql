@@ -5,6 +5,7 @@ CREATE TABLE "HeatmapCaptureLink" (
     "dashboardId" TEXT NOT NULL,
     "path" TEXT NOT NULL,
     "device" TEXT NOT NULL,
+    "capturePath" TEXT NOT NULL,
     "createdById" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "expiresAt" TIMESTAMP(3) NOT NULL,
@@ -25,6 +26,7 @@ CREATE TABLE "HeatmapCapture" (
     "storageKey" TEXT NOT NULL,
     "sizeBytes" INTEGER NOT NULL,
     "createdById" TEXT,
+    "capturedFromPath" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "HeatmapCapture_pkey" PRIMARY KEY ("id")
