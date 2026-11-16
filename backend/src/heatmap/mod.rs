@@ -166,6 +166,10 @@ async fn store_clicks(
     }
     validate_batch(&batch)?;
 
+    validate_site_policies(&ctx.site_cfg_cache, &batch.site_id, &batch.url, &client.ip)
+        .await
+        .map_err(|e| Refusal::new(RefuseReason::Blocked, StatusCode::FORBIDDEN, e.to_string()))?;
+
     if ctx.processor.check_header_request(
         "heatmap",
         &batch.site_id,
@@ -178,10 +182,6 @@ async fn store_clicks(
     ) {
         return Err(Refusal::new(RefuseReason::Blocked, StatusCode::FORBIDDEN, "rejected"));
     }
-
-    validate_site_policies(&ctx.site_cfg_cache, &batch.site_id, &batch.url, &client.ip)
-        .await
-        .map_err(|e| Refusal::new(RefuseReason::Blocked, StatusCode::FORBIDDEN, e.to_string()))?;
 
     if bot_detection::velocity::check_heatmap(&batch.site_id, &client.ip) {
         warn!(site_id = %batch.site_id, "rejected heatmap batch: velocity limit exceeded");
@@ -327,7 +327,7 @@ fn validate_click(click: &RawClick, viewport_width: u32, document_height: u32) -
 /// since the page layout follows the viewport rather than the screen
 fn device_from_viewport(viewport_width: u32) -> &'static str {
     match viewport_width {
-        0..=575 => "phone",
+        0..=575 => "mobile",
         576..=991 => "tablet",
         _ => "desktop",
     }
@@ -371,8 +371,8 @@ mod tests {
 
     #[test]
     fn device_buckets_follow_the_viewport_width() {
-        assert_eq!(device_from_viewport(1), "phone");
-        assert_eq!(device_from_viewport(575), "phone");
+        assert_eq!(device_from_viewport(1), "mobile");
+        assert_eq!(device_from_viewport(575), "mobile");
         assert_eq!(device_from_viewport(576), "tablet");
         assert_eq!(device_from_viewport(991), "tablet");
         assert_eq!(device_from_viewport(992), "desktop");
