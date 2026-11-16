@@ -329,7 +329,7 @@ fn validate_click(click: &RawClick, viewport_width: u32, document_height: u32) -
 /// since the page layout follows the viewport rather than the screen
 pub(crate) fn device_from_viewport(viewport_width: u32) -> &'static str {
     match viewport_width {
-        0..=575 => "phone",
+        0..=575 => "mobile",
         576..=991 => "tablet",
         _ => "desktop",
     }
@@ -373,8 +373,8 @@ mod tests {
 
     #[test]
     fn device_buckets_follow_the_viewport_width() {
-        assert_eq!(device_from_viewport(1), "phone");
-        assert_eq!(device_from_viewport(575), "phone");
+        assert_eq!(device_from_viewport(1), "mobile");
+        assert_eq!(device_from_viewport(575), "mobile");
         assert_eq!(device_from_viewport(576), "tablet");
         assert_eq!(device_from_viewport(991), "tablet");
         assert_eq!(device_from_viewport(992), "desktop");

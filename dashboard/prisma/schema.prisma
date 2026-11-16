@@ -979,7 +979,7 @@ model HeatmapCaptureLink {
   dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
   dashboardId String
   path        String
-  // phone | tablet | desktop
+  // mobile | tablet | desktop
   device      String
   // The one real page this link may capture: `path`, or the page picked for a data-dynamic-urls wildcard path
   capturePath String

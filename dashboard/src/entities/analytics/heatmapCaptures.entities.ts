@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-// Same buckets as the backend's heatmap ingestion: Phone < 576 px, Tablet 576-991, Desktop >= 992
-export const HeatmapDeviceSchema = z.enum(['phone', 'tablet', 'desktop']);
+// Same buckets as the backend's heatmap ingestion: Mobile < 576 px, Tablet 576-991, Desktop >= 992
+export const HeatmapDeviceSchema = z.enum(['mobile', 'tablet', 'desktop']);
 export type HeatmapDevice = z.infer<typeof HeatmapDeviceSchema>;
 
 export const HEATMAP_CAPTURE_LINK_TTL_MS = 15 * 60_000;

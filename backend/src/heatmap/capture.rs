@@ -332,7 +332,7 @@ fn check_viewport(device: &str, viewport_width: u32) -> Result<(), Refusal> {
         return Ok(());
     }
     let expected = match device {
-        "phone" => "Phone link needs a window under 576 px wide",
+        "mobile" => "Mobile link needs a window under 576 px wide",
         "tablet" => "Tablet link needs a window 576 to 991 px wide",
         _ => "Desktop link needs a window at least 992 px wide",
     };
@@ -514,9 +514,9 @@ mod tests {
 
     #[test]
     fn viewport_must_fit_the_link_device() {
-        assert!(check_viewport("phone", 390).is_ok());
-        assert!(check_viewport("phone", 575).is_ok());
-        assert_eq!(check_viewport("phone", 1200).unwrap_err().reason, Reason::WrongViewport);
+        assert!(check_viewport("mobile", 390).is_ok());
+        assert!(check_viewport("mobile", 575).is_ok());
+        assert_eq!(check_viewport("mobile", 1200).unwrap_err().reason, Reason::WrongViewport);
         assert!(check_viewport("tablet", 576).is_ok());
         assert!(check_viewport("tablet", 991).is_ok());
         assert_eq!(check_viewport("tablet", 992).unwrap_err().reason, Reason::WrongViewport);

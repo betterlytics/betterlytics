@@ -57,7 +57,7 @@ describe('heatmap capture actions', () => {
   it('refuses a capture link to a viewer', async () => {
     asMember('viewer');
 
-    await expect(createHeatmapCaptureLinkAction('dash-1', { path: '/', device: 'phone' })).rejects.toThrow(
+    await expect(createHeatmapCaptureLinkAction('dash-1', { path: '/', device: 'mobile' })).rejects.toThrow(
       'You do not have permission to perform this action',
     );
     expect(createLink).not.toHaveBeenCalled();
@@ -116,7 +116,7 @@ describe('heatmap capture actions', () => {
     asMember('editor');
 
     await expect(
-      createHeatmapCaptureLinkAction('dash-1', { path: 'https://evil.example/', device: 'phone' }),
+      createHeatmapCaptureLinkAction('dash-1', { path: 'https://evil.example/', device: 'mobile' }),
     ).rejects.toThrow();
     expect(createLink).not.toHaveBeenCalled();
   });
