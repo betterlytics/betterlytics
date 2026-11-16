@@ -26,6 +26,7 @@ use crate::metrics::MetricsCollector;
 use crate::postgres::{PostgresError, PostgresPool};
 use crate::session_replay::store::{GunzipError, gunzip_capped};
 use crate::storage::s3::S3Service;
+use crate::url_utils::extract_domain_and_path_from_url;
 
 /// As uploaded (gzip or plain); the route's body limit sits just above this so an oversized
 /// body still reaches the handler's link check and gets the too_large reason.
@@ -75,6 +76,7 @@ enum Reason {
     LinkInvalid,
     WrongOrigin,
     WrongViewport,
+    WrongPage,
     TooLarge,
     Invalid,
     StorageUnavailable,
@@ -87,6 +89,7 @@ impl Reason {
             Self::LinkInvalid => "link_invalid",
             Self::WrongOrigin => "wrong_origin",
             Self::WrongViewport => "wrong_viewport",
+            Self::WrongPage => "wrong_page",
             Self::TooLarge => "too_large",
             Self::Invalid => "invalid",
             Self::StorageUnavailable => "storage_unavailable",
@@ -98,7 +101,7 @@ impl Reason {
         match self {
             Self::LinkInvalid => StatusCode::UNAUTHORIZED,
             Self::WrongOrigin => StatusCode::FORBIDDEN,
-            Self::WrongViewport => StatusCode::UNPROCESSABLE_ENTITY,
+            Self::WrongViewport | Self::WrongPage => StatusCode::UNPROCESSABLE_ENTITY,
             Self::TooLarge => StatusCode::PAYLOAD_TOO_LARGE,
             Self::Invalid => StatusCode::BAD_REQUEST,
             Self::StorageUnavailable => StatusCode::SERVICE_UNAVAILABLE,
@@ -156,6 +159,8 @@ struct Snapshot {
     raw: Bytes,
     gzip: bool,
     text: String,
+    /// Path of the page the snapshot was taken on, from the rrweb meta event
+    page_path: String,
 }
 
 pub async fn upload_capture(
@@ -229,6 +234,16 @@ async fn store_capture(
     })?;
 
     let snapshot = decode(body, gzip).await?;
+    if !page_matches(&link.path, &snapshot.page_path) {
+        return Err(Refusal::new(
+            Reason::WrongPage,
+            format!(
+                "This capture link is for {}, but this page is {}. Open the link on a matching page and try again.",
+                link.path, snapshot.page_path
+            ),
+        ));
+    }
+    let captured_from = snapshot.page_path.clone();
     let capture_id = uuid::Uuid::new_v4().simple().to_string();
     let storage_key = storage_key(ctx.mode, &link.site_id, &capture_id);
 
@@ -252,8 +267,8 @@ async fn store_capture(
         tx.execute(
             r#"INSERT INTO "HeatmapCapture"
                  ("id", "dashboardId", "path", "device", "viewportWidth", "documentHeight",
-                  "storage", "storageKey", "sizeBytes", "createdById", "createdAt")
-               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, timezone('utc', now()))"#,
+                  "storage", "storageKey", "sizeBytes", "createdById", "capturedFromPath", "createdAt")
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, timezone('utc', now()))"#,
             &[
                 &capture_id,
                 &link.dashboard_id,
@@ -265,6 +280,7 @@ async fn store_capture(
                 &storage_key,
                 &size_bytes,
                 &link.created_by_id,
+                &captured_from,
             ],
         )
         .await?;
@@ -353,22 +369,30 @@ async fn find_link(pool: &PostgresPool, token_hash: &str) -> Result<Option<Link>
 async fn decode(raw: Bytes, gzip: bool) -> Result<Snapshot, Refusal> {
     let _permit = DECODE_PERMITS.acquire().await.map_err(|_| Refusal::internal())?;
     let bytes = raw.clone();
-    let text = tokio::task::spawn_blocking(move || decode_snapshot(&bytes, gzip))
+    let (text, page_path) = tokio::task::spawn_blocking(move || decode_snapshot(&bytes, gzip))
         .await
         .map_err(|e| {
             error!("Heatmap capture decode task failed: {}", e);
             Refusal::internal()
         })??;
-    Ok(Snapshot { raw, gzip, text })
+    Ok(Snapshot { raw, gzip, text, page_path })
 }
 
 #[derive(Deserialize)]
 struct RrwebEvent {
     #[serde(rename = "type")]
     kind: u8,
+    data: Option<RrwebEventData>,
 }
 
-fn decode_snapshot(bytes: &[u8], gzip: bool) -> Result<String, Refusal> {
+/// Only the meta event's page address is read; the snapshot itself is skipped over unparsed
+#[derive(Deserialize)]
+struct RrwebEventData {
+    href: Option<String>,
+}
+
+/// Returns the snapshot text and the path of the page it was taken on
+fn decode_snapshot(bytes: &[u8], gzip: bool) -> Result<(String, String), Refusal> {
     let text = if gzip {
         gunzip_capped(bytes, MAX_UNPACKED_BYTES).map_err(|e| match e {
             GunzipError::TooLarge => too_large(),
@@ -378,12 +402,44 @@ fn decode_snapshot(bytes: &[u8], gzip: bool) -> Result<String, Refusal> {
         String::from_utf8(bytes.to_vec()).map_err(|_| Refusal::new(Reason::Invalid, "The capture could not be read (not valid UTF-8)."))?
     };
     const FULL_SNAPSHOT: u8 = 2;
+    const META: u8 = 4;
     let events: Vec<RrwebEvent> = serde_json::from_str(&text)
         .map_err(|_| Refusal::new(Reason::Invalid, "The capture is not an rrweb events array."))?;
     if !events.iter().any(|e| e.kind == FULL_SNAPSHOT) {
         return Err(Refusal::new(Reason::Invalid, "The capture has no full page snapshot."));
     }
-    Ok(text)
+    let href = events
+        .iter()
+        .filter(|e| e.kind == META)
+        .find_map(|e| e.data.as_ref()?.href.as_deref())
+        .filter(|href| Url::parse(href).is_ok())
+        .ok_or_else(|| Refusal::new(Reason::Invalid, "The capture has no page address."))?;
+    let (_, page_path) = extract_domain_and_path_from_url(href);
+    Ok((text, page_path))
+}
+
+/// The tracker's `data-dynamic-urls` grouping stores each wildcard as `*`, also for `**`
+/// patterns that span several segments, so a `*` here stands for one or more characters.
+/// Mirrors `matchesPagePath` in the dashboard.
+fn page_matches(page_path: &str, path: &str) -> bool {
+    let parts: Vec<&str> = page_path.split('*').collect();
+    if parts.len() == 1 {
+        return path == page_path;
+    }
+    let Some(mut rest) = path.strip_prefix(parts[0]) else {
+        return false;
+    };
+    for part in &parts[1..parts.len() - 1] {
+        let Some(skip) = rest.chars().next().map(char::len_utf8) else {
+            return false;
+        };
+        let Some(found) = rest[skip..].find(part) else {
+            return false;
+        };
+        rest = &rest[skip + found + part.len()..];
+    }
+    let last = parts[parts.len() - 1];
+    rest.len() > last.len() && rest.ends_with(last)
 }
 
 fn storage_key(mode: ReplayStorage, site_id: &str, capture_id: &str) -> String {
@@ -510,17 +566,55 @@ mod tests {
 
     #[test]
     fn decodes_plain_and_gzip_snapshots() {
-        assert_eq!(decode_snapshot(SNAPSHOT.as_bytes(), false).unwrap(), SNAPSHOT);
-        assert_eq!(decode_snapshot(&gzip(SNAPSHOT.as_bytes()), true).unwrap(), SNAPSHOT);
+        let expected = (SNAPSHOT.to_string(), "/".to_string());
+        assert_eq!(decode_snapshot(SNAPSHOT.as_bytes(), false).unwrap(), expected);
+        assert_eq!(decode_snapshot(&gzip(SNAPSHOT.as_bytes()), true).unwrap(), expected);
+    }
+
+    #[test]
+    fn reads_the_page_path_from_the_meta_event() {
+        let snapshot = SNAPSHOT.replace("https://example.com/", "https://example.com/profile/betterlytics/posts?tab=new#top");
+        assert_eq!(decode_snapshot(snapshot.as_bytes(), false).unwrap().1, "/profile/betterlytics/posts");
     }
 
     #[test]
     fn refuses_snapshots_without_a_full_snapshot_event() {
-        let meta_only = r#"[{"type":4,"data":{},"timestamp":1}]"#;
+        let meta_only = r#"[{"type":4,"data":{"href":"https://example.com/"},"timestamp":1}]"#;
         assert_eq!(decode_snapshot(meta_only.as_bytes(), false).unwrap_err().reason, Reason::Invalid);
         assert_eq!(decode_snapshot(b"{\"type\":2}", false).unwrap_err().reason, Reason::Invalid);
         assert_eq!(decode_snapshot(b"not json", false).unwrap_err().reason, Reason::Invalid);
         assert_eq!(decode_snapshot(b"[{\"type\":2}]", true).unwrap_err().reason, Reason::Invalid);
+    }
+
+    #[test]
+    fn refuses_snapshots_without_a_page_address() {
+        let no_meta = r#"[{"type":2,"data":{"node":{"type":0,"childNodes":[]}},"timestamp":2}]"#;
+        let refusal = decode_snapshot(no_meta.as_bytes(), false).unwrap_err();
+        assert_eq!((refusal.reason, refusal.message.as_str()), (Reason::Invalid, "The capture has no page address."));
+        let bad_href = SNAPSHOT.replace("https://example.com/", "not a url");
+        assert_eq!(decode_snapshot(bad_href.as_bytes(), false).unwrap_err().reason, Reason::Invalid);
+    }
+
+    #[test]
+    fn page_paths_match_literally_without_wildcards() {
+        assert!(page_matches("/pricing", "/pricing"));
+        assert!(!page_matches("/pricing", "/pricing/"));
+        assert!(!page_matches("/pricing", "/about"));
+        assert!(page_matches("/", "/"));
+    }
+
+    #[test]
+    fn page_path_wildcards_stand_for_one_or_more_characters() {
+        assert!(page_matches("/profile/*/posts", "/profile/betterlytics/posts"));
+        assert!(page_matches("/profile/*/posts", "/profile/a/b/posts"));
+        assert!(!page_matches("/profile/*/posts", "/profile//posts"));
+        assert!(!page_matches("/profile/*/posts", "/profile/betterlytics"));
+        assert!(!page_matches("/profile/*/posts", "/settings"));
+        assert!(page_matches("/docs/*", "/docs/guide/install"));
+        assert!(!page_matches("/docs/*", "/docs/"));
+        assert!(page_matches("/*/a/*/b", "/x/a/y/b"));
+        assert!(!page_matches("/*/a/*/b", "/x/a/b"));
+        assert!(page_matches("/shop/*/*", "/shop/é/ü"));
     }
 
     #[test]

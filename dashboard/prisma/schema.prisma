@@ -1003,10 +1003,12 @@ model HeatmapCapture {
   // clickhouse | s3
   storage        String
   storageKey     String
-  sizeBytes      Int
-  createdBy      User?     @relation(fields: [createdById], references: [id], onDelete: SetNull)
-  createdById    String?
-  createdAt      DateTime  @default(now())
+  sizeBytes        Int
+  createdBy        User?     @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById      String?
+  // The real page the snapshot was taken on; differs from `path` for data-dynamic-urls wildcards
+  capturedFromPath String?
+  createdAt        DateTime  @default(now())
 
   @@index([dashboardId, path, device, createdAt])
 }

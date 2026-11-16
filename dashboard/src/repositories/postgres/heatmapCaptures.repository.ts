@@ -55,6 +55,7 @@ const captureSelect = {
   createdAt: true,
   createdById: true,
   createdBy: { select: { name: true } },
+  capturedFromPath: true,
 } as const;
 
 export async function findHeatmapCaptures(

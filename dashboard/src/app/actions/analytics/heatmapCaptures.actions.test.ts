@@ -92,6 +92,26 @@ describe('heatmap capture actions', () => {
     expect(removeCapture).toHaveBeenCalledWith(expect.objectContaining({ dashboardId: 'dash-1' }), 'capture-1');
   });
 
+  it('gives a link for a real page that matches a wildcard page path', async () => {
+    asMember('editor');
+    const input = { path: '/profile/*/posts', device: 'desktop', capturePath: '/profile/betterlytics/posts?tab=new' } as const;
+
+    await expect(createHeatmapCaptureLinkAction('dash-1', input)).resolves.toEqual({ token: 'bhc_plain', expiresAt });
+    expect(createLink).toHaveBeenCalledWith(expect.objectContaining({ dashboardId: 'dash-1' }), input);
+  });
+
+  it.each(['/settings', '/profile/betterlytics/posts#top', '//evil.example/profile/x/posts', '/\\evil.example'])(
+    'refuses a link to capture %s for /profile/*/posts',
+    async (capturePath) => {
+      asMember('editor');
+
+      await expect(
+        createHeatmapCaptureLinkAction('dash-1', { path: '/profile/*/posts', device: 'desktop', capturePath }),
+      ).rejects.toThrow();
+      expect(createLink).not.toHaveBeenCalled();
+    },
+  );
+
   it('rejects a link for a path that is not a page path', async () => {
     asMember('editor');
 
