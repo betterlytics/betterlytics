@@ -388,6 +388,104 @@ fn has_control_chars(input: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::analytics::{AnalyticsEvent, RawTrackingEvent};
+    use crate::geoip::GeoIpService;
+    use crate::postgres::PostgresError;
+    use crate::processing::{BotEvent, ProcessedEvent};
+    use crate::site_config::repository::SiteConfigRecord;
+    use crate::site_config::{RefreshConfig, SiteConfigDataSource};
+    use serde_json::json;
+    use tokio::sync::mpsc;
+
+    const SITE: &str = "heatmap-handler-site";
+    const UA: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36";
+    const CH_UA: &str = r#""Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141""#;
+
+    struct OneSite;
+
+    #[async_trait::async_trait]
+    impl SiteConfigDataSource for OneSite {
+        async fn fetch_all_configs(&self) -> Result<Vec<SiteConfigRecord>, PostgresError> {
+            Ok(vec![SiteConfigRecord {
+                site_id: SITE.to_string(),
+                domain: "example.com".to_string(),
+                blacklisted_ips: Vec::new(),
+                enforce_domain: true,
+                updated_at: Utc::now(),
+            }])
+        }
+
+        async fn fetch_configs_updated_since(&self, _: DateTime<Utc>) -> Result<Vec<SiteConfigRecord>, PostgresError> {
+            Ok(Vec::new())
+        }
+    }
+
+    struct Harness {
+        ctx: HeatmapCtx,
+        events: mpsc::Receiver<ProcessedEvent>,
+        clicks: mpsc::Receiver<HeatmapClickRow>,
+        _bots: mpsc::Receiver<BotEvent>,
+    }
+
+    impl Harness {
+        async fn new() -> Self {
+            ua_parser::initialize(
+                &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("assets/user_agent_headers/regexes.yaml"),
+            );
+            crate::salt::init_for_tests();
+            let (event_tx, events) = mpsc::channel(16);
+            let (bot_tx, bots) = mpsc::channel(16);
+            let (click_tx, clicks) = mpsc::channel(1024);
+            let processor = EventProcessor::new(GeoIpService::disabled(), None, event_tx, bot_tx, None, false, false);
+            let site_cfg_cache = SiteConfigCache::initialize(Arc::new(OneSite), RefreshConfig::default(), None)
+                .await
+                .unwrap();
+            let ctx = HeatmapCtx { processor: Arc::new(processor), metrics: None, site_cfg_cache, click_tx };
+            Self { ctx, events, clicks, _bots: bots }
+        }
+
+        /// Sends an event through the same processing as `/event` and returns it
+        async fn event(&mut self, ip: &str, event_name: &str) -> ProcessedEvent {
+            let raw: RawTrackingEvent = serde_json::from_value(json!({
+                "site_id": SITE, "event_name": event_name, "is_custom_event": event_name != "pageview",
+                "properties": "{}", "url": "https://example.com/pricing", "referrer": null,
+                "user_agent": UA, "screen_resolution": "1920x1080",
+            }))
+            .unwrap();
+            let event = AnalyticsEvent::new(raw, ip.to_string(), UA.to_string(), CH_UA.to_string(), false);
+            self.ctx.processor.process_event(event).await.unwrap();
+            self.events.try_recv().expect("event was accepted")
+        }
+
+        async fn send(&self, ip: &str, user_agent: &str, sec_ch_ua: &str, body: &[u8]) -> Result<(), StatusCode> {
+            let client = ClientRequest {
+                ip: ip.to_string(),
+                user_agent: user_agent.to_string(),
+                sec_ch_ua: sec_ch_ua.to_string(),
+                prefetch: false,
+            };
+            store_clicks(&self.ctx, &client, body, Utc::now()).await.map_err(|r| r.status)
+        }
+
+        async fn send_clicks(&self, ip: &str, clicks: usize) -> Result<(), StatusCode> {
+            self.send(ip, UA, CH_UA, &batch_body(clicks)).await
+        }
+
+        fn stored(&mut self) -> Vec<HeatmapClickRow> {
+            std::iter::from_fn(|| self.clicks.try_recv().ok()).collect()
+        }
+    }
+
+    fn batch_body(clicks: usize) -> Vec<u8> {
+        let clicks: Vec<_> = (0..clicks)
+            .map(|i| json!({"page_x": 10, "page_y": 20, "selector": format!("#c{i}"), "offset_x": 0.5, "offset_y": 0.5}))
+            .collect();
+        serde_json::to_vec(&json!({
+            "site_id": SITE, "url": "https://example.com/pricing?q=1#top", "screen_resolution": "1920x1080",
+            "viewport_width": 1280, "document_height": 3000, "clicks": clicks,
+        }))
+        .unwrap()
+    }
 
     fn click(page_x: f64, page_y: f64, selector: &str, offset: (f64, f64)) -> RawClick {
         RawClick {
@@ -533,5 +631,58 @@ mod tests {
         let wide = json.replace(r#""document_height""#, r#""document_width":2400,"document_height""#);
         let b: ClickBatch = serde_json::from_str(&wide).unwrap();
         assert_eq!(b.document_width, Some(2400));
+    }
+
+    #[tokio::test]
+    async fn clicks_are_stored_only_after_an_accepted_pageview() {
+        let mut h = Harness::new().await;
+        let ip = "81.4.101.10";
+        h.event(ip, "signup").await;
+        assert_eq!(h.send_clicks(ip, 2).await, Ok(()));
+        assert!(h.stored().is_empty());
+
+        let pageview = h.event(ip, "pageview").await;
+        assert_eq!(h.send_clicks(ip, 2).await, Ok(()));
+        let rows = h.stored();
+        assert_eq!(rows.len(), 2);
+        for row in &rows {
+            assert_eq!((row.session_id, row.visitor_id), (pageview.session_id, pageview.visitor_fingerprint));
+            assert_eq!((row.url.as_str(), row.device.as_str()), ("/pricing", "desktop"));
+        }
+    }
+
+    #[tokio::test]
+    async fn oversized_malformed_foreign_and_bot_batches_are_refused() {
+        let mut h = Harness::new().await;
+        let ip = "81.4.102.10";
+        h.event(ip, "pageview").await;
+        assert_eq!(h.send_clicks(ip, MAX_CLICKS_PER_BATCH + 1).await, Err(StatusCode::PAYLOAD_TOO_LARGE));
+        assert_eq!(h.send(ip, UA, CH_UA, b"not json").await, Err(StatusCode::BAD_REQUEST));
+
+        let mut foreign: serde_json::Value = serde_json::from_slice(&batch_body(1)).unwrap();
+        foreign["url"] = json!("https://elsewhere.com/pricing");
+        let foreign = serde_json::to_vec(&foreign).unwrap();
+        assert_eq!(h.send(ip, UA, CH_UA, &foreign).await, Err(StatusCode::FORBIDDEN));
+
+        let headless = UA.replace("Chrome/", "HeadlessChrome/");
+        assert_eq!(h.send(ip, &headless, CH_UA, &batch_body(1)).await, Err(StatusCode::FORBIDDEN));
+        assert!(h.stored().is_empty());
+    }
+
+    #[tokio::test]
+    async fn a_network_past_its_click_limit_is_refused_and_a_session_keeps_its_cap() {
+        let mut h = Harness::new().await;
+        let ip = "81.4.103.10";
+        h.event(ip, "pageview").await;
+        for _ in 0..10 {
+            assert_eq!(h.send_clicks(ip, 200).await, Ok(()));
+        }
+        assert_eq!(h.send_clicks(ip, 1).await, Err(StatusCode::TOO_MANY_REQUESTS));
+        assert_eq!(h.stored().len(), MAX_CLICKS_PER_SESSION as usize);
+
+        let other = "81.4.104.10";
+        h.event(other, "pageview").await;
+        assert_eq!(h.send_clicks(other, 1).await, Ok(()));
+        assert_eq!(h.stored().len(), 1);
     }
 }

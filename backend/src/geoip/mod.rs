@@ -142,6 +142,19 @@ impl GeoIpService {
 }
 
 #[cfg(test)]
+impl GeoIpService {
+    /// For tests that need an `EventProcessor` but no locations
+    pub fn disabled() -> Self {
+        let (_, watch_rx) = tokio::sync::watch::channel(None);
+        Self {
+            source: MmdbSource::new(None, watch_rx, READER_UPDATE_CHECK_INTERVAL),
+            cache: Cache::builder().max_capacity(CACHE_SIZE).build(),
+            geolocation_mode: GeolocationMode::Disabled,
+        }
+    }
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
     use crate::geoip_updater::tests::minimal_mmdb;
