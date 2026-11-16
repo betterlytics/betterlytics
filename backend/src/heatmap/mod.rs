@@ -63,8 +63,17 @@ struct ClickBatch {
     #[serde(default)]
     screen_resolution: String,
     viewport_width: u32,
+    /// Wider than the viewport on horizontally scrolled pages, where page_x runs past it
+    #[serde(default)]
+    document_width: Option<u32>,
     document_height: u32,
     clicks: Vec<RawClick>,
+}
+
+impl ClickBatch {
+    fn page_width(&self) -> u32 {
+        self.document_width.unwrap_or(0).max(self.viewport_width)
+    }
 }
 
 #[derive(Deserialize)]
@@ -222,9 +231,10 @@ async fn store_clicks(
     };
 
     let device = device_from_viewport(batch.viewport_width);
+    let page_width = batch.page_width();
     let mut rows = Vec::with_capacity(batch.clicks.len());
     for click in &batch.clicks {
-        if let Err(reason) = validate_click(click, batch.viewport_width, batch.document_height) {
+        if let Err(reason) = validate_click(click, page_width, batch.document_height) {
             if let Some(m) = &ctx.metrics {
                 m.increment_heatmap_clicks_dropped(reason.as_str(), 1);
             }
@@ -317,6 +327,9 @@ fn validate_batch(batch: &ClickBatch) -> Result<(), Refusal> {
     if !(1..=MAX_VIEWPORT_WIDTH).contains(&batch.viewport_width) {
         return Err(Refusal::invalid("invalid viewport_width"));
     }
+    if batch.document_width.is_some_and(|width| !(1..=MAX_VIEWPORT_WIDTH).contains(&width)) {
+        return Err(Refusal::invalid("invalid document_width"));
+    }
     if !(1..=MAX_DOCUMENT_HEIGHT).contains(&batch.document_height) {
         return Err(Refusal::invalid("invalid document_height"));
     }
@@ -324,7 +337,7 @@ fn validate_batch(batch: &ClickBatch) -> Result<(), Refusal> {
 }
 
 /// A bad click is dropped on its own; the rest of its batch is still stored
-fn validate_click(click: &RawClick, viewport_width: u32, document_height: u32) -> Result<(), DropReason> {
+fn validate_click(click: &RawClick, page_width: u32, document_height: u32) -> Result<(), DropReason> {
     if click.selector.is_empty()
         || click.selector.chars().count() > MAX_SELECTOR_CHARS
         || has_control_chars(&click.selector)
@@ -332,7 +345,7 @@ fn validate_click(click: &RawClick, viewport_width: u32, document_height: u32) -
         return Err(DropReason::Selector);
     }
     let within = |value: f64, max: u32| value.is_finite() && (0.0..=f64::from(max)).contains(&value);
-    if !within(click.page_x, viewport_width) || !within(click.page_y, document_height) {
+    if !within(click.page_x, page_width) || !within(click.page_y, document_height) {
         return Err(DropReason::Position);
     }
     let fraction = |value: f64| value.is_finite() && (0.0..=1.0).contains(&value);
@@ -394,6 +407,7 @@ mod tests {
             url: "https://example.com/pricing".to_string(),
             screen_resolution: "1920x1080".to_string(),
             viewport_width,
+            document_width: None,
             document_height,
             clicks: Vec::new(),
         }
@@ -436,6 +450,21 @@ mod tests {
     }
 
     #[test]
+    fn clicks_past_the_viewport_are_kept_on_a_wider_document() {
+        let mut b = batch(1280, 4000);
+        assert_eq!(b.page_width(), 1280);
+        b.document_width = Some(800);
+        assert_eq!(b.page_width(), 1280);
+        b.document_width = Some(3000);
+        assert_eq!(b.page_width(), 3000);
+        assert_eq!(validate_click(&click(2900.0, 20.0, "a", (0.5, 0.5)), b.page_width(), 4000), Ok(()));
+        assert_eq!(
+            validate_click(&click(3000.5, 20.0, "a", (0.5, 0.5)), b.page_width(), 4000),
+            Err(DropReason::Position)
+        );
+    }
+
+    #[test]
     fn offsets_outside_zero_to_one_are_dropped() {
         assert_eq!(validate_click(&click(1.0, 1.0, "a", (1.01, 0.5)), 1280, 4000), Err(DropReason::Offset));
         assert_eq!(validate_click(&click(1.0, 1.0, "a", (0.5, -0.01)), 1280, 4000), Err(DropReason::Offset));
@@ -460,6 +489,11 @@ mod tests {
         assert!(validate_batch(&batch(MAX_VIEWPORT_WIDTH + 1, 4000)).is_err());
         assert!(validate_batch(&batch(1280, 0)).is_err());
         assert!(validate_batch(&batch(1280, MAX_DOCUMENT_HEIGHT + 1)).is_err());
+        for (width, ok) in [(3000, true), (MAX_VIEWPORT_WIDTH, true), (0, false), (MAX_VIEWPORT_WIDTH + 1, false)] {
+            let mut b = batch(1280, 4000);
+            b.document_width = Some(width);
+            assert_eq!(validate_batch(&b).is_ok(), ok, "document_width {width}");
+        }
     }
 
     #[test]
@@ -491,9 +525,13 @@ mod tests {
             "viewport_width":1280,"document_height":3000,
             "clicks":[{"page_x":100,"page_y":200.5,"selector":"#buy","offset_x":0.25,"offset_y":0.75,"fixed":true,"ms_ago":1234}]}"##;
         let b: ClickBatch = serde_json::from_str(json).unwrap();
-        assert_eq!((b.viewport_width, b.document_height, b.clicks.len()), (1280, 3000, 1));
+        assert_eq!((b.viewport_width, b.document_width, b.document_height, b.clicks.len()), (1280, None, 3000, 1));
         let c = &b.clicks[0];
         assert!(c.fixed);
         assert_eq!((c.page_x, c.page_y, c.ms_ago), (100.0, 200.5, 1234.0));
+
+        let wide = json.replace(r#""document_height""#, r#""document_width":2400,"document_height""#);
+        let b: ClickBatch = serde_json::from_str(&wide).unwrap();
+        assert_eq!(b.document_width, Some(2400));
     }
 }
