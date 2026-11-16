@@ -103,7 +103,7 @@ const DASHBOARD_TOOLS = [
   { name: 'list_global_properties', args: RANGE, fn: execute.executeListGlobalProperties, ids: ['siteId'] },
   { name: 'list_funnels', args: RANGE, fn: execute.executeListFunnels, ids: ['siteId', 'dashboardId'] },
   { name: 'list_errors', args: RANGE, fn: execute.executeListErrors, ids: ['siteId', 'dashboardId'] },
-  { name: 'get_error', args: { fingerprint: 'fp-1' }, fn: execute.executeGetError, ids: ['siteId'] },
+  { name: 'get_error', args: { fingerprint: 'fp-1' }, fn: execute.executeGetError, ids: ['siteId', 'dashboardId'] },
   { name: 'list_monitors', args: RANGE, fn: execute.executeListMonitors, ids: ['siteId', 'dashboardId'] },
   {
     name: 'list_monitor_incidents',

@@ -3,8 +3,6 @@
 import { Play } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent } from '@/components/ui/card';
-import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
-import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 
 type ReplayCardProps = {
@@ -13,39 +11,22 @@ type ReplayCardProps = {
 
 export function ReplayCard({ replaySessionId }: ReplayCardProps) {
   const t = useTranslations('errors.detail.sidebar');
-  const { isDemo } = useDashboardAuth();
-
-  const content = (
-    <div className='flex flex-col items-center gap-2 text-center'>
-      <div className='bg-primary/15 flex h-8 w-8 items-center justify-center rounded-full'>
-        <Play className='text-primary h-3.5 w-3.5 translate-x-[1px]' />
-      </div>
-      <div>
-        <p className='text-sm font-medium'>
-          {t('watchReplay')}
-        </p>
-        <p className='text-muted-foreground text-xs'>{t('watchReplayDescription')}</p>
-      </div>
-    </div>
-  );
-
-  const card = (
-    <Card className='border-primary/30 bg-primary/10'>
-      <CardContent className='px-4 py-3'>
-        {content}
-      </CardContent>
-    </Card>
-  );
 
   return (
-    <PermissionGate allowViewer>
-      {() => (
-        isDemo ? card : (
-          <FilterPreservingLink href={`/replay?sessionId=${replaySessionId}`}>
-            {card}
-          </FilterPreservingLink>
-        )
-      )}
-    </PermissionGate>
+    <FilterPreservingLink href={`/replay?sessionId=${replaySessionId}`}>
+      <Card className='border-primary/30 bg-primary/10'>
+        <CardContent className='px-4 py-3'>
+          <div className='flex flex-col items-center gap-2 text-center'>
+            <div className='bg-primary/15 flex h-8 w-8 items-center justify-center rounded-full'>
+              <Play className='text-primary h-3.5 w-3.5 translate-x-[1px]' />
+            </div>
+            <div>
+              <p className='text-sm font-medium'>{t('watchReplay')}</p>
+              <p className='text-muted-foreground text-xs'>{t('watchReplayDescription')}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </FilterPreservingLink>
   );
 }

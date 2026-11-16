@@ -9,7 +9,6 @@ import { useTheme } from 'next-themes';
 import { trpc } from '@/trpc/client';
 import type { GroupedSessionTrailEvent } from '@/entities/analytics/errors.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
-import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useLocale, useTranslations } from 'next-intl';
@@ -94,24 +93,13 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
           </p>
         </div>
         {hasReplay && (
-          <PermissionGate allowViewer>
-            {(disabled) =>
-              disabled ? (
-                <span className='bg-primary text-primary-foreground flex shrink-0 cursor-not-allowed items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium opacity-50'>
-                  <Play className='full-current h-3.5 w-3.5' />
-                  {t('watchReplay')}
-                </span>
-              ) : (
-                <FilterPreservingLink
-                  href={`/replay?sessionId=${sessionId}`}
-                  className='bg-primary text-primary-foreground hover:bg-primary/90 flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors'
-                >
-                  <Play className='full-current h-3.5 w-3.5' />
-                  {t('watchReplay')}
-                </FilterPreservingLink>
-              )
-            }
-          </PermissionGate>
+          <FilterPreservingLink
+            href={`/replay?sessionId=${sessionId}`}
+            className='bg-primary text-primary-foreground hover:bg-primary/90 flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors'
+          >
+            <Play className='full-current h-3.5 w-3.5' />
+            {t('watchReplay')}
+          </FilterPreservingLink>
         )}
       </div>
       <div className='relative'>
