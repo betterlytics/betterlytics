@@ -168,6 +168,10 @@ async fn store_clicks(
     }
     validate_batch(&batch)?;
 
+    validate_site_policies(&ctx.site_cfg_cache, &batch.site_id, &batch.url, &client.ip)
+        .await
+        .map_err(|e| Refusal::new(RefuseReason::Blocked, StatusCode::FORBIDDEN, e.to_string()))?;
+
     if ctx.processor.check_header_request(
         "heatmap",
         &batch.site_id,
@@ -180,10 +184,6 @@ async fn store_clicks(
     ) {
         return Err(Refusal::new(RefuseReason::Blocked, StatusCode::FORBIDDEN, "rejected"));
     }
-
-    validate_site_policies(&ctx.site_cfg_cache, &batch.site_id, &batch.url, &client.ip)
-        .await
-        .map_err(|e| Refusal::new(RefuseReason::Blocked, StatusCode::FORBIDDEN, e.to_string()))?;
 
     if bot_detection::velocity::check_heatmap(&batch.site_id, &client.ip) {
         warn!(site_id = %batch.site_id, "rejected heatmap batch: velocity limit exceeded");
