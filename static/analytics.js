@@ -49,6 +49,9 @@
   var replayScriptHash =
     typeof __BL_REPLAY_HASH__ === "string" ? __BL_REPLAY_HASH__ : "dev";
   var replayScriptUrl = `${scriptsBaseUrl}/replay.js?v=${replayScriptHash}`;
+  var heatmapScriptHash =
+    typeof __BL_HEATMAP_HASH__ === "string" ? __BL_HEATMAP_HASH__ : "dev";
+  var heatmapScriptUrl = `${scriptsBaseUrl}/heatmap.js?v=${heatmapScriptHash}`;
 
   // "off" | "domain" | "full" (defaults to "domain")
   var outboundLinks = script.getAttribute("data-outbound-links") ?? "domain";
@@ -71,6 +74,19 @@
 
   if (isNaN(replaySamplePct) || replaySamplePct < 0 || replaySamplePct > 100) {
     replaySamplePct = 0;
+  }
+
+  var enableHeatmaps = script.getAttribute("data-heatmaps") === "true";
+  var heatmapSamplePct = parseInt(
+    script.getAttribute("data-heatmap-sample") || "100",
+    10,
+  );
+  if (
+    isNaN(heatmapSamplePct) ||
+    heatmapSamplePct < 0 ||
+    heatmapSamplePct > 100
+  ) {
+    heatmapSamplePct = 0;
   }
 
   var initialGlobalProperties = null;
@@ -400,6 +416,32 @@
   // Send initial page view
   sendEvent("pageview");
 
+  // Sampled per page view; heatmap.js is only downloaded once a page view is sampled
+  var heatmapPageview = function () {};
+  if (enableHeatmaps && !automation) {
+    var heatmapConfig = {
+      siteId: siteId,
+      serverUrl: serverUrl,
+      normalize: normalize,
+      sampled: false,
+    };
+    window.__betterlytics_heatmap_config__ = heatmapConfig;
+    var heatmapRequested = false;
+    heatmapPageview = function () {
+      var sampled = Math.random() * 100 < heatmapSamplePct;
+      if (window.__betterlytics_heatmap__) {
+        window.__betterlytics_heatmap__.pageview(sampled);
+        return;
+      }
+      heatmapConfig.sampled = sampled;
+      if (sampled && !heatmapRequested) {
+        heatmapRequested = true;
+        loadScript(heatmapScriptUrl).catch(function () {});
+      }
+    };
+    heatmapPageview();
+  }
+
   // Detect SPA navigation
   if (window.history.pushState) {
     var originalPushState = history.pushState;
@@ -411,6 +453,7 @@
         resetEngagement();
         monitorContentHeight();
         sendEvent("pageview");
+        heatmapPageview();
       }
     };
 
@@ -421,6 +464,7 @@
         resetEngagement();
         monitorContentHeight();
         sendEvent("pageview");
+        heatmapPageview();
       }
     });
   }
