@@ -43,7 +43,8 @@ const MAX_CLICK_AGE_MS: f64 = 24.0 * 60.0 * 60.0 * 1000.0;
 /// script could store unbilled rows for as long as it keeps one pageview's session alive
 const MAX_CLICKS_PER_SESSION: u32 = 300;
 
-/// Stored clicks per session id, forgotten once the session itself would expire
+/// Stored clicks per session id, forgotten after the session's last heatmap batch plus the
+/// session expiry
 static SESSION_CLICKS: Lazy<Cache<u64, Arc<AtomicU32>>> =
     Lazy::new(|| Cache::builder().time_to_idle(SESSION_EXPIRY).max_capacity(1_000_000).build());
 
@@ -341,12 +342,8 @@ fn validate_click(click: &RawClick, viewport_width: u32, document_height: u32) -
     Ok(())
 }
 
-/// Takes up to `wanted` of the session's remaining clicks and returns how many may be stored
 fn reserve_session_clicks(session_id: u64, wanted: usize) -> usize {
     let wanted = u32::try_from(wanted).unwrap_or(u32::MAX);
-    if wanted == 0 {
-        return 0;
-    }
     let used = SESSION_CLICKS.get_with(session_id, || Arc::new(AtomicU32::new(0)));
     let mut granted = 0;
     let _ = used.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |stored| {
