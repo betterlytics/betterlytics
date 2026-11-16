@@ -53,18 +53,21 @@
     }
   }
 
-  // Position among siblings with the same tag, only when such siblings exist
-  function nthOfType(el) {
+  // Position among same-tag siblings, only when another sibling also matches the part, so
+  // adding an unrelated sibling (a logged-in nav link) doesn't change the selector
+  function positionIfShared(el, part) {
     var parent = el.parentElement;
     if (!parent) return "";
+    var shared = false;
     var count = 0;
     var position = 0;
     for (var sib = parent.firstElementChild; sib; sib = sib.nextElementSibling) {
       if (sib.tagName !== el.tagName) continue;
       count++;
       if (sib === el) position = count;
+      else if (!shared && sib.matches(part)) shared = true;
     }
-    return count > 1 ? ":nth-of-type(" + position + ")" : "";
+    return shared ? ":nth-of-type(" + position + ")" : "";
   }
 
   function classesOf(el) {
@@ -91,10 +94,8 @@
           return withId;
         }
       }
-      var part =
-        tag +
-        (withClasses ? classesOf(el) : "") +
-        (tag === "html" || tag === "body" ? "" : nthOfType(el));
+      var base = tag + (withClasses ? classesOf(el) : "");
+      var part = base + positionIfShared(el, base);
       var selector = [part].concat(parts).join(" > ");
       if (selector.length > MAX_SELECTOR_CHARS) return "";
       if (matchesOnce(selector)) return selector;
