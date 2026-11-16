@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import type { ErrorOccurrence } from '@/entities/analytics/errors.entities';
-import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { useLocale, useTranslations } from 'next-intl';
 import type { SupportedLanguages } from '@/constants/i18n';
 
@@ -73,52 +72,46 @@ export function OccurrenceNavigator({
           <span className='text-muted-foreground shrink-0 text-xs'>
             {t('occurrenceOf', { number: occurrenceNumber, total: totalCount })}
           </span>
-          <PermissionGate allowViewer>
-            {(disabled) => (
-              <>
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  onClick={() => onNavigate(totalCount - 1)}
-                  disabled={!canGoOlder || isPending || disabled}
-                  className='text-muted-foreground h-7 w-7 cursor-pointer'
-                  title={t('firstOccurrence')}
-                >
-                  <ChevronsLeft className='h-3.5 w-3.5' />
-                </Button>
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  onClick={() => onNavigate(currentOffset + 1)}
-                  disabled={!canGoOlder || isPending || disabled}
-                  className='text-muted-foreground h-7 w-7 cursor-pointer'
-                  title={t('olderOccurrence')}
-                >
-                  <ChevronLeft className='h-3.5 w-3.5' />
-                </Button>
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  onClick={() => onNavigate(currentOffset - 1)}
-                  disabled={!canGoNewer || isPending || disabled}
-                  className='text-muted-foreground h-7 w-7 cursor-pointer'
-                  title={t('newerOccurrence')}
-                >
-                  <ChevronRight className='h-3.5 w-3.5' />
-                </Button>
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  onClick={() => onNavigate(0)}
-                  disabled={!canGoNewer || isPending || disabled}
-                  className='text-muted-foreground h-7 w-7 cursor-pointer'
-                  title={t('latestOccurrence')}
-                >
-                  <ChevronsRight className='h-3.5 w-3.5' />
-                </Button>
-              </>
-            )}
-          </PermissionGate>
+          <Button
+            variant='ghost'
+            size='icon'
+            onClick={() => onNavigate(totalCount - 1)}
+            disabled={!canGoOlder || isPending}
+            className='text-muted-foreground h-7 w-7 cursor-pointer'
+            title={t('firstOccurrence')}
+          >
+            <ChevronsLeft className='h-3.5 w-3.5' />
+          </Button>
+          <Button
+            variant='ghost'
+            size='icon'
+            onClick={() => onNavigate(currentOffset + 1)}
+            disabled={!canGoOlder || isPending}
+            className='text-muted-foreground h-7 w-7 cursor-pointer'
+            title={t('olderOccurrence')}
+          >
+            <ChevronLeft className='h-3.5 w-3.5' />
+          </Button>
+          <Button
+            variant='ghost'
+            size='icon'
+            onClick={() => onNavigate(currentOffset - 1)}
+            disabled={!canGoNewer || isPending}
+            className='text-muted-foreground h-7 w-7 cursor-pointer'
+            title={t('newerOccurrence')}
+          >
+            <ChevronRight className='h-3.5 w-3.5' />
+          </Button>
+          <Button
+            variant='ghost'
+            size='icon'
+            onClick={() => onNavigate(0)}
+            disabled={!canGoNewer || isPending}
+            className='text-muted-foreground h-7 w-7 cursor-pointer'
+            title={t('latestOccurrence')}
+          >
+            <ChevronsRight className='h-3.5 w-3.5' />
+          </Button>
         </div>
       </div>
       {occurrence?.url ? <UrlTooltip url={occurrence.url} className='block xl:hidden' /> : null}
