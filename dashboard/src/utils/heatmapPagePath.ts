@@ -1,7 +1,7 @@
 /**
  * Whether a real page path belongs to a heatmap page path. The tracker's `data-dynamic-urls`
  * grouping stores each wildcard as `*`, also for `**` patterns that span several segments,
- * so a `*` stands for one or more characters. Mirrors `page_matches` in the backend.
+ * so a `*` stands for one or more characters.
  */
 export function matchesPagePath(pagePath: string, path: string): boolean {
   const parts = pagePath.split('*');

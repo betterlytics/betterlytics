@@ -4147,7 +4147,9 @@
       "invitationNotFound": "Invitasjon ikke funnet"
     },
     "heatmapCaptures": {
+      "capturePathRequired": "Denne heatmap-siden samler flere ekte sider. Skriv inn den ekte siden som skal tas opp.",
       "demoDashboard": "Heatmap-opptak er ikke tilgjengelig på demo-dashbordet.",
+      "pageMismatch": "Siden som skal tas opp, er ikke en av sidene som er samlet under denne heatmap-siden.",
       "storageNotConfigured": "Heatmap-opptak trenger lagring: serveren er satt til å lagre replays i S3, men S3 er ikke konfigurert. Konfigurer S3, eller sett REPLAY_STORAGE=clickhouse."
     }
   },

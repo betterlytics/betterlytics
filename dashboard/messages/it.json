@@ -4147,7 +4147,9 @@
       "invitationNotFound": "Invito non trovato"
     },
     "heatmapCaptures": {
+      "capturePathRequired": "Questa pagina della heatmap raggruppa più pagine reali. Inserisci la pagina reale da acquisire.",
       "demoDashboard": "Le acquisizioni per le heatmap non sono disponibili nella dashboard demo.",
+      "pageMismatch": "La pagina da acquisire non è tra quelle raggruppate in questa pagina della heatmap.",
       "storageNotConfigured": "Le acquisizioni per le heatmap richiedono uno spazio di archiviazione: questo server è impostato per salvare i replay su S3, ma S3 non è configurato. Configura S3 oppure imposta REPLAY_STORAGE=clickhouse."
     }
   },

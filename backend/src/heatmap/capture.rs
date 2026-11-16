@@ -149,6 +149,8 @@ struct Link {
     dashboard_id: String,
     path: String,
     device: String,
+    /// The one real page this link may capture: `path`, or the page picked for a wildcard path
+    capture_path: String,
     created_by_id: String,
     site_id: String,
     domain: String,
@@ -234,16 +236,15 @@ async fn store_capture(
     })?;
 
     let snapshot = decode(body, gzip).await?;
-    if !page_matches(&link.path, &snapshot.page_path) {
+    if snapshot.page_path != link.capture_path {
         return Err(Refusal::new(
             Reason::WrongPage,
             format!(
-                "This capture link is for {}, but this page is {}. Open the link on a matching page and try again.",
-                link.path, snapshot.page_path
+                "This capture link is for {}, but this page is {}. Open the link on that page and try again.",
+                link.capture_path, snapshot.page_path
             ),
         ));
     }
-    let captured_from = snapshot.page_path.clone();
     let capture_id = uuid::Uuid::new_v4().simple().to_string();
     let storage_key = storage_key(ctx.mode, &link.site_id, &capture_id);
 
@@ -280,7 +281,7 @@ async fn store_capture(
                 &storage_key,
                 &size_bytes,
                 &link.created_by_id,
-                &captured_from,
+                &link.capture_path,
             ],
         )
         .await?;
@@ -345,7 +346,7 @@ async fn find_link(pool: &PostgresPool, token_hash: &str) -> Result<Option<Link>
     let conn = pool.connection().await?;
     let row = conn
         .query_opt(
-            r#"SELECT l."id", l."dashboardId", l."path", l."device", l."createdById", d."siteId", d."domain"
+            r#"SELECT l."id", l."dashboardId", l."path", l."device", l."capturePath", l."createdById", d."siteId", d."domain"
                FROM "HeatmapCaptureLink" l
                JOIN "Dashboard" d ON d."id" = l."dashboardId"
                WHERE l."tokenHash" = $1
@@ -360,9 +361,10 @@ async fn find_link(pool: &PostgresPool, token_hash: &str) -> Result<Option<Link>
         dashboard_id: r.get(1),
         path: r.get(2),
         device: r.get(3),
-        created_by_id: r.get(4),
-        site_id: r.get(5),
-        domain: r.get(6),
+        capture_path: r.get(4),
+        created_by_id: r.get(5),
+        site_id: r.get(6),
+        domain: r.get(7),
     }))
 }
 
@@ -416,30 +418,6 @@ fn decode_snapshot(bytes: &[u8], gzip: bool) -> Result<(String, String), Refusal
         .ok_or_else(|| Refusal::new(Reason::Invalid, "The capture has no page address."))?;
     let (_, page_path) = extract_domain_and_path_from_url(href);
     Ok((text, page_path))
-}
-
-/// The tracker's `data-dynamic-urls` grouping stores each wildcard as `*`, also for `**`
-/// patterns that span several segments, so a `*` here stands for one or more characters.
-/// Mirrors `matchesPagePath` in the dashboard.
-fn page_matches(page_path: &str, path: &str) -> bool {
-    let parts: Vec<&str> = page_path.split('*').collect();
-    if parts.len() == 1 {
-        return path == page_path;
-    }
-    let Some(mut rest) = path.strip_prefix(parts[0]) else {
-        return false;
-    };
-    for part in &parts[1..parts.len() - 1] {
-        let Some(skip) = rest.chars().next().map(char::len_utf8) else {
-            return false;
-        };
-        let Some(found) = rest[skip..].find(part) else {
-            return false;
-        };
-        rest = &rest[skip + found + part.len()..];
-    }
-    let last = parts[parts.len() - 1];
-    rest.len() > last.len() && rest.ends_with(last)
 }
 
 fn storage_key(mode: ReplayStorage, site_id: &str, capture_id: &str) -> String {
@@ -593,28 +571,6 @@ mod tests {
         assert_eq!((refusal.reason, refusal.message.as_str()), (Reason::Invalid, "The capture has no page address."));
         let bad_href = SNAPSHOT.replace("https://example.com/", "not a url");
         assert_eq!(decode_snapshot(bad_href.as_bytes(), false).unwrap_err().reason, Reason::Invalid);
-    }
-
-    #[test]
-    fn page_paths_match_literally_without_wildcards() {
-        assert!(page_matches("/pricing", "/pricing"));
-        assert!(!page_matches("/pricing", "/pricing/"));
-        assert!(!page_matches("/pricing", "/about"));
-        assert!(page_matches("/", "/"));
-    }
-
-    #[test]
-    fn page_path_wildcards_stand_for_one_or_more_characters() {
-        assert!(page_matches("/profile/*/posts", "/profile/betterlytics/posts"));
-        assert!(page_matches("/profile/*/posts", "/profile/a/b/posts"));
-        assert!(!page_matches("/profile/*/posts", "/profile//posts"));
-        assert!(!page_matches("/profile/*/posts", "/profile/betterlytics"));
-        assert!(!page_matches("/profile/*/posts", "/settings"));
-        assert!(page_matches("/docs/*", "/docs/guide/install"));
-        assert!(!page_matches("/docs/*", "/docs/"));
-        assert!(page_matches("/*/a/*/b", "/x/a/y/b"));
-        assert!(!page_matches("/*/a/*/b", "/x/a/b"));
-        assert!(page_matches("/shop/*/*", "/shop/é/ü"));
     }
 
     #[test]

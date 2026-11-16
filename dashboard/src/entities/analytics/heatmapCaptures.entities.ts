@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { matchesPagePath, pathnameOf } from '@/utils/heatmapPagePath';
 
 // Same buckets as the backend's heatmap ingestion: Phone < 576 px, Tablet 576-991, Desktop >= 992
 export const HeatmapDeviceSchema = z.enum(['phone', 'tablet', 'desktop']);
@@ -15,25 +14,20 @@ export const HeatmapPagePathSchema = z
   .startsWith('/')
   .refine((path) => !/[\u0000-\u001f\u007f]/.test(path), 'Invalid path');
 
-// A real page on the site, query string allowed. No fragment (the link travels there) and
-// nothing a browser would read as another host.
+// A real page on the site, query string allowed. No fragment (the link travels there), no
+// wildcard, and nothing a browser would read as another host.
 const HeatmapCapturePathSchema = z
   .string()
   .min(1)
   .max(2048)
   .startsWith('/')
-  .refine((path) => !/[\u0000-\u001f\u007f#\\]/.test(path) && !path.startsWith('//'), 'Invalid path');
+  .refine((path) => !/[\u0000-\u001f\u007f#\\*]/.test(path) && !path.startsWith('//'), 'Invalid path');
 
-export const CreateHeatmapCaptureLinkSchema = z
-  .object({
-    path: HeatmapPagePathSchema,
-    device: HeatmapDeviceSchema,
-    capturePath: HeatmapCapturePathSchema.optional(),
-  })
-  .refine((input) => !input.capturePath || matchesPagePath(input.path, pathnameOf(input.capturePath)), {
-    message: 'The page to capture does not match the heatmap page',
-    path: ['capturePath'],
-  });
+export const CreateHeatmapCaptureLinkSchema = z.object({
+  path: HeatmapPagePathSchema,
+  device: HeatmapDeviceSchema,
+  capturePath: HeatmapCapturePathSchema.optional(),
+});
 export type CreateHeatmapCaptureLinkInput = z.infer<typeof CreateHeatmapCaptureLinkSchema>;
 
 export const HeatmapCaptureFilterSchema = z.object({
@@ -56,7 +50,7 @@ export const HeatmapCaptureSchema = z.object({
   createdAt: z.date(),
   createdById: z.string().nullable(),
   createdByName: z.string().nullable(),
-  capturedFromPath: z.string().nullable(),
+  capturedFromPath: z.string(),
 });
 export type HeatmapCapture = z.infer<typeof HeatmapCaptureSchema>;
 
