@@ -423,17 +423,20 @@
       siteId: siteId,
       serverUrl: serverUrl,
       normalize: normalize,
+      documentHeight: getDocumentHeight,
       sampled: false,
     };
     window.__betterlytics_heatmap_config__ = heatmapConfig;
     var heatmapRequested = false;
     heatmapPageview = function () {
       var sampled = Math.random() * 100 < heatmapSamplePct;
+      var screenResolution = window.screen.width + "x" + window.screen.height;
       if (window.__betterlytics_heatmap__) {
-        window.__betterlytics_heatmap__.pageview(sampled);
+        window.__betterlytics_heatmap__.pageview(sampled, screenResolution);
         return;
       }
       heatmapConfig.sampled = sampled;
+      heatmapConfig.screenResolution = screenResolution;
       if (sampled && !heatmapRequested) {
         heatmapRequested = true;
         loadScript(heatmapScriptUrl).catch(function () {});
