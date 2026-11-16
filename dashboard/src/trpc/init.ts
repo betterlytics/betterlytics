@@ -13,23 +13,15 @@ export async function createTRPCContext() {
 
 export type TRPCContext = Awaited<ReturnType<typeof createTRPCContext>>;
 
-type TRPCMeta = {
-  // Off for views whose public demo data is static and re-dated relative to now, so they agree on the time
-  demoCache?: boolean;
-};
-
-const t = initTRPC
-  .context<TRPCContext>()
-  .meta<TRPCMeta>()
-  .create({
-    transformer: superjson,
-    errorFormatter: ({ shape, error }) => {
-      if (error.code === 'INTERNAL_SERVER_ERROR') {
-        return { ...shape, message: 'An error occurred' };
-      }
-      return shape;
-    },
-  });
+const t = initTRPC.context<TRPCContext>().create({
+  transformer: superjson,
+  errorFormatter: ({ shape, error }) => {
+    if (error.code === 'INTERNAL_SERVER_ERROR') {
+      return { ...shape, message: 'An error occurred' };
+    }
+    return shape;
+  },
+});
 
 export const createRouter = t.router;
 export const publicProcedure = t.procedure;
@@ -57,8 +49,7 @@ export const dashboardProcedure = t.procedure
     const authContext = await resolveDashboardAuth(input.dashboardId);
     return next({ ctx: { ...ctx, authContext } });
   })
-  .use(async ({ ctx, input, next, path, getRawInput, meta }) => {
-    if (meta?.demoCache === false) return next({ ctx });
+  .use(async ({ ctx, input, next, path, getRawInput }) => {
     const rawInput = await getRawInput();
     return executeWithDemoCache(ctx.authContext, (_context, _args) => next({ ctx }), [{ input, path, rawInput }]);
   });

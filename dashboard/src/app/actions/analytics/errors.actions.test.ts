@@ -21,13 +21,8 @@ vi.mock('next/navigation', () => ({
 }));
 
 import { executeWithDemoCache, resolveDashboardAuthResult } from '@/auth/api-auth';
-import { withDashboardAuthContext } from '@/auth/auth-actions';
 import { getErrorGroupForSite } from '@/services/analytics/errors.service';
-import {
-  fetchErrorGroupAction,
-  fetchErrorGroupSidebarAction,
-  findReplaySessionForErrorAction,
-} from '@/app/actions/analytics/errors.actions';
+import { fetchErrorGroupAction } from '@/app/actions/analytics/errors.actions';
 
 const DEMO: AuthContext = { dashboardId: 'demo-dash', siteId: 'demo-site', userId: 'demo', role: 'viewer', isDemo: true };
 
@@ -37,28 +32,10 @@ beforeEach(() => {
   vi.mocked(executeWithDemoCache).mockImplementation(async (context, fn, args) => fn(context, ...args));
 });
 
-// The static demo error views are re-dated relative to now, so cached copies of separate views drift apart
-describe('demo cache on the static error detail actions', () => {
-  it.each([
-    ['fetchErrorGroupAction', () => fetchErrorGroupAction('demo-dash', 'fp')],
-    ['fetchErrorGroupSidebarAction', () => fetchErrorGroupSidebarAction('demo-dash', 'fp', 'Etc/UTC')],
-    ['findReplaySessionForErrorAction', () => findReplaySessionForErrorAction('demo-dash', 'fp')],
-  ])('skips the demo cache for %s', async (_name, call) => {
-    await call();
-
-    expect(executeWithDemoCache).not.toHaveBeenCalled();
-  });
-
+describe('error detail actions', () => {
   it('passes the demo context to the service', async () => {
     await fetchErrorGroupAction('demo-dash', 'fp');
 
     expect(getErrorGroupForSite).toHaveBeenCalledWith(DEMO, 'fp');
-  });
-
-  it('still caches dashboard actions without the option', async () => {
-    const cached = withDashboardAuthContext(async () => 'ok');
-
-    expect(await cached('demo-dash')).toBe('ok');
-    expect(executeWithDemoCache).toHaveBeenCalledOnce();
   });
 });
