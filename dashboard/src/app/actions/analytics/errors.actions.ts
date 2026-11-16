@@ -15,19 +15,19 @@ import { type ErrorGroupRow, ErrorGroupStatusValueSchema } from '@/entities/anal
 
 export const fetchErrorGroupAction = withDashboardAuthContext(
   async (ctx: AuthContext, fingerprint: string): Promise<ErrorGroupRow | null> => {
-    return getErrorGroupForSite(ctx.siteId, ctx.dashboardId, fingerprint);
+    return getErrorGroupForSite(ctx, fingerprint);
   },
 );
 
 export const fetchErrorGroupSidebarAction = withDashboardAuthContext(
   async (ctx: AuthContext, fingerprint: string, timezone: string): Promise<ErrorGroupSidebarData> => {
-    return getErrorGroupSidebarDataForSite(ctx.siteId, fingerprint, BATimeZone.parse(timezone));
+    return getErrorGroupSidebarDataForSite(ctx, fingerprint, BATimeZone.parse(timezone));
   },
 );
 
 export const findReplaySessionForErrorAction = withDashboardAuthContext(
   async (ctx: AuthContext, fingerprint: string): Promise<string | null> => {
-    return findReplaySessionForErrorGroup(ctx.siteId, fingerprint);
+    return findReplaySessionForErrorGroup(ctx, fingerprint);
   },
 );
 
