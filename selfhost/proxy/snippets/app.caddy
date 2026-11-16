@@ -42,7 +42,7 @@
 		}
 	}
 
-	@scripts path /analytics.js /replay.js /web-vitals.js
+	@scripts path /analytics.js /replay.js /heatmap.js /web-vitals.js
 	handle @scripts {
 		log_skip
 		root * /srv/static
