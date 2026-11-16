@@ -47,21 +47,15 @@ import {
   getDemoSessionTrailEvents,
   hasDemoSessionReplay,
 } from '@/services/analytics/demoErrors.service';
-import { isFeatureEnabled } from '@/lib/feature-flags';
 
+// Public demo visitors get static errors: real error messages can carry other users' URLs
 export type ErrorsContext = Pick<AuthContext, 'siteId' | 'dashboardId' | 'isDemo'>;
-
-// Public demo visitors on Cloud get static errors, since real error messages can carry other users' URLs;
-// self-hosted public dashboards keep their real errors
-function usesStaticDemoErrors(ctx: ErrorsContext): boolean {
-  return ctx.isDemo && isFeatureEnabled('isCloud');
-}
 
 export async function getErrorGroupForSite(
   ctx: ErrorsContext,
   fingerprint: string,
 ): Promise<ErrorGroupRow | null> {
-  if (usesStaticDemoErrors(ctx)) return getDemoErrorGroup(fingerprint);
+  if (ctx.isDemo) return getDemoErrorGroup(fingerprint);
 
   const row = await getErrorGroup(ctx.siteId, fingerprint);
   if (!row) return null;
@@ -79,9 +73,7 @@ export async function getErrorGroupSidebarDataForSite(
   // Whole calendar days in the zone, ending after today so only today is partial
   const rangeEndDate = moment.tz(timezone).startOf('day').add(1, 'day');
   const rangeStartDate = rangeEndDate.clone().subtract(days, 'days');
-  if (usesStaticDemoErrors(ctx)) {
-    return getDemoErrorGroupSidebarData(fingerprint, timezone, rangeStartDate, rangeEndDate);
-  }
+  if (ctx.isDemo) return getDemoErrorGroupSidebarData(fingerprint, timezone, rangeStartDate, rangeEndDate);
 
   const { siteId } = ctx;
   const rangeStart = toDateTimeString(rangeStartDate.toDate());
@@ -100,7 +92,7 @@ export async function getErrorOccurrenceForSite(
   fingerprint: string,
   offset: number,
 ): Promise<ErrorOccurrence | null> {
-  if (usesStaticDemoErrors(ctx)) return getDemoErrorOccurrence(fingerprint, offset);
+  if (ctx.isDemo) return getDemoErrorOccurrence(fingerprint, offset);
 
   const raw = await getErrorOccurrence(ctx.siteId, fingerprint, offset);
   if (!raw) return null;
@@ -135,7 +127,7 @@ export async function getSessionTrailForSite(
   ctx: ErrorsContext,
   sessionId: string,
 ): Promise<GroupedSessionTrailEvent[]> {
-  const events = usesStaticDemoErrors(ctx)
+  const events = ctx.isDemo
     ? getDemoSessionTrailEvents(sessionId)
     : await getSessionTrailEvents(ctx.siteId, sessionId);
   return groupConsecutiveEvents(events);
@@ -170,10 +162,8 @@ function groupConsecutiveEvents(events: SessionTrailEvent[]): GroupedSessionTrai
   return groups;
 }
 
-// Every public dashboard's replay page lists the bundled demo recordings, so a real session id would open the wrong one
 export async function hasSessionReplayForSite(ctx: ErrorsContext, sessionId: string): Promise<boolean> {
-  if (usesStaticDemoErrors(ctx)) return hasDemoSessionReplay(sessionId);
-  if (ctx.isDemo) return false;
+  if (ctx.isDemo) return hasDemoSessionReplay(sessionId);
   return hasSessionReplay(ctx.siteId, sessionId);
 }
 
@@ -181,19 +171,18 @@ export async function findReplaySessionForErrorGroup(
   ctx: ErrorsContext,
   fingerprint: string,
 ): Promise<string | null> {
-  if (usesStaticDemoErrors(ctx)) return findDemoReplaySessionForError(fingerprint);
-  if (ctx.isDemo) return null;
+  if (ctx.isDemo) return findDemoReplaySessionForError(fingerprint);
   return findReplaySessionForError(ctx.siteId, fingerprint);
 }
 
 export async function hasAnyErrorsForSite(ctx: ErrorsContext): Promise<boolean> {
-  if (usesStaticDemoErrors(ctx)) return true;
+  if (ctx.isDemo) return true;
   return hasAnyErrors(ctx.siteId);
 }
 
 // Filters other than the date range don't apply on the public demo, like demo session replay
 export async function getErrorGroupsForSite(ctx: ErrorsContext, siteQuery: BASiteQuery): Promise<ErrorGroupRow[]> {
-  if (usesStaticDemoErrors(ctx)) return getDemoErrorGroups(siteQuery);
+  if (ctx.isDemo) return getDemoErrorGroups(siteQuery);
 
   const rows = await getErrorGroups(siteQuery);
   if (rows.length === 0) return rows;
@@ -227,7 +216,7 @@ export async function getErrorGroupTimestampsForSite(
   ctx: ErrorsContext,
   fingerprints: string[],
 ): Promise<ErrorGroupTimestamps> {
-  if (usesStaticDemoErrors(ctx)) return getDemoErrorGroupTimestamps(fingerprints);
+  if (ctx.isDemo) return getDemoErrorGroupTimestamps(fingerprints);
   return getErrorGroupTimestamps(ctx.siteId, fingerprints);
 }
 
@@ -236,6 +225,6 @@ export async function getErrorGroupVolumesForSite(
   siteQuery: BASiteQuery,
   fingerprints: string[],
 ): Promise<ErrorGroupVolumeRow[]> {
-  if (usesStaticDemoErrors(ctx)) return getDemoErrorGroupVolumes(siteQuery, fingerprints);
+  if (ctx.isDemo) return getDemoErrorGroupVolumes(siteQuery, fingerprints);
   return getErrorGroupVolumes(siteQuery, fingerprints);
 }

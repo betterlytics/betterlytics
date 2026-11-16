@@ -53,10 +53,6 @@ vi.mock('@/repositories/postgres/errorGroup.repository', () => ({
   upsertErrorGroup: vi.fn(),
   bulkUpsertErrorGroup: vi.fn(),
 }));
-const flags = vi.hoisted(() => ({ isCloud: true }));
-vi.mock('@/lib/feature-flags', () => ({
-  isFeatureEnabled: (flag: string) => flag === 'isCloud' && flags.isCloud,
-}));
 
 const NOW = new Date('2026-10-23T14:23:00Z');
 const MEMBER: ErrorsContext = { siteId: 'site-1', dashboardId: 'dash-1', isDemo: false };
@@ -94,7 +90,6 @@ beforeEach(() => {
   vi.useFakeTimers();
   vi.setSystemTime(NOW);
   vi.clearAllMocks();
-  flags.isCloud = true;
 });
 
 afterEach(() => {
@@ -152,23 +147,6 @@ describe('error tracking on the public demo', () => {
 
     expect(errorsRepository.getErrorGroups).toHaveBeenCalled();
     expect(errorsRepository.getErrorGroup).toHaveBeenCalledWith('site-1', REAL_FINGERPRINT);
-  });
-
-  it('keeps real errors on a self-hosted public dashboard, without replay links', async () => {
-    flags.isCloud = false;
-    vi.mocked(sessionReplaysRepository.hasSessionReplay).mockResolvedValue(true);
-    vi.mocked(sessionReplaysRepository.findReplaySessionForError).mockResolvedValue('12345678901234567890');
-
-    await getErrorGroupsForSite(DEMO, siteQueryFor('7d', 'day'));
-    await getErrorGroupForSite(DEMO, REAL_FINGERPRINT);
-    await getErrorOccurrenceForSite(DEMO, REAL_FINGERPRINT, 0);
-
-    expect(errorsRepository.getErrorGroups).toHaveBeenCalled();
-    expect(errorsRepository.getErrorGroup).toHaveBeenCalledWith('site-1', REAL_FINGERPRINT);
-    expect(errorsRepository.getErrorOccurrence).toHaveBeenCalledWith('site-1', REAL_FINGERPRINT, 0);
-    // Its replay page lists the bundled demo recordings, so a real session id would open the wrong one
-    expect(await hasSessionReplayForSite(DEMO, '12345678901234567890')).toBe(false);
-    expect(await findReplaySessionForErrorGroup(DEMO, REAL_FINGERPRINT)).toBeNull();
   });
 
   it('builds one bounded series per known static error, whatever fingerprints are asked for', async () => {
