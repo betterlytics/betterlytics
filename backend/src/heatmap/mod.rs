@@ -2,7 +2,7 @@
 //! stored as one `analytics.heatmap_clicks` row per click.
 
 use std::sync::Arc;
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
 
 use axum::{
     extract::{State, rejection::BytesRejection},
@@ -10,6 +10,8 @@ use axum::{
 };
 use bytes::Bytes;
 use chrono::{DateTime, Utc};
+use moka::sync::Cache;
+use once_cell::sync::Lazy;
 use serde::Deserialize;
 use tokio::sync::mpsc::{Sender, error::TrySendError};
 use tracing::{debug, warn};
@@ -21,6 +23,7 @@ use crate::client_request::ClientRequest;
 use crate::db::HeatmapClickRow;
 use crate::metrics::MetricsCollector;
 use crate::processing::EventProcessor;
+use crate::session::SESSION_EXPIRY;
 use crate::site_config::SiteConfigCache;
 use crate::ua_parser;
 use crate::url_utils::{extract_domain_and_path_from_url, extract_root_domain};
@@ -36,6 +39,13 @@ const MAX_SCREEN_RESOLUTION_CHARS: usize = 32;
 const MAX_VIEWPORT_WIDTH: u32 = 16_384;
 const MAX_DOCUMENT_HEIGHT: u32 = 1_000_000;
 const MAX_CLICK_AGE_MS: f64 = 24.0 * 60.0 * 60.0 * 1000.0;
+/// A heatmap is an aggregate, so one session's clicks past this add little, and without it a
+/// script could store unbilled rows for as long as it keeps one pageview's session alive
+const MAX_CLICKS_PER_SESSION: u32 = 300;
+
+/// Stored clicks per session id, forgotten once the session itself would expire
+static SESSION_CLICKS: Lazy<Cache<u64, Arc<AtomicU32>>> =
+    Lazy::new(|| Cache::builder().time_to_idle(SESSION_EXPIRY).max_capacity(1_000_000).build());
 
 pub struct HeatmapCtx {
     pub processor: Arc<EventProcessor>,
@@ -187,7 +197,7 @@ async fn store_clicks(
         warn!(site_id = %batch.site_id, "rejected heatmap batch: velocity limit exceeded");
         return Err(Refusal::new(RefuseReason::RateLimited, StatusCode::TOO_MANY_REQUESTS, "rate limited"));
     }
-    bot_detection::velocity::record_heatmap(&batch.site_id, &client.ip);
+    bot_detection::velocity::record_heatmap(&batch.site_id, &client.ip, batch.clicks.len());
 
     // Same identity inputs as a pageview, so the fingerprint matches the pageview's
     let parsed = ua_parser::parse_user_agent(&client.user_agent);
@@ -235,6 +245,14 @@ async fn store_clicks(
             is_fixed: click.fixed,
             timestamp: click_timestamp(received_at, click.ms_ago),
         });
+    }
+
+    let allowed = reserve_session_clicks(identity.session_id, rows.len());
+    if allowed < rows.len() {
+        if let Some(m) = &ctx.metrics {
+            m.increment_heatmap_clicks_dropped("session_cap", (rows.len() - allowed) as u64);
+        }
+        rows.truncate(allowed);
     }
 
     enqueue(ctx, rows);
@@ -323,6 +341,21 @@ fn validate_click(click: &RawClick, viewport_width: u32, document_height: u32) -
     Ok(())
 }
 
+/// Takes up to `wanted` of the session's remaining clicks and returns how many may be stored
+fn reserve_session_clicks(session_id: u64, wanted: usize) -> usize {
+    let wanted = u32::try_from(wanted).unwrap_or(u32::MAX);
+    if wanted == 0 {
+        return 0;
+    }
+    let used = SESSION_CLICKS.get_with(session_id, || Arc::new(AtomicU32::new(0)));
+    let mut granted = 0;
+    let _ = used.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |stored| {
+        granted = MAX_CLICKS_PER_SESSION.saturating_sub(stored).min(wanted);
+        (granted > 0).then_some(stored + granted)
+    });
+    granted as usize
+}
+
 /// The `device.rs` buckets with laptop and desktop merged, applied to the viewport,
 /// since the page layout follows the viewport rather than the screen
 fn device_from_viewport(viewport_width: u32) -> &'static str {
@@ -367,6 +400,17 @@ mod tests {
             document_height,
             clicks: Vec::new(),
         }
+    }
+
+    #[test]
+    fn a_session_stores_at_most_its_click_cap() {
+        let session = 0x5e55_1011_cafe_0001;
+        assert_eq!(reserve_session_clicks(session, 200), 200);
+        assert_eq!(reserve_session_clicks(session, 200), 100);
+        assert_eq!(reserve_session_clicks(session, 1), 0);
+        assert_eq!(reserve_session_clicks(session + 1, 5), 5);
+        assert_eq!(reserve_session_clicks(session + 2, 0), 0);
+        assert_eq!(reserve_session_clicks(session + 2, 300), 300);
     }
 
     #[test]

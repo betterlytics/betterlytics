@@ -30,8 +30,8 @@
 			events 300
 			window 1m
 		}
-		# One batch per page view, so a flood guard like the event zone; the backend enforces
-		# 120 a minute per site and network
+		# One batch per page view, so a flood guard like the event zone; the backend caps clicks
+		# per site and network and per session
 		zone heatmap {
 			match {
 				path /heatmap/clicks
