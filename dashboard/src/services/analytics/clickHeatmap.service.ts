@@ -3,7 +3,7 @@ import 'server-only';
 import {
   getHeatmapClickPoints,
   getHeatmapDeviceShares,
-  getHeatmapDocumentHeight,
+  getHeatmapPageStats,
   getHeatmapPages,
   hasHeatmapClicks,
 } from '@/repositories/clickhouse/clickHeatmap.repository';
@@ -42,9 +42,9 @@ export async function getHeatmapClicksForPage(
   device: HeatmapDevice,
 ): Promise<HeatmapClicks> {
   const width = HEATMAP_DEVICE_WIDTHS[device];
-  const [points, documentHeight] = await Promise.all([
+  const [points, { documentHeight, fixedClicks }] = await Promise.all([
     getHeatmapClickPoints(siteQuery, url, device, width, HEATMAP_MAX_PAGE_HEIGHT),
-    getHeatmapDocumentHeight(siteQuery, url, device),
+    getHeatmapPageStats(siteQuery, url, device),
   ]);
 
   const lowestClick = points.reduce((max, point) => Math.max(max, point.y + HEATMAP_POINT_CELL_PX), 0);
@@ -53,5 +53,5 @@ export async function getHeatmapClicksForPage(
     HEATMAP_MAX_PAGE_HEIGHT,
   );
 
-  return { width, height, points };
+  return { width, height, points, fixedClicks };
 }

@@ -3,14 +3,14 @@ import { getHeatmapClicksForPage, getHeatmapDeviceSharesForPage } from './clickH
 import {
   getHeatmapClickPoints,
   getHeatmapDeviceShares,
-  getHeatmapDocumentHeight,
+  getHeatmapPageStats,
 } from '@/repositories/clickhouse/clickHeatmap.repository';
 import type { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 vi.mock('@/repositories/clickhouse/clickHeatmap.repository', () => ({
   getHeatmapClickPoints: vi.fn(),
   getHeatmapDeviceShares: vi.fn(),
-  getHeatmapDocumentHeight: vi.fn(),
+  getHeatmapPageStats: vi.fn(),
   getHeatmapPages: vi.fn(),
   hasHeatmapClicks: vi.fn(),
 }));
@@ -39,36 +39,37 @@ describe('getHeatmapDeviceSharesForPage', () => {
 describe('getHeatmapClicksForPage', () => {
   it('draws at the device width and asks for points scaled to it', async () => {
     vi.mocked(getHeatmapClickPoints).mockResolvedValue([{ x: 180, y: 1800, count: 3 }]);
-    vi.mocked(getHeatmapDocumentHeight).mockResolvedValue(4800);
+    vi.mocked(getHeatmapPageStats).mockResolvedValue({ documentHeight: 4800, fixedClicks: 0 });
 
     const result = await getHeatmapClicksForPage(siteQuery, '/', 'mobile');
 
-    expect(result).toEqual({ width: 390, height: 4800, points: [{ x: 180, y: 1800, count: 3 }] });
+    expect(result).toEqual({ width: 390, height: 4800, points: [{ x: 180, y: 1800, count: 3 }], fixedClicks: 0 });
     expect(getHeatmapClickPoints).toHaveBeenCalledWith(siteQuery, '/', 'mobile', 390, 20000);
   });
 
   it('grows the page to fit clicks below the typical document height', async () => {
     vi.mocked(getHeatmapClickPoints).mockResolvedValue([{ x: 10, y: 3000, count: 1 }]);
-    vi.mocked(getHeatmapDocumentHeight).mockResolvedValue(2400);
+    vi.mocked(getHeatmapPageStats).mockResolvedValue({ documentHeight: 2400, fixedClicks: 0 });
 
     const { height } = await getHeatmapClicksForPage(siteQuery, '/', 'desktop');
 
     expect(height).toBe(3044);
   });
 
-  it('keeps the page height when every click is on a fixed element', async () => {
+  it('keeps the page height and reports fixed clicks when every click is on a fixed element', async () => {
     vi.mocked(getHeatmapClickPoints).mockResolvedValue([]);
-    vi.mocked(getHeatmapDocumentHeight).mockResolvedValue(1600);
+    vi.mocked(getHeatmapPageStats).mockResolvedValue({ documentHeight: 1600, fixedClicks: 8 });
 
-    const { height, points } = await getHeatmapClicksForPage(siteQuery, '/', 'tablet');
+    const { height, points, fixedClicks } = await getHeatmapClicksForPage(siteQuery, '/', 'tablet');
 
     expect(height).toBe(1600);
     expect(points).toEqual([]);
+    expect(fixedClicks).toBe(8);
   });
 
   it('caps very tall pages', async () => {
     vi.mocked(getHeatmapClickPoints).mockResolvedValue([]);
-    vi.mocked(getHeatmapDocumentHeight).mockResolvedValue(90000);
+    vi.mocked(getHeatmapPageStats).mockResolvedValue({ documentHeight: 90000, fixedClicks: 0 });
 
     const { height } = await getHeatmapClicksForPage(siteQuery, '/', 'desktop');
 

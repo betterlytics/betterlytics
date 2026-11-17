@@ -3509,7 +3509,8 @@
       },
       "noDeviceClicks": "No {device} clicks on this page in this period.",
       "showDevice": "Show {device} ({count, plural, one {# click} other {# clicks}})",
-      "noBackground": "Clicks are shown at their position on the page, without a page background yet."
+      "noBackground": "Clicks are shown at their position on the page, without a page background yet.",
+      "fixedClicksHidden": "{count, plural, one {# click on a fixed or sticky element isn't shown yet.} other {# clicks on fixed or sticky elements aren't shown yet.}}"
     },
     "webVitals": {
       "metrics": {
@@ -4197,7 +4198,7 @@
     },
     "heatmapsNoData": {
       "title": "No heatmap clicks yet",
-      "description": "Add data-heatmaps=\"true\" to your tracking script to start collecting clicks.",
+      "description": "Check out the docs to see how to set up heatmaps.",
       "action": "Learn more"
     },
     "featureNotEnabled": {

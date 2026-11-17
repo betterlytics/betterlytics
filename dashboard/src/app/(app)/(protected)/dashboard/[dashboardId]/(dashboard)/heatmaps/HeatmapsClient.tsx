@@ -84,6 +84,8 @@ export function HeatmapsClient() {
 
   const deviceClicks = shares?.find((share) => share.device === selectedDevice)?.clicks ?? 0;
   const devicesWithClicks = shares?.filter((share) => share.clicks > 0 && share.device !== selectedDevice) ?? [];
+  const fixedClicks = clicksQuery.data?.fixedClicks ?? 0;
+  const fixedClicksNote = fixedClicks > 0 ? t('fixedClicksHidden', { count: fixedClicks }) : null;
 
   return (
     <div className='space-y-3'>
@@ -146,9 +148,14 @@ export function HeatmapsClient() {
             ))}
           </div>
         </div>
+      ) : clicksQuery.data?.points.length === 0 && fixedClicksNote ? (
+        <div className='bg-card flex min-h-72 items-center justify-center rounded-lg border p-6 text-center'>
+          <p className='text-muted-foreground'>{fixedClicksNote}</p>
+        </div>
       ) : clicksQuery.data ? (
         <div className='space-y-2'>
           <p className='text-muted-foreground text-xs'>{t('noBackground')}</p>
+          {fixedClicksNote && <p className='text-muted-foreground text-xs'>{fixedClicksNote}</p>}
           <HeatmapView
             width={clicksQuery.data.width}
             height={clicksQuery.data.height}

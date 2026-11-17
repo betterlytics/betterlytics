@@ -3509,7 +3509,8 @@
       },
       "noDeviceClicks": "Ingen klikk fra {device} på denne siden i perioden.",
       "showDevice": "Vis {device} ({count, plural, one {# klikk} other {# klikk}})",
-      "noBackground": "Klikk vises der de skjedde på siden, foreløpig uten sidebakgrunn."
+      "noBackground": "Klikk vises der de skjedde på siden, foreløpig uten sidebakgrunn.",
+      "fixedClicksHidden": "{count, plural, one {# klikk på et fast element vises ikke ennå.} other {# klikk på faste elementer vises ikke ennå.}}"
     },
     "webVitals": {
       "metrics": {
@@ -4197,7 +4198,7 @@
     },
     "heatmapsNoData": {
       "title": "Ingen klikk for varmekart ennå",
-      "description": "Legg til data-heatmaps=\"true\" i sporingsskriptet for å begynne å samle inn klikk.",
+      "description": "Se dokumentasjonen for hvordan du setter opp varmekart.",
       "action": "Lær mer"
     },
     "featureNotEnabled": {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef } from 'react';
 import type { HeatmapClickPoint } from '@/entities/analytics/clickHeatmap.entities';
 import { useResizeObserver } from '@/hooks/use-resize-observer';
 import { drawHeat } from './heatCanvas';
@@ -9,10 +9,9 @@ type HeatmapViewProps = {
   width: number;
   height: number;
   points: HeatmapClickPoint[];
-  background?: ReactNode;
 };
 
-export function HeatmapView({ width, height, points, background }: HeatmapViewProps) {
+export function HeatmapView({ width, height, points }: HeatmapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { width: containerWidth } = useResizeObserver(containerRef);
@@ -30,7 +29,7 @@ export function HeatmapView({ width, height, points, background }: HeatmapViewPr
           className='absolute top-0 left-0 origin-top-left'
           style={{ width, height, transform: `scale(${scale})` }}
         >
-          <div className='absolute inset-0'>{background ?? <div className='bg-muted/50 h-full w-full' />}</div>
+          <div className='bg-muted/50 absolute inset-0' />
           <canvas ref={canvasRef} className='pointer-events-none absolute inset-0 h-full w-full' />
         </div>
       </div>

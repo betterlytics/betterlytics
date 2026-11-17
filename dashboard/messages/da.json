@@ -3509,7 +3509,8 @@
       },
       "noDeviceClicks": "Ingen klik fra {device} på denne side i perioden.",
       "showDevice": "Vis {device} ({count, plural, one {# klik} other {# klik}})",
-      "noBackground": "Klik vises på deres position på siden, endnu uden sidebaggrund."
+      "noBackground": "Klik vises på deres position på siden, endnu uden sidebaggrund.",
+      "fixedClicksHidden": "{count, plural, one {# klik på et fastgjort element vises ikke endnu.} other {# klik på fastgjorte elementer vises ikke endnu.}}"
     },
     "webVitals": {
       "metrics": {
@@ -4197,7 +4198,7 @@
     },
     "heatmapsNoData": {
       "title": "Ingen heatmap-klik endnu",
-      "description": "Tilføj data-heatmaps=\"true\" til dit tracking-script for at begynde at indsamle klik.",
+      "description": "Se i dokumentationen, hvordan du opsætter heatmaps.",
       "action": "Læs mere"
     },
     "featureNotEnabled": {

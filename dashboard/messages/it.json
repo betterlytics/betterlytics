@@ -3509,7 +3509,8 @@
       },
       "noDeviceClicks": "Nessun clic da {device} su questa pagina nel periodo.",
       "showDevice": "Mostra {device} ({count, plural, one {# clic} other {# clic}})",
-      "noBackground": "I clic sono mostrati nella loro posizione sulla pagina, per ora senza sfondo della pagina."
+      "noBackground": "I clic sono mostrati nella loro posizione sulla pagina, per ora senza sfondo della pagina.",
+      "fixedClicksHidden": "{count, plural, one {# clic su un elemento fisso non è ancora mostrato.} other {# clic su elementi fissi non sono ancora mostrati.}}"
     },
     "webVitals": {
       "metrics": {
@@ -4197,7 +4198,7 @@
     },
     "heatmapsNoData": {
       "title": "Nessun clic per le heatmap",
-      "description": "Aggiungi data-heatmaps=\"true\" allo script di tracciamento per iniziare a raccogliere i clic.",
+      "description": "Consulta la documentazione per sapere come configurare le heatmap.",
       "action": "Scopri di più"
     },
     "featureNotEnabled": {

@@ -38,12 +38,16 @@ export const HeatmapClickPointSchema = z.object({
 
 export type HeatmapClickPoint = z.infer<typeof HeatmapClickPointSchema>;
 
-export const HeatmapDocumentHeightRowSchema = z.object({
+export const HeatmapPageStatsRowSchema = z.object({
   documentHeight: z.coerce.number(),
+  fixedClicks: z.coerce.number(),
 });
+
+export type HeatmapPageStatsRow = z.infer<typeof HeatmapPageStatsRowSchema>;
 
 export type HeatmapClicks = {
   width: number;
   height: number;
   points: HeatmapClickPoint[];
+  fixedClicks: number;
 };

@@ -9,9 +9,10 @@ import {
   HeatmapDevice,
   HeatmapDeviceShareRow,
   HeatmapDeviceShareRowSchema,
-  HeatmapDocumentHeightRowSchema,
   HeatmapPageRow,
   HeatmapPageRowSchema,
+  HeatmapPageStatsRow,
+  HeatmapPageStatsRowSchema,
 } from '@/entities/analytics/clickHeatmap.entities';
 
 const MAX_POINTS = 20000;
@@ -135,15 +136,17 @@ export async function getHeatmapClickPoints(
   return rows.map((row) => HeatmapClickPointSchema.parse(row));
 }
 
-export async function getHeatmapDocumentHeight(
+export async function getHeatmapPageStats(
   siteQuery: BASiteQuery,
   url: string,
   device: HeatmapDevice,
-): Promise<number> {
+): Promise<HeatmapPageStatsRow> {
   const { siteId, startDateTime, endDateTime } = siteQuery;
 
   const query = safeSql`
-    SELECT quantileExact(0.5)(document_height) AS documentHeight
+    SELECT
+      quantileExact(0.5)(document_height) AS documentHeight,
+      countIf(is_fixed) AS fixedClicks
     FROM analytics.heatmap_clicks
     WHERE site_id = {site_id:String}
       AND device = {device:String}
@@ -164,5 +167,5 @@ export async function getHeatmapDocumentHeight(
     })
     .toPromise();
 
-  return HeatmapDocumentHeightRowSchema.parse(rows[0] ?? { documentHeight: 0 }).documentHeight;
+  return HeatmapPageStatsRowSchema.parse(rows[0] ?? { documentHeight: 0, fixedClicks: 0 });
 }
