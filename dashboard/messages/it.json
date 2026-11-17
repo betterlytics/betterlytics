@@ -2414,6 +2414,7 @@
       "activeUsers": "{count, plural, =0 {utenti attivi} one {utente attivo} other {utenti attivi}}",
       "webVitals": "Web Vitals",
       "sessionReplay": "Replay sessioni",
+      "heatmaps": "Heatmap",
       "monitoring": "Monitoraggio",
       "statusPages": "Pagine di stato",
       "categories": {
@@ -3498,6 +3499,18 @@
         "title": "Distribuzione link in uscita"
       }
     },
+    "heatmaps": {
+      "pagePicker": "Pagina",
+      "clicks": "{count, plural, one {# clic} other {# clic}}",
+      "devices": {
+        "desktop": "Desktop",
+        "tablet": "Tablet",
+        "mobile": "Mobile"
+      },
+      "noDeviceClicks": "Nessun clic da {device} su questa pagina nel periodo.",
+      "showDevice": "Mostra {device} ({count, plural, one {# clic} other {# clic}})",
+      "noBackground": "I clic sono mostrati nella loro posizione sulla pagina, per ora senza sfondo della pagina."
+    },
     "webVitals": {
       "metrics": {
         "CLS": "Cumulative Layout Shift",
@@ -4180,6 +4193,11 @@
     "webVitalsNoData": {
       "title": "Nessun dato Core Web Vitals",
       "description": "Assicurati che il tracciamento sia abilitato.",
+      "action": "Scopri di più"
+    },
+    "heatmapsNoData": {
+      "title": "Nessun clic per le heatmap",
+      "description": "Aggiungi data-heatmaps=\"true\" allo script di tracciamento per iniziare a raccogliere i clic.",
       "action": "Scopri di più"
     },
     "featureNotEnabled": {
