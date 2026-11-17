@@ -9,7 +9,7 @@ import {
   HeatmapDevice,
   HeatmapDeviceShareRow,
   HeatmapDeviceShareRowSchema,
-  HeatmapPageHeightRowSchema,
+  HeatmapDocumentHeightRowSchema,
   HeatmapPageRow,
   HeatmapPageRowSchema,
 } from '@/entities/analytics/clickHeatmap.entities';
@@ -135,20 +135,20 @@ export async function getHeatmapClickPoints(
   return rows.map((row) => HeatmapClickPointSchema.parse(row));
 }
 
-export async function getHeatmapPageHeight(siteQuery: BASiteQuery, url: string, device: HeatmapDevice, maxHeight: number) {
+export async function getHeatmapDocumentHeight(
+  siteQuery: BASiteQuery,
+  url: string,
+  device: HeatmapDevice,
+): Promise<number> {
   const { siteId, startDateTime, endDateTime } = siteQuery;
 
   const query = safeSql`
-    SELECT
-      quantileExact(0.5)(document_height) AS documentHeight,
-      max(page_y) AS maxY
+    SELECT quantileExact(0.5)(document_height) AS documentHeight
     FROM analytics.heatmap_clicks
     WHERE site_id = {site_id:String}
       AND device = {device:String}
       AND url = {url:String}
       AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-      AND NOT is_fixed
-      AND page_y < {max_height:UInt32}
   `;
 
   const rows = await clickhouse
@@ -158,12 +158,11 @@ export async function getHeatmapPageHeight(siteQuery: BASiteQuery, url: string, 
         site_id: siteId,
         device,
         url,
-        max_height: maxHeight,
         start_date: startDateTime,
         end_date: endDateTime,
       },
     })
     .toPromise();
 
-  return HeatmapPageHeightRowSchema.parse(rows[0] ?? { documentHeight: 0, maxY: 0 });
+  return HeatmapDocumentHeightRowSchema.parse(rows[0] ?? { documentHeight: 0 }).documentHeight;
 }

@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import type { HeatmapClickPoint } from '@/entities/analytics/clickHeatmap.entities';
+import { useResizeObserver } from '@/hooks/use-resize-observer';
 import { drawHeat } from './heatCanvas';
 
 type HeatmapViewProps = {
@@ -14,15 +15,7 @@ type HeatmapViewProps = {
 export function HeatmapView({ width, height, points, background }: HeatmapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [containerWidth, setContainerWidth] = useState(0);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    const observer = new ResizeObserver(([entry]) => setContainerWidth(entry.contentRect.width));
-    observer.observe(container);
-    return () => observer.disconnect();
-  }, []);
+  const { width: containerWidth } = useResizeObserver(containerRef);
 
   useEffect(() => {
     if (canvasRef.current) drawHeat(canvasRef.current, points, width, height);

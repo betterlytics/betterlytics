@@ -38,9 +38,8 @@ export const HeatmapClickPointSchema = z.object({
 
 export type HeatmapClickPoint = z.infer<typeof HeatmapClickPointSchema>;
 
-export const HeatmapPageHeightRowSchema = z.object({
+export const HeatmapDocumentHeightRowSchema = z.object({
   documentHeight: z.coerce.number(),
-  maxY: z.coerce.number(),
 });
 
 export type HeatmapClicks = {

@@ -5,7 +5,6 @@ import { useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { trpc } from '@/trpc/client';
 import { useBAQueryParams } from '@/trpc/hooks';
-import { useBARouter } from '@/hooks/use-ba-router';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UnderlineTabs, UnderlineTabsList, UnderlineTabsTrigger } from '@/components/ui/UnderlineTabs';
 import { Button } from '@/components/ui/button';
@@ -21,23 +20,20 @@ import {
 import { HeatmapView } from './HeatmapView';
 
 function useHeatmapSelection() {
-  const router = useBARouter();
   const searchParams = useSearchParams();
   const path = searchParams?.get('path') || undefined;
   const parsedDevice = HeatmapDeviceSchema.safeParse(searchParams?.get('device'));
   const device = parsedDevice.success ? parsedDevice.data : undefined;
 
-  const setSelection = useCallback(
-    (next: { path?: string; device?: HeatmapDevice }) => {
-      const params = new URLSearchParams(searchParams?.toString());
-      for (const [key, value] of Object.entries(next)) {
-        if (value) params.set(key, value);
-        else params.delete(key);
-      }
-      router.push(`?${params.toString()}`, { scroll: false });
-    },
-    [router, searchParams],
-  );
+  const setSelection = useCallback((next: { path?: string; device?: HeatmapDevice }) => {
+    const params = new URLSearchParams(window.location.search);
+    for (const [key, value] of Object.entries(next)) {
+      if (value) params.set(key, value);
+      else params.delete(key);
+    }
+    const query = params.toString();
+    window.history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}`);
+  }, []);
 
   return { path, device, setSelection };
 }
@@ -58,7 +54,7 @@ export function HeatmapsClient() {
 
   const devicesQuery = trpc.clickHeatmap.devices.useQuery(
     { ...input, url: selectedPath ?? '' },
-    { ...options, enabled: selectedPath !== undefined },
+    { ...options, placeholderData: undefined, enabled: selectedPath !== undefined },
   );
   const shares = devicesQuery.data;
   const totalClicks = shares?.reduce((sum, share) => sum + share.clicks, 0) ?? 0;
@@ -66,13 +62,13 @@ export function HeatmapsClient() {
 
   const clicksQuery = trpc.clickHeatmap.clicks.useQuery(
     { ...input, url: selectedPath ?? '', device: selectedDevice ?? 'desktop' },
-    { ...options, enabled: selectedPath !== undefined && selectedDevice !== undefined },
+    { ...options, placeholderData: undefined, enabled: selectedPath !== undefined && selectedDevice !== undefined },
   );
 
   const pageOptions = useMemo(() => {
     if (!selectedPath || pages.some((page) => page.url === selectedPath)) return pages;
-    return [{ url: selectedPath, clicks: 0 }, ...pages];
-  }, [pages, selectedPath]);
+    return [{ url: selectedPath, clicks: totalClicks }, ...pages];
+  }, [pages, selectedPath, totalClicks]);
 
   if (pagesQuery.isPending) {
     return <Skeleton className='h-[calc(100vh-14rem)] min-h-96 w-full' />;
