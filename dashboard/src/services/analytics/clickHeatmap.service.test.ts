@@ -124,7 +124,7 @@ describe('getHeatmapBackground', () => {
 describe('getCaptureOrigin', () => {
   const dashboard = (domain: string) => ({ domain }) as Awaited<ReturnType<typeof findDashboardById>>;
 
-  it('opens the host most visitors used, over https', async () => {
+  it('opens the host most visitors used on the dashboard domain, over https', async () => {
     vi.mocked(getMostVisitedHost).mockResolvedValue('www.example.com');
     vi.mocked(findDashboardById).mockResolvedValue(dashboard('example.com'));
 
@@ -132,6 +132,8 @@ describe('getCaptureOrigin', () => {
       origin: 'https://www.example.com',
       domain: 'example.com',
     });
+    // Pageviews can carry any host, so only hosts on the domain are counted
+    expect(getMostVisitedHost).toHaveBeenCalledWith(siteQuery, '/pricing', 'example.com');
   });
 
   it("falls back to the dashboard's domain, and uses http for local hosts", async () => {

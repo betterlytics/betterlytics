@@ -11,6 +11,12 @@ describe('resolveCaptureTarget', () => {
     });
   });
 
+  it('refuses a default origin off the dashboard domain', () => {
+    expect(
+      resolveCaptureTarget({ ...base, defaultOrigin: 'https://attacker.test', pagePath: '/pricing', values: [] }),
+    ).toEqual({ error: 'otherHost' });
+  });
+
   it('fills in wildcards and refuses an empty one before anything opens', () => {
     expect(resolveCaptureTarget({ ...base, pagePath: '/profile/*/posts', values: ['betterlytics'] })).toEqual({
       origin: 'https://www.example.com',

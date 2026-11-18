@@ -3527,12 +3527,13 @@
         "differentUrlPlaceholder": "/percorso?query o https://...",
         "differentUrlHelp": "Deve essere una delle pagine raggruppate sotto {path}.",
         "keepWindowSize": "Mantieni la finestra di questa dimensione e non usare lo zoom finché la cattura non è finita, altrimenti viene rifiutata per larghezza errata.",
-        "keepWindowWide": "Mantieni la finestra larga almeno 992 px e non usare lo zoom finché la cattura non è finita, altrimenti viene rifiutata per larghezza errata.",
+        "keepWindowWide": "Mantieni la finestra larga almeno {width} px e non usare lo zoom finché la cattura non è finita, altrimenti viene rifiutata per larghezza errata.",
         "errors": {
           "empty": "Compila ogni parte dell'indirizzo della pagina.",
           "mismatch": "Quella pagina non è tra quelle raggruppate sotto {path}.",
           "invalidUrl": "Inserisci un percorso che inizia con / o un indirizzo https:// completo.",
-          "otherHost": "Quell'indirizzo non è su {domain}."
+          "otherHost": "Quell'indirizzo non è su {domain}.",
+          "originFailed": "Impossibile trovare l'indirizzo della pagina. Chiudi e riprova."
         },
         "open": "Apri pagina",
         "cancel": "Annulla",

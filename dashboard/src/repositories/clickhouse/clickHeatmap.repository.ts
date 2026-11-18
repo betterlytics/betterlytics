@@ -188,9 +188,16 @@ export async function getHeatmapClickAnchors(
   return rows.map((row) => HeatmapClickAnchorSchema.parse(row));
 }
 
-// The host visitors opened a page on most; pageviews keep the host, heatmap clicks don't
-export async function getMostVisitedHost(siteQuery: BASiteQuery, url: string): Promise<string | null> {
+// The host on the dashboard's domain that visitors opened a page on most. Pageviews keep the
+// host, heatmap clicks don't; any host can be sent in a pageview, and capture uploads are only
+// accepted from the domain or its subdomains.
+export async function getMostVisitedHost(
+  siteQuery: BASiteQuery,
+  url: string,
+  dashboardDomain: string,
+): Promise<string | null> {
   const { siteId, startDateTime, endDateTime } = siteQuery;
+  const domain = dashboardDomain.toLowerCase();
 
   const query = safeSql`
     SELECT domain
@@ -198,7 +205,7 @@ export async function getMostVisitedHost(siteQuery: BASiteQuery, url: string): P
     WHERE site_id = {site_id:String}
       AND event_type = 'pageview'
       AND url = {url:String}
-      AND domain != ''
+      AND (domain = {dashboard_domain:String} OR endsWith(domain, {dot_domain:String}))
       AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
     GROUP BY domain
     ORDER BY count() DESC
@@ -211,6 +218,8 @@ export async function getMostVisitedHost(siteQuery: BASiteQuery, url: string): P
         ...query.taggedParams,
         site_id: siteId,
         url,
+        dashboard_domain: domain,
+        dot_domain: `.${domain}`,
         start_date: startDateTime,
         end_date: endDateTime,
       },

@@ -42,7 +42,7 @@ export function useCaptureLabel() {
   const locale = useLocale();
   return (capture: HeatmapCapture) => {
     const date = new Date(capture.createdAt).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' });
-    const name = capture.createdByName ?? t('formerMember');
+    const name = capture.createdByName || t('formerMember');
     return capture.capturedFromPath !== capture.path
       ? t('capturedByFrom', { date, name, path: capture.capturedFromPath })
       : t('capturedBy', { date, name });

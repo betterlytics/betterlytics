@@ -3527,12 +3527,13 @@
         "differentUrlPlaceholder": "/path?query or https://...",
         "differentUrlHelp": "It must be one of the pages grouped under {path}.",
         "keepWindowSize": "Keep the window at this size and don't zoom until the capture is done, or it is refused for the wrong width.",
-        "keepWindowWide": "Keep the window at least 992 px wide and don't zoom until the capture is done, or it is refused for the wrong width.",
+        "keepWindowWide": "Keep the window at least {width} px wide and don't zoom until the capture is done, or it is refused for the wrong width.",
         "errors": {
           "empty": "Fill in every part of the page address.",
           "mismatch": "That page isn't one of the pages grouped under {path}.",
           "invalidUrl": "Enter a path starting with / or a full https:// address.",
-          "otherHost": "That address isn't on {domain}."
+          "otherHost": "That address isn't on {domain}.",
+          "originFailed": "Couldn't look up the page's address. Close this and try again."
         },
         "open": "Open page",
         "cancel": "Cancel",

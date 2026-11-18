@@ -1,5 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { matchesPagePath, pathnameOf } from '@/utils/heatmapPagePath';
+import { matchPagePath, matchesPagePath, pathnameOf } from '@/utils/heatmapPagePath';
+
+describe('matchPagePath', () => {
+  it('reads the wildcard values from a real page', () => {
+    expect(matchPagePath('/profile/*/posts', '/profile/betterlytics/posts')).toEqual(['betterlytics']);
+    expect(matchPagePath('/*/a/*/b', '/x/a/y/z/b')).toEqual(['x', 'y/z']);
+    expect(matchPagePath('/docs/*', '/docs/guide/install')).toEqual(['guide/install']);
+    expect(matchPagePath('/pricing', '/pricing')).toEqual([]);
+    expect(matchPagePath('/profile/*/posts', '/settings')).toBeNull();
+  });
+});
 
 describe('matchesPagePath', () => {
   it('matches literally without wildcards', () => {

@@ -36,19 +36,27 @@ export function HeatmapPanel({ url, device, selectedCaptureId, onSelectCapture }
   const dashboardId = useDashboardId();
   const { isDemo } = useDashboardAuth();
   const { input, options } = useBAQueryParams();
-  const capturesQuery = trpc.heatmapCaptures.list.useQuery({ dashboardId, path: url, device }, { enabled: !isDemo });
+  const capturesQuery = trpc.heatmapCaptures.list.useQuery(
+    { dashboardId, path: url },
+    // A capture finished in its own window shows up once the editor is back here
+    { enabled: !isDemo, refetchOnWindowFocus: true },
+  );
   const backgroundQuery = trpc.clickHeatmap.background.useQuery(
     { ...input, url, device },
     { ...options, placeholderData: undefined },
   );
-  const [unusable, setUnusable] = useState<string | null>(null);
+  // Only ever grows, so a background that failed never comes back and the order always ends
+  const [unusable, setUnusable] = useState<ReadonlySet<string>>(new Set());
   const [capturing, setCapturing] = useState(false);
+  const markUnusable = (key: string) =>
+    setUnusable((current) => (current.has(key) ? current : new Set(current).add(key)));
 
   if ((capturesQuery.isPending && !isDemo) || backgroundQuery.isPending) {
     return <Skeleton className={PANEL_SKELETON} />;
   }
 
-  const captures = capturesQuery.data ?? [];
+  const pageCaptures = capturesQuery.data ?? [];
+  const captures = pageCaptures.filter((item) => item.device === device);
   const capture = captures.find((item) => item.id === selectedCaptureId) ?? captures[0];
   const actions = (
     <CaptureActions
@@ -62,7 +70,7 @@ export function HeatmapPanel({ url, device, selectedCaptureId, onSelectCapture }
     <CaptureDialog
       pagePath={url}
       device={device}
-      captures={captures}
+      pageCaptures={pageCaptures}
       onClose={() => setCapturing(false)}
       onCaptured={onSelectCapture}
     />
@@ -70,7 +78,7 @@ export function HeatmapPanel({ url, device, selectedCaptureId, onSelectCapture }
 
   let view: ReactNode;
   const background = backgroundQuery.data;
-  if (capture && unusable !== `capture/${capture.id}`) {
+  if (capture && !unusable.has(`capture/${capture.id}`)) {
     view = (
       <CaptureHeatmap
         key={capture.id}
@@ -78,10 +86,10 @@ export function HeatmapPanel({ url, device, selectedCaptureId, onSelectCapture }
         device={device}
         capture={capture}
         actions={actions}
-        onUnusable={() => setUnusable(`capture/${capture.id}`)}
+        onUnusable={() => markUnusable(`capture/${capture.id}`)}
       />
     );
-  } else if (background?.kind === 'replay' && unusable !== snapshotKey(background.snapshot)) {
+  } else if (background?.kind === 'replay' && !unusable.has(snapshotKey(background.snapshot))) {
     const key = snapshotKey(background.snapshot);
     view = (
       <ReplayHeatmap
@@ -90,7 +98,7 @@ export function HeatmapPanel({ url, device, selectedCaptureId, onSelectCapture }
         device={device}
         snapshot={background.snapshot}
         actions={actions}
-        onUnusable={() => setUnusable(key)}
+        onUnusable={() => markUnusable(key)}
       />
     );
   } else {

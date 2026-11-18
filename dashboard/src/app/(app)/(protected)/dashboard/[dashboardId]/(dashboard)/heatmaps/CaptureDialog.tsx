@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/dialog';
 import { createHeatmapCaptureLinkAction } from '@/app/actions/analytics/heatmapCaptures.actions';
 import { HEATMAP_CAPTURE_LINK_TTL_MS, type HeatmapCapture } from '@/entities/analytics/heatmapCaptures.entities';
-import type { HeatmapDevice } from '@/entities/analytics/clickHeatmap.entities';
+import { HEATMAP_DESKTOP_MIN_WIDTH, type HeatmapDevice } from '@/entities/analytics/clickHeatmap.entities';
 import {
   CAPTURE_WINDOW,
   captureUrl,
@@ -39,12 +39,13 @@ type CaptureDialogProps = {
   onClose: () => void;
   pagePath: string;
   device: HeatmapDevice;
-  captures: HeatmapCapture[];
+  /** The page's captures on every device, newest first */
+  pageCaptures: HeatmapCapture[];
   onCaptured: (captureId: string) => void;
 };
 
 /** Mounted while open, so every capture starts from fresh inputs */
-export function CaptureDialog({ onClose, pagePath, device, captures, onCaptured }: CaptureDialogProps) {
+export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptured }: CaptureDialogProps) {
   const t = useTranslations('components.heatmaps.capture');
   const tDevices = useTranslations('components.heatmaps.devices');
   const dashboardId = useDashboardId();
@@ -54,26 +55,32 @@ export function CaptureDialog({ onClose, pagePath, device, captures, onCaptured 
   const [hideText, setHideText] = useState(false);
   // The real page used last time for this page path is filled in again
   const [values, setValues] = useState<string[]>(() => {
-    const lastCapturedFrom = captures.find((capture) => capture.capturedFromPath !== capture.path)?.capturedFromPath;
+    const lastCapturedFrom = pageCaptures.find((capture) => capture.capturedFromPath !== capture.path)?.capturedFromPath;
     return lastCapturedFrom ? wildcardValues(pagePath, lastCapturedFrom) : parts.slice(1).map(() => '');
   });
   const [customUrl, setCustomUrl] = useState<string | null>(null);
   const [error, setError] = useState<CaptureTargetError | null>(null);
-  const [waitingFor, setWaitingFor] = useState<Set<string> | null>(null);
+  // When the link was made: the history can be stale or hold another editor's newer capture
+  const [waitingSince, setWaitingSince] = useState<number | null>(null);
 
   const originQuery = trpc.clickHeatmap.captureOrigin.useQuery(
     { ...input, url: pagePath },
     { ...options, placeholderData: undefined },
   );
 
-  // The capture arrives from the other window; the list is polled until a new one shows up
+  // The capture arrives from the other window; the list is polled until it shows up
   const capturesQuery = trpc.heatmapCaptures.list.useQuery(
-    { dashboardId, path: pagePath, device },
-    { enabled: waitingFor !== null, refetchInterval: POLL_MS },
+    { dashboardId, path: pagePath },
+    { enabled: waitingSince !== null, refetchInterval: POLL_MS },
   );
   const arrived = useMemo(
-    () => (waitingFor === null ? undefined : capturesQuery.data?.find((capture) => !waitingFor.has(capture.id))),
-    [capturesQuery.data, waitingFor],
+    () =>
+      waitingSince === null
+        ? undefined
+        : capturesQuery.data?.find(
+            (capture) => capture.device === device && new Date(capture.createdAt).getTime() >= waitingSince,
+          ),
+    [capturesQuery.data, waitingSince, device],
   );
 
   useEffect(() => {
@@ -84,10 +91,15 @@ export function CaptureDialog({ onClose, pagePath, device, captures, onCaptured 
   }, [arrived, onCaptured, onClose, t]);
 
   useEffect(() => {
-    if (waitingFor === null) return;
-    const timer = setTimeout(() => setWaitingFor(null), HEATMAP_CAPTURE_LINK_TTL_MS);
+    if (waitingSince === null) return;
+    const timer = setTimeout(() => setWaitingSince(null), HEATMAP_CAPTURE_LINK_TTL_MS);
     return () => clearTimeout(timer);
-  }, [waitingFor]);
+  }, [waitingSince]);
+
+  // Closing ends the wait, so while a capture is under way only the buttons close the dialog
+  const keepOpenWhileWaiting = (event: Event) => {
+    if (waitingSince !== null) event.preventDefault();
+  };
 
   const createLink = useMutation({
     mutationFn: (target: CaptureTarget) =>
@@ -120,11 +132,10 @@ export function CaptureDialog({ onClose, pagePath, device, captures, onCaptured 
       return;
     }
     opened.opener = null;
-    const known = new Set(captures.map((capture) => capture.id));
     createLink.mutate(target, {
-      onSuccess: ({ token }) => {
+      onSuccess: ({ token, expiresAt }) => {
         opened.location.href = captureUrl(target, token, hideText);
-        setWaitingFor(known);
+        setWaitingSince(new Date(expiresAt).getTime() - HEATMAP_CAPTURE_LINK_TTL_MS);
       },
       onError: (mutationError) => {
         opened.close();
@@ -138,13 +149,17 @@ export function CaptureDialog({ onClose, pagePath, device, captures, onCaptured 
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className='sm:max-w-lg'>
+      <DialogContent
+        className='sm:max-w-lg'
+        onInteractOutside={keepOpenWhileWaiting}
+        onEscapeKeyDown={keepOpenWhileWaiting}
+      >
         <DialogHeader>
           <DialogTitle>{t('title', { device: deviceName })}</DialogTitle>
           <DialogDescription className='break-all'>{pagePath}</DialogDescription>
         </DialogHeader>
 
-        {waitingFor !== null ? (
+        {waitingSince !== null ? (
           <div className='space-y-3 text-sm'>
             <p className='flex items-center gap-2'>
               <Loader2 className='h-4 w-4 animate-spin' />
@@ -209,10 +224,17 @@ export function CaptureDialog({ onClose, pagePath, device, captures, onCaptured 
               </div>
             )}
 
-            <p className='text-muted-foreground text-xs'>{size ? t('keepWindowSize') : t('keepWindowWide')}</p>
+            <p className='text-muted-foreground text-xs'>
+              {size ? t('keepWindowSize') : t('keepWindowWide', { width: HEATMAP_DESKTOP_MIN_WIDTH })}
+            </p>
             {error && (
               <p className='text-destructive text-xs' role='alert'>
                 {t(`errors.${error}`, { path: pagePath, domain: originQuery.data?.domain ?? '' })}
+              </p>
+            )}
+            {originQuery.isError && (
+              <p className='text-destructive text-xs' role='alert'>
+                {t('errors.originFailed')}
               </p>
             )}
           </div>
@@ -220,9 +242,9 @@ export function CaptureDialog({ onClose, pagePath, device, captures, onCaptured 
 
         <DialogFooter>
           <Button variant='outline' className='cursor-pointer' onClick={onClose}>
-            {waitingFor !== null ? t('close') : t('cancel')}
+            {waitingSince !== null ? t('close') : t('cancel')}
           </Button>
-          {waitingFor === null && (
+          {waitingSince === null && (
             <Button
               className='cursor-pointer'
               onClick={handleOpen}

@@ -1,5 +1,5 @@
-import type { HeatmapDevice } from '@/entities/analytics/clickHeatmap.entities';
-import { matchesPagePath, pathnameOf } from '@/utils/heatmapPagePath';
+import { HEATMAP_DEVICE_WIDTHS, type HeatmapDevice } from '@/entities/analytics/clickHeatmap.entities';
+import { matchPagePath, matchesPagePath, pathnameOf } from '@/utils/heatmapPagePath';
 import { isUrlOnDomain } from '@/utils/domainValidation';
 
 export type CaptureTarget = { origin: string; capturePath: string };
@@ -12,11 +12,7 @@ export function wildcardParts(pagePath: string): string[] {
 
 /** Values that fill a page path's wildcards to give a real page, for prefilling the inputs */
 export function wildcardValues(pagePath: string, realPath: string): string[] {
-  const parts = wildcardParts(pagePath);
-  if (parts.length === 1) return [];
-  const pattern = parts.map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('(.+?)');
-  const match = new RegExp(`^${pattern}$`).exec(realPath);
-  return match ? match.slice(1) : parts.slice(1).map(() => '');
+  return matchPagePath(pagePath, realPath) ?? wildcardParts(pagePath).slice(1).map(() => '');
 }
 
 type ResolveInput = {
@@ -55,6 +51,7 @@ export function resolveCaptureTarget(input: ResolveInput): CaptureTarget | { err
       capturePath = url.pathname + url.search;
     }
   } else {
+    if (!isUrlOnDomain(defaultOrigin, dashboardDomain)) return { error: 'otherHost' };
     const parts = wildcardParts(pagePath);
     if (values.length < parts.length - 1 || values.some((value) => value.trim() === '')) return { error: 'empty' };
     capturePath = parts.reduce((path, part, index) => path + values[index - 1].trim() + part);
@@ -72,6 +69,6 @@ export function captureUrl(target: CaptureTarget, token: string, hideText: boole
 // Tablet and phone layouts need a window of that width; desktop uses the editor's own window
 export const CAPTURE_WINDOW: Record<HeatmapDevice, { width: number; height: number } | null> = {
   desktop: null,
-  tablet: { width: 768, height: 1024 },
-  mobile: { width: 390, height: 844 },
+  tablet: { width: HEATMAP_DEVICE_WIDTHS.tablet, height: 1024 },
+  mobile: { width: HEATMAP_DEVICE_WIDTHS.mobile, height: 844 },
 };

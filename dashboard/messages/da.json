@@ -3527,12 +3527,13 @@
         "differentUrlPlaceholder": "/sti?forespørgsel eller https://...",
         "differentUrlHelp": "Den skal være en af siderne samlet under {path}.",
         "keepWindowSize": "Behold vinduet i denne størrelse, og zoom ikke, før optagelsen er færdig, ellers afvises den på grund af forkert bredde.",
-        "keepWindowWide": "Behold vinduet mindst 992 px bredt, og zoom ikke, før optagelsen er færdig, ellers afvises den på grund af forkert bredde.",
+        "keepWindowWide": "Behold vinduet mindst {width} px bredt, og zoom ikke, før optagelsen er færdig, ellers afvises den på grund af forkert bredde.",
         "errors": {
           "empty": "Udfyld alle dele af sidens adresse.",
           "mismatch": "Den side er ikke en af siderne samlet under {path}.",
           "invalidUrl": "Angiv en sti, der starter med /, eller en fuld https://-adresse.",
-          "otherHost": "Den adresse ligger ikke på {domain}."
+          "otherHost": "Den adresse ligger ikke på {domain}.",
+          "originFailed": "Sidens adresse kunne ikke slås op. Luk dette og prøv igen."
         },
         "open": "Åbn side",
         "cancel": "Annuller",

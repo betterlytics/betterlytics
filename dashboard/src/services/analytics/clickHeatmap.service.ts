@@ -78,11 +78,8 @@ const LOCAL_HOST = /^(localhost|127\.0\.0\.1|\[::1\])$|\.localhost$/;
  * different address on the dashboard's domain can be entered in the capture dialog.
  */
 export async function getCaptureOrigin(siteQuery: BASiteQuery, dashboardId: string, url: string) {
-  const [visitedHost, dashboard] = await Promise.all([
-    getMostVisitedHost(siteQuery, url),
-    findDashboardById(dashboardId),
-  ]);
-  const host = visitedHost ?? dashboard.domain;
+  const dashboard = await findDashboardById(dashboardId);
+  const host = (await getMostVisitedHost(siteQuery, url, dashboard.domain)) ?? dashboard.domain;
   return { origin: `${LOCAL_HOST.test(host) ? 'http' : 'https'}://${host}`, domain: dashboard.domain };
 }
 
