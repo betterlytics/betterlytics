@@ -78,9 +78,19 @@ const LOCAL_HOST = /^(localhost|127\.0\.0\.1|\[::1\])$|\.localhost$/;
  * different address on the dashboard's domain can be entered in the capture dialog.
  */
 export async function getCaptureOrigin(siteQuery: BASiteQuery, dashboardId: string, url: string) {
+  const { origin, domain } = await getVisitedOrigin(siteQuery, dashboardId, url);
+  return { origin: origin ?? originOf(domain), domain };
+}
+
+/** The origin on the dashboard's domain that visitors opened a page on most, or null without any */
+export async function getVisitedOrigin(siteQuery: BASiteQuery, dashboardId: string, url: string) {
   const dashboard = await findDashboardById(dashboardId);
-  const host = (await getMostVisitedHost(siteQuery, url, dashboard.domain)) ?? dashboard.domain;
-  return { origin: `${LOCAL_HOST.test(host) ? 'http' : 'https'}://${host}`, domain: dashboard.domain };
+  const host = await getMostVisitedHost(siteQuery, url, dashboard.domain);
+  return { origin: host ? originOf(host) : null, domain: dashboard.domain };
+}
+
+function originOf(host: string) {
+  return `${LOCAL_HOST.test(host) ? 'http' : 'https'}://${host}`;
 }
 
 export async function getHeatmapClickAnchorsForPage(

@@ -309,6 +309,23 @@
         dashboardOrigin,
       );
     }
+    // The frame keeps a visitor's window height and is scrolled along with the heatmap
+    window.addEventListener("message", function (event) {
+      if (event.source !== window.parent || event.origin !== dashboardOrigin) {
+        return;
+      }
+      var data = event.data;
+      if (
+        !data ||
+        data.type !== "betterlytics:preview-scroll" ||
+        typeof data.y !== "number"
+      ) {
+        return;
+      }
+      window.scrollTo({ top: data.y, behavior: "instant" });
+      // Scrolling can load more of the page
+      report();
+    });
     report();
     // Late content keeps changing the height for a while after load
     var reports = 0;

@@ -9,7 +9,7 @@ function headerText(value: HeaderValue): string {
 /**
  * Whether a page's response headers let `frameOrigin` show it in an iframe. A CSP
  * frame-ancestors directive decides when present (browsers then ignore X-Frame-Options);
- * otherwise any X-Frame-Options value blocks a different origin.
+ * otherwise X-Frame-Options decides the way browsers read it.
  */
 export function allowsFraming(headers: Record<string, HeaderValue>, frameOrigin: string): boolean {
   // Several policies are all enforced, so every one with frame-ancestors has to allow it
@@ -20,7 +20,19 @@ export function allowsFraming(headers: Record<string, HeaderValue>, frameOrigin:
   if (ancestorLists.length > 0) {
     return ancestorLists.every((sources) => sources.some((source) => sourceAllows(source, frameOrigin)));
   }
-  return headerText(headers['x-frame-options']).trim() === '';
+  return xFrameOptionsAllows(headers['x-frame-options']);
+}
+
+// The HTML spec's check: conflicting values block, and browsers ignore ALLOW-FROM, ALLOWALL and
+// unknown values. SAMEORIGIN blocks too, since the dashboard is never the page's own origin.
+function xFrameOptionsAllows(value: HeaderValue): boolean {
+  const values = new Set(
+    headerText(value)
+      .split(',')
+      .map((part) => part.trim().toLowerCase()),
+  );
+  if (values.size > 1) return !['deny', 'sameorigin', 'allowall'].some((blocking) => values.has(blocking));
+  return !values.has('deny') && !values.has('sameorigin');
 }
 
 function frameAncestors(policy: string): string[] | null {

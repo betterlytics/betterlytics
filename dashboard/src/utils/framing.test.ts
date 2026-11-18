@@ -8,9 +8,14 @@ describe('allowsFraming', () => {
     expect(allowsFraming({}, dashboard)).toBe(true);
   });
 
-  it('blocks any X-Frame-Options value', () => {
+  it('reads X-Frame-Options the way browsers do', () => {
     expect(allowsFraming({ 'x-frame-options': 'DENY' }, dashboard)).toBe(false);
-    expect(allowsFraming({ 'x-frame-options': 'SAMEORIGIN' }, dashboard)).toBe(false);
+    expect(allowsFraming({ 'x-frame-options': ' sameorigin ' }, dashboard)).toBe(false);
+    expect(allowsFraming({ 'x-frame-options': 'DENY, ALLOWALL' }, dashboard)).toBe(false);
+    expect(allowsFraming({ 'x-frame-options': ['SAMEORIGIN', 'SAMEORIGIN'] }, dashboard)).toBe(false);
+    expect(allowsFraming({ 'x-frame-options': 'ALLOW-FROM https://partner.example' }, dashboard)).toBe(true);
+    expect(allowsFraming({ 'x-frame-options': 'ALLOWALL' }, dashboard)).toBe(true);
+    expect(allowsFraming({ 'x-frame-options': 'foo, bar' }, dashboard)).toBe(true);
   });
 
   it('lets frame-ancestors decide over X-Frame-Options', () => {

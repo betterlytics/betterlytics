@@ -12,7 +12,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
-import type { HeatmapDevice, HeatmapReplaySnapshot } from '@/entities/analytics/clickHeatmap.entities';
+import {
+  HEATMAP_DEVICE_VIEWPORT_HEIGHTS,
+  type HeatmapDevice,
+  type HeatmapReplaySnapshot,
+} from '@/entities/analytics/clickHeatmap.entities';
 import type { HeatmapCapture } from '@/entities/analytics/heatmapCaptures.entities';
 import { CaptureActions, useCaptureLabel } from './CaptureActions';
 import { CaptureDialog } from './CaptureDialog';
@@ -230,7 +234,14 @@ function LiveHeatmap({ url, device, pageUrl, actions, onUnusable }: LiveHeatmapP
         <p>{t('livePage')}</p>
         {fixedClicks > 0 && <p>{t('fixedClicksHidden', { count: fixedClicks })}</p>}
       </PanelHeader>
-      <LiveHeatmapView pageUrl={pageUrl} pagePath={url} width={width} points={points} onUnusable={onUnusable} />
+      <LiveHeatmapView
+        pageUrl={pageUrl}
+        pagePath={url}
+        width={width}
+        viewportHeight={HEATMAP_DEVICE_VIEWPORT_HEIGHTS[device]}
+        points={points}
+        onUnusable={onUnusable}
+      />
     </div>
   );
 }

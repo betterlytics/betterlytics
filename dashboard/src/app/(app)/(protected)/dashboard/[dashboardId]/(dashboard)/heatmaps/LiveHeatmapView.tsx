@@ -10,27 +10,29 @@ import { drawHeat } from './heatCanvas';
 
 // The framed tracker answers right after load; without an answer the page isn't usable here
 const PREVIEW_TIMEOUT_MS = 6000;
-const INITIAL_FRAME_HEIGHT = 900;
 
 type LiveHeatmapViewProps = {
   pageUrl: string;
   pagePath: string;
   width: number;
+  viewportHeight: number;
   points: HeatmapClickPoint[];
   onUnusable: () => void;
 };
 
 /**
- * The live page in a sandboxed frame at the device's width, sized to the height its tracker
- * reports, with the heat drawn over it by page position. The frame is cross-origin, so clicks
- * can't be placed on elements here.
+ * The live page in a sandboxed frame at the device's width, with the heat drawn over it by page
+ * position. The frame keeps a visitor's window height, so sections sized to the window look as
+ * they did to visitors, and scrolls along with the panel. It is cross-origin, so clicks can't be
+ * placed on elements here.
  */
-export function LiveHeatmapView({ pageUrl, pagePath, width, points, onUnusable }: LiveHeatmapViewProps) {
+export function LiveHeatmapView({ pageUrl, pagePath, width, viewportHeight, points, onUnusable }: LiveHeatmapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLIFrameElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const scrollQueued = useRef(false);
   const { width: containerWidth } = useResizeObserver(containerRef);
-  const [height, setHeight] = useState<number | null>(null);
+  const [pageHeight, setPageHeight] = useState<number | null>(null);
   const callbacks = useRef({ onUnusable });
   callbacks.current = { onUnusable };
 
@@ -46,7 +48,7 @@ export function LiveHeatmapView({ pageUrl, pagePath, width, points, onUnusable }
         return;
       }
       answered = true;
-      setHeight(Math.min(Math.max(Math.round(data.height), 1), HEATMAP_MAX_PAGE_HEIGHT));
+      setPageHeight(Math.min(Math.max(Math.round(data.height), 1), HEATMAP_MAX_PAGE_HEIGHT));
     };
     window.addEventListener('message', onMessage);
     const timer = setTimeout(() => {
@@ -58,37 +60,58 @@ export function LiveHeatmapView({ pageUrl, pagePath, width, points, onUnusable }
     };
   }, [pageUrl, pagePath]);
 
-  const frameHeight = height ?? INITIAL_FRAME_HEIGHT;
+  const height = Math.max(pageHeight ?? 0, viewportHeight);
 
   useEffect(() => {
-    if (canvasRef.current) drawHeat(canvasRef.current, points, width, frameHeight);
-  }, [points, width, frameHeight]);
+    if (canvasRef.current) drawHeat(canvasRef.current, points, width, height);
+  }, [points, width, height]);
 
   const scale = containerWidth > 0 ? Math.min(1, containerWidth / width) : 1;
 
+  // The frame takes no pointer events, so it is scrolled to wherever the panel is
+  const handleScroll = () => {
+    if (scrollQueued.current) return;
+    scrollQueued.current = true;
+    requestAnimationFrame(() => {
+      scrollQueued.current = false;
+      const container = containerRef.current;
+      const frame = frameRef.current?.contentWindow;
+      if (!container || !frame) return;
+      frame.postMessage({ type: 'betterlytics:preview-scroll', y: container.scrollTop / scale }, new URL(pageUrl).origin);
+    });
+  };
+
   // Hidden until its tracker answers, so a page that never does (or ends up elsewhere) never shows
   return (
-    <div ref={containerRef} className='bg-card relative h-[calc(100vh-18rem)] min-h-96 overflow-auto rounded-lg border'>
-      {height === null && <Skeleton className='absolute inset-0 rounded-none' />}
+    <div
+      ref={containerRef}
+      onScroll={handleScroll}
+      className='bg-card relative h-[calc(100vh-18rem)] min-h-96 overflow-auto rounded-lg border'
+    >
+      {pageHeight === null && <Skeleton className='absolute inset-0 rounded-none' />}
       <div
-        className={cn('relative mx-auto', height === null && 'invisible')}
-        style={{ width: width * scale, height: frameHeight * scale }}
+        className={cn('relative mx-auto', pageHeight === null && 'invisible')}
+        style={{ width: width * scale, height: height * scale }}
       >
+        <div className='sticky top-0 overflow-hidden' style={{ height: viewportHeight * scale }}>
+          <div className='origin-top-left' style={{ width, height: viewportHeight, transform: `scale(${scale})` }}>
+            <iframe
+              ref={frameRef}
+              src={`${pageUrl}#bl-preview`}
+              title={pagePath}
+              sandbox='allow-scripts allow-same-origin'
+              referrerPolicy='no-referrer'
+              className='pointer-events-none block border-0 bg-white'
+              style={{ width, height: viewportHeight }}
+            />
+          </div>
+        </div>
         <div
-          className='absolute top-0 left-0 origin-top-left'
-          style={{ width, height: frameHeight, transform: `scale(${scale})` }}
+          className='pointer-events-none absolute top-0 left-0 origin-top-left'
+          style={{ width, height, transform: `scale(${scale})` }}
         >
-          <iframe
-            ref={frameRef}
-            src={`${pageUrl}#bl-preview`}
-            title={pagePath}
-            sandbox='allow-scripts allow-same-origin'
-            referrerPolicy='no-referrer'
-            className='pointer-events-none absolute inset-0 border-0 bg-white'
-            style={{ width, height: frameHeight }}
-          />
-          <div className='pointer-events-none absolute inset-0 bg-slate-900/30' />
-          <canvas ref={canvasRef} className='pointer-events-none absolute inset-0 h-full w-full' />
+          <div className='absolute inset-0 bg-slate-900/30' />
+          <canvas ref={canvasRef} className='absolute inset-0 h-full w-full' />
         </div>
       </div>
     </div>
