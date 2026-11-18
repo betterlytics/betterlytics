@@ -53,6 +53,19 @@
     typeof __BL_HEATMAP_HASH__ === "string" ? __BL_HEATMAP_HASH__ : "dev";
   var heatmapScriptUrl = `${scriptsBaseUrl}/heatmap.js?v=${heatmapScriptHash}`;
 
+  // A capture link from the dashboard: snapshot this page for heatmaps and track nothing,
+  // whatever the replay, heatmap, sampling and consent settings say
+  var captureLink = takeCaptureLink();
+  if (captureLink) {
+    window.__betterlytics_capture__ = {
+      token: captureLink.token,
+      hideText: captureLink.hideText,
+      serverUrl: serverUrl,
+    };
+    loadScript(replayScriptUrl).catch(function () {});
+    return;
+  }
+
   // "off" | "domain" | "full" (defaults to "domain")
   var outboundLinks = script.getAttribute("data-outbound-links") ?? "domain";
 
@@ -241,6 +254,24 @@
 
   for (var i = 0; i < queuedEvents.length; i++) {
     window.betterlytics.event.apply(this, queuedEvents[i]);
+  }
+
+  // The link's token is removed from the address bar right away, so it isn't shared or bookmarked
+  function takeCaptureLink() {
+    var hash = window.location.hash;
+    if (hash.indexOf("#bl-capture=") !== 0) return null;
+    var params = new URLSearchParams(hash.slice(1));
+    var token = params.get("bl-capture");
+    try {
+      history.replaceState(
+        history.state,
+        "",
+        window.location.pathname + window.location.search,
+      );
+    } catch (e) {}
+    return token
+      ? { token: token, hideText: params.get("bl-hide-text") === "1" }
+      : null;
   }
 
   function loadScript(src) {
