@@ -2414,6 +2414,7 @@
       "activeUsers": "{count, plural, =0 {aktive brugere} one {aktiv bruger} other {aktive brugere}}",
       "webVitals": "Web Vitals",
       "sessionReplay": "Sessionsafspilninger",
+      "heatmaps": "Heatmaps",
       "monitoring": "Overvågning",
       "statusPages": "Statussider",
       "categories": {
@@ -3498,6 +3499,19 @@
         "title": "Udgående links fordeling"
       }
     },
+    "heatmaps": {
+      "pagePicker": "Side",
+      "clicks": "{count, plural, one {# klik} other {# klik}}",
+      "devices": {
+        "desktop": "Computer",
+        "tablet": "Tablet",
+        "mobile": "Mobil"
+      },
+      "noDeviceClicks": "Ingen klik fra {device} på denne side i perioden.",
+      "showDevice": "Vis {device} ({count, plural, one {# klik} other {# klik}})",
+      "noBackground": "Klik vises på deres position på siden, endnu uden sidebaggrund.",
+      "fixedClicksHidden": "{count, plural, one {# klik på et fastgjort element vises ikke endnu.} other {# klik på fastgjorte elementer vises ikke endnu.}}"
+    },
     "webVitals": {
       "metrics": {
         "CLS": "Cumulative Layout Shift",
@@ -4186,6 +4200,11 @@
     "webVitalsNoData": {
       "title": "Ingen Core Web Vitals data endnu",
       "description": "Tjek at tracking er aktiveret.",
+      "action": "Læs mere"
+    },
+    "heatmapsNoData": {
+      "title": "Ingen heatmap-klik endnu",
+      "description": "Se i dokumentationen, hvordan du opsætter heatmaps.",
       "action": "Læs mere"
     },
     "featureNotEnabled": {

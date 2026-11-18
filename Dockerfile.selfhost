@@ -88,7 +88,7 @@ FROM node:24-slim AS static-builder
 
 RUN echo "Minifying static files..."
 WORKDIR /app
-COPY static/analytics.js static/replay.js static/build.mjs ./
+COPY static/analytics.js static/replay.js static/heatmap.js static/build.mjs ./
 RUN node build.mjs . .
 
 ####
@@ -146,6 +146,7 @@ COPY dashboard/prisma/ /app/initializer/prisma/
 # Copy static scripts for Caddy (web-vitals.js ships pre-minified; esbuild would strip its legal banner)
 COPY --from=static-builder /app/analytics.min.js /srv/static/analytics.js
 COPY --from=static-builder /app/replay.min.js /srv/static/replay.js
+COPY --from=static-builder /app/heatmap.min.js /srv/static/heatmap.js
 COPY static/web-vitals.js /srv/static/web-vitals.js
 
 COPY LICENSE THIRD-PARTY-LICENSES.md /app/

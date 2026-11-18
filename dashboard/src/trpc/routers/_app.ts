@@ -5,6 +5,7 @@ import { devicesRouter } from '@/trpc/routers/devices';
 import { referrersRouter } from '@/trpc/routers/referrers';
 import { eventsRouter } from '@/trpc/routers/events';
 import { weeklyHeatmapRouter } from '@/trpc/routers/weeklyHeatmap';
+import { clickHeatmapRouter } from '@/trpc/routers/clickHeatmap';
 import { pagesRouter } from '@/trpc/routers/pages';
 import { campaignRouter } from '@/trpc/routers/campaign';
 import { outboundLinksRouter } from '@/trpc/routers/outboundLinks';
@@ -28,6 +29,7 @@ export const appRouter = createRouter({
   referrers: referrersRouter,
   events: eventsRouter,
   weeklyHeatmap: weeklyHeatmapRouter,
+  clickHeatmap: clickHeatmapRouter,
   pages: pagesRouter,
   campaign: campaignRouter,
   outboundLinks: outboundLinksRouter,

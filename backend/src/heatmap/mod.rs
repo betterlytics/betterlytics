@@ -4,7 +4,7 @@
 pub mod capture;
 
 use std::sync::Arc;
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
 
 use axum::{
     extract::{State, rejection::BytesRejection},
@@ -12,6 +12,8 @@ use axum::{
 };
 use bytes::Bytes;
 use chrono::{DateTime, Utc};
+use moka::sync::Cache;
+use once_cell::sync::Lazy;
 use serde::Deserialize;
 use tokio::sync::mpsc::{Sender, error::TrySendError};
 use tracing::{debug, warn};
@@ -23,6 +25,7 @@ use crate::client_request::ClientRequest;
 use crate::db::HeatmapClickRow;
 use crate::metrics::MetricsCollector;
 use crate::processing::EventProcessor;
+use crate::session::SESSION_EXPIRY;
 use crate::site_config::SiteConfigCache;
 use crate::ua_parser;
 use crate::url_utils::{extract_domain_and_path_from_url, extract_root_domain};
@@ -38,6 +41,14 @@ const MAX_SCREEN_RESOLUTION_CHARS: usize = 32;
 pub(crate) const MAX_VIEWPORT_WIDTH: u32 = 16_384;
 pub(crate) const MAX_DOCUMENT_HEIGHT: u32 = 1_000_000;
 const MAX_CLICK_AGE_MS: f64 = 24.0 * 60.0 * 60.0 * 1000.0;
+/// A heatmap is an aggregate, so one session's clicks past this add little, and without it a
+/// script could store unbilled rows for as long as it keeps one pageview's session alive
+const MAX_CLICKS_PER_SESSION: u32 = 300;
+
+/// Stored clicks per session id, forgotten after the session's last heatmap batch plus the
+/// session expiry
+static SESSION_CLICKS: Lazy<Cache<u64, Arc<AtomicU32>>> =
+    Lazy::new(|| Cache::builder().time_to_idle(SESSION_EXPIRY).max_capacity(1_000_000).build());
 
 pub struct HeatmapCtx {
     pub processor: Arc<EventProcessor>,
@@ -54,8 +65,17 @@ struct ClickBatch {
     #[serde(default)]
     screen_resolution: String,
     viewport_width: u32,
+    /// Wider than the viewport on horizontally scrolled pages, where page_x runs past it
+    #[serde(default)]
+    document_width: Option<u32>,
     document_height: u32,
     clicks: Vec<RawClick>,
+}
+
+impl ClickBatch {
+    fn page_width(&self) -> u32 {
+        self.document_width.unwrap_or(0).max(self.viewport_width)
+    }
 }
 
 #[derive(Deserialize)]
@@ -189,7 +209,7 @@ async fn store_clicks(
         warn!(site_id = %batch.site_id, "rejected heatmap batch: velocity limit exceeded");
         return Err(Refusal::new(RefuseReason::RateLimited, StatusCode::TOO_MANY_REQUESTS, "rate limited"));
     }
-    bot_detection::velocity::record_heatmap(&batch.site_id, &client.ip);
+    bot_detection::velocity::record_heatmap(&batch.site_id, &client.ip, batch.clicks.len());
 
     // Same identity inputs as a pageview, so the fingerprint matches the pageview's
     let parsed = ua_parser::parse_user_agent(&client.user_agent);
@@ -213,9 +233,10 @@ async fn store_clicks(
     };
 
     let device = device_from_viewport(batch.viewport_width);
+    let page_width = batch.page_width();
     let mut rows = Vec::with_capacity(batch.clicks.len());
     for click in &batch.clicks {
-        if let Err(reason) = validate_click(click, batch.viewport_width, batch.document_height) {
+        if let Err(reason) = validate_click(click, page_width, batch.document_height) {
             if let Some(m) = &ctx.metrics {
                 m.increment_heatmap_clicks_dropped(reason.as_str(), 1);
             }
@@ -237,6 +258,14 @@ async fn store_clicks(
             is_fixed: click.fixed,
             timestamp: click_timestamp(received_at, click.ms_ago),
         });
+    }
+
+    let allowed = reserve_session_clicks(identity.session_id, rows.len());
+    if allowed < rows.len() {
+        if let Some(m) = &ctx.metrics {
+            m.increment_heatmap_clicks_dropped("session_cap", (rows.len() - allowed) as u64);
+        }
+        rows.truncate(allowed);
     }
 
     enqueue(ctx, rows);
@@ -300,6 +329,9 @@ fn validate_batch(batch: &ClickBatch) -> Result<(), Refusal> {
     if !(1..=MAX_VIEWPORT_WIDTH).contains(&batch.viewport_width) {
         return Err(Refusal::invalid("invalid viewport_width"));
     }
+    if batch.document_width.is_some_and(|width| !(1..=MAX_VIEWPORT_WIDTH).contains(&width)) {
+        return Err(Refusal::invalid("invalid document_width"));
+    }
     if !(1..=MAX_DOCUMENT_HEIGHT).contains(&batch.document_height) {
         return Err(Refusal::invalid("invalid document_height"));
     }
@@ -307,7 +339,7 @@ fn validate_batch(batch: &ClickBatch) -> Result<(), Refusal> {
 }
 
 /// A bad click is dropped on its own; the rest of its batch is still stored
-fn validate_click(click: &RawClick, viewport_width: u32, document_height: u32) -> Result<(), DropReason> {
+fn validate_click(click: &RawClick, page_width: u32, document_height: u32) -> Result<(), DropReason> {
     if click.selector.is_empty()
         || click.selector.chars().count() > MAX_SELECTOR_CHARS
         || has_control_chars(&click.selector)
@@ -315,7 +347,7 @@ fn validate_click(click: &RawClick, viewport_width: u32, document_height: u32) -
         return Err(DropReason::Selector);
     }
     let within = |value: f64, max: u32| value.is_finite() && (0.0..=f64::from(max)).contains(&value);
-    if !within(click.page_x, viewport_width) || !within(click.page_y, document_height) {
+    if !within(click.page_x, page_width) || !within(click.page_y, document_height) {
         return Err(DropReason::Position);
     }
     let fraction = |value: f64| value.is_finite() && (0.0..=1.0).contains(&value);
@@ -323,6 +355,17 @@ fn validate_click(click: &RawClick, viewport_width: u32, document_height: u32) -
         return Err(DropReason::Offset);
     }
     Ok(())
+}
+
+fn reserve_session_clicks(session_id: u64, wanted: usize) -> usize {
+    let wanted = u32::try_from(wanted).unwrap_or(u32::MAX);
+    let used = SESSION_CLICKS.get_with(session_id, || Arc::new(AtomicU32::new(0)));
+    let mut granted = 0;
+    let _ = used.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |stored| {
+        granted = MAX_CLICKS_PER_SESSION.saturating_sub(stored).min(wanted);
+        (granted > 0).then_some(stored + granted)
+    });
+    granted as usize
 }
 
 /// The `device.rs` buckets with laptop and desktop merged, applied to the viewport,
@@ -347,6 +390,104 @@ fn has_control_chars(input: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::analytics::{AnalyticsEvent, RawTrackingEvent};
+    use crate::geoip::GeoIpService;
+    use crate::postgres::PostgresError;
+    use crate::processing::{BotEvent, ProcessedEvent};
+    use crate::site_config::repository::SiteConfigRecord;
+    use crate::site_config::{RefreshConfig, SiteConfigDataSource};
+    use serde_json::json;
+    use tokio::sync::mpsc;
+
+    const SITE: &str = "heatmap-handler-site";
+    const UA: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36";
+    const CH_UA: &str = r#""Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141""#;
+
+    struct OneSite;
+
+    #[async_trait::async_trait]
+    impl SiteConfigDataSource for OneSite {
+        async fn fetch_all_configs(&self) -> Result<Vec<SiteConfigRecord>, PostgresError> {
+            Ok(vec![SiteConfigRecord {
+                site_id: SITE.to_string(),
+                domain: "example.com".to_string(),
+                blacklisted_ips: Vec::new(),
+                enforce_domain: true,
+                updated_at: Utc::now(),
+            }])
+        }
+
+        async fn fetch_configs_updated_since(&self, _: DateTime<Utc>) -> Result<Vec<SiteConfigRecord>, PostgresError> {
+            Ok(Vec::new())
+        }
+    }
+
+    struct Harness {
+        ctx: HeatmapCtx,
+        events: mpsc::Receiver<ProcessedEvent>,
+        clicks: mpsc::Receiver<HeatmapClickRow>,
+        _bots: mpsc::Receiver<BotEvent>,
+    }
+
+    impl Harness {
+        async fn new() -> Self {
+            ua_parser::initialize(
+                &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("assets/user_agent_headers/regexes.yaml"),
+            );
+            crate::salt::init_for_tests();
+            let (event_tx, events) = mpsc::channel(16);
+            let (bot_tx, bots) = mpsc::channel(16);
+            let (click_tx, clicks) = mpsc::channel(1024);
+            let processor = EventProcessor::new(GeoIpService::disabled(), None, event_tx, bot_tx, None, false, false);
+            let site_cfg_cache = SiteConfigCache::initialize(Arc::new(OneSite), RefreshConfig::default(), None)
+                .await
+                .unwrap();
+            let ctx = HeatmapCtx { processor: Arc::new(processor), metrics: None, site_cfg_cache, click_tx };
+            Self { ctx, events, clicks, _bots: bots }
+        }
+
+        /// Sends an event through the same processing as `/event` and returns it
+        async fn event(&mut self, ip: &str, event_name: &str) -> ProcessedEvent {
+            let raw: RawTrackingEvent = serde_json::from_value(json!({
+                "site_id": SITE, "event_name": event_name, "is_custom_event": event_name != "pageview",
+                "properties": "{}", "url": "https://example.com/pricing", "referrer": null,
+                "user_agent": UA, "screen_resolution": "1920x1080",
+            }))
+            .unwrap();
+            let event = AnalyticsEvent::new(raw, ip.to_string(), UA.to_string(), CH_UA.to_string(), false);
+            self.ctx.processor.process_event(event).await.unwrap();
+            self.events.try_recv().expect("event was accepted")
+        }
+
+        async fn send(&self, ip: &str, user_agent: &str, sec_ch_ua: &str, body: &[u8]) -> Result<(), StatusCode> {
+            let client = ClientRequest {
+                ip: ip.to_string(),
+                user_agent: user_agent.to_string(),
+                sec_ch_ua: sec_ch_ua.to_string(),
+                prefetch: false,
+            };
+            store_clicks(&self.ctx, &client, body, Utc::now()).await.map_err(|r| r.status)
+        }
+
+        async fn send_clicks(&self, ip: &str, clicks: usize) -> Result<(), StatusCode> {
+            self.send(ip, UA, CH_UA, &batch_body(clicks)).await
+        }
+
+        fn stored(&mut self) -> Vec<HeatmapClickRow> {
+            std::iter::from_fn(|| self.clicks.try_recv().ok()).collect()
+        }
+    }
+
+    fn batch_body(clicks: usize) -> Vec<u8> {
+        let clicks: Vec<_> = (0..clicks)
+            .map(|i| json!({"page_x": 10, "page_y": 20, "selector": format!("#c{i}"), "offset_x": 0.5, "offset_y": 0.5}))
+            .collect();
+        serde_json::to_vec(&json!({
+            "site_id": SITE, "url": "https://example.com/pricing?q=1#top", "screen_resolution": "1920x1080",
+            "viewport_width": 1280, "document_height": 3000, "clicks": clicks,
+        }))
+        .unwrap()
+    }
 
     fn click(page_x: f64, page_y: f64, selector: &str, offset: (f64, f64)) -> RawClick {
         RawClick {
@@ -366,9 +507,21 @@ mod tests {
             url: "https://example.com/pricing".to_string(),
             screen_resolution: "1920x1080".to_string(),
             viewport_width,
+            document_width: None,
             document_height,
             clicks: Vec::new(),
         }
+    }
+
+    #[test]
+    fn a_session_stores_at_most_its_click_cap() {
+        let session = 0x5e55_1011_cafe_0001;
+        assert_eq!(reserve_session_clicks(session, 200), 200);
+        assert_eq!(reserve_session_clicks(session, 200), 100);
+        assert_eq!(reserve_session_clicks(session, 1), 0);
+        assert_eq!(reserve_session_clicks(session + 1, 5), 5);
+        assert_eq!(reserve_session_clicks(session + 2, 0), 0);
+        assert_eq!(reserve_session_clicks(session + 2, 300), 300);
     }
 
     #[test]
@@ -397,6 +550,21 @@ mod tests {
     }
 
     #[test]
+    fn clicks_past_the_viewport_are_kept_on_a_wider_document() {
+        let mut b = batch(1280, 4000);
+        assert_eq!(b.page_width(), 1280);
+        b.document_width = Some(800);
+        assert_eq!(b.page_width(), 1280);
+        b.document_width = Some(3000);
+        assert_eq!(b.page_width(), 3000);
+        assert_eq!(validate_click(&click(2900.0, 20.0, "a", (0.5, 0.5)), b.page_width(), 4000), Ok(()));
+        assert_eq!(
+            validate_click(&click(3000.5, 20.0, "a", (0.5, 0.5)), b.page_width(), 4000),
+            Err(DropReason::Position)
+        );
+    }
+
+    #[test]
     fn offsets_outside_zero_to_one_are_dropped() {
         assert_eq!(validate_click(&click(1.0, 1.0, "a", (1.01, 0.5)), 1280, 4000), Err(DropReason::Offset));
         assert_eq!(validate_click(&click(1.0, 1.0, "a", (0.5, -0.01)), 1280, 4000), Err(DropReason::Offset));
@@ -421,6 +589,11 @@ mod tests {
         assert!(validate_batch(&batch(MAX_VIEWPORT_WIDTH + 1, 4000)).is_err());
         assert!(validate_batch(&batch(1280, 0)).is_err());
         assert!(validate_batch(&batch(1280, MAX_DOCUMENT_HEIGHT + 1)).is_err());
+        for (width, ok) in [(3000, true), (MAX_VIEWPORT_WIDTH, true), (0, false), (MAX_VIEWPORT_WIDTH + 1, false)] {
+            let mut b = batch(1280, 4000);
+            b.document_width = Some(width);
+            assert_eq!(validate_batch(&b).is_ok(), ok, "document_width {width}");
+        }
     }
 
     #[test]
@@ -452,9 +625,66 @@ mod tests {
             "viewport_width":1280,"document_height":3000,
             "clicks":[{"page_x":100,"page_y":200.5,"selector":"#buy","offset_x":0.25,"offset_y":0.75,"fixed":true,"ms_ago":1234}]}"##;
         let b: ClickBatch = serde_json::from_str(json).unwrap();
-        assert_eq!((b.viewport_width, b.document_height, b.clicks.len()), (1280, 3000, 1));
+        assert_eq!((b.viewport_width, b.document_width, b.document_height, b.clicks.len()), (1280, None, 3000, 1));
         let c = &b.clicks[0];
         assert!(c.fixed);
         assert_eq!((c.page_x, c.page_y, c.ms_ago), (100.0, 200.5, 1234.0));
+
+        let wide = json.replace(r#""document_height""#, r#""document_width":2400,"document_height""#);
+        let b: ClickBatch = serde_json::from_str(&wide).unwrap();
+        assert_eq!(b.document_width, Some(2400));
+    }
+
+    #[tokio::test]
+    async fn clicks_are_stored_only_after_an_accepted_pageview() {
+        let mut h = Harness::new().await;
+        let ip = "81.4.101.10";
+        h.event(ip, "signup").await;
+        assert_eq!(h.send_clicks(ip, 2).await, Ok(()));
+        assert!(h.stored().is_empty());
+
+        let pageview = h.event(ip, "pageview").await;
+        assert_eq!(h.send_clicks(ip, 2).await, Ok(()));
+        let rows = h.stored();
+        assert_eq!(rows.len(), 2);
+        for row in &rows {
+            assert_eq!((row.session_id, row.visitor_id), (pageview.session_id, pageview.visitor_fingerprint));
+            assert_eq!((row.url.as_str(), row.device.as_str()), ("/pricing", "desktop"));
+        }
+    }
+
+    #[tokio::test]
+    async fn oversized_malformed_foreign_and_bot_batches_are_refused() {
+        let mut h = Harness::new().await;
+        let ip = "81.4.102.10";
+        h.event(ip, "pageview").await;
+        assert_eq!(h.send_clicks(ip, MAX_CLICKS_PER_BATCH + 1).await, Err(StatusCode::PAYLOAD_TOO_LARGE));
+        assert_eq!(h.send(ip, UA, CH_UA, b"not json").await, Err(StatusCode::BAD_REQUEST));
+
+        let mut foreign: serde_json::Value = serde_json::from_slice(&batch_body(1)).unwrap();
+        foreign["url"] = json!("https://elsewhere.com/pricing");
+        let foreign = serde_json::to_vec(&foreign).unwrap();
+        assert_eq!(h.send(ip, UA, CH_UA, &foreign).await, Err(StatusCode::FORBIDDEN));
+
+        let headless = UA.replace("Chrome/", "HeadlessChrome/");
+        assert_eq!(h.send(ip, &headless, CH_UA, &batch_body(1)).await, Err(StatusCode::FORBIDDEN));
+        assert!(h.stored().is_empty());
+    }
+
+    #[tokio::test]
+    async fn a_network_past_its_click_limit_is_refused_and_a_session_keeps_its_cap() {
+        let mut h = Harness::new().await;
+        let ip = "81.4.103.10";
+        h.event(ip, "pageview").await;
+        for _ in 0..10 {
+            assert_eq!(h.send_clicks(ip, 200).await, Ok(()));
+        }
+        assert_eq!(h.send_clicks(ip, 1).await, Err(StatusCode::TOO_MANY_REQUESTS));
+        assert_eq!(h.stored().len(), MAX_CLICKS_PER_SESSION as usize);
+
+        let other = "81.4.104.10";
+        h.event(other, "pageview").await;
+        assert_eq!(h.send_clicks(other, 1).await, Ok(()));
+        assert_eq!(h.stored().len(), 1);
     }
 }
