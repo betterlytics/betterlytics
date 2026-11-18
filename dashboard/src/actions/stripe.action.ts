@@ -15,6 +15,7 @@ import { LIVE_SUBSCRIPTION_STATUSES } from '@/lib/billing/subscription-status';
 import { handleCheckoutCompleted } from '@/services/system/webhookHandlers.service';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { purchasableLookupKey } from '@/lib/billing/catalog';
+import { livePromo } from '@/lib/billing/promo';
 import { z } from 'zod';
 
 async function getPriceByLookupKey(lookupKey: string): Promise<Stripe.Price> {
@@ -90,6 +91,8 @@ export const createStripeCheckoutSession = withUserAuth(
         throw new UserException(`This plan is not available in ${effectiveCurrency}. Please contact support.`);
       }
 
+      const promo = livePromo(isFeatureEnabled('isCloud'));
+
       const checkoutSession = await stripe.checkout.sessions.create({
         ui_mode: 'embedded_page',
         line_items: [
@@ -111,7 +114,8 @@ export const createStripeCheckoutSession = withUserAuth(
         },
         return_url: `${env.PUBLIC_BASE_URL}/billing?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
         redirect_on_completion: 'if_required',
-        allow_promotion_codes: true,
+        // Stripe rejects a session that sets both
+        ...(promo ? { discounts: [{ coupon: promo.couponId }] } : { allow_promotion_codes: true }),
         billing_address_collection: 'required',
         tax_id_collection: { enabled: true },
         customer_update: { name: 'auto', address: 'auto' },

@@ -122,6 +122,8 @@ export function Nav() {
   const sheetRef = useRef<HTMLElement>(null);
   const { grid, scrolledDown } = useNavScrollState(ref, IDS.band);
   const [open, setOpen] = useState(false);
+  // something above the header (the promo bar) pushes it down, so the sheet starts where the header really ends
+  const [sheetTop, setSheetTop] = useState<number>();
 
   useEffect(() => {
     if (!open) return;
@@ -194,7 +196,10 @@ export function Nav() {
           aria-label={t('menu')}
           aria-expanded={open}
           aria-controls={SHEET_ID}
-          onClick={() => setOpen((o) => !o)}
+          onClick={() => {
+            setSheetTop(ref.current?.getBoundingClientRect().bottom);
+            setOpen((o) => !o);
+          }}
         >
           {/* translate-y-1.5 = one bar + one gap, so the outer bars meet in the middle */}
           <i className={cn(MENU_BAR, open && 'translate-y-1.5 rotate-45')} />
@@ -206,6 +211,7 @@ export function Nav() {
         ref={sheetRef}
         id={SHEET_ID}
         className='fixed inset-x-0 top-18 bottom-0 flex flex-col overflow-y-auto overscroll-contain bg-canvas px-[calc(var(--pad)+(var(--wall)-24px)/2)] py-6 text-[1.375rem] tracking-ui max-sm:top-14 max-sm:px-(--pad)'
+        style={sheetTop === undefined ? undefined : { top: sheetTop }}
         aria-label={t('label')}
         hidden={!open}
       >

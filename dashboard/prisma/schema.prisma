@@ -621,6 +621,10 @@ model Subscription {
   status String @default("active") // "active", "canceled"
   cancelAtPeriodEnd Boolean @default(false)
 
+  // Percent-off coupon Stripe applies to every invoice until it ends (null end = forever)
+  discountPercentOff Int?
+  discountEndsAt DateTime?
+
   // Payment provider integration
   paymentCustomerId String?
   paymentSubscriptionId String?
