@@ -40,6 +40,7 @@ export const clickHeatmapRouter = createRouter({
   anchors: analyticsProcedure
     .input(z.object({ url: z.string(), device: HeatmapDeviceSchema, width: z.number().int().min(1).max(16384) }))
     .query(async ({ ctx, input }) => {
+      if (ctx.authContext.isDemo) return [];
       return getHeatmapClickAnchorsForPage(ctx.main, input.url, input.device, input.width);
     }),
 });

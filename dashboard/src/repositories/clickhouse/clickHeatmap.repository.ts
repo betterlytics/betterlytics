@@ -138,8 +138,8 @@ export async function getHeatmapClickPoints(
   return rows.map((row) => HeatmapClickPointSchema.parse(row));
 }
 
-// Offsets are rounded to 1% of the element and positions to the point cell, which keeps the
-// row count bounded while each click can still fall back to its page position
+// Offsets are rounded to 5% of the element so clicks from different window widths share a
+// row; the group's average page position is where it is drawn without its element
 export async function getHeatmapClickAnchors(
   siteQuery: BASiteQuery,
   url: string,
@@ -152,10 +152,10 @@ export async function getHeatmapClickAnchors(
   const query = safeSql`
     SELECT
       selector,
-      round(offset_x, 2) AS offsetX,
-      round(offset_y, 2) AS offsetY,
-      intDiv(toUInt32(round(page_x * {width:UInt32} / greatest(viewport_width, 1))), {cell:UInt32}) * {cell:UInt32} AS x,
-      intDiv(page_y, {cell:UInt32}) * {cell:UInt32} AS y,
+      round(offset_x * 20) / 20 AS offsetX,
+      round(offset_y * 20) / 20 AS offsetY,
+      round(avg(page_x * {width:UInt32} / greatest(viewport_width, 1))) AS x,
+      round(avg(page_y)) AS y,
       toUInt8(is_fixed) AS fixed,
       count() AS count
     FROM analytics.heatmap_clicks
@@ -164,7 +164,7 @@ export async function getHeatmapClickAnchors(
       AND url = {url:String}
       AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
       AND page_y < {max_height:UInt32}
-    GROUP BY selector, offsetX, offsetY, x, y, fixed
+    GROUP BY selector, offsetX, offsetY, fixed
     ORDER BY count DESC
     LIMIT {limit:UInt32}
   `;
@@ -177,7 +177,6 @@ export async function getHeatmapClickAnchors(
         device,
         url,
         width,
-        cell: HEATMAP_POINT_CELL_PX,
         max_height: maxHeight,
         start_date: startDateTime,
         end_date: endDateTime,

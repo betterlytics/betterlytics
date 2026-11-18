@@ -1,8 +1,5 @@
 import { EventType, type eventWithTime } from '@rrweb/types';
-
-// Changes right after a snapshot are applied too: an in-app navigation snapshots the page
-// before the new route has rendered, and lazy content arrives just after load
-export const SNAPSHOT_SETTLE_MS = 3000;
+import { SNAPSHOT_SETTLE_MS } from '@/entities/analytics/clickHeatmap.entities';
 
 /** A full snapshot with its Meta, plus what changed in the moments after it, up to the next page */
 export function snapshotEvents(events: eventWithTime[], snapshotMs: number): eventWithTime[] | null {

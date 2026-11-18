@@ -196,13 +196,22 @@ impl Database {
     where
         R: clickhouse::Row + serde::Serialize,
     {
+        self.insert_rows(table, std::slice::from_ref(row)).await
+    }
+
+    async fn insert_rows<R>(&self, table: &str, rows: &[R]) -> Result<()>
+    where
+        R: clickhouse::Row + serde::Serialize,
+    {
         let mut inserter = self.async_insert_client()
             .inserter(table)?
             .with_timeouts(
                 Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)),
                 Some(Duration::from_secs(INSERTER_END_TIMEOUT_SECS)),
             );
-        inserter.write(row)?;
+        for row in rows {
+            inserter.write(row)?;
+        }
         inserter.end().await?;
         Ok(())
     }
@@ -247,17 +256,7 @@ impl Database {
     }
 
     pub async fn insert_replay_snapshots(&self, rows: &[SessionReplaySnapshotRow]) -> Result<()> {
-        let mut inserter = self.async_insert_client()
-            .inserter("analytics.session_replay_snapshots")?
-            .with_timeouts(
-                Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)),
-                Some(Duration::from_secs(INSERTER_END_TIMEOUT_SECS)),
-            );
-        for row in rows {
-            inserter.write(row)?;
-        }
-        inserter.end().await?;
-        Ok(())
+        self.insert_rows("analytics.session_replay_snapshots", rows).await
     }
 
     /// A plain insert: async_insert would buffer a snapshot of up to 40 MB in the server's queue

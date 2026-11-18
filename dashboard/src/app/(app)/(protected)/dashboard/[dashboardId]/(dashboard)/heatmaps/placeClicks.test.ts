@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EventType, type eventWithTime } from '@rrweb/types';
-import type { HeatmapClickAnchor } from '@/entities/analytics/clickHeatmap.entities';
+import { SNAPSHOT_SETTLE_MS, type HeatmapClickAnchor } from '@/entities/analytics/clickHeatmap.entities';
 import { placeClicks, type ElementBox } from './placeClicks';
-import { SNAPSHOT_SETTLE_MS, snapshotEvents } from './snapshotEvents';
+import { snapshotEvents } from './snapshotEvents';
 
 function anchor(selector: string, overrides: Partial<HeatmapClickAnchor> = {}): HeatmapClickAnchor {
   return { selector, offsetX: 0.5, offsetY: 0.5, x: 100, y: 200, fixed: false, count: 1, ...overrides };
@@ -21,9 +21,9 @@ describe('placeClicks', () => {
     expect(points).toEqual([{ x: 330, y: 1040, count: 3 }]);
   });
 
-  it('falls back to the page position at the center of its cell when the element is missing', () => {
+  it('falls back to the page position when the element is missing', () => {
     const { points } = placeClicks([anchor('a.renamed', { x: 100, y: 200 })], locate);
-    expect(points).toEqual([{ x: 102, y: 202, count: 1 }]);
+    expect(points).toEqual([{ x: 100, y: 200, count: 1 }]);
   });
 
   it('only counts fixed clicks whose element is missing', () => {

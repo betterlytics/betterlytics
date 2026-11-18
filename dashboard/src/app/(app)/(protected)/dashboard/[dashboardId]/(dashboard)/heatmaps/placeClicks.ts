@@ -1,8 +1,4 @@
-import {
-  HEATMAP_POINT_CELL_PX,
-  type HeatmapClickAnchor,
-  type HeatmapClickPoint,
-} from '@/entities/analytics/clickHeatmap.entities';
+import type { HeatmapClickAnchor, HeatmapClickPoint } from '@/entities/analytics/clickHeatmap.entities';
 
 export type ElementBox = { left: number; top: number; width: number; height: number };
 
@@ -17,7 +13,6 @@ export function placeClicks(
   anchors: HeatmapClickAnchor[],
   locate: (selector: string) => ElementBox | null,
 ): PlacedClicks {
-  const center = HEATMAP_POINT_CELL_PX / 2;
   const boxes = new Map<string, ElementBox | null>();
   const points: HeatmapClickPoint[] = [];
   let unplacedFixed = 0;
@@ -37,7 +32,7 @@ export function placeClicks(
     } else if (anchor.fixed) {
       unplacedFixed += anchor.count;
     } else {
-      points.push({ x: anchor.x + center, y: anchor.y + center, count: anchor.count });
+      points.push({ x: anchor.x, y: anchor.y, count: anchor.count });
     }
   }
 

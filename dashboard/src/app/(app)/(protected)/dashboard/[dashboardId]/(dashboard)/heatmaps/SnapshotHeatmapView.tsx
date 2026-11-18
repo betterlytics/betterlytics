@@ -68,17 +68,19 @@ export function SnapshotHeatmapView({
         skipInactive: false,
       },
     });
-    player.goto(slice[slice.length - 1].timestamp - slice[0].timestamp, false);
+    // Pausing just past the last event applies all of them; events at the pause time itself wait
+    player.goto(slice[slice.length - 1].timestamp - slice[0].timestamp + 1, false);
     const replayer = player.getReplayer();
     replayer.enableInteract();
 
     let cancelled = false;
-    const doc = replayer.iframe.contentDocument;
-    void settled(doc).then(() => {
+    void settled(replayer.iframe.contentDocument).then(() => {
+      const doc = replayer.iframe.contentDocument;
       if (cancelled || !doc?.documentElement) return;
+      // Fixed and sticky elements are measured where they sit at the top of the page
+      doc.defaultView?.scrollTo(0, 0);
       const placed = placeClicks(anchors, locateInDocument(doc));
       drawHeatLayer(doc, placed.points, viewportWidth);
-      doc.defaultView?.scrollTo(0, 0);
       callbacks.current.onPlaced({ unplacedFixed: placed.unplacedFixed });
     });
 

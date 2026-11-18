@@ -103,9 +103,14 @@ function ReplayHeatmap({ url, device, snapshot, onUnusable }: ReplayHeatmapProps
   const [unplacedFixed, setUnplacedFixed] = useState(0);
 
   const eventsQuery = useQuery({
-    queryKey: ['heatmap-replay-snapshot', dashboardId, snapshot.sessionId, snapshot.filename],
+    queryKey: ['heatmap-replay-snapshot', dashboardId, snapshot.sessionId, snapshot.filename, snapshot.snapshotMs],
     queryFn: async () => {
-      const params = new URLSearchParams({ dashboardId, sessionId: snapshot.sessionId, filename: snapshot.filename });
+      const params = new URLSearchParams({
+        dashboardId,
+        sessionId: snapshot.sessionId,
+        filename: snapshot.filename,
+        snapshotMs: String(snapshot.snapshotMs),
+      });
       const response = await fetch(`/api/replay/snapshot?${params}`);
       if (!response.ok) throw new Error(`Replay snapshot request failed with ${response.status}`);
       return (await response.json()) as eventWithTime[];

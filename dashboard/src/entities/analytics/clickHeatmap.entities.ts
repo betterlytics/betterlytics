@@ -52,8 +52,12 @@ export type HeatmapClicks = {
   fixedClicks: number;
 };
 
-// Clicks grouped by element anchor and by page position, so a click lands on its element
-// when the background has it and at its position otherwise
+// Changes right after a snapshot are applied too: an in-app navigation snapshots the page
+// before the new route has rendered, and lazy content arrives just after load
+export const SNAPSHOT_SETTLE_MS = 3000;
+
+// Clicks grouped by element anchor, with the group's average page position for when the
+// background doesn't have the element
 export const HeatmapClickAnchorSchema = z.object({
   selector: z.string(),
   offsetX: z.coerce.number(),
