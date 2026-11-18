@@ -40,6 +40,15 @@
 			events 1200
 			window 1m
 		}
+		# A capture is a one-time upload of up to 10 MiB per link
+		zone heatmap_capture {
+			match {
+				path /heatmap/capture
+			}
+			key {client_ip}
+			events 30
+			window 1m
+		}
 	}
 
 	@scripts path /analytics.js /replay.js /heatmap.js /web-vitals.js
@@ -70,6 +79,12 @@
 	handle /heatmap/clicks {
 		log_skip
 		import app_proxy 127.0.0.1:3001 64KiB
+	}
+
+	# Just above the backend's 10 MiB limit, so it answers with the reason the capture panel shows
+	handle /heatmap/capture {
+		log_skip
+		import app_proxy 127.0.0.1:3001 11MiB
 	}
 
 	handle {
