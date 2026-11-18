@@ -6,7 +6,7 @@ const v160ChangelogEntryNb: ChangelogEntryData = {
     releasedAt: '2026-12-01',
     title: 'Varmekart',
     summary:
-      'Se hvor de besøkende klikker på hver side med den nye Varmekart-siden, delt opp i desktop, nettbrett og mobil. Klikkene vises over et opptak av siden, en sesjonsavspilling eller den direkte siden, og redaktører kan ta opp en side med noen få klikk.',
+      'Se hvor de besøkende klikker på hver side med den nye Varmekart-siden, delt opp i desktop, nettbrett og mobil. Klikkene vises over et opptak av siden, en sesjonsavspilling eller live-siden, og redaktører kan ta opp en side med noen få klikk.',
   },
   sections: [
     {
@@ -18,7 +18,7 @@ const v160ChangelogEntryNb: ChangelogEntryData = {
           items: [
             'Varmekart viser hvor de besøkende klikker på hver side, med et eget varmekart for desktop, nettbrett og mobil. Slå dem på med data-heatmaps="true" på sporingsskriptet.',
             'Redaktører kan ta opp en side fra Varmekart-siden og se klikkene over en nøyaktig kopi av den, med en opptakshistorikk for hver side og enhet.',
-            'Sider uten opptak viser klikkene over en sesjonsavspilling fra den enheten, eller over den direkte siden når nettstedet ditt tillater det.',
+            'Sider uten opptak viser klikkene over en sesjonsavspilling fra den enheten, eller over live-siden når nettstedet ditt tillater det.',
             'En melding vises når en side kan ha endret seg etter opptaket.',
           ],
         },
@@ -39,7 +39,7 @@ const v160ChangelogModalNb: ChangelogEntryData = {
           items: [
             'Varmekart viser hvor de besøkende klikker, for hver side og enhet.',
             'Ta opp en side for å se klikkene over en nøyaktig kopi av den.',
-            'Uten opptak vises klikkene over en sesjonsavspilling eller den direkte siden.',
+            'Uten opptak vises klikkene over en sesjonsavspilling eller live-siden.',
             'En melding vises når en side har endret seg etter opptaket.',
           ],
         },

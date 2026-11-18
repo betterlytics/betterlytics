@@ -6,7 +6,7 @@ const v160ChangelogEntryDa: ChangelogEntryData = {
     releasedAt: '2026-12-01',
     title: 'Heatmaps',
     summary:
-      'Se, hvor de besøgende klikker på hver side, med den nye Heatmaps-side, opdelt på desktop, tablet og mobil. Klikkene vises oven på en optagelse af siden, en sessionsafspilning eller den live side, og redaktører kan optage en side med få klik.',
+      'Se, hvor de besøgende klikker på hver side, med den nye Heatmaps-side, opdelt på computer, tablet og mobil. Klikkene vises oven på en optagelse af siden, en sessionsafspilning eller den live side, og redaktører kan optage en side med få klik.',
   },
   sections: [
     {
@@ -16,7 +16,7 @@ const v160ChangelogEntryDa: ChangelogEntryData = {
         {
           type: 'list',
           items: [
-            'Heatmaps viser, hvor de besøgende klikker på hver side, med et separat heatmap for desktop, tablet og mobil. Slå dem til med data-heatmaps="true" på sporingsscriptet.',
+            'Heatmaps viser, hvor de besøgende klikker på hver side, med et separat heatmap for computer, tablet og mobil. Slå dem til med data-heatmaps="true" på sporingsscriptet.',
             'Redaktører kan optage en side fra Heatmaps-siden og se klikkene oven på en præcis kopi af den, med en optagelseshistorik for hver side og enhed.',
             'Sider uden en optagelse viser klikkene oven på en sessionsafspilning fra den enhed, eller oven på den live side, når dit site tillader det.',
             'En besked viser, når en side kan have ændret sig efter optagelsen.',

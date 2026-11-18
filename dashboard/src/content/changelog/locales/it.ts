@@ -6,7 +6,7 @@ const v160ChangelogEntryIt: ChangelogEntryData = {
     releasedAt: '2026-12-01',
     title: 'Heatmap',
     summary:
-      'Scopri dove cliccano i visitatori su ogni pagina con la nuova pagina Heatmap, divisa tra desktop, tablet e mobile. I clic compaiono sopra una cattura della pagina, un replay di sessione o la pagina live, e gli editor possono catturare una pagina in pochi clic.',
+      'Scopri dove cliccano i visitatori su ogni pagina con la nuova pagina Heatmap, divisa tra desktop, tablet e mobile. I clic compaiono sopra una cattura della pagina, un replay di sessione o la pagina dal vivo, e gli editor possono catturare una pagina in pochi clic.',
   },
   sections: [
     {
@@ -18,7 +18,7 @@ const v160ChangelogEntryIt: ChangelogEntryData = {
           items: [
             'Le heatmap mostrano dove cliccano i visitatori su ogni pagina, con una heatmap separata per desktop, tablet e mobile. Attivale con data-heatmaps="true" sullo script di tracciamento.',
             'Gli editor possono catturare una pagina dalla pagina Heatmap e vedere i clic sopra una copia esatta, con una cronologia delle catture per ogni pagina e dispositivo.',
-            'Le pagine senza cattura mostrano i clic sopra un replay di sessione registrato su quel dispositivo, o sopra la pagina live quando il sito consente di incorporarla.',
+            'Le pagine senza cattura mostrano i clic sopra un replay di sessione registrato su quel dispositivo, o sopra la pagina dal vivo quando il sito consente di incorporarla.',
             'Un avviso segnala quando una pagina potrebbe essere cambiata dopo la cattura.',
           ],
         },
@@ -39,7 +39,7 @@ const v160ChangelogModalIt: ChangelogEntryData = {
           items: [
             'Le heatmap mostrano dove cliccano i visitatori, per ogni pagina e dispositivo.',
             'Cattura una pagina per vedere i clic sopra una sua copia esatta.',
-            'Senza cattura, i clic compaiono sopra un replay di sessione o la pagina live.',
+            'Senza cattura, i clic compaiono sopra un replay di sessione o la pagina dal vivo.',
             'Un avviso segnala quando una pagina è cambiata dopo la cattura.',
           ],
         },
