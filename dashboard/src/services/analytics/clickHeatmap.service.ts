@@ -61,6 +61,16 @@ export async function getHeatmapClicksForPage(
   return { width, height, points, fixedClicks };
 }
 
+/** The median document height the period's clicks report, or null without any */
+export async function getHeatmapPageHeight(
+  siteQuery: BASiteQuery,
+  url: string,
+  device: HeatmapDevice,
+): Promise<number | null> {
+  const { documentHeight } = await getHeatmapPageStats(siteQuery, url, device);
+  return documentHeight > 0 ? documentHeight : null;
+}
+
 export async function getHeatmapBackground(
   siteQuery: BASiteQuery,
   url: string,

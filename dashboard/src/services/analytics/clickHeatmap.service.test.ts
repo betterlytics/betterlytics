@@ -4,6 +4,7 @@ import {
   getHeatmapBackground,
   getHeatmapClicksForPage,
   getHeatmapDeviceSharesForPage,
+  getHeatmapPageHeight,
 } from './clickHeatmap.service';
 import {
   getHeatmapClickPoints,
@@ -92,6 +93,16 @@ describe('getHeatmapClicksForPage', () => {
     const { height } = await getHeatmapClicksForPage(siteQuery, '/', 'desktop');
 
     expect(height).toBe(20000);
+  });
+});
+
+describe('getHeatmapPageHeight', () => {
+  it("returns the clicks' median document height, or null without clicks", async () => {
+    vi.mocked(getHeatmapPageStats).mockResolvedValue({ documentHeight: 3200, fixedClicks: 0 });
+    await expect(getHeatmapPageHeight(siteQuery, '/pricing', 'desktop')).resolves.toBe(3200);
+
+    vi.mocked(getHeatmapPageStats).mockResolvedValue({ documentHeight: 0, fixedClicks: 0 });
+    await expect(getHeatmapPageHeight(siteQuery, '/pricing', 'desktop')).resolves.toBeNull();
   });
 });
 

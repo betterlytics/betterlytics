@@ -7,6 +7,7 @@ import {
   getHeatmapClickAnchorsForPage,
   getHeatmapClicksForPage,
   getHeatmapDeviceSharesForPage,
+  getHeatmapPageHeight,
   getHeatmapPagesForSite,
 } from '@/services/analytics/clickHeatmap.service';
 import { getLivePageUrl } from '@/services/analytics/heatmapLivePage.service';
@@ -29,6 +30,12 @@ export const clickHeatmapRouter = createRouter({
     .input(z.object({ url: z.string(), device: HeatmapDeviceSchema }))
     .query(async ({ ctx, input }) => {
       return getHeatmapClicksForPage(ctx.main, input.url, input.device);
+    }),
+
+  pageHeight: analyticsProcedure
+    .input(z.object({ url: z.string(), device: HeatmapDeviceSchema }))
+    .query(async ({ ctx, input }) => {
+      return getHeatmapPageHeight(ctx.main, input.url, input.device);
     }),
 
   // Public views get no replay layout: the snapshot route only serves members
