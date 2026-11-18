@@ -6,9 +6,11 @@ import {
   getHeatmapDeviceShares,
   getHeatmapPageStats,
   getHeatmapPages,
+  getHeatmapSessionHeights,
   getMostVisitedHost,
   hasHeatmapClicks,
 } from '@/repositories/clickhouse/clickHeatmap.repository';
+import { toDateTimeString } from '@/utils/dateFormatters';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { findLatestReplaySnapshot } from '@/repositories/clickhouse/replaySnapshots.repository';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
@@ -61,14 +63,31 @@ export async function getHeatmapClicksForPage(
   return { width, height, points, fixedClicks };
 }
 
-/** The median document height the period's clicks report, or null without any */
-export async function getHeatmapPageHeight(
+// Layouts change height with the width, so only visitors near the capture's width compare
+const PAGE_HEIGHT_WIDTH_TOLERANCE = 0.1;
+const MIN_PAGE_HEIGHT_SESSIONS = 5;
+
+/**
+ * The median document height visitors near a capture's width saw since it was taken, within the
+ * selected period. Null when the period ends before the capture or too few sessions clicked.
+ */
+export async function getHeatmapPageHeightSince(
   siteQuery: BASiteQuery,
   url: string,
   device: HeatmapDevice,
+  width: number,
+  capturedAt: Date,
 ): Promise<number | null> {
-  const { documentHeight } = await getHeatmapPageStats(siteQuery, url, device);
-  return documentHeight > 0 ? documentHeight : null;
+  const capturedAtDateTime = toDateTimeString(capturedAt);
+  const start = capturedAtDateTime > siteQuery.startDateTime ? capturedAtDateTime : siteQuery.startDateTime;
+  if (start > siteQuery.endDateTime) return null;
+
+  const widthRange = {
+    min: Math.floor(width * (1 - PAGE_HEIGHT_WIDTH_TOLERANCE)),
+    max: Math.ceil(width * (1 + PAGE_HEIGHT_WIDTH_TOLERANCE)),
+  };
+  const { documentHeight, sessions } = await getHeatmapSessionHeights(siteQuery, url, device, widthRange, start);
+  return sessions >= MIN_PAGE_HEIGHT_SESSIONS && documentHeight > 0 ? documentHeight : null;
 }
 
 export async function getHeatmapBackground(

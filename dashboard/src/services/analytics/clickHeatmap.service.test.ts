@@ -4,12 +4,13 @@ import {
   getHeatmapBackground,
   getHeatmapClicksForPage,
   getHeatmapDeviceSharesForPage,
-  getHeatmapPageHeight,
+  getHeatmapPageHeightSince,
 } from './clickHeatmap.service';
 import {
   getHeatmapClickPoints,
   getHeatmapDeviceShares,
   getHeatmapPageStats,
+  getHeatmapSessionHeights,
   getMostVisitedHost,
 } from '@/repositories/clickhouse/clickHeatmap.repository';
 import { findLatestReplaySnapshot } from '@/repositories/clickhouse/replaySnapshots.repository';
@@ -22,6 +23,7 @@ vi.mock('@/repositories/clickhouse/clickHeatmap.repository', () => ({
   getHeatmapDeviceShares: vi.fn(),
   getHeatmapPageStats: vi.fn(),
   getHeatmapPages: vi.fn(),
+  getHeatmapSessionHeights: vi.fn(),
   getMostVisitedHost: vi.fn(),
   hasHeatmapClicks: vi.fn(),
 }));
@@ -96,13 +98,47 @@ describe('getHeatmapClicksForPage', () => {
   });
 });
 
-describe('getHeatmapPageHeight', () => {
-  it("returns the clicks' median document height, or null without clicks", async () => {
-    vi.mocked(getHeatmapPageStats).mockResolvedValue({ documentHeight: 3200, fixedClicks: 0 });
-    await expect(getHeatmapPageHeight(siteQuery, '/pricing', 'desktop')).resolves.toBe(3200);
+describe('getHeatmapPageHeightSince', () => {
+  const period = {
+    siteId: 'test-site',
+    startDateTime: '2026-11-01 00:00:00',
+    endDateTime: '2026-11-30 23:59:59',
+  } as unknown as BASiteQuery;
 
-    vi.mocked(getHeatmapPageStats).mockResolvedValue({ documentHeight: 0, fixedClicks: 0 });
-    await expect(getHeatmapPageHeight(siteQuery, '/pricing', 'desktop')).resolves.toBeNull();
+  it('counts sessions near the capture width from the later of the period start and the capture', async () => {
+    vi.mocked(getHeatmapSessionHeights).mockResolvedValue({ documentHeight: 3200, sessions: 12 });
+
+    await expect(
+      getHeatmapPageHeightSince(period, '/pricing', 'desktop', 1280, new Date('2026-11-10T08:30:00Z')),
+    ).resolves.toBe(3200);
+    expect(getHeatmapSessionHeights).toHaveBeenCalledWith(
+      period,
+      '/pricing',
+      'desktop',
+      { min: 1152, max: 1408 },
+      '2026-11-10 08:30:00',
+    );
+
+    await getHeatmapPageHeightSince(period, '/pricing', 'desktop', 1280, new Date('2026-10-01T00:00:00Z'));
+    expect(getHeatmapSessionHeights).toHaveBeenLastCalledWith(
+      period,
+      '/pricing',
+      'desktop',
+      { min: 1152, max: 1408 },
+      '2026-11-01 00:00:00',
+    );
+  });
+
+  it('gives no height for a period before the capture or with too few sessions', async () => {
+    await expect(
+      getHeatmapPageHeightSince(period, '/pricing', 'desktop', 1280, new Date('2026-12-05T00:00:00Z')),
+    ).resolves.toBeNull();
+    expect(getHeatmapSessionHeights).not.toHaveBeenCalled();
+
+    vi.mocked(getHeatmapSessionHeights).mockResolvedValue({ documentHeight: 3200, sessions: 4 });
+    await expect(
+      getHeatmapPageHeightSince(period, '/pricing', 'desktop', 1280, new Date('2026-11-10T00:00:00Z')),
+    ).resolves.toBeNull();
   });
 });
 

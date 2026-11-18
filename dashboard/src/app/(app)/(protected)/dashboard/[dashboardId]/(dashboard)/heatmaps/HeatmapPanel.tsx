@@ -22,13 +22,10 @@ import { CaptureActions, useCaptureLabel } from './CaptureActions';
 import { CaptureDialog } from './CaptureDialog';
 import { HeatmapView } from './HeatmapView';
 import { LiveHeatmapView } from './LiveHeatmapView';
+import { pageChangedSinceCapture, snapshotWindowHeight } from './pageChanged';
 import { SnapshotHeatmapView } from './SnapshotHeatmapView';
 
 const PANEL_SKELETON = 'h-[calc(100vh-18rem)] min-h-96 w-full';
-
-// Every click reports the document height, so a period whose median height is this far from
-// the capture's suggests the page changed since it was captured
-const PAGE_CHANGED_RATIO = 0.15;
 
 type HeatmapPanelProps = {
   url: string;
@@ -357,14 +354,11 @@ function CaptureHeatmap({
   const label = useCaptureLabel();
   const href = `/api/heatmap/captures/${encodeURIComponent(capture.id)}?${new URLSearchParams({ dashboardId })}`;
   const events = useSnapshotEvents(['heatmap-capture', dashboardId, capture.id], href, onUnusable);
-  const pageHeightQuery = trpc.clickHeatmap.pageHeight.useQuery(
-    { ...input, url, device },
+  const pageHeightQuery = trpc.clickHeatmap.pageHeightSince.useQuery(
+    { ...input, url, device, width: capture.viewportWidth, capturedAt: capture.createdAt },
     { ...options, placeholderData: undefined },
   );
-  const pageHeight = pageHeightQuery.data;
-  const pageChanged =
-    typeof pageHeight === 'number' &&
-    Math.abs(pageHeight - capture.documentHeight) > capture.documentHeight * PAGE_CHANGED_RATIO;
+  const pageChanged = pageChangedSinceCapture(capture, snapshotWindowHeight(events), pageHeightQuery.data);
 
   return (
     <SnapshotBody

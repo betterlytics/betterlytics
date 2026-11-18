@@ -55,6 +55,13 @@ export const HeatmapPageStatsRowSchema = z.object({
 
 export type HeatmapPageStatsRow = z.infer<typeof HeatmapPageStatsRowSchema>;
 
+export const HeatmapSessionHeightsRowSchema = z.object({
+  documentHeight: z.coerce.number(),
+  sessions: z.coerce.number(),
+});
+
+export type HeatmapSessionHeightsRow = z.infer<typeof HeatmapSessionHeightsRowSchema>;
+
 export type HeatmapClicks = {
   width: number;
   height: number;
