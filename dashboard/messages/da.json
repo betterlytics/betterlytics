@@ -3513,6 +3513,7 @@
       "fixedClicksHidden": "{count, plural, one {# klik på et fastgjort element vises ikke endnu.} other {# klik på fastgjorte elementer vises ikke endnu.}}",
       "replayBackground": "Layout fra en besøgendes session den {date}, tekst og billeder skjult.",
       "watchReplay": "Se session replay",
+      "livePage": "Live side, kan afvige fra da klikkene skete. Klik vises på deres position på siden.",
       "fixedClicksUnplaced": "{count, plural, one {# klik på et fastgjort element er ikke med i dette layout.} other {# klik på fastgjorte elementer er ikke med i dette layout.}}",
       "capture": {
         "captureButton": "Optag side",

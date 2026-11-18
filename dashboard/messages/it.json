@@ -3513,6 +3513,7 @@
       "fixedClicksHidden": "{count, plural, one {# clic su un elemento fisso non è ancora mostrato.} other {# clic su elementi fissi non sono ancora mostrati.}}",
       "replayBackground": "Layout da una sessione di un visitatore del {date}, con testo e immagini nascosti.",
       "watchReplay": "Guarda il replay",
+      "livePage": "Pagina dal vivo, può essere diversa da quando sono avvenuti i clic. I clic sono mostrati nella loro posizione sulla pagina.",
       "fixedClicksUnplaced": "{count, plural, one {# clic su un elemento fisso non è in questo layout.} other {# clic su elementi fissi non sono in questo layout.}}",
       "capture": {
         "captureButton": "Cattura pagina",

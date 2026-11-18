@@ -3513,6 +3513,7 @@
       "fixedClicksHidden": "{count, plural, one {# klikk på et fast element vises ikke ennå.} other {# klikk på faste elementer vises ikke ennå.}}",
       "replayBackground": "Oppsett fra en besøkendes sesjon {date}, tekst og bilder skjult.",
       "watchReplay": "Se sesjonsavspilling",
+      "livePage": "Live side, kan avvike fra da klikkene skjedde. Klikk vises der de skjedde på siden.",
       "fixedClicksUnplaced": "{count, plural, one {# klikk på et fast element er ikke med i dette oppsettet.} other {# klikk på faste elementer er ikke med i dette oppsettet.}}",
       "capture": {
         "captureButton": "Ta opp siden",

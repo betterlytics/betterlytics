@@ -9,6 +9,7 @@ import {
   getHeatmapDeviceSharesForPage,
   getHeatmapPagesForSite,
 } from '@/services/analytics/clickHeatmap.service';
+import { getLivePageUrl } from '@/services/analytics/heatmapLivePage.service';
 import { HeatmapDeviceSchema, type HeatmapBackground } from '@/entities/analytics/clickHeatmap.entities';
 
 export const clickHeatmapRouter = createRouter({
@@ -37,6 +38,11 @@ export const clickHeatmapRouter = createRouter({
       if (ctx.authContext.isDemo) return { kind: 'none' };
       return getHeatmapBackground(ctx.main, input.url, input.device);
     }),
+
+  livePage: analyticsProcedure.input(z.object({ url: z.string() })).query(async ({ ctx, input }) => {
+    if (ctx.authContext.isDemo) return null;
+    return getLivePageUrl(ctx.main, ctx.authContext.dashboardId, input.url);
+  }),
 
   captureOrigin: analyticsProcedure.input(z.object({ url: z.string() })).query(async ({ ctx, input }) => {
     if (ctx.authContext.isDemo) return null;

@@ -3513,6 +3513,7 @@
       "fixedClicksHidden": "{count, plural, one {# click on a fixed or sticky element isn't shown yet.} other {# clicks on fixed or sticky elements aren't shown yet.}}",
       "replayBackground": "Layout from a visitor session on {date}, text and images hidden.",
       "watchReplay": "Watch replay",
+      "livePage": "Live page, may differ from when the clicks happened. Clicks are shown at their position on the page.",
       "fixedClicksUnplaced": "{count, plural, one {# click on a fixed or sticky element isn't on this layout.} other {# clicks on fixed or sticky elements aren't on this layout.}}",
       "capture": {
         "captureButton": "Capture page",
