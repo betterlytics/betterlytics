@@ -158,12 +158,13 @@ const CLIENT_HINTS_MIN_CHROMIUM_MAJOR: u32 = 89;
 const CLIENT_HINTS_ENFORCE_BELOW_MAJOR: u32 = 130;
 /// Default window sizes of headless Chromium and automation tooling; no desktop display
 /// ships them. A desktop Chromium reporting one without client hints is rejected on any
-/// major, while the same size with hints is accepted.
+/// major, while the same size with hints is accepted unless it comes from a hosting network
+/// (see HOSTING_HEADLESS_RESOLUTIONS).
 const HEADLESS_RESOLUTIONS: &[&str] = &["800x600", "1280x1200"];
 /// Headless sizes rejected from a hosting network even when client hints are present,
 /// since crawlers can spoof hints consistent with the UA. Production bot_events from
-/// 2026-08-09 to 2026-11-18 showed desktop Chromium at 1280x1200 on hosting networks only
-/// from crawlers (~135k events, no engagement). 800x600 is left out: its hosting-network
+/// 2026-08-09 to 2026-11-18 showed hinted desktop Chromium at 1280x1200 on hosting networks
+/// only from crawlers (~77k events, no engagement). 800x600 is left out: its hosting-network
 /// traffic spans unrelated networks that have not been reviewed.
 const HOSTING_HEADLESS_RESOLUTIONS: &[&str] = &["1280x1200"];
 /// Desktop Chromium auto-updates; majors older than this are suspect. Starts very
@@ -261,7 +262,10 @@ fn collect_reasons(input: &DetectionInput) -> Vec<&'static str> {
             reasons.push(REASON_BOT_NETWORK);
         } else if HOSTING_ASN_SET.contains(&input.asn) {
             reasons.push(REASON_HOSTING_NETWORK);
-            if HOSTING_HEADLESS_RESOLUTIONS.contains(&input.screen_resolution)
+            let rejected_for_missing_hints = reasons.contains(&REASON_STALE_CHROMIUM_NO_HINTS)
+                || reasons.contains(&REASON_HEADLESS_RESOLUTION_NO_HINTS);
+            if !rejected_for_missing_hints
+                && HOSTING_HEADLESS_RESOLUTIONS.contains(&input.screen_resolution)
                 && chromium_major(user_agent).is_some()
                 && is_desktop_ua(user_agent)
             {
@@ -763,6 +767,18 @@ mod tests {
         assert_eq!(detection.enforcing, vec![REASON_HEADLESS_RESOLUTION_HOSTING]);
         assert!(detection.should_reject());
         assert_eq!(detection.tagged_reasons(), vec!["headless-resolution-hosting", "shadow:hosting-network"]);
+
+        let pre_hints = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.0.0 Safari/537.36";
+        assert_eq!(detect_with(pre_hints, "1280x1200", hetzner).enforcing, vec![REASON_HEADLESS_RESOLUTION_HOSTING]);
+
+        let hintless = detect(&DetectionInput {
+            user_agent: ua,
+            header_user_agent: ua,
+            screen_resolution: "1280x1200",
+            asn: hetzner,
+            ..Default::default()
+        });
+        assert_eq!(hintless.enforcing, vec![REASON_HEADLESS_RESOLUTION_NO_HINTS]);
 
         assert!(detect_with(ua, "1280x1200", 0).is_empty());
         assert!(detect_with(ua, "1280x1200", 7922).is_empty());
