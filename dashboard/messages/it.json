@@ -3510,7 +3510,10 @@
       "noDeviceClicks": "Nessun clic da {device} su questa pagina nel periodo.",
       "showDevice": "Mostra {device} ({count, plural, one {# clic} other {# clic}})",
       "noBackground": "I clic sono mostrati nella loro posizione sulla pagina, per ora senza sfondo della pagina.",
-      "fixedClicksHidden": "{count, plural, one {# clic su un elemento fisso non è ancora mostrato.} other {# clic su elementi fissi non sono ancora mostrati.}}"
+      "fixedClicksHidden": "{count, plural, one {# clic su un elemento fisso non è ancora mostrato.} other {# clic su elementi fissi non sono ancora mostrati.}}",
+      "replayBackground": "Layout da una sessione di un visitatore del {date}, con testo e immagini nascosti.",
+      "watchReplay": "Guarda il replay",
+      "fixedClicksUnplaced": "{count, plural, one {# clic su un elemento fisso non è in questo layout.} other {# clic su elementi fissi non sono in questo layout.}}"
     },
     "webVitals": {
       "metrics": {

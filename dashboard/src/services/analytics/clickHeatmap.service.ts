@@ -1,18 +1,21 @@
 import 'server-only';
 
 import {
+  getHeatmapClickAnchors,
   getHeatmapClickPoints,
   getHeatmapDeviceShares,
   getHeatmapPageStats,
   getHeatmapPages,
   hasHeatmapClicks,
 } from '@/repositories/clickhouse/clickHeatmap.repository';
+import { findLatestReplaySnapshot } from '@/repositories/clickhouse/replaySnapshots.repository';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import {
   HEATMAP_DEVICES,
   HEATMAP_DEVICE_WIDTHS,
   HEATMAP_MAX_PAGE_HEIGHT,
   HEATMAP_POINT_CELL_PX,
+  HeatmapBackground,
   HeatmapClicks,
   HeatmapDevice,
 } from '@/entities/analytics/clickHeatmap.entities';
@@ -54,4 +57,22 @@ export async function getHeatmapClicksForPage(
   );
 
   return { width, height, points, fixedClicks };
+}
+
+export async function getHeatmapBackground(
+  siteQuery: BASiteQuery,
+  url: string,
+  device: HeatmapDevice,
+): Promise<HeatmapBackground> {
+  const snapshot = await findLatestReplaySnapshot(siteQuery, url, device);
+  return snapshot ? { kind: 'replay', snapshot } : { kind: 'none' };
+}
+
+export async function getHeatmapClickAnchorsForPage(
+  siteQuery: BASiteQuery,
+  url: string,
+  device: HeatmapDevice,
+  width: number,
+) {
+  return getHeatmapClickAnchors(siteQuery, url, device, width, HEATMAP_MAX_PAGE_HEIGHT);
 }

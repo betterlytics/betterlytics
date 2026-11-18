@@ -17,7 +17,7 @@ import {
   type HeatmapDevice,
   type HeatmapDeviceShareRow,
 } from '@/entities/analytics/clickHeatmap.entities';
-import { HeatmapView } from './HeatmapView';
+import { HeatmapPanel } from './HeatmapPanel';
 
 function useHeatmapSelection() {
   const searchParams = useSearchParams();
@@ -60,11 +60,6 @@ export function HeatmapsClient() {
   const totalClicks = shares?.reduce((sum, share) => sum + share.clicks, 0) ?? 0;
   const selectedDevice = selection.device ?? (shares ? pickBusiestDevice(shares) : undefined);
 
-  const clicksQuery = trpc.clickHeatmap.clicks.useQuery(
-    { ...input, url: selectedPath ?? '', device: selectedDevice ?? 'desktop' },
-    { ...options, placeholderData: undefined, enabled: selectedPath !== undefined && selectedDevice !== undefined },
-  );
-
   const pageOptions = useMemo(() => {
     if (!selectedPath || pages.some((page) => page.url === selectedPath)) return pages;
     return [{ url: selectedPath, clicks: totalClicks }, ...pages];
@@ -84,8 +79,6 @@ export function HeatmapsClient() {
 
   const deviceClicks = shares?.find((share) => share.device === selectedDevice)?.clicks ?? 0;
   const devicesWithClicks = shares?.filter((share) => share.clicks > 0 && share.device !== selectedDevice) ?? [];
-  const fixedClicks = clicksQuery.data?.fixedClicks ?? 0;
-  const fixedClicksNote = fixedClicks > 0 ? t('fixedClicksHidden', { count: fixedClicks }) : null;
 
   return (
     <div className='space-y-3'>
@@ -148,22 +141,8 @@ export function HeatmapsClient() {
             ))}
           </div>
         </div>
-      ) : clicksQuery.data?.points.length === 0 && fixedClicksNote ? (
-        <div className='bg-card flex min-h-72 items-center justify-center rounded-lg border p-6 text-center'>
-          <p className='text-muted-foreground'>{fixedClicksNote}</p>
-        </div>
-      ) : clicksQuery.data ? (
-        <div className='space-y-2'>
-          <p className='text-muted-foreground text-xs'>{t('noBackground')}</p>
-          {fixedClicksNote && <p className='text-muted-foreground text-xs'>{fixedClicksNote}</p>}
-          <HeatmapView
-            width={clicksQuery.data.width}
-            height={clicksQuery.data.height}
-            points={clicksQuery.data.points}
-          />
-        </div>
       ) : (
-        <Skeleton className='h-[calc(100vh-18rem)] min-h-96 w-full' />
+        <HeatmapPanel url={selectedPath} device={selectedDevice} />
       )}
     </div>
   );

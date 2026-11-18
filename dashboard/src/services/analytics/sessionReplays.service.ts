@@ -76,6 +76,14 @@ export async function openReplaySegmentStream(
   return { stream, endedAt };
 }
 
+// One stored segment, for heatmaps that draw a page layout from a single full snapshot
+export async function openReplaySegment(authContext: AuthContext, sessionId: string, filename: string) {
+  const { siteId } = authContext;
+  const meta = await getReplaySessionMeta(siteId, sessionId);
+  const storage = meta?.storage === 's3' || meta?.storage === 'clickhouse' ? meta.storage : replayStorage;
+  return readerFor(storage).getSegment(siteId, sessionId, filename);
+}
+
 function toNdjsonStream(lines: AsyncGenerator<string>): ReadableStream<Uint8Array> {
   const encoder = new TextEncoder();
   return new ReadableStream<Uint8Array>({

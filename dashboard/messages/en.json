@@ -3510,7 +3510,10 @@
       "noDeviceClicks": "No {device} clicks on this page in this period.",
       "showDevice": "Show {device} ({count, plural, one {# click} other {# clicks}})",
       "noBackground": "Clicks are shown at their position on the page, without a page background yet.",
-      "fixedClicksHidden": "{count, plural, one {# click on a fixed or sticky element isn't shown yet.} other {# clicks on fixed or sticky elements aren't shown yet.}}"
+      "fixedClicksHidden": "{count, plural, one {# click on a fixed or sticky element isn't shown yet.} other {# clicks on fixed or sticky elements aren't shown yet.}}",
+      "replayBackground": "Layout from a visitor session on {date}, text and images hidden.",
+      "watchReplay": "Watch replay",
+      "fixedClicksUnplaced": "{count, plural, one {# click on a fixed or sticky element isn't on this layout.} other {# clicks on fixed or sticky elements aren't on this layout.}}"
     },
     "webVitals": {
       "metrics": {

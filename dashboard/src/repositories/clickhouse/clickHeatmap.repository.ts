@@ -4,6 +4,8 @@ import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import {
   HEATMAP_DEVICES,
   HEATMAP_POINT_CELL_PX,
+  HeatmapClickAnchor,
+  HeatmapClickAnchorSchema,
   HeatmapClickPoint,
   HeatmapClickPointSchema,
   HeatmapDevice,
@@ -134,6 +136,57 @@ export async function getHeatmapClickPoints(
     .toPromise();
 
   return rows.map((row) => HeatmapClickPointSchema.parse(row));
+}
+
+// Offsets are rounded to 1% of the element and positions to the point cell, which keeps the
+// row count bounded while each click can still fall back to its page position
+export async function getHeatmapClickAnchors(
+  siteQuery: BASiteQuery,
+  url: string,
+  device: HeatmapDevice,
+  width: number,
+  maxHeight: number,
+): Promise<HeatmapClickAnchor[]> {
+  const { siteId, startDateTime, endDateTime } = siteQuery;
+
+  const query = safeSql`
+    SELECT
+      selector,
+      round(offset_x, 2) AS offsetX,
+      round(offset_y, 2) AS offsetY,
+      intDiv(toUInt32(round(page_x * {width:UInt32} / greatest(viewport_width, 1))), {cell:UInt32}) * {cell:UInt32} AS x,
+      intDiv(page_y, {cell:UInt32}) * {cell:UInt32} AS y,
+      toUInt8(is_fixed) AS fixed,
+      count() AS count
+    FROM analytics.heatmap_clicks
+    WHERE site_id = {site_id:String}
+      AND device = {device:String}
+      AND url = {url:String}
+      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+      AND page_y < {max_height:UInt32}
+    GROUP BY selector, offsetX, offsetY, x, y, fixed
+    ORDER BY count DESC
+    LIMIT {limit:UInt32}
+  `;
+
+  const rows = await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        site_id: siteId,
+        device,
+        url,
+        width,
+        cell: HEATMAP_POINT_CELL_PX,
+        max_height: maxHeight,
+        start_date: startDateTime,
+        end_date: endDateTime,
+        limit: MAX_POINTS,
+      },
+    })
+    .toPromise();
+
+  return rows.map((row) => HeatmapClickAnchorSchema.parse(row));
 }
 
 export async function getHeatmapPageStats(

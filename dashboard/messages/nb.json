@@ -3510,7 +3510,10 @@
       "noDeviceClicks": "Ingen klikk fra {device} på denne siden i perioden.",
       "showDevice": "Vis {device} ({count, plural, one {# klikk} other {# klikk}})",
       "noBackground": "Klikk vises der de skjedde på siden, foreløpig uten sidebakgrunn.",
-      "fixedClicksHidden": "{count, plural, one {# klikk på et fast element vises ikke ennå.} other {# klikk på faste elementer vises ikke ennå.}}"
+      "fixedClicksHidden": "{count, plural, one {# klikk på et fast element vises ikke ennå.} other {# klikk på faste elementer vises ikke ennå.}}",
+      "replayBackground": "Oppsett fra en besøkendes sesjon {date}, tekst og bilder skjult.",
+      "watchReplay": "Se sesjonsavspilling",
+      "fixedClicksUnplaced": "{count, plural, one {# klikk på et fast element er ikke med i dette oppsettet.} other {# klikk på faste elementer er ikke med i dette oppsettet.}}"
     },
     "webVitals": {
       "metrics": {

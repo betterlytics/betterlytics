@@ -51,3 +51,30 @@ export type HeatmapClicks = {
   points: HeatmapClickPoint[];
   fixedClicks: number;
 };
+
+// Clicks grouped by element anchor and by page position, so a click lands on its element
+// when the background has it and at its position otherwise
+export const HeatmapClickAnchorSchema = z.object({
+  selector: z.string(),
+  offsetX: z.coerce.number(),
+  offsetY: z.coerce.number(),
+  x: z.coerce.number(),
+  y: z.coerce.number(),
+  fixed: z.coerce.number().transform((value) => value === 1),
+  count: z.coerce.number(),
+});
+
+export type HeatmapClickAnchor = z.infer<typeof HeatmapClickAnchorSchema>;
+
+export const HeatmapReplaySnapshotSchema = z.object({
+  sessionId: z.string(),
+  filename: z.string(),
+  snapshotMs: z.coerce.number(),
+  viewportWidth: z.coerce.number(),
+  viewportHeight: z.coerce.number(),
+  recordedAtMs: z.coerce.number(),
+});
+
+export type HeatmapReplaySnapshot = z.infer<typeof HeatmapReplaySnapshotSchema>;
+
+export type HeatmapBackground = { kind: 'replay'; snapshot: HeatmapReplaySnapshot } | { kind: 'none' };
