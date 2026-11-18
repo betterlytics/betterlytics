@@ -1,5 +1,53 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v160ChangelogEntryDa: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.6.0',
+    releasedAt: '2026-12-01',
+    title: 'Heatmaps',
+    summary:
+      'Se, hvor de besøgende klikker på hver side, med den nye Heatmaps-side, opdelt på desktop, tablet og mobil. Klikkene vises oven på en optagelse af siden, en sessionsafspilning eller den live side, og redaktører kan optage en side med få klik.',
+  },
+  sections: [
+    {
+      id: 'v160-new-features',
+      title: 'Nye funktioner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Heatmaps viser, hvor de besøgende klikker på hver side, med et separat heatmap for desktop, tablet og mobil. Slå dem til med data-heatmaps="true" på sporingsscriptet.',
+            'Redaktører kan optage en side fra Heatmaps-siden og se klikkene oven på en præcis kopi af den, med en optagelseshistorik for hver side og enhed.',
+            'Sider uden en optagelse viser klikkene oven på en sessionsafspilning fra den enhed, eller oven på den live side, når dit site tillader det.',
+            'En besked viser, når en side kan have ændret sig efter optagelsen.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v160ChangelogModalDa: ChangelogEntryData = {
+  metadata: v160ChangelogEntryDa.metadata,
+  sections: [
+    {
+      id: 'v160-modal-new-features',
+      title: 'Nye funktioner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Heatmaps viser, hvor de besøgende klikker, for hver side og enhed.',
+            'Optag en side for at se klikkene oven på en præcis kopi af den.',
+            'Uden en optagelse vises klikkene oven på en sessionsafspilning eller den live side.',
+            'En besked viser, når en side har ændret sig efter optagelsen.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v153ChangelogEntryDa: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.3',
@@ -886,9 +934,10 @@ const v144ChangelogEntryDa: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalDa = v153ChangelogModalDa;
+export const latestChangelogModalDa = v160ChangelogModalDa;
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  v160ChangelogEntryDa,
   v153ChangelogEntryDa,
   v152ChangelogEntryDa,
   v151ChangelogEntryDa,
