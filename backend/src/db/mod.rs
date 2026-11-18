@@ -13,7 +13,7 @@ use crate::metrics::MetricsCollector;
 use crate::processing::{BotEvent, ProcessedEvent};
 
 mod models;
-pub use models::{ActiveSessionRow, BotEventRow, EventRow, HeatmapCaptureRow, HeatmapClickRow, ReferrerSourceCategoryRow, SessionReplayMetaRow, SessionReplayRow, SessionReplaySegmentRow, TelemetryPingRow};
+pub use models::{ActiveSessionRow, BotEventRow, EventRow, HeatmapCaptureRow, HeatmapClickRow, ReferrerSourceCategoryRow, SessionReplayMetaRow, SessionReplayRow, SessionReplaySegmentRow, SessionReplaySnapshotRow, TelemetryPingRow};
 
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
 const BOT_CHANNEL_CAPACITY: usize = 10_000;
@@ -244,6 +244,20 @@ impl Database {
 
     pub async fn insert_replay_segment(&self, row: SessionReplaySegmentRow) -> Result<()> {
         self.insert_one("analytics.session_replay_segments", &row).await
+    }
+
+    pub async fn insert_replay_snapshots(&self, rows: &[SessionReplaySnapshotRow]) -> Result<()> {
+        let mut inserter = self.async_insert_client()
+            .inserter("analytics.session_replay_snapshots")?
+            .with_timeouts(
+                Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)),
+                Some(Duration::from_secs(INSERTER_END_TIMEOUT_SECS)),
+            );
+        for row in rows {
+            inserter.write(row)?;
+        }
+        inserter.end().await?;
+        Ok(())
     }
 
     /// A plain insert: async_insert would buffer a snapshot of up to 40 MB in the server's queue

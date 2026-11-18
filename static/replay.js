@@ -8477,6 +8477,9 @@ or you can use record.mirror to access the mirror instance during recording.`;
       if (payload.format) {
         qs += "&format=" + payload.format;
       }
+      if (payload.snapshots && payload.snapshots.length) {
+        qs += "&snapshots=" + encodeURIComponent(JSON.stringify(payload.snapshots));
+      }
 
       return fetch(apiBase + "/replay/segment?" + qs, {
         method: "POST",
@@ -8540,11 +8543,29 @@ or you can use record.mirror to access the mirror instance during recording.`;
       return count;
     }
 
+    // Full snapshots in the chunk, indexed by the backend so heatmaps can use a page's layout
+    function snapshotsIn(events) {
+      var found = [];
+      for (var i = 0; i + 1 < events.length && found.length < 5; i++) {
+        var e = events[i];
+        if (e.type === 4 && events[i + 1].type === 2 && e.data && typeof e.data.href === "string") {
+          found.push({
+            u: e.data.href,
+            w: e.data.clientWidth || e.data.width,
+            h: e.data.height,
+            t: e.timestamp,
+          });
+        }
+      }
+      return found;
+    }
+
     function buildChunk(events, lastEventTs, startedAtMs) {
       var seq = state.chunkSeq++;
       var chunkId = pageNonce + "-" + (seq < 10000 ? ("000" + seq).slice(-4) : seq);
       var errors = collectChunkErrors(events);
       var rageClickCount = countRageClicks(events);
+      var snapshots = snapshotsIn(events);
       return encodeReplayChunk(JSON.stringify(events)).then(function (enc) {
         if (errors.length) {
           var metadata = new TextEncoder().encode(JSON.stringify(errors));
@@ -8559,6 +8580,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
         enc.startedAtMs = startedAtMs || state.startedAt;
         enc.eventCount = events.length;
         enc.rageClickCount = rageClickCount;
+        enc.snapshots = snapshots;
         enc.chunkId = chunkId;
         return enc;
       });
@@ -8935,6 +8957,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
 
       if (e.type === 4 && e.data && typeof e.data.href === "string") {
         e.data.href = normalizePageUrl(e.data.href);
+        // Meta width includes the scrollbar; heatmap clicks bucket devices by clientWidth
+        e.data.clientWidth = document.documentElement.clientWidth || e.data.width;
       }
 
       state.lastActivity = Math.max(state.lastActivity, e.timestamp);
