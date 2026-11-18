@@ -9188,22 +9188,29 @@ or you can use record.mirror to access the mirror instance during recording.`;
   var FONT_FACE = /@font-face\s*{[^}]*}/g;
   var CSS_URL = /url\(\s*(['"]?)([^'")]+)\1\s*\)/g;
   // A link is used up only once a capture is stored, so other refusals can be retried
-  var FINAL_REASONS = ["link_invalid", "wrong_origin"];
+  var FINAL_REASONS = ["link_invalid", "wrong_origin", "too_large"];
+  // Typed text lives in these as text, which maskAllInputs doesn't reach; site masks are honored
+  var TYPED_TEXT = 'textarea, [contenteditable]:not([contenteditable="false"]), [data-rrweb-mask]';
 
+  // The page is scrolled through first, so lazy content loads and anything that opens on
+  // scroll can be closed by the editor before capturing
   var panel = createPanel();
-  panel.show(
-    "ready",
-    capture.hideText
-      ? "Set the page up the way visitors see it, then capture it. Text is hidden and form fields are masked."
-      : "Set the page up the way visitors see it, then capture it. Text and images are kept as you see them; form fields are masked."
-  );
+  panel.show("working", "Loading the whole page...");
+  scrollThrough()
+    .then(waitForImages)
+    .then(function () {
+      panel.show(
+        "ready",
+        capture.hideText
+          ? "Set the page up the way visitors see it, then capture it. Text is hidden and form fields are masked."
+          : "Set the page up the way visitors see it, then capture it. Text and images are kept as you see them; form fields are masked."
+      );
+    });
 
   function startCapture() {
-    panel.show("working", "Scrolling through the page to load everything...");
-    scrollThrough()
-      .then(waitForImages)
+    panel.show("working", "Capturing...");
+    scrollToTop()
       .then(function () {
-        panel.show("working", "Capturing...");
         return inlineFonts(takeSnapshot());
       })
       .then(function (events) {
@@ -9212,14 +9219,26 @@ or you can use record.mirror to access the mirror instance during recording.`;
       })
       .then(function (result) {
         if (result.ok) {
-          panel.show("done", "Captured. You can close this window.");
+          finish("done", "Captured. You can close this window.");
+        } else if (FINAL_REASONS.indexOf(result.reason) === -1) {
+          panel.show("failed", result.message);
         } else {
-          panel.show(FINAL_REASONS.indexOf(result.reason) === -1 ? "failed" : "final", result.message);
+          finish("final", result.message);
         }
       })
       .catch(function () {
         panel.show("failed", "The page could not be captured. Try again.");
       });
+  }
+
+  function finish(state, message) {
+    if (capture.forget) capture.forget();
+    panel.show(state, message);
+  }
+
+  // Instant, also on sites with scroll-behavior: smooth, so the page isn't caught mid-scroll
+  function scrollInstantly(top) {
+    window.scrollTo({ top: top, left: 0, behavior: "instant" });
   }
 
   function scrollThrough() {
@@ -9230,15 +9249,23 @@ or you can use record.mirror to access the mirror instance during recording.`;
       function next() {
         var bottom = root.scrollHeight - window.innerHeight;
         if (window.scrollY >= bottom - 1 || steps >= MAX_SCROLL_STEPS) {
-          window.scrollTo(0, 0);
-          setTimeout(resolve, 300);
+          scrollToTop().then(resolve);
           return;
         }
         steps++;
-        window.scrollTo(0, Math.min(bottom, window.scrollY + step));
+        scrollInstantly(Math.min(bottom, window.scrollY + step));
         setTimeout(next, SCROLL_STEP_DELAY_MS);
       }
       next();
+    });
+  }
+
+  function scrollToTop() {
+    scrollInstantly(0);
+    return new Promise(function (resolve) {
+      requestAnimationFrame(function () {
+        requestAnimationFrame(resolve);
+      });
     });
   }
 
@@ -9274,7 +9301,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
           events.push(event);
         },
         maskAllInputs: true,
-        maskTextSelector: capture.hideText ? "*" : null,
+        maskTextSelector: capture.hideText ? "*" : TYPED_TEXT,
         recordCanvas: false,
         slimDOMOptions: {
           comment: true,
@@ -9312,15 +9339,15 @@ or you can use record.mirror to access the mirror instance during recording.`;
   // The dashboard can't load this site's fonts (font requests need CORS), so the site's own
   // @font-face files are embedded in the captured stylesheets
   function inlineFonts(events) {
-    var styled = [];
+    var styles = [];
     events.forEach(function (event) {
       if (event.type === 2 && event.data && event.data.node) {
-        collectStyled(event.data.node, styled);
+        collectStyles(event.data.node, styles);
       }
     });
     var urls = [];
-    styled.forEach(function (node) {
-      fontUrls(node.attributes._cssText).forEach(function (url) {
+    styles.forEach(function (style) {
+      fontUrls(style.owner[style.key]).forEach(function (url) {
         if (urls.indexOf(url) === -1) urls.push(url);
       });
     });
@@ -9338,8 +9365,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
         });
       }, Promise.resolve({}))
       .then(function (inlined) {
-        styled.forEach(function (node) {
-          node.attributes._cssText = node.attributes._cssText.replace(FONT_FACE, function (face) {
+        styles.forEach(function (style) {
+          style.owner[style.key] = style.owner[style.key].replace(FONT_FACE, function (face) {
             return face.replace(CSS_URL, function (match, quote, url) {
               return inlined[url] ? 'url("' + inlined[url] + '")' : match;
             });
@@ -9349,13 +9376,17 @@ or you can use record.mirror to access the mirror instance during recording.`;
       });
   }
 
-  function collectStyled(node, out) {
+  // Linked and script-built stylesheets carry their CSS as _cssText; an inline <style> block
+  // keeps it as a text node
+  function collectStyles(node, out) {
     if (node.type === 2 && node.attributes && typeof node.attributes._cssText === "string") {
-      out.push(node);
+      out.push({ owner: node.attributes, key: "_cssText" });
+    } else if (node.type === 3 && node.isStyle && typeof node.textContent === "string") {
+      out.push({ owner: node, key: "textContent" });
     }
     if (node.childNodes) {
       node.childNodes.forEach(function (child) {
-        collectStyled(child, out);
+        collectStyles(child, out);
       });
     }
   }
@@ -9403,26 +9434,24 @@ or you can use record.mirror to access the mirror instance during recording.`;
     return document.documentElement.clientWidth || window.innerWidth;
   }
 
-  function documentHeight() {
-    var body = document.body;
-    var root = document.documentElement;
-    return Math.max(
-      root.scrollHeight,
-      root.offsetHeight,
-      body ? body.scrollHeight : 0,
-      body ? body.offsetHeight : 0
-    );
-  }
-
   function gzip(text) {
     var bytes = new TextEncoder().encode(text);
     if (typeof CompressionStream === "undefined") {
       return Promise.resolve({ bytes: bytes, gzip: false });
     }
-    var stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream("gzip"));
-    return new Response(stream).arrayBuffer().then(function (buffer) {
-      return { bytes: new Uint8Array(buffer), gzip: true };
-    });
+    try {
+      var stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream("gzip"));
+      return new Response(stream)
+        .arrayBuffer()
+        .then(function (buffer) {
+          return { bytes: new Uint8Array(buffer), gzip: true };
+        })
+        .catch(function () {
+          return { bytes: bytes, gzip: false };
+        });
+    } catch (e) {
+      return Promise.resolve({ bytes: bytes, gzip: false });
+    }
   }
 
   function upload(events) {
@@ -9431,7 +9460,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
         "viewport_width=" +
         viewportWidth() +
         "&document_height=" +
-        documentHeight() +
+        capture.documentHeight() +
         (encoded.gzip ? "&encoding=gzip" : "");
       return fetch(endpoint + "?" + query, {
         method: "POST",

@@ -55,14 +55,36 @@
 
   // A capture link from the dashboard: snapshot this page for heatmaps and track nothing,
   // whatever the replay, heatmap, sampling and consent settings say
+  var CAPTURE_STORAGE_KEY = "betterlytics:capture";
   var captureLink = takeCaptureLink();
   if (captureLink) {
+    // The site's own calls keep working, but nothing is sent
+    var noop = function () {};
+    window.betterlytics = {
+      event: noop,
+      setGlobalProperties: noop,
+      clearGlobalProperties: noop,
+      getGlobalProperties: function () {
+        return {};
+      },
+      setReplayConsent: noop,
+    };
     window.__betterlytics_capture__ = {
       token: captureLink.token,
       hideText: captureLink.hideText,
       serverUrl: serverUrl,
+      documentHeight: getDocumentHeight,
+      forget: function () {
+        try {
+          sessionStorage.removeItem(CAPTURE_STORAGE_KEY);
+        } catch (e) {}
+      },
     };
-    loadScript(replayScriptUrl).catch(function () {});
+    loadScript(replayScriptUrl).catch(function () {
+      console.warn(
+        "Betterlytics: the heatmap capture could not start because replay.js did not load (blocked by the page's Content-Security-Policy or an extension?)",
+      );
+    });
     return;
   }
 
@@ -256,22 +278,39 @@
     window.betterlytics.event.apply(this, queuedEvents[i]);
   }
 
-  // The link's token is removed from the address bar right away, so it isn't shared or bookmarked
+  // The link's token is removed from the address bar right away, so it isn't shared or
+  // bookmarked. It is kept for this tab, so a reload (a consent banner's, say) continues the
+  // capture on the same page instead of tracking a visit.
   function takeCaptureLink() {
     var hash = window.location.hash;
-    if (hash.indexOf("#bl-capture=") !== 0) return null;
-    var params = new URLSearchParams(hash.slice(1));
-    var token = params.get("bl-capture");
+    if (hash.indexOf("#bl-capture=") === 0) {
+      var params = new URLSearchParams(hash.slice(1));
+      var token = params.get("bl-capture");
+      try {
+        history.replaceState(
+          history.state,
+          "",
+          window.location.pathname + window.location.search,
+        );
+      } catch (e) {}
+      if (!token) return null;
+      var link = {
+        token: token,
+        hideText: params.get("bl-hide-text") === "1",
+        path: window.location.pathname,
+      };
+      try {
+        sessionStorage.setItem(CAPTURE_STORAGE_KEY, JSON.stringify(link));
+      } catch (e) {}
+      return link;
+    }
     try {
-      history.replaceState(
-        history.state,
-        "",
-        window.location.pathname + window.location.search,
-      );
+      var stored = JSON.parse(sessionStorage.getItem(CAPTURE_STORAGE_KEY));
+      if (stored && stored.token && stored.path === window.location.pathname) {
+        return stored;
+      }
     } catch (e) {}
-    return token
-      ? { token: token, hideText: params.get("bl-hide-text") === "1" }
-      : null;
+    return null;
   }
 
   function loadScript(src) {
