@@ -24,8 +24,9 @@ function useHeatmapSelection() {
   const path = searchParams?.get('path') || undefined;
   const parsedDevice = HeatmapDeviceSchema.safeParse(searchParams?.get('device'));
   const device = parsedDevice.success ? parsedDevice.data : undefined;
+  const capture = searchParams?.get('capture') || undefined;
 
-  const setSelection = useCallback((next: { path?: string; device?: HeatmapDevice }) => {
+  const setSelection = useCallback((next: { path?: string; device?: HeatmapDevice; capture?: string }) => {
     const params = new URLSearchParams(window.location.search);
     for (const [key, value] of Object.entries(next)) {
       if (value) params.set(key, value);
@@ -35,7 +36,7 @@ function useHeatmapSelection() {
     window.history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}`);
   }, []);
 
-  return { path, device, setSelection };
+  return { path, device, capture, setSelection };
 }
 
 function pickBusiestDevice(shares: HeatmapDeviceShareRow[]): HeatmapDevice {
@@ -83,7 +84,10 @@ export function HeatmapsClient() {
   return (
     <div className='space-y-3'>
       <div className='flex flex-col gap-3 md:flex-row md:items-end md:justify-between'>
-        <Select value={selectedPath} onValueChange={(path) => selection.setSelection({ path, device: undefined })}>
+        <Select
+          value={selectedPath}
+          onValueChange={(path) => selection.setSelection({ path, device: undefined, capture: undefined })}
+        >
           <SelectTrigger className='w-full md:w-96' aria-label={t('pagePicker')}>
             <SelectValue />
           </SelectTrigger>
@@ -99,7 +103,9 @@ export function HeatmapsClient() {
 
         <UnderlineTabs
           value={selectedDevice ?? ''}
-          onValueChange={(value) => selection.setSelection({ device: HeatmapDeviceSchema.parse(value) })}
+          onValueChange={(value) =>
+            selection.setSelection({ device: HeatmapDeviceSchema.parse(value), capture: undefined })
+          }
         >
           <UnderlineTabsList>
             {HEATMAP_DEVICES.map((device) => {
@@ -142,7 +148,12 @@ export function HeatmapsClient() {
           </div>
         </div>
       ) : (
-        <HeatmapPanel url={selectedPath} device={selectedDevice} />
+        <HeatmapPanel
+          url={selectedPath}
+          device={selectedDevice}
+          selectedCaptureId={selection.capture}
+          onSelectCapture={(capture) => selection.setSelection({ capture })}
+        />
       )}
     </div>
   );

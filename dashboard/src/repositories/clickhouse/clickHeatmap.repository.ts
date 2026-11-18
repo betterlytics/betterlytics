@@ -188,6 +188,38 @@ export async function getHeatmapClickAnchors(
   return rows.map((row) => HeatmapClickAnchorSchema.parse(row));
 }
 
+// The host visitors opened a page on most; pageviews keep the host, heatmap clicks don't
+export async function getMostVisitedHost(siteQuery: BASiteQuery, url: string): Promise<string | null> {
+  const { siteId, startDateTime, endDateTime } = siteQuery;
+
+  const query = safeSql`
+    SELECT domain
+    FROM analytics.events
+    WHERE site_id = {site_id:String}
+      AND event_type = 'pageview'
+      AND url = {url:String}
+      AND domain != ''
+      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+    GROUP BY domain
+    ORDER BY count() DESC
+    LIMIT 1
+  `;
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        site_id: siteId,
+        url,
+        start_date: startDateTime,
+        end_date: endDateTime,
+      },
+    })
+    .toPromise()) as { domain: string }[];
+
+  return rows[0]?.domain ?? null;
+}
+
 export async function getHeatmapPageStats(
   siteQuery: BASiteQuery,
   url: string,

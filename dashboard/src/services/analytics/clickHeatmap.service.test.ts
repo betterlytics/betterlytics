@@ -1,11 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getHeatmapBackground, getHeatmapClicksForPage, getHeatmapDeviceSharesForPage } from './clickHeatmap.service';
+import {
+  getCaptureOrigin,
+  getHeatmapBackground,
+  getHeatmapClicksForPage,
+  getHeatmapDeviceSharesForPage,
+} from './clickHeatmap.service';
 import {
   getHeatmapClickPoints,
   getHeatmapDeviceShares,
   getHeatmapPageStats,
+  getMostVisitedHost,
 } from '@/repositories/clickhouse/clickHeatmap.repository';
 import { findLatestReplaySnapshot } from '@/repositories/clickhouse/replaySnapshots.repository';
+import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import type { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 vi.mock('@/repositories/clickhouse/clickHeatmap.repository', () => ({
@@ -14,11 +21,16 @@ vi.mock('@/repositories/clickhouse/clickHeatmap.repository', () => ({
   getHeatmapDeviceShares: vi.fn(),
   getHeatmapPageStats: vi.fn(),
   getHeatmapPages: vi.fn(),
+  getMostVisitedHost: vi.fn(),
   hasHeatmapClicks: vi.fn(),
 }));
 
 vi.mock('@/repositories/clickhouse/replaySnapshots.repository', () => ({
   findLatestReplaySnapshot: vi.fn(),
+}));
+
+vi.mock('@/repositories/postgres/dashboard.repository', () => ({
+  findDashboardById: vi.fn(),
 }));
 
 const siteQuery = { siteId: 'test-site' } as unknown as BASiteQuery;
@@ -106,5 +118,29 @@ describe('getHeatmapBackground', () => {
     vi.mocked(findLatestReplaySnapshot).mockResolvedValue(null);
 
     await expect(getHeatmapBackground(siteQuery, '/pricing', 'mobile')).resolves.toEqual({ kind: 'none' });
+  });
+});
+
+describe('getCaptureOrigin', () => {
+  const dashboard = (domain: string) => ({ domain }) as Awaited<ReturnType<typeof findDashboardById>>;
+
+  it('opens the host most visitors used, over https', async () => {
+    vi.mocked(getMostVisitedHost).mockResolvedValue('www.example.com');
+    vi.mocked(findDashboardById).mockResolvedValue(dashboard('example.com'));
+
+    await expect(getCaptureOrigin(siteQuery, 'dash', '/pricing')).resolves.toEqual({
+      origin: 'https://www.example.com',
+      domain: 'example.com',
+    });
+  });
+
+  it("falls back to the dashboard's domain, and uses http for local hosts", async () => {
+    vi.mocked(getMostVisitedHost).mockResolvedValue(null);
+    vi.mocked(findDashboardById).mockResolvedValue(dashboard('shop.localhost'));
+
+    await expect(getCaptureOrigin(siteQuery, 'dash', '/pricing')).resolves.toEqual({
+      origin: 'http://shop.localhost',
+      domain: 'shop.localhost',
+    });
   });
 });

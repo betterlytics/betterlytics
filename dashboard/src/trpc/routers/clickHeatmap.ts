@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { createRouter, analyticsProcedure, dashboardProcedure } from '@/trpc/init';
 import {
+  getCaptureOrigin,
   getHasHeatmapClicks,
   getHeatmapBackground,
   getHeatmapClickAnchorsForPage,
@@ -36,6 +37,11 @@ export const clickHeatmapRouter = createRouter({
       if (ctx.authContext.isDemo) return { kind: 'none' };
       return getHeatmapBackground(ctx.main, input.url, input.device);
     }),
+
+  captureOrigin: analyticsProcedure.input(z.object({ url: z.string() })).query(async ({ ctx, input }) => {
+    if (ctx.authContext.isDemo) return null;
+    return getCaptureOrigin(ctx.main, ctx.authContext.dashboardId, input.url);
+  }),
 
   anchors: analyticsProcedure
     .input(z.object({ url: z.string(), device: HeatmapDeviceSchema, width: z.number().int().min(1).max(16384) }))

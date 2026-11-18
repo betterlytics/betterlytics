@@ -6,8 +6,10 @@ import {
   getHeatmapDeviceShares,
   getHeatmapPageStats,
   getHeatmapPages,
+  getMostVisitedHost,
   hasHeatmapClicks,
 } from '@/repositories/clickhouse/clickHeatmap.repository';
+import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { findLatestReplaySnapshot } from '@/repositories/clickhouse/replaySnapshots.repository';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import {
@@ -66,6 +68,22 @@ export async function getHeatmapBackground(
 ): Promise<HeatmapBackground> {
   const snapshot = await findLatestReplaySnapshot(siteQuery, url, device);
   return snapshot ? { kind: 'replay', snapshot } : { kind: 'none' };
+}
+
+const LOCAL_HOST = /^(localhost|127\.0\.0\.1|\[::1\])$|\.localhost$/;
+
+/**
+ * Where a capture opens the page: the host most visitors used, else the dashboard's domain.
+ * Pageviews keep no scheme or port, so local hosts get http and everything else https; a
+ * different address on the dashboard's domain can be entered in the capture dialog.
+ */
+export async function getCaptureOrigin(siteQuery: BASiteQuery, dashboardId: string, url: string) {
+  const [visitedHost, dashboard] = await Promise.all([
+    getMostVisitedHost(siteQuery, url),
+    findDashboardById(dashboardId),
+  ]);
+  const host = visitedHost ?? dashboard.domain;
+  return { origin: `${LOCAL_HOST.test(host) ? 'http' : 'https'}://${host}`, domain: dashboard.domain };
 }
 
 export async function getHeatmapClickAnchorsForPage(
