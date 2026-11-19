@@ -23,13 +23,15 @@ export function HeatmapView({ width, height, points }: HeatmapViewProps) {
   const scale = containerWidth > 0 ? Math.min(1, containerWidth / width) : 1;
 
   return (
-    <div ref={containerRef} className='bg-card h-[calc(100vh-18rem)] min-h-96 overflow-auto rounded-lg border'>
-      <div className='relative mx-auto' style={{ width: width * scale, height: height * scale }}>
+    <div ref={containerRef} className='h-full overflow-auto p-4 sm:p-6'>
+      <div
+        className='bg-card relative mx-auto rounded-sm border shadow-xl'
+        style={{ width: width * scale, height: height * scale }}
+      >
         <div
           className='absolute top-0 left-0 origin-top-left'
           style={{ width, height, transform: `scale(${scale})` }}
         >
-          <div className='bg-muted/50 absolute inset-0' />
           <canvas ref={canvasRef} className='pointer-events-none absolute inset-0 h-full w-full' />
         </div>
       </div>

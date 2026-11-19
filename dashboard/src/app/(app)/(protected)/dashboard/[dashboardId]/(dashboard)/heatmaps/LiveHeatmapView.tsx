@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { HEATMAP_MAX_PAGE_HEIGHT, type HeatmapClickPoint } from '@/entities/analytics/clickHeatmap.entities';
 import { useResizeObserver } from '@/hooks/use-resize-observer';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
 import { matchesPagePath } from '@/utils/heatmapPagePath';
 import { drawHeat } from './heatCanvas';
@@ -28,6 +28,7 @@ type LiveHeatmapViewProps = {
  */
 export function LiveHeatmapView({ pageUrl, pagePath, width, viewportHeight, points, onUnusable }: LiveHeatmapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const pageRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLIFrameElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scrollQueued = useRef(false);
@@ -68,7 +69,8 @@ export function LiveHeatmapView({ pageUrl, pagePath, width, viewportHeight, poin
 
   const scale = containerWidth > 0 ? Math.min(1, containerWidth / width) : 1;
 
-  // The frame takes no pointer events, so it is scrolled to wherever the panel is
+  // The frame takes no pointer events, so it is scrolled to wherever the panel is. It sticks to
+  // the top once the canvas padding above the page has scrolled away.
   const handleScroll = () => {
     if (scrollQueued.current) return;
     scrollQueued.current = true;
@@ -76,21 +78,24 @@ export function LiveHeatmapView({ pageUrl, pagePath, width, viewportHeight, poin
       scrollQueued.current = false;
       const container = containerRef.current;
       const frame = frameRef.current?.contentWindow;
-      if (!container || !frame) return;
-      frame.postMessage({ type: 'betterlytics:preview-scroll', y: container.scrollTop / scale }, new URL(pageUrl).origin);
+      const page = pageRef.current;
+      if (!container || !frame || !page) return;
+      const y = Math.max(0, container.scrollTop - page.offsetTop) / scale;
+      frame.postMessage({ type: 'betterlytics:preview-scroll', y }, new URL(pageUrl).origin);
     });
   };
 
   // Hidden until its tracker answers, so a page that never does (or ends up elsewhere) never shows
   return (
-    <div
-      ref={containerRef}
-      onScroll={handleScroll}
-      className='bg-card relative h-[calc(100vh-18rem)] min-h-96 overflow-auto rounded-lg border'
-    >
-      {pageHeight === null && <Skeleton className='absolute inset-0 rounded-none' />}
+    <div ref={containerRef} onScroll={handleScroll} className='relative h-full overflow-auto p-4 sm:p-6'>
+      {pageHeight === null && (
+        <div className='absolute inset-0 flex items-center justify-center'>
+          <Spinner size='sm' />
+        </div>
+      )}
       <div
-        className={cn('relative mx-auto', pageHeight === null && 'invisible')}
+        ref={pageRef}
+        className={cn('ring-border relative mx-auto shadow-xl ring-1', pageHeight === null && 'invisible')}
         style={{ width: width * scale, height: height * scale }}
       >
         <div className='sticky top-0 overflow-hidden' style={{ height: viewportHeight * scale }}>

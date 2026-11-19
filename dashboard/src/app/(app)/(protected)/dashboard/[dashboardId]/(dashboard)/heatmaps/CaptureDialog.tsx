@@ -1,17 +1,18 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
-import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { trpc } from '@/trpc/client';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
+import { SettingToggle } from '@/components/inputs/SettingToggle';
+import ExternalLink from '@/components/ExternalLink';
 import {
   Dialog,
   DialogContent,
@@ -22,18 +23,18 @@ import {
 } from '@/components/ui/dialog';
 import { createHeatmapCaptureLinkAction } from '@/app/actions/analytics/heatmapCaptures.actions';
 import { HEATMAP_CAPTURE_LINK_TTL_MS, type HeatmapCapture } from '@/entities/analytics/heatmapCaptures.entities';
-import { HEATMAP_DESKTOP_MIN_WIDTH, type HeatmapDevice } from '@/entities/analytics/clickHeatmap.entities';
+import type { HeatmapDevice } from '@/entities/analytics/clickHeatmap.entities';
 import {
   CAPTURE_WINDOW,
   captureUrl,
+  initialCaptureAddress,
   resolveCaptureTarget,
-  wildcardParts,
-  wildcardValues,
   type CaptureTarget,
   type CaptureTargetError,
 } from './captureTarget';
 
 const POLL_MS = 3000;
+const DOCS_URL = 'https://betterlytics.io/docs/dashboard/heatmaps';
 
 type CaptureDialogProps = {
   onClose: () => void;
@@ -50,18 +51,24 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
   const tDevices = useTranslations('components.heatmaps.devices');
   const dashboardId = useDashboardId();
   const { input, options } = useBAQueryParams();
-  const parts = wildcardParts(pagePath);
+  const addressRef = useRef<HTMLInputElement>(null);
 
+  const [address, setAddress] = useState(() => initialCaptureAddress(pagePath, pageCaptures));
   const [hideText, setHideText] = useState(false);
-  // The real page used last time for this page path is filled in again
-  const [values, setValues] = useState<string[]>(() => {
-    const lastCapturedFrom = pageCaptures.find((capture) => capture.capturedFromPath !== capture.path)?.capturedFromPath;
-    return lastCapturedFrom ? wildcardValues(pagePath, lastCapturedFrom) : parts.slice(1).map(() => '');
-  });
-  const [customUrl, setCustomUrl] = useState<string | null>(null);
   const [error, setError] = useState<CaptureTargetError | null>(null);
   // When the link was made: the history can be stale or hold another editor's newer capture
   const [waitingSince, setWaitingSince] = useState<number | null>(null);
+
+  // A wildcard left in the page is selected, so typing replaces it
+  const focusAddress = (event: Event) => {
+    const field = addressRef.current;
+    if (!field) return;
+    event.preventDefault();
+    field.focus();
+    const wildcard = field.value.indexOf('*');
+    if (wildcard === -1) field.setSelectionRange(field.value.length, field.value.length);
+    else field.setSelectionRange(wildcard, wildcard + 1);
+  };
 
   const originQuery = trpc.clickHeatmap.captureOrigin.useQuery(
     { ...input, url: pagePath },
@@ -114,11 +121,11 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
       pagePath,
       defaultOrigin: origin.origin,
       dashboardDomain: origin.domain,
-      values,
-      customUrl,
+      address,
     });
     if ('error' in target) {
       setError(target.error);
+      addressRef.current?.focus();
       return;
     }
     setError(null);
@@ -146,105 +153,97 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
 
   const deviceName = tDevices(device);
   const size = CAPTURE_WINDOW[device];
+  const waiting = waitingSince !== null;
+  const alert = originQuery.isError
+    ? t('errors.originFailed')
+    : error && t(`errors.${error}`, { path: pagePath, domain: originQuery.data?.domain ?? '' });
+  const note = alert || (address.includes('*') ? t('pageWildcardHint') : null);
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent
-        className='sm:max-w-lg'
+        className='sm:max-w-md'
+        onOpenAutoFocus={focusAddress}
         onInteractOutside={keepOpenWhileWaiting}
         onEscapeKeyDown={keepOpenWhileWaiting}
       >
         <DialogHeader>
           <DialogTitle>{t('title', { device: deviceName })}</DialogTitle>
-          <DialogDescription className='break-all'>{pagePath}</DialogDescription>
+          <DialogDescription>
+            {size ? t('howWindow', { width: size.width }) : t('howTab')}{' '}
+            <ExternalLink
+              href={`${DOCS_URL}#capturing-pages`}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='text-primary whitespace-nowrap hover:underline'
+            >
+              {t('learnMore')}
+            </ExternalLink>
+          </DialogDescription>
         </DialogHeader>
 
-        {waitingSince !== null ? (
-          <div className='space-y-3 text-sm'>
-            <p className='flex items-center gap-2'>
-              <Loader2 className='h-4 w-4 animate-spin' />
-              {t('waiting', { device: deviceName })}
-            </p>
-            <p className='text-muted-foreground'>{t('noScriptHint')}</p>
+        {waiting ? (
+          <div className='flex flex-col items-center gap-3 py-6 text-center'>
+            <Spinner size='sm' />
+            <div className='space-y-1'>
+              <p className='text-sm font-medium'>{t('waiting')}</p>
+              <p className='text-muted-foreground text-xs'>{t('waitingHint')}</p>
+            </div>
+            <ExternalLink
+              href={`${DOCS_URL}#troubleshooting`}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='text-primary text-xs hover:underline'
+            >
+              {t('troubleshooting')}
+            </ExternalLink>
           </div>
         ) : (
-          <div className='space-y-4 text-sm'>
-            <p>{size ? t('howWindow', { width: size.width }) : t('howTab')}</p>
-            <p className='text-muted-foreground'>{t('privacy')}</p>
-            <div className='flex items-center gap-2'>
-              <Checkbox
-                id='capture-hide-text'
-                checked={hideText}
-                onCheckedChange={(checked) => setHideText(checked === true)}
+          <div className='space-y-5'>
+            <div className='space-y-2'>
+              <Label htmlFor='capture-address'>{t('pageLabel')}</Label>
+              <Input
+                ref={addressRef}
+                id='capture-address'
+                value={address}
+                placeholder={t('pagePlaceholder')}
+                spellCheck={false}
+                aria-invalid={alert ? true : undefined}
+                aria-describedby={note ? 'capture-address-note' : undefined}
+                className='font-mono text-sm'
+                onChange={(event) => {
+                  setAddress(event.target.value);
+                  setError(null);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') handleOpen();
+                }}
               />
-              <Label htmlFor='capture-hide-text'>{t('hideText')}</Label>
+              {note && (
+                <p
+                  id='capture-address-note'
+                  role={alert ? 'alert' : undefined}
+                  className={alert ? 'text-destructive text-xs' : 'text-muted-foreground text-xs'}
+                >
+                  {note}
+                </p>
+              )}
             </div>
-
-            {customUrl === null && parts.length > 1 && (
-              <div className='space-y-2'>
-                <p className='text-muted-foreground'>{t('wildcardHelp')}</p>
-                <div className='flex flex-wrap items-center gap-1 font-mono text-xs'>
-                  {parts.map((part, index) => (
-                    <span key={index} className='flex items-center gap-1'>
-                      {index > 0 && (
-                        <Input
-                          aria-label={t('wildcardValue', { index })}
-                          className='h-8 w-32 font-mono text-xs'
-                          value={values[index - 1] ?? ''}
-                          onChange={(event) =>
-                            setValues((current) => {
-                              const next = [...current];
-                              next[index - 1] = event.target.value;
-                              return next;
-                            })
-                          }
-                        />
-                      )}
-                      {part && <span>{part}</span>}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {customUrl === null ? (
-              <Button variant='link' className='h-auto cursor-pointer p-0' onClick={() => setCustomUrl('')}>
-                {t('differentUrl')}
-              </Button>
-            ) : (
-              <div className='space-y-1'>
-                <Label htmlFor='capture-custom-url'>{t('differentUrl')}</Label>
-                <Input
-                  id='capture-custom-url'
-                  placeholder={t('differentUrlPlaceholder')}
-                  value={customUrl}
-                  onChange={(event) => setCustomUrl(event.target.value)}
-                />
-                <p className='text-muted-foreground text-xs'>{t('differentUrlHelp', { path: pagePath })}</p>
-              </div>
-            )}
-
-            <p className='text-muted-foreground text-xs'>
-              {size ? t('keepWindowSize') : t('keepWindowWide', { width: HEATMAP_DESKTOP_MIN_WIDTH })}
-            </p>
-            {error && (
-              <p className='text-destructive text-xs' role='alert'>
-                {t(`errors.${error}`, { path: pagePath, domain: originQuery.data?.domain ?? '' })}
-              </p>
-            )}
-            {originQuery.isError && (
-              <p className='text-destructive text-xs' role='alert'>
-                {t('errors.originFailed')}
-              </p>
-            )}
+            <SettingToggle
+              id='capture-hide-text'
+              label={t('hideText')}
+              description={t('hideTextHint')}
+              checked={hideText}
+              onCheckedChange={setHideText}
+            />
           </div>
         )}
 
         <DialogFooter>
           <Button variant='outline' className='cursor-pointer' onClick={onClose}>
-            {waitingSince !== null ? t('close') : t('cancel')}
+            {waiting ? t('close') : t('cancel')}
           </Button>
-          {waitingSince === null && (
+          {!waiting && (
             <Button
               className='cursor-pointer'
               onClick={handleOpen}

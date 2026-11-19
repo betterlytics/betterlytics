@@ -2,22 +2,24 @@
 
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { MousePointerClick } from 'lucide-react';
 import { trpc } from '@/trpc/client';
 import { useBAQueryParams } from '@/trpc/hooks';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { UnderlineTabs, UnderlineTabsList, UnderlineTabsTrigger } from '@/components/ui/UnderlineTabs';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import DataEmptyComponent from '@/components/DataEmptyComponent';
-import { formatPercentage } from '@/utils/formatters';
+import { DeviceIcon } from '@/components/icons';
 import {
-  HEATMAP_DEVICES,
   HeatmapDeviceSchema,
   type HeatmapDevice,
   type HeatmapDeviceShareRow,
 } from '@/entities/analytics/clickHeatmap.entities';
+import { FrameMessage, FrameSpinner, HeatmapFrame } from './HeatmapFrame';
+import { HeatmapDeviceTabs } from './HeatmapDeviceTabs';
+import { HeatmapPagePicker } from './HeatmapPagePicker';
 import { HeatmapPanel } from './HeatmapPanel';
+import { HeatmapsEmptyState } from './HeatmapsEmptyState';
 
 function useHeatmapSelection() {
   const searchParams = useSearchParams();
@@ -45,10 +47,11 @@ function pickBusiestDevice(shares: HeatmapDeviceShareRow[]): HeatmapDevice {
 
 export function HeatmapsClient() {
   const t = useTranslations('components.heatmaps');
-  const locale = useLocale();
+  const dashboardId = useDashboardId();
   const { input, options } = useBAQueryParams();
   const selection = useHeatmapSelection();
 
+  const hasDataQuery = trpc.clickHeatmap.hasData.useQuery({ dashboardId });
   const pagesQuery = trpc.clickHeatmap.pages.useQuery(input, options);
   const pages = useMemo(() => pagesQuery.data ?? [], [pagesQuery.data]);
   const selectedPath = selection.path ?? pages[0]?.url;
@@ -66,73 +69,60 @@ export function HeatmapsClient() {
     return [{ url: selectedPath, clicks: totalClicks }, ...pages];
   }, [pages, selectedPath, totalClicks]);
 
-  if (pagesQuery.isPending) {
-    return <Skeleton className='h-[calc(100vh-14rem)] min-h-96 w-full' />;
+  if (pagesQuery.isPending || (!selectedPath && hasDataQuery.isPending)) {
+    return (
+      <div className='space-y-3'>
+        <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
+          <Skeleton className='h-9 w-full sm:w-96' />
+          <Skeleton className='h-9 w-full sm:w-72' />
+        </div>
+        <HeatmapFrame>
+          <FrameSpinner />
+        </HeatmapFrame>
+      </div>
+    );
   }
 
   if (!selectedPath) {
+    if (hasDataQuery.data === false) return <HeatmapsEmptyState />;
     return (
-      <div className='bg-card rounded-lg border'>
-        <DataEmptyComponent />
-      </div>
+      <HeatmapFrame>
+        <FrameMessage
+          icon={<MousePointerClick className='h-5 w-5' />}
+          title={t('empty.noClicks')}
+          description={t('empty.widenRange')}
+        />
+      </HeatmapFrame>
     );
   }
 
   const deviceClicks = shares?.find((share) => share.device === selectedDevice)?.clicks ?? 0;
   const devicesWithClicks = shares?.filter((share) => share.clicks > 0 && share.device !== selectedDevice) ?? [];
 
-  return (
-    <div className='space-y-3'>
-      <div className='flex flex-col gap-3 md:flex-row md:items-end md:justify-between'>
-        <Select
-          value={selectedPath}
-          onValueChange={(path) => selection.setSelection({ path, device: undefined, capture: undefined })}
+  let content;
+  if (!shares || !selectedDevice) {
+    content = (
+      <HeatmapFrame>
+        <FrameSpinner />
+      </HeatmapFrame>
+    );
+  } else if (totalClicks === 0) {
+    content = (
+      <HeatmapFrame>
+        <FrameMessage
+          icon={<MousePointerClick className='h-5 w-5' />}
+          title={t('empty.noClicks')}
+          description={t('empty.widenRange')}
+        />
+      </HeatmapFrame>
+    );
+  } else if (deviceClicks === 0) {
+    content = (
+      <HeatmapFrame>
+        <FrameMessage
+          icon={<DeviceIcon type={selectedDevice} className='h-5 w-5' />}
+          title={t('empty.noDeviceClicks', { device: t(`devices.${selectedDevice}`) })}
         >
-          <SelectTrigger className='w-full md:w-96' aria-label={t('pagePicker')}>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {pageOptions.map((page) => (
-              <SelectItem key={page.url} value={page.url}>
-                <span className='truncate'>{page.url}</span>
-                <span className='text-muted-foreground ml-2 text-xs'>{t('clicks', { count: page.clicks })}</span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <UnderlineTabs
-          value={selectedDevice ?? ''}
-          onValueChange={(value) =>
-            selection.setSelection({ device: HeatmapDeviceSchema.parse(value), capture: undefined })
-          }
-        >
-          <UnderlineTabsList>
-            {HEATMAP_DEVICES.map((device) => {
-              const clicks = shares?.find((share) => share.device === device)?.clicks ?? 0;
-              const share = totalClicks > 0 ? (clicks / totalClicks) * 100 : 0;
-              return (
-                <UnderlineTabsTrigger key={device} value={device}>
-                  {t(`devices.${device}`)}
-                  <span className='text-muted-foreground ml-1.5 text-xs'>
-                    {shares ? formatPercentage(share, locale, { maximumFractionDigits: 0 }) : ''}
-                  </span>
-                </UnderlineTabsTrigger>
-              );
-            })}
-          </UnderlineTabsList>
-        </UnderlineTabs>
-      </div>
-
-      {!shares || !selectedDevice ? (
-        <Skeleton className='h-[calc(100vh-18rem)] min-h-96 w-full' />
-      ) : totalClicks === 0 ? (
-        <div className='bg-card rounded-lg border'>
-          <DataEmptyComponent />
-        </div>
-      ) : deviceClicks === 0 ? (
-        <div className='bg-card flex min-h-72 flex-col items-center justify-center gap-3 rounded-lg border p-6 text-center'>
-          <p className='text-muted-foreground'>{t('noDeviceClicks', { device: t(`devices.${selectedDevice}`) })}</p>
           <div className='flex flex-wrap justify-center gap-2'>
             {devicesWithClicks.map((share) => (
               <Button
@@ -140,21 +130,42 @@ export function HeatmapsClient() {
                 variant='outline'
                 size='sm'
                 className='cursor-pointer'
-                onClick={() => selection.setSelection({ device: share.device })}
+                onClick={() => selection.setSelection({ device: share.device, capture: undefined })}
               >
-                {t('showDevice', { device: t(`devices.${share.device}`), count: share.clicks })}
+                <DeviceIcon type={share.device} className='size-3.5' />
+                {t('empty.showDevice', { device: t(`devices.${share.device}`) })}
               </Button>
             ))}
           </div>
-        </div>
-      ) : (
-        <HeatmapPanel
-          url={selectedPath}
-          device={selectedDevice}
-          selectedCaptureId={selection.capture}
-          onSelectCapture={(capture) => selection.setSelection({ capture })}
+        </FrameMessage>
+      </HeatmapFrame>
+    );
+  } else {
+    content = (
+      <HeatmapPanel
+        url={selectedPath}
+        device={selectedDevice}
+        selectedCaptureId={selection.capture}
+        onSelectCapture={(capture) => selection.setSelection({ capture })}
+      />
+    );
+  }
+
+  return (
+    <div className='space-y-3'>
+      <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
+        <HeatmapPagePicker
+          pages={pageOptions}
+          value={selectedPath}
+          onValueChange={(path) => selection.setSelection({ path, device: undefined, capture: undefined })}
         />
-      )}
+        <HeatmapDeviceTabs
+          value={selectedDevice}
+          shares={shares}
+          onValueChange={(device) => selection.setSelection({ device, capture: undefined })}
+        />
+      </div>
+      {content}
     </div>
   );
 }

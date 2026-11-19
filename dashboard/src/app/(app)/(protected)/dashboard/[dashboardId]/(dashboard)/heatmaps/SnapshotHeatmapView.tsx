@@ -110,11 +110,13 @@ export function SnapshotHeatmapView({
   }, [events, snapshotMs, viewportWidth, anchors, size]);
 
   return (
-    <div
-      ref={containerRef}
-      className='bg-card h-[calc(100vh-18rem)] min-h-96 overflow-hidden rounded-lg border [&_.replayer-mouse]:!hidden [&_.rr-player]:!bg-transparent [&_.rr-player]:!shadow-none'
-    >
-      <div ref={frameRef} className='h-full w-full' />
+    <div className='h-full p-4 sm:p-6'>
+      <div
+        ref={containerRef}
+        className='[&_.replayer-wrapper>iframe]:ring-border h-full w-full [&_.replayer-mouse]:!hidden [&_.replayer-wrapper>iframe]:shadow-xl [&_.replayer-wrapper>iframe]:ring-1 [&_.rr-player]:!bg-transparent [&_.rr-player]:!shadow-none [&_.rr-player\_\_frame]:!overflow-visible'
+      >
+        <div ref={frameRef} className='h-full w-full' />
+      </div>
     </div>
   );
 }
