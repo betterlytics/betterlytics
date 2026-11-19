@@ -82,15 +82,18 @@ export function SnapshotHeatmapView({
     replayer.enableInteract();
 
     let cancelled = false;
-    void settled(replayer.iframe.contentDocument).then(() => {
+    void (async () => {
+      await settled(replayer.iframe.contentDocument);
+      if (cancelled) return;
+      await fitLayoutWidth(replayer.iframe, viewportWidth, () => player.triggerResize());
       const doc = replayer.iframe.contentDocument;
       if (cancelled || !doc?.documentElement) return;
       // Fixed and sticky elements are measured where they sit at the top of the page
       doc.defaultView?.scrollTo(0, 0);
       const placed = placeClicks(anchors, locateInDocument(doc));
-      drawHeatLayer(doc, placed.points, viewportWidth);
+      drawHeatLayer(doc, placed.points);
       callbacks.current.onPlaced({ unplacedFixed: placed.unplacedFixed });
-    });
+    })();
 
     return () => {
       cancelled = true;
@@ -116,15 +119,33 @@ export function SnapshotHeatmapView({
 async function settled(doc: Document | null) {
   if (!doc) return;
   await Promise.race([doc.fonts?.ready, new Promise((resolve) => setTimeout(resolve, FONTS_WAIT_MS))]);
-  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  await nextLayout();
+}
+
+function nextLayout() {
+  return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+}
+
+// The frame is sized to the recorded window with its scrollbar, which the visitor's browser may
+// have drawn narrower or not at all. Adding the viewer's own scrollbar on top lays the page out
+// at the width the clicks were recorded at.
+async function fitLayoutWidth(iframe: HTMLIFrameElement, layoutWidth: number, rescale: () => void) {
+  const view = iframe.contentWindow;
+  const root = iframe.contentDocument?.documentElement;
+  if (!view || !root) return;
+  const width = layoutWidth + view.innerWidth - root.clientWidth;
+  if (width === view.innerWidth) return;
+  iframe.setAttribute('width', String(width));
+  rescale();
+  await nextLayout();
 }
 
 // Covers the whole page, so links in the layout can't be followed while it still scrolls. A
 // canvas shows nothing in the layout's script-free sandbox, so the heat is drawn here and
 // shown there as an image.
-function drawHeatLayer(doc: Document, points: HeatmapClickPoint[], minWidth: number) {
+function drawHeatLayer(doc: Document, points: HeatmapClickPoint[]) {
   const root = doc.documentElement;
-  const width = Math.max(root.scrollWidth, minWidth);
+  const width = root.scrollWidth;
   const height = Math.min(Math.max(root.scrollHeight, 1), HEATMAP_MAX_PAGE_HEIGHT);
 
   const canvas = document.createElement('canvas');
