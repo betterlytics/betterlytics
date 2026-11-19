@@ -2,7 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { AuthContext } from '@/entities/auth/authContext.entities';
 
 vi.mock('next-intl/server', () => ({ getTranslations: vi.fn(async () => (key: string) => key) }));
-vi.mock('@/lib/env', () => ({ replayStorage: 'clickhouse', s3Env: { enabled: false, bucket: undefined } }));
+vi.mock('@/lib/env', () => ({
+  env: { DEMO_DASHBOARD_ID: 'dash-1' },
+  replayStorage: 'clickhouse',
+  s3Env: { enabled: false, bucket: undefined },
+}));
 vi.mock('@/repositories/postgres/heatmapCaptures.repository', () => ({
   createHeatmapCaptureLink: vi.fn(),
   deleteHeatmapCaptureRow: vi.fn(),
