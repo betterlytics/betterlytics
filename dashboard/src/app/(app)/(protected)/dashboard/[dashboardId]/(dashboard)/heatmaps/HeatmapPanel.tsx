@@ -12,11 +12,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
-import type { HeatmapDevice, HeatmapReplaySnapshot } from '@/entities/analytics/clickHeatmap.entities';
+import {
+  HEATMAP_DEVICE_VIEWPORT_HEIGHTS,
+  type HeatmapDevice,
+  type HeatmapReplaySnapshot,
+} from '@/entities/analytics/clickHeatmap.entities';
 import type { HeatmapCapture } from '@/entities/analytics/heatmapCaptures.entities';
 import { CaptureActions, useCaptureLabel } from './CaptureActions';
 import { CaptureDialog } from './CaptureDialog';
 import { HeatmapView } from './HeatmapView';
+import { LiveHeatmapView } from './LiveHeatmapView';
+import { pageChangedSinceCapture, snapshotWindowHeight } from './pageChanged';
 import { SnapshotHeatmapView } from './SnapshotHeatmapView';
 
 const PANEL_SKELETON = 'h-[calc(100vh-18rem)] min-h-96 w-full';
@@ -30,7 +36,8 @@ type HeatmapPanelProps = {
 
 /**
  * Picks the background for a page and device, in order: the chosen or newest capture, a
- * visitor's replay layout, then the plain canvas with a prompt to capture.
+ * visitor's replay layout, the live page when it allows framing, then the plain canvas with a
+ * prompt to capture.
  */
 export function HeatmapPanel({ url, device, selectedCaptureId, onSelectCapture }: HeatmapPanelProps) {
   const dashboardId = useDashboardId();
@@ -51,13 +58,24 @@ export function HeatmapPanel({ url, device, selectedCaptureId, onSelectCapture }
   const markUnusable = (key: string) =>
     setUnusable((current) => (current.has(key) ? current : new Set(current).add(key)));
 
-  if ((capturesQuery.isPending && !isDemo) || backgroundQuery.isPending) {
-    return <Skeleton className={PANEL_SKELETON} />;
-  }
-
   const pageCaptures = capturesQuery.data ?? [];
   const captures = pageCaptures.filter((item) => item.device === device);
   const capture = captures.find((item) => item.id === selectedCaptureId) ?? captures[0];
+  const background = backgroundQuery.data;
+  // Public views have no captures (the query stays disabled) and no live page
+  const capturesLoading = capturesQuery.isPending && !isDemo;
+  const useCapture = capture !== undefined && !unusable.has(`capture/${capture.id}`);
+  const useReplay =
+    !useCapture && background?.kind === 'replay' && !unusable.has(snapshotKey(background.snapshot));
+  const wantsLivePage = !isDemo && !capturesLoading && !backgroundQuery.isPending && !useCapture && !useReplay;
+  const livePageQuery = trpc.clickHeatmap.livePage.useQuery(
+    { ...input, url },
+    { ...options, placeholderData: undefined, enabled: wantsLivePage },
+  );
+
+  if (capturesLoading || backgroundQuery.isPending || (wantsLivePage && livePageQuery.isPending)) {
+    return <Skeleton className={PANEL_SKELETON} />;
+  }
   const actions = (
     <CaptureActions
       captures={captures}
@@ -77,8 +95,8 @@ export function HeatmapPanel({ url, device, selectedCaptureId, onSelectCapture }
   );
 
   let view: ReactNode;
-  const background = backgroundQuery.data;
-  if (capture && !unusable.has(`capture/${capture.id}`)) {
+  const livePage = livePageQuery.data;
+  if (useCapture) {
     view = (
       <CaptureHeatmap
         key={capture.id}
@@ -86,10 +104,11 @@ export function HeatmapPanel({ url, device, selectedCaptureId, onSelectCapture }
         device={device}
         capture={capture}
         actions={actions}
+        onCapture={() => setCapturing(true)}
         onUnusable={() => markUnusable(`capture/${capture.id}`)}
       />
     );
-  } else if (background?.kind === 'replay' && !unusable.has(snapshotKey(background.snapshot))) {
+  } else if (useReplay && background?.kind === 'replay') {
     const key = snapshotKey(background.snapshot);
     view = (
       <ReplayHeatmap
@@ -99,6 +118,17 @@ export function HeatmapPanel({ url, device, selectedCaptureId, onSelectCapture }
         snapshot={background.snapshot}
         actions={actions}
         onUnusable={() => markUnusable(key)}
+      />
+    );
+  } else if (livePage && !unusable.has(`live/${livePage}`)) {
+    view = (
+      <LiveHeatmap
+        key={livePage}
+        url={url}
+        device={device}
+        pageUrl={livePage}
+        actions={actions}
+        onUnusable={() => markUnusable(`live/${livePage}`)}
       />
     );
   } else {
@@ -126,6 +156,21 @@ function PanelHeader({ children, actions }: { children: ReactNode; actions: Reac
   );
 }
 
+/** A note above the heatmap, with a capture button for editors and above */
+function CaptureNotice({ message, buttonLabel, onCapture }: { message: string; buttonLabel: string; onCapture: () => void }) {
+  const { hasPermission } = useDashboardAuth();
+  return (
+    <div className='bg-muted/40 flex flex-col gap-2 rounded-md border p-3 text-sm sm:flex-row sm:items-center sm:justify-between'>
+      <p>{message}</p>
+      {hasPermission('canCaptureHeatmaps') && (
+        <Button size='sm' variant='outline' className='cursor-pointer' onClick={onCapture}>
+          {buttonLabel}
+        </Button>
+      )}
+    </div>
+  );
+}
+
 type PlainHeatmapProps = { url: string; device: HeatmapDevice; actions: ReactNode; onCapture: () => void };
 
 function PlainHeatmap({ url, device, actions, onCapture }: PlainHeatmapProps) {
@@ -145,14 +190,11 @@ function PlainHeatmap({ url, device, actions, onCapture }: PlainHeatmapProps) {
   const { width, height, points, fixedClicks } = clicksQuery.data;
   const fixedClicksNote = fixedClicks > 0 ? t('fixedClicksHidden', { count: fixedClicks }) : null;
   const prompt = (
-    <div className='bg-muted/40 flex flex-col gap-2 rounded-md border p-3 text-sm sm:flex-row sm:items-center sm:justify-between'>
-      <p>{canCapture ? t('capture.promptEditor') : t('capture.promptViewer')}</p>
-      {canCapture && (
-        <Button size='sm' variant='outline' className='cursor-pointer' onClick={onCapture}>
-          {t('capture.captureButton')}
-        </Button>
-      )}
-    </div>
+    <CaptureNotice
+      message={canCapture ? t('capture.promptEditor') : t('capture.promptViewer')}
+      buttonLabel={t('capture.captureButton')}
+      onCapture={onCapture}
+    />
   );
 
   if (points.length === 0 && fixedClicksNote) {
@@ -175,6 +217,45 @@ function PlainHeatmap({ url, device, actions, onCapture }: PlainHeatmapProps) {
       </PanelHeader>
       {prompt}
       <HeatmapView width={width} height={height} points={points} />
+    </div>
+  );
+}
+
+type LiveHeatmapProps = {
+  url: string;
+  device: HeatmapDevice;
+  pageUrl: string;
+  actions: ReactNode;
+  onUnusable: () => void;
+};
+
+function LiveHeatmap({ url, device, pageUrl, actions, onUnusable }: LiveHeatmapProps) {
+  const t = useTranslations('components.heatmaps');
+  const { input, options } = useBAQueryParams();
+  const clicksQuery = trpc.clickHeatmap.clicks.useQuery(
+    { ...input, url, device },
+    { ...options, placeholderData: undefined },
+  );
+
+  if (!clicksQuery.data) {
+    return <Skeleton className={PANEL_SKELETON} />;
+  }
+
+  const { width, points, fixedClicks } = clicksQuery.data;
+  return (
+    <div className='space-y-2'>
+      <PanelHeader actions={actions}>
+        <p>{t('livePage')}</p>
+        {fixedClicks > 0 && <p>{t('fixedClicksHidden', { count: fixedClicks })}</p>}
+      </PanelHeader>
+      <LiveHeatmapView
+        pageUrl={pageUrl}
+        pagePath={url}
+        width={width}
+        viewportHeight={HEATMAP_DEVICE_VIEWPORT_HEIGHTS[device]}
+        points={points}
+        onUnusable={onUnusable}
+      />
     </div>
   );
 }
@@ -213,6 +294,7 @@ function SnapshotBody({
   snapshotMs,
   events,
   header,
+  notice,
   actions,
   onUnusable,
 }: {
@@ -222,6 +304,7 @@ function SnapshotBody({
   snapshotMs: number;
   events: eventWithTime[] | undefined;
   header: ReactNode;
+  notice?: ReactNode;
   actions: ReactNode;
   onUnusable: () => void;
 }) {
@@ -244,6 +327,7 @@ function SnapshotBody({
         {header}
         {unplacedFixed > 0 && <p>{t('fixedClicksUnplaced', { count: unplacedFixed })}</p>}
       </PanelHeader>
+      {notice}
       <SnapshotHeatmapView
         events={events}
         snapshotMs={snapshotMs}
@@ -256,11 +340,25 @@ function SnapshotBody({
   );
 }
 
-function CaptureHeatmap({ capture, url, device, actions, onUnusable }: SnapshotSourceProps & { capture: HeatmapCapture }) {
+function CaptureHeatmap({
+  capture,
+  url,
+  device,
+  actions,
+  onCapture,
+  onUnusable,
+}: SnapshotSourceProps & { capture: HeatmapCapture; onCapture: () => void }) {
+  const t = useTranslations('components.heatmaps.capture');
   const dashboardId = useDashboardId();
+  const { input, options } = useBAQueryParams();
   const label = useCaptureLabel();
   const href = `/api/heatmap/captures/${encodeURIComponent(capture.id)}?${new URLSearchParams({ dashboardId })}`;
   const events = useSnapshotEvents(['heatmap-capture', dashboardId, capture.id], href, onUnusable);
+  const pageHeightQuery = trpc.clickHeatmap.pageHeightSince.useQuery(
+    { ...input, url, device, width: capture.viewportWidth, capturedAt: capture.createdAt },
+    { ...options, placeholderData: undefined },
+  );
+  const pageChanged = pageChangedSinceCapture(capture, snapshotWindowHeight(events), pageHeightQuery.data);
 
   return (
     <SnapshotBody
@@ -270,6 +368,11 @@ function CaptureHeatmap({ capture, url, device, actions, onUnusable }: SnapshotS
       snapshotMs={NaN}
       events={events}
       header={<p>{label(capture)}</p>}
+      notice={
+        pageChanged && (
+          <CaptureNotice message={t('pageChanged')} buttonLabel={t('recaptureButton')} onCapture={onCapture} />
+        )
+      }
       actions={actions}
       onUnusable={onUnusable}
     />

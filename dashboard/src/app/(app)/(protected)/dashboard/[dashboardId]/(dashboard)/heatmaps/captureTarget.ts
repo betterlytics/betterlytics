@@ -1,4 +1,8 @@
-import { HEATMAP_DEVICE_WIDTHS, type HeatmapDevice } from '@/entities/analytics/clickHeatmap.entities';
+import {
+  HEATMAP_DEVICE_VIEWPORT_HEIGHTS,
+  HEATMAP_DEVICE_WIDTHS,
+  type HeatmapDevice,
+} from '@/entities/analytics/clickHeatmap.entities';
 import { matchPagePath, matchesPagePath, pathnameOf } from '@/utils/heatmapPagePath';
 import { isUrlOnDomain } from '@/utils/domainValidation';
 
@@ -69,6 +73,6 @@ export function captureUrl(target: CaptureTarget, token: string, hideText: boole
 // Tablet and phone layouts need a window of that width; desktop uses the editor's own window
 export const CAPTURE_WINDOW: Record<HeatmapDevice, { width: number; height: number } | null> = {
   desktop: null,
-  tablet: { width: HEATMAP_DEVICE_WIDTHS.tablet, height: 1024 },
-  mobile: { width: HEATMAP_DEVICE_WIDTHS.mobile, height: 844 },
+  tablet: { width: HEATMAP_DEVICE_WIDTHS.tablet, height: HEATMAP_DEVICE_VIEWPORT_HEIGHTS.tablet },
+  mobile: { width: HEATMAP_DEVICE_WIDTHS.mobile, height: HEATMAP_DEVICE_VIEWPORT_HEIGHTS.mobile },
 };

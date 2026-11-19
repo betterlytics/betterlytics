@@ -1,0 +1,91 @@
+---
+title: "Heatmaps"
+description: "Enable click heatmaps with Betterlytics: the script attribute, sampling, stable element ids, what is collected, and Content-Security-Policy."
+---
+
+import { Callout } from "nextra/components";
+
+# Heatmaps Integration
+
+Heatmaps show where visitors click on each page, split by device. Turn them on with one attribute on the tracking script, then open **Heatmaps** in your dashboard. Reading heatmaps and capturing page layouts is covered in the [Heatmaps dashboard guide](/dashboard/heatmaps).
+
+## Quick start
+
+Heatmaps are off by default. Add `data-heatmaps="true"` to your analytics script:
+
+```html
+<script
+  async
+  src="https://betterlytics.io/analytics.js"
+  data-site-id="your-site-id"
+  data-heatmaps="true"
+></script>
+```
+
+Clicks are sent when a visitor leaves the page or switches tabs, and then show up on the Heatmaps page.
+
+<Callout type="info">
+Self-hosting? Load `analytics.js` from your instance and send events to it. [Tracking Scripts](/installation/self-hosting#tracking-scripts) in the Self-Hosting guide shows the two changes.
+</Callout>
+
+<Callout type="info">
+The [`@betterlytics/tracker`](https://www.npmjs.com/package/@betterlytics/tracker) npm package has no heatmaps option yet. Use the script tag for heatmaps.
+</Callout>
+
+### Configuration reference
+
+| Attribute | Type | Default | Description |
+| --- | --- | --- | --- |
+| `data-heatmaps` | boolean | `false` | Records clicks for heatmaps. |
+| `data-heatmap-sample` | number (0 to 100) | `100` | Percent of page views that record clicks. |
+| `data-dynamic-urls` | string list | - | Groups pages such as `/product/*` into one heatmap, the same way as for pageviews. See [Dynamic URLs](/integration/dynamic-urls). |
+| `data-scripts-base-url` | string (URL) | Origin of `analytics.js` | Base to load `heatmap.js` from. |
+
+## How clicks are recorded
+
+- Sampling is decided per page view. Only a sampled page view downloads the small `heatmap.js` script.
+- Clicks are sent in batches when the visitor leaves the page or switches tabs, to the server your events go to (the origin of `data-server-url`).
+- A page view records at most 300 clicks, and at most 300 are stored per session. Automated browsers are skipped.
+- Each click is stored with the page path (without query string or hash), the device and the visitor's session, like a pageview. The device comes from the window width: Mobile under 576 px, Tablet from 576 to 991 px, Desktop from 992 px.
+- Clicks are kept as long as your other analytics data.
+
+## What is collected
+
+For each click, the tracker sends:
+
+- where on the page the click landed, with the window width and the page's full height
+- a CSS selector for the clicked element, and where inside the element the click landed
+- whether the element is fixed or sticky, such as a header that stays on screen
+- the page address and screen size, as with a pageview, and when each click happened
+
+Heatmaps never collect text from the page, input values, keystrokes or screenshots. They have no consent switch of their own: clicks belong to the same session as the page view and carry no page content.
+
+## Stable element ids
+
+Clicks are tied to the element that was clicked, so they stay on the right button when content above it moves or the layout is shown at another width. The tracker describes each element with the shortest selector that matches only that element, and prefers an `id` attribute when there is one.
+
+Give the elements you care about, such as calls to action, navigation links and form buttons, a plain `id` that stays the same on every page load:
+
+```html
+<button id="signup-cta">Start free trial</button>
+```
+
+Ids generated at runtime, such as React's `useId()` output (`:r1:` or `«r1»`), change between page loads and are skipped. Without an id, the selector falls back to tag names and up to two class names, which can stop matching when classes or the page structure change. A click on an element that no selector of up to 200 characters picks out on its own isn't recorded.
+
+## Content-Security-Policy
+
+`heatmap.js` loads from the same origin as `analytics.js` (or from `data-scripts-base-url`), and clicks are sent to your event server, the origin of `data-server-url`. Capturing a page from the dashboard loads `replay.js` the same way and uploads the capture to the event server. If your site sets a Content-Security-Policy, allow those origins in `script-src` and `connect-src`: `https://betterlytics.io` for the hosted service, or your instance's origin when [self-hosting](/installation/self-hosting#content-security-policy).
+
+### Showing your live page
+
+When a page has no capture or replay layout yet, the Heatmaps page can show your live page in a frame behind the clicks. That only works when your site lets the dashboard frame it: either a CSP `frame-ancestors` directive that includes `https://betterlytics.io` (or your instance's origin), or no `frame-ancestors` and no `X-Frame-Options` of `DENY` or `SAMEORIGIN`. Pages grouped with `data-dynamic-urls` never get a live page, since the pattern isn't one real page. Otherwise the dashboard asks for a capture instead. The framed page runs `analytics.js` in a preview mode that records nothing.
+
+## Troubleshooting
+
+- **No clicks appear:** clicks are sent when you leave the page or switch tabs, so switch away from your site before checking. Then check that `data-heatmaps="true"` is on the script tag that loads `analytics.js`, that `data-heatmap-sample` isn't `0`, and that `heatmap.js` loads in your browser's Network tab. A blocked script shows up as a CSP violation in the Console.
+- **Clicks are off on a captured page:** give the clicked element a stable `id`, see [Stable element ids](#stable-element-ids).
+- **One page shows up as many:** pages with ids or slugs in the path, such as `/product/123`, get a heatmap each. Group them with `data-dynamic-urls`.
+
+---
+
+**Next steps**: Read heatmaps and capture page layouts in the [Heatmaps dashboard guide](/dashboard/heatmaps).

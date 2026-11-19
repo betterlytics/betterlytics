@@ -6,9 +6,11 @@ import {
   getHeatmapDeviceShares,
   getHeatmapPageStats,
   getHeatmapPages,
+  getHeatmapSessionHeights,
   getMostVisitedHost,
   hasHeatmapClicks,
 } from '@/repositories/clickhouse/clickHeatmap.repository';
+import { toDateTimeString } from '@/utils/dateFormatters';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { findLatestReplaySnapshot } from '@/repositories/clickhouse/replaySnapshots.repository';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
@@ -61,6 +63,33 @@ export async function getHeatmapClicksForPage(
   return { width, height, points, fixedClicks };
 }
 
+// Layouts change height with the width, so only visitors near the capture's width compare
+const PAGE_HEIGHT_WIDTH_TOLERANCE = 0.1;
+const MIN_PAGE_HEIGHT_SESSIONS = 5;
+
+/**
+ * The median document height visitors near a capture's width saw since it was taken, within the
+ * selected period. Null when the period ends before the capture or too few sessions clicked.
+ */
+export async function getHeatmapPageHeightSince(
+  siteQuery: BASiteQuery,
+  url: string,
+  device: HeatmapDevice,
+  width: number,
+  capturedAt: Date,
+): Promise<number | null> {
+  const capturedAtDateTime = toDateTimeString(capturedAt);
+  const start = capturedAtDateTime > siteQuery.startDateTime ? capturedAtDateTime : siteQuery.startDateTime;
+  if (start > siteQuery.endDateTime) return null;
+
+  const widthRange = {
+    min: Math.floor(width * (1 - PAGE_HEIGHT_WIDTH_TOLERANCE)),
+    max: Math.ceil(width * (1 + PAGE_HEIGHT_WIDTH_TOLERANCE)),
+  };
+  const { documentHeight, sessions } = await getHeatmapSessionHeights(siteQuery, url, device, widthRange, start);
+  return sessions >= MIN_PAGE_HEIGHT_SESSIONS && documentHeight > 0 ? documentHeight : null;
+}
+
 export async function getHeatmapBackground(
   siteQuery: BASiteQuery,
   url: string,
@@ -78,9 +107,19 @@ const LOCAL_HOST = /^(localhost|127\.0\.0\.1|\[::1\])$|\.localhost$/;
  * different address on the dashboard's domain can be entered in the capture dialog.
  */
 export async function getCaptureOrigin(siteQuery: BASiteQuery, dashboardId: string, url: string) {
+  const { origin, domain } = await getVisitedOrigin(siteQuery, dashboardId, url);
+  return { origin: origin ?? originOf(domain), domain };
+}
+
+/** The origin on the dashboard's domain that visitors opened a page on most, or null without any */
+export async function getVisitedOrigin(siteQuery: BASiteQuery, dashboardId: string, url: string) {
   const dashboard = await findDashboardById(dashboardId);
-  const host = (await getMostVisitedHost(siteQuery, url, dashboard.domain)) ?? dashboard.domain;
-  return { origin: `${LOCAL_HOST.test(host) ? 'http' : 'https'}://${host}`, domain: dashboard.domain };
+  const host = await getMostVisitedHost(siteQuery, url, dashboard.domain);
+  return { origin: host ? originOf(host) : null, domain: dashboard.domain };
+}
+
+function originOf(host: string) {
+  return `${LOCAL_HOST.test(host) ? 'http' : 'https'}://${host}`;
 }
 
 export async function getHeatmapClickAnchorsForPage(
