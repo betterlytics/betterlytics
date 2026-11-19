@@ -4023,7 +4023,6 @@
         "learnMore": "Læs mere",
         "pageLabel": "Side",
         "pagePlaceholder": "/sti?forespørgsel eller https://...",
-        "pageWildcardHint": "Erstat * med en del af en rigtig sides adresse.",
         "hideText": "Skjul tekst",
         "hideTextHint": "Skjuler al tekst, til sider der viser dine kontooplysninger.",
         "errors": {

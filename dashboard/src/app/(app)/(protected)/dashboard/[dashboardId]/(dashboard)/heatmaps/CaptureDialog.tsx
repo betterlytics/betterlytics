@@ -116,7 +116,7 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
   // The window opens inside the click so pop-up blockers allow it; the link fills it in after
   const handleOpen = () => {
     const origin = originQuery.data;
-    if (!origin) return;
+    if (!origin || createLink.isPending || waitingSince !== null) return;
     const target = resolveCaptureTarget({
       pagePath,
       defaultOrigin: origin.origin,
@@ -157,7 +157,7 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
   const alert = originQuery.isError
     ? t('errors.originFailed')
     : error && t(`errors.${error}`, { path: pagePath, domain: originQuery.data?.domain ?? '' });
-  const note = alert || (address.includes('*') ? t('pageWildcardHint') : null);
+  const note = alert || (address.includes('*') ? t('errors.wildcard') : null);
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>

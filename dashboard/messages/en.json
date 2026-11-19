@@ -4023,7 +4023,6 @@
         "learnMore": "Learn more",
         "pageLabel": "Page",
         "pagePlaceholder": "/path?query or https://...",
-        "pageWildcardHint": "Replace * with part of a real page address.",
         "hideText": "Hide text",
         "hideTextHint": "Masks all text, for pages that show your account details.",
         "errors": {

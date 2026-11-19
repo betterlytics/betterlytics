@@ -4023,7 +4023,6 @@
         "learnMore": "Scopri di più",
         "pageLabel": "Pagina",
         "pagePlaceholder": "/percorso?query o https://...",
-        "pageWildcardHint": "Sostituisci * con parte dell'indirizzo di una pagina reale.",
         "hideText": "Nascondi il testo",
         "hideTextHint": "Nasconde tutto il testo, per le pagine che mostrano i dati del tuo account.",
         "errors": {

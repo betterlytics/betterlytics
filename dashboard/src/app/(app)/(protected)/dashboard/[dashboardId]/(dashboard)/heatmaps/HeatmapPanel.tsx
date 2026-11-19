@@ -20,7 +20,7 @@ import {
 import type { HeatmapCapture } from '@/entities/analytics/heatmapCaptures.entities';
 import { CaptureButton, CaptureHistoryMenu, useCaptureDetails } from './CaptureActions';
 import { CaptureDialog } from './CaptureDialog';
-import { FrameBadge, FrameLabel, FrameSpinner, HeatmapFrame } from './HeatmapFrame';
+import { FrameBadge, FrameLabel, FrameMessage, FrameSpinner, HeatmapFrame } from './HeatmapFrame';
 import { HeatmapView } from './HeatmapView';
 import { LiveHeatmapView } from './LiveHeatmapView';
 import { pageChangedSinceCapture, snapshotWindowHeight } from './pageChanged';
@@ -82,11 +82,11 @@ export function HeatmapPanel({ url, device, selectedCaptureId, onSelectCapture }
   }
 
   const openCapture = () => setCapturing(true);
-  // Captures that failed to load stay reachable, to pick another one or delete them
-  const history = !useCapture && captures.length > 0 && (
+  // A capture that failed to load stays reachable, to pick another one or delete it
+  const history = !useCapture && capture && (
     <CaptureHistoryMenu
       captures={captures}
-      shownCaptureId={undefined}
+      shownCaptureId={capture.id}
       onSelect={onSelectCapture}
       trigger={
         <Button variant='ghost' size='sm' className='h-7 cursor-pointer gap-1.5 px-2 text-xs'>
@@ -193,7 +193,7 @@ function PlainHeatmap({ url, device, actions }: PlainHeatmapProps) {
             label={t('source.none')}
             hint={hasPermission('canCaptureHeatmaps') ? t('source.noneHintEditor') : t('source.noneHintViewer')}
           />
-          {clicks && (
+          {clicks && clicks.points.length > 0 && (
             <HiddenClicksBadge
               count={clicks.fixedClicks}
               hint={t('fixedClicksHidden', { count: clicks.fixedClicks })}
@@ -203,10 +203,15 @@ function PlainHeatmap({ url, device, actions }: PlainHeatmapProps) {
       }
       actions={actions}
     >
-      {clicks ? (
-        <HeatmapView width={clicks.width} height={clicks.height} points={clicks.points} />
-      ) : (
+      {!clicks ? (
         <FrameSpinner />
+      ) : clicks.points.length === 0 ? (
+        <FrameMessage
+          icon={<EyeOff className='h-5 w-5' />}
+          title={t('fixedClicksHidden', { count: clicks.fixedClicks })}
+        />
+      ) : (
+        <HeatmapView width={clicks.width} height={clicks.height} points={clicks.points} />
       )}
     </HeatmapFrame>
   );
