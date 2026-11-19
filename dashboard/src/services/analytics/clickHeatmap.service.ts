@@ -119,11 +119,11 @@ export async function getVisitedOrigin(siteQuery: BASiteQuery, dashboardId: stri
   return { origin: host ? originOf(host) : null, domain: dashboard.domain };
 }
 
-// In development the local pages are the dashboard's own (dashboard tracking), so they get its port
+// In development, pages on the dashboard's own host (dashboard tracking) open on its port
 function originOf(host: string) {
-  if (!LOCAL_HOST.test(host)) return `https://${host}`;
-  const port = env.IS_DEVELOPMENT ? new URL(env.PUBLIC_BASE_URL).port : '';
-  return `http://${host}${port ? `:${port}` : ''}`;
+  const base = new URL(env.PUBLIC_BASE_URL);
+  if (env.IS_DEVELOPMENT && host === base.hostname) return base.origin;
+  return `${LOCAL_HOST.test(host) ? 'http' : 'https'}://${host}`;
 }
 
 export async function getHeatmapClickAnchorsForPage(

@@ -204,12 +204,22 @@ describe('getCaptureOrigin', () => {
       mockEnv.IS_DEVELOPMENT = false;
     });
 
-    it("gives local hosts the dashboard's port", async () => {
+    it("opens the dashboard's own host on its port", async () => {
       vi.mocked(getMostVisitedHost).mockResolvedValue('run-3.localhost');
       vi.mocked(findDashboardById).mockResolvedValue(dashboard('localhost'));
 
       await expect(getCaptureOrigin(siteQuery, 'dash', '/pricing')).resolves.toEqual({
         origin: 'http://run-3.localhost:3020',
+        domain: 'localhost',
+      });
+    });
+
+    it("doesn't give the dashboard's port to another local host", async () => {
+      vi.mocked(getMostVisitedHost).mockResolvedValue(null);
+      vi.mocked(findDashboardById).mockResolvedValue(dashboard('localhost'));
+
+      await expect(getCaptureOrigin(siteQuery, 'dash', '/pricing')).resolves.toEqual({
+        origin: 'http://localhost',
         domain: 'localhost',
       });
     });
