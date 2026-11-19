@@ -300,6 +300,9 @@
     } catch (e) {
       return;
     }
+    // The heat is drawn at the frame's full width, the width visitors' clicks were recorded at,
+    // so the page's own scrollbar must not take any of it. The dashboard scrolls the frame.
+    document.documentElement.style.setProperty("scrollbar-width", "none", "important");
     function report() {
       window.parent.postMessage(
         {
