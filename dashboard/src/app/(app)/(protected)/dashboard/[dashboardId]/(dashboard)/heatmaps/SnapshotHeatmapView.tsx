@@ -23,6 +23,9 @@ const FONTS_WAIT_MS = 1500;
 const SETTLE_ANIMATIONS =
   '*, *::before, *::after { animation-duration: 0s !important; animation-delay: 0s !important; }';
 
+// Images still load after the layout width is fitted; a scrollbar appearing then would narrow it
+const RESERVE_SCROLLBAR = 'html { scrollbar-gutter: stable !important; }';
+
 type SnapshotHeatmapViewProps = {
   events: eventWithTime[];
   snapshotMs: number;
@@ -73,7 +76,7 @@ export function SnapshotHeatmapView({
         mouseTail: false,
         skipInactive: false,
         pauseAnimation: false,
-        insertStyleRules: [SETTLE_ANIMATIONS],
+        insertStyleRules: [SETTLE_ANIMATIONS, RESERVE_SCROLLBAR],
       },
     });
     // Pausing just past the last event applies all of them; events at the pause time itself wait
