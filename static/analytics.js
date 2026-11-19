@@ -58,17 +58,7 @@
   var CAPTURE_STORAGE_KEY = "betterlytics:capture";
   var captureLink = takeCaptureLink();
   if (captureLink) {
-    // The site's own calls keep working, but nothing is sent
-    var noop = function () {};
-    window.betterlytics = {
-      event: noop,
-      setGlobalProperties: noop,
-      clearGlobalProperties: noop,
-      getGlobalProperties: function () {
-        return {};
-      },
-      setReplayConsent: noop,
-    };
+    silenceApi();
     window.__betterlytics_capture__ = {
       token: captureLink.token,
       hideText: captureLink.hideText,
@@ -85,6 +75,14 @@
         "Betterlytics: the heatmap capture could not start because replay.js did not load (blocked by the page's Content-Security-Policy or an extension?)",
       );
     });
+    return;
+  }
+
+  // The Heatmaps page frames the live page with #bl-preview: track nothing, and tell the
+  // dashboard how tall the page is and which page the frame ended up on
+  if (window.location.hash === "#bl-preview" && window.parent !== window) {
+    silenceApi();
+    startPreview();
     return;
   }
 
@@ -276,6 +274,65 @@
 
   for (var i = 0; i < queuedEvents.length; i++) {
     window.betterlytics.event.apply(this, queuedEvents[i]);
+  }
+
+  // The site's own calls keep working while nothing is sent
+  function silenceApi() {
+    var noop = function () {};
+    window.betterlytics = {
+      event: noop,
+      setGlobalProperties: noop,
+      clearGlobalProperties: noop,
+      getGlobalProperties: function () {
+        return {};
+      },
+      setReplayConsent: noop,
+    };
+  }
+
+  // Messages go only to the dashboard, the origin this script is served from, since the page's
+  // height and path can tell another site something about the visitor
+  function startPreview() {
+    var dashboardOrigin;
+    try {
+      dashboardOrigin = new URL(scriptsBaseUrl).origin;
+    } catch (e) {
+      return;
+    }
+    function report() {
+      window.parent.postMessage(
+        {
+          type: "betterlytics:preview",
+          height: getDocumentHeight(),
+          path: window.location.pathname,
+        },
+        dashboardOrigin,
+      );
+    }
+    // The frame keeps a visitor's window height and is scrolled along with the heatmap
+    window.addEventListener("message", function (event) {
+      if (event.source !== window.parent || event.origin !== dashboardOrigin) {
+        return;
+      }
+      var data = event.data;
+      if (
+        !data ||
+        data.type !== "betterlytics:preview-scroll" ||
+        typeof data.y !== "number"
+      ) {
+        return;
+      }
+      window.scrollTo({ top: data.y, behavior: "instant" });
+      // Scrolling can load more of the page
+      report();
+    });
+    report();
+    // Late content keeps changing the height for a while after load
+    var reports = 0;
+    var timer = setInterval(function () {
+      report();
+      if (++reports >= 20) clearInterval(timer);
+    }, 500);
   }
 
   // The link's token is removed from the address bar right away, so it isn't shared or

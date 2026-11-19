@@ -12,6 +12,16 @@ export const HEATMAP_DEVICE_WIDTHS: Record<HeatmapDevice, number> = {
   mobile: 390,
 };
 
+// A typical window height per device, for pages shown the way visitors saw them
+export const HEATMAP_DEVICE_VIEWPORT_HEIGHTS: Record<HeatmapDevice, number> = {
+  desktop: 900,
+  tablet: 1024,
+  mobile: 844,
+};
+
+// The backend's device buckets by viewport width: mobile under 576, tablet up to 991
+export const HEATMAP_DESKTOP_MIN_WIDTH = 992;
+
 export const HEATMAP_MAX_PAGE_HEIGHT = 20000;
 
 export const HEATMAP_POINT_CELL_PX = 4;
@@ -44,6 +54,13 @@ export const HeatmapPageStatsRowSchema = z.object({
 });
 
 export type HeatmapPageStatsRow = z.infer<typeof HeatmapPageStatsRowSchema>;
+
+export const HeatmapSessionHeightsRowSchema = z.object({
+  documentHeight: z.coerce.number(),
+  sessions: z.coerce.number(),
+});
+
+export type HeatmapSessionHeightsRow = z.infer<typeof HeatmapSessionHeightsRowSchema>;
 
 export type HeatmapClicks = {
   width: number;
