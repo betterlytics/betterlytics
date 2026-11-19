@@ -17,6 +17,12 @@ import { snapshotEvents } from './snapshotEvents';
 
 const FONTS_WAIT_MS = 1500;
 
+// The paused player would freeze CSS animations at their first frame, which hides anything that
+// fades in. A zero duration jumps entrances to their end state and stops loops, so clicks are
+// placed on the settled layout.
+const SETTLE_ANIMATIONS =
+  '*, *::before, *::after { animation-duration: 0s !important; animation-delay: 0s !important; }';
+
 type SnapshotHeatmapViewProps = {
   events: eventWithTime[];
   snapshotMs: number;
@@ -66,6 +72,8 @@ export function SnapshotHeatmapView({
         maxScale: 1,
         mouseTail: false,
         skipInactive: false,
+        pauseAnimation: false,
+        insertStyleRules: [SETTLE_ANIMATIONS],
       },
     });
     // Pausing just past the last event applies all of them; events at the pause time itself wait
