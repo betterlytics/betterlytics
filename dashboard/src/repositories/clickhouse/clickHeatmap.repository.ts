@@ -141,7 +141,9 @@ export async function getHeatmapClickPoints(
 }
 
 // Offsets are rounded to 5% of the element so clicks from different window widths share a
-// row; the group's average page position is where it is drawn without its element
+// row; the group's average page position is where it is drawn without its element. 5% of the
+// whole page is too coarse, so clicks on the page itself (html or body) are grouped by page
+// position instead and come without a selector.
 export async function getHeatmapClickAnchors(
   siteQuery: BASiteQuery,
   url: string,
@@ -153,20 +155,32 @@ export async function getHeatmapClickAnchors(
 
   const query = safeSql`
     SELECT
-      selector,
-      round(offset_x * 20) / 20 AS offsetX,
-      round(offset_y * 20) / 20 AS offsetY,
-      round(avg(page_x * {width:UInt32} / greatest(viewport_width, 1))) AS x,
+      anchor AS selector,
+      offsetX,
+      offsetY,
+      round(avg(scaledX)) AS x,
       round(avg(page_y)) AS y,
-      toUInt8(is_fixed) AS fixed,
+      fixed,
       count() AS count
-    FROM analytics.heatmap_clicks
-    WHERE site_id = {site_id:String}
-      AND device = {device:String}
-      AND url = {url:String}
-      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-      AND page_y < {max_height:UInt32}
-    GROUP BY selector, offsetX, offsetY, fixed
+    FROM (
+      SELECT
+        match(selector, '^(html|body)([.#][^ ]*)?$') AS onPage,
+        if(onPage, '', selector) AS anchor,
+        if(onPage, 0, round(offset_x * 20) / 20) AS offsetX,
+        if(onPage, 0, round(offset_y * 20) / 20) AS offsetY,
+        page_x * {width:UInt32} / greatest(viewport_width, 1) AS scaledX,
+        page_y,
+        if(onPage, intDiv(toUInt32(round(scaledX)), {cell:UInt32}), 0) AS cellX,
+        if(onPage, intDiv(page_y, {cell:UInt32}), 0) AS cellY,
+        toUInt8(is_fixed) AS fixed
+      FROM analytics.heatmap_clicks
+      WHERE site_id = {site_id:String}
+        AND device = {device:String}
+        AND url = {url:String}
+        AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+        AND page_y < {max_height:UInt32}
+    )
+    GROUP BY selector, offsetX, offsetY, cellX, cellY, fixed
     ORDER BY count DESC
     LIMIT {limit:UInt32}
   `;
@@ -179,6 +193,7 @@ export async function getHeatmapClickAnchors(
         device,
         url,
         width,
+        cell: HEATMAP_POINT_CELL_PX,
         max_height: maxHeight,
         start_date: startDateTime,
         end_date: endDateTime,
