@@ -170,25 +170,28 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
         <DialogHeader>
           <DialogTitle>{t('title', { device: deviceName })}</DialogTitle>
           <DialogDescription>
-            {size ? t('howWindow', { width: size.width }) : t('howTab')}{' '}
-            <ExternalLink
-              href={`${DOCS_URL}#capturing-pages`}
-              target='_blank'
-              rel='noopener noreferrer'
-              className='text-primary whitespace-nowrap hover:underline'
-            >
-              {t('learnMore')}
-            </ExternalLink>
+            {waiting ? (
+              t('waitingHint')
+            ) : (
+              <>
+                {size ? t('howWindow', { width: size.width }) : t('howTab')}{' '}
+                <ExternalLink
+                  href={`${DOCS_URL}#capturing-pages`}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='text-primary whitespace-nowrap hover:underline'
+                >
+                  {t('learnMore')}
+                </ExternalLink>
+              </>
+            )}
           </DialogDescription>
         </DialogHeader>
 
         {waiting ? (
           <div className='flex flex-col items-center gap-3 py-6 text-center'>
             <Spinner size='sm' />
-            <div className='space-y-1'>
-              <p className='text-sm font-medium'>{t('waiting')}</p>
-              <p className='text-muted-foreground text-xs'>{t('waitingHint')}</p>
-            </div>
+            <p className='text-sm font-medium'>{t('waiting')}</p>
             <ExternalLink
               href={`${DOCS_URL}#troubleshooting`}
               target='_blank'

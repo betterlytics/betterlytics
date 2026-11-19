@@ -83,34 +83,42 @@ export function LiveHeatmapView({ pageUrl, pagePath, width, viewportHeight, poin
 
   // Hidden until its tracker answers, so a page that never does (or ends up elsewhere) never shows
   return (
-    <div ref={containerRef} onScroll={handleScroll} className='relative h-full overflow-auto p-4 sm:p-6'>
-      {pageHeight === null && (
-        <div className='absolute inset-0 flex items-center justify-center'>
-          <Spinner size='sm' />
-        </div>
-      )}
-      <div
-        className={cn('ring-border relative mx-auto shadow-xl ring-1', pageHeight === null && 'invisible')}
-        style={{ width: width * scale, height: height * scale }}
-      >
-        <div className='sticky top-0 overflow-hidden' style={{ height: viewportHeight * scale }}>
-          <div className='origin-top-left' style={{ width, height: viewportHeight, transform: `scale(${scale})` }}>
-            <iframe
-              ref={frameRef}
-              src={`${pageUrl}#bl-preview`}
-              title={pagePath}
-              sandbox='allow-scripts allow-same-origin'
-              referrerPolicy='no-referrer'
-              className='pointer-events-none block border-0 bg-white'
-              style={{ width, height: viewportHeight }}
-            />
+    <div className='h-full p-4 sm:p-6'>
+      <div ref={containerRef} onScroll={handleScroll} className='relative h-full overflow-auto'>
+        {pageHeight === null && (
+          <div className='absolute inset-0 flex items-center justify-center'>
+            <Spinner size='sm' />
           </div>
-        </div>
+        )}
         <div
-          className='pointer-events-none absolute top-0 left-0 origin-top-left'
-          style={{ width, height, transform: `scale(${scale})` }}
+          className={cn(
+            'ring-border relative mx-auto bg-white shadow-xl ring-1',
+            pageHeight === null && 'invisible',
+          )}
+          style={{ width: width * scale, height: height * scale }}
         >
-          <canvas ref={canvasRef} className='absolute inset-0 h-full w-full' />
+          <div className='sticky top-0 overflow-hidden' style={{ height: viewportHeight * scale }}>
+            <div
+              className='origin-top-left'
+              style={{ width, height: viewportHeight, transform: `scale(${scale})` }}
+            >
+              <iframe
+                ref={frameRef}
+                src={`${pageUrl}#bl-preview`}
+                title={pagePath}
+                sandbox='allow-scripts allow-same-origin'
+                referrerPolicy='no-referrer'
+                className='pointer-events-none block border-0 bg-white'
+                style={{ width, height: viewportHeight }}
+              />
+            </div>
+          </div>
+          <div
+            className='pointer-events-none absolute top-0 left-0 origin-top-left'
+            style={{ width, height, transform: `scale(${scale})` }}
+          >
+            <canvas ref={canvasRef} className='absolute inset-0 h-full w-full' />
+          </div>
         </div>
       </div>
     </div>

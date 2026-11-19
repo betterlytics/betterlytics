@@ -183,6 +183,7 @@ function PlainHeatmap({ url, device, actions }: PlainHeatmapProps) {
   const t = useTranslations('components.heatmaps');
   const { hasPermission } = useDashboardAuth();
   const clicks = useHeatmapClicks(url, device);
+  const allFixed = clicks !== undefined && clicks.points.length === 0 && clicks.fixedClicks > 0;
 
   return (
     <HeatmapFrame
@@ -193,7 +194,7 @@ function PlainHeatmap({ url, device, actions }: PlainHeatmapProps) {
             label={t('source.none')}
             hint={hasPermission('canCaptureHeatmaps') ? t('source.noneHintEditor') : t('source.noneHintViewer')}
           />
-          {clicks && clicks.points.length > 0 && (
+          {clicks && !allFixed && (
             <HiddenClicksBadge
               count={clicks.fixedClicks}
               hint={t('fixedClicksHidden', { count: clicks.fixedClicks })}
@@ -205,7 +206,7 @@ function PlainHeatmap({ url, device, actions }: PlainHeatmapProps) {
     >
       {!clicks ? (
         <FrameSpinner />
-      ) : clicks.points.length === 0 ? (
+      ) : allFixed ? (
         <FrameMessage
           icon={<EyeOff className='h-5 w-5' />}
           title={t('fixedClicksHidden', { count: clicks.fixedClicks })}
