@@ -1,7 +1,7 @@
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { postJsonGuarded } from './outbound-request';
+import { fetchResponseHeadGuarded, postJsonGuarded } from './outbound-request';
 
 describe('postJsonGuarded', () => {
   let server: Server;
@@ -47,5 +47,51 @@ describe('postJsonGuarded', () => {
       'Blocked scheme',
     );
     expect(resolver).not.toHaveBeenCalled();
+  });
+});
+
+describe('fetchResponseHeadGuarded', () => {
+  const options = {
+    allowPrivateTargets: false,
+    deadlineMs: 5000,
+    allowUrl: (url: URL) => url.hostname.endsWith('example.com'),
+  };
+
+  // Each hop's socket is replaced, so the redirect handling is tested on its own
+  function redirectsThen(final: number, ...locations: string[]) {
+    const queue = [...locations];
+    return vi.fn<(url: URL) => Promise<{ status: number; headers: { location?: string } }>>(async () => {
+      const location = queue.shift();
+      return location ? { status: 302, headers: { location } } : { status: final, headers: {} };
+    });
+  }
+
+  it('follows a relative redirect from the address it came from', async () => {
+    const send = redirectsThen(200, '/pricing/');
+
+    await expect(fetchResponseHeadGuarded('https://www.example.com/pricing', options, send)).resolves.toMatchObject({
+      status: 200,
+    });
+    expect(send.mock.calls.map(([url]) => url.href)).toEqual([
+      'https://www.example.com/pricing',
+      'https://www.example.com/pricing/',
+    ]);
+  });
+
+  it('refuses a redirect to a blocked address, plain http or another host', async () => {
+    for (const location of ['https://127.0.0.1/', 'http://www.example.com/', 'https://evil.test/']) {
+      const send = redirectsThen(200, location);
+      await expect(fetchResponseHeadGuarded('https://www.example.com/', options, send)).rejects.toThrow(/Blocked/);
+      expect(send).toHaveBeenCalledTimes(1);
+    }
+  });
+
+  it('stops following redirects after three', async () => {
+    const send = redirectsThen(200, '/1', '/2', '/3', '/4');
+
+    await expect(fetchResponseHeadGuarded('https://www.example.com/', options, send)).resolves.toMatchObject({
+      status: 302,
+    });
+    expect(send).toHaveBeenCalledTimes(4);
   });
 });

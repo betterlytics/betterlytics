@@ -11,6 +11,7 @@ const meta = {
   funnels: "Funnels",
   events: "Events",
   "session-replay": "Session Replay",
+  heatmaps: "Heatmaps",
   "observability-separator": { type: "separator", title: "Observability" },
   "web-vitals": "Web Vitals",
   errors: "Error Tracking",

@@ -1,8 +1,7 @@
 import { z } from 'zod';
+import { HeatmapDeviceSchema } from '@/entities/analytics/clickHeatmap.entities';
 
-// Same buckets as the backend's heatmap ingestion: Mobile < 576 px, Tablet 576-991, Desktop >= 992
-export const HeatmapDeviceSchema = z.enum(['mobile', 'tablet', 'desktop']);
-export type HeatmapDevice = z.infer<typeof HeatmapDeviceSchema>;
+export { HeatmapDeviceSchema, type HeatmapDevice } from '@/entities/analytics/clickHeatmap.entities';
 
 export const HEATMAP_CAPTURE_LINK_TTL_MS = 15 * 60_000;
 export const MAX_UNUSED_HEATMAP_CAPTURE_LINKS = 3;

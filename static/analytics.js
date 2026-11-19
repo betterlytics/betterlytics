@@ -53,6 +53,39 @@
     typeof __BL_HEATMAP_HASH__ === "string" ? __BL_HEATMAP_HASH__ : "dev";
   var heatmapScriptUrl = `${scriptsBaseUrl}/heatmap.js?v=${heatmapScriptHash}`;
 
+  // A capture link from the dashboard: snapshot this page for heatmaps and track nothing,
+  // whatever the replay, heatmap, sampling and consent settings say
+  var CAPTURE_STORAGE_KEY = "betterlytics:capture";
+  var captureLink = takeCaptureLink();
+  if (captureLink) {
+    silenceApi();
+    window.__betterlytics_capture__ = {
+      token: captureLink.token,
+      hideText: captureLink.hideText,
+      serverUrl: serverUrl,
+      documentHeight: getDocumentHeight,
+      forget: function () {
+        try {
+          sessionStorage.removeItem(CAPTURE_STORAGE_KEY);
+        } catch (e) {}
+      },
+    };
+    loadScript(replayScriptUrl).catch(function () {
+      console.warn(
+        "Betterlytics: the heatmap capture could not start because replay.js did not load (blocked by the page's Content-Security-Policy or an extension?)",
+      );
+    });
+    return;
+  }
+
+  // The Heatmaps page frames the live page with #bl-preview: track nothing, and tell the
+  // dashboard how tall the page is and which page the frame ended up on
+  if (window.location.hash === "#bl-preview" && window.parent !== window) {
+    silenceApi();
+    startPreview();
+    return;
+  }
+
   // "off" | "domain" | "full" (defaults to "domain")
   var outboundLinks = script.getAttribute("data-outbound-links") ?? "domain";
 
@@ -241,6 +274,100 @@
 
   for (var i = 0; i < queuedEvents.length; i++) {
     window.betterlytics.event.apply(this, queuedEvents[i]);
+  }
+
+  // The site's own calls keep working while nothing is sent
+  function silenceApi() {
+    var noop = function () {};
+    window.betterlytics = {
+      event: noop,
+      setGlobalProperties: noop,
+      clearGlobalProperties: noop,
+      getGlobalProperties: function () {
+        return {};
+      },
+      setReplayConsent: noop,
+    };
+  }
+
+  // Messages go only to the dashboard, the origin this script is served from, since the page's
+  // height and path can tell another site something about the visitor
+  function startPreview() {
+    var dashboardOrigin;
+    try {
+      dashboardOrigin = new URL(scriptsBaseUrl).origin;
+    } catch (e) {
+      return;
+    }
+    function report() {
+      window.parent.postMessage(
+        {
+          type: "betterlytics:preview",
+          height: getDocumentHeight(),
+          path: window.location.pathname,
+        },
+        dashboardOrigin,
+      );
+    }
+    // The frame keeps a visitor's window height and is scrolled along with the heatmap
+    window.addEventListener("message", function (event) {
+      if (event.source !== window.parent || event.origin !== dashboardOrigin) {
+        return;
+      }
+      var data = event.data;
+      if (
+        !data ||
+        data.type !== "betterlytics:preview-scroll" ||
+        typeof data.y !== "number"
+      ) {
+        return;
+      }
+      window.scrollTo({ top: data.y, behavior: "instant" });
+      // Scrolling can load more of the page
+      report();
+    });
+    report();
+    // Late content keeps changing the height for a while after load
+    var reports = 0;
+    var timer = setInterval(function () {
+      report();
+      if (++reports >= 20) clearInterval(timer);
+    }, 500);
+  }
+
+  // The link's token is removed from the address bar right away, so it isn't shared or
+  // bookmarked. It is kept for this tab, so a reload (a consent banner's, say) continues the
+  // capture on the same page instead of tracking a visit.
+  function takeCaptureLink() {
+    var hash = window.location.hash;
+    if (hash.indexOf("#bl-capture=") === 0) {
+      var params = new URLSearchParams(hash.slice(1));
+      var token = params.get("bl-capture");
+      try {
+        history.replaceState(
+          history.state,
+          "",
+          window.location.pathname + window.location.search,
+        );
+      } catch (e) {}
+      if (!token) return null;
+      var link = {
+        token: token,
+        hideText: params.get("bl-hide-text") === "1",
+        path: window.location.pathname,
+      };
+      try {
+        sessionStorage.setItem(CAPTURE_STORAGE_KEY, JSON.stringify(link));
+      } catch (e) {}
+      return link;
+    }
+    try {
+      var stored = JSON.parse(sessionStorage.getItem(CAPTURE_STORAGE_KEY));
+      if (stored && stored.token && stored.path === window.location.pathname) {
+        return stored;
+      }
+    } catch (e) {}
+    return null;
   }
 
   function loadScript(src) {

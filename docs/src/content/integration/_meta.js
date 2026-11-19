@@ -6,6 +6,7 @@ const meta = {
   "outbound-links": "Outbound Links",
   "web-vitals": "Web Vitals",
   "session-replay": "Session Replay",
+  heatmaps: "Heatmaps",
   errors: "Error Tracking",
   "custom-status-page-domain": "Custom Status Page Domain",
 };
