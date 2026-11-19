@@ -3517,9 +3517,11 @@
       "fixedClicksUnplaced": "{count, plural, one {# klikk på et fast element er ikke med i dette oppsettet.} other {# klikk på faste elementer er ikke med i dette oppsettet.}}",
       "capture": {
         "captureButton": "Ta opp siden",
+        "recaptureButton": "Ta opp på nytt",
+        "pageChanged": "Siden kan ha endret seg etter opptaket.",
         "title": "Ta opp oppsettet for {device}",
-        "howWindow": "Siden åpnes i et vindu som er {width} px bredt. Lukk bannere og sett opp siden slik besøkende ser den, og trykk deretter Ta opp i Betterlytics-panelet på siden.",
-        "howTab": "Siden åpnes i en ny fane. Lukk bannere og sett opp siden slik besøkende ser den, og trykk deretter Ta opp i Betterlytics-panelet på siden.",
+        "howWindow": "Siden åpnes i et vindu som er {width} px bredt. Lukk bannere og sett opp siden slik besøkende ser den, og trykk deretter Capture page i Betterlytics-panelet på siden.",
+        "howTab": "Siden åpnes i en ny fane. Lukk bannere og sett opp siden slik besøkende ser den, og trykk deretter Capture page i Betterlytics-panelet på siden.",
         "privacy": "Tekst og bilder beholdes slik du ser dem. På en side der du er logget inn, ser alle medlemmer av dashbordet kontoopplysningene dine i opptaket.",
         "hideText": "Skjul tekst",
         "wildcardHelp": "Denne heatmap-siden samler flere ekte sider. Fyll inn siden som skal tas opp.",

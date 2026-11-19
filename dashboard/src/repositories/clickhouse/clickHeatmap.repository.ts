@@ -15,6 +15,8 @@ import {
   HeatmapPageRowSchema,
   HeatmapPageStatsRow,
   HeatmapPageStatsRowSchema,
+  HeatmapSessionHeightsRow,
+  HeatmapSessionHeightsRowSchema,
 } from '@/entities/analytics/clickHeatmap.entities';
 
 const MAX_POINTS = 20000;
@@ -227,6 +229,51 @@ export async function getMostVisitedHost(
     .toPromise()) as { domain: string }[];
 
   return rows[0]?.domain ?? null;
+}
+
+// The median document height over sessions at a window width range, one height per session
+// (its smallest), so visitors who click a lot and open more of the page don't outweigh the rest
+export async function getHeatmapSessionHeights(
+  siteQuery: BASiteQuery,
+  url: string,
+  device: HeatmapDevice,
+  widthRange: { min: number; max: number },
+  startDateTime: string,
+): Promise<HeatmapSessionHeightsRow> {
+  const { siteId, endDateTime } = siteQuery;
+
+  const query = safeSql`
+    SELECT
+      quantileExact(0.5)(height) AS documentHeight,
+      count() AS sessions
+    FROM (
+      SELECT min(document_height) AS height
+      FROM analytics.heatmap_clicks
+      WHERE site_id = {site_id:String}
+        AND device = {device:String}
+        AND url = {url:String}
+        AND viewport_width BETWEEN {min_width:UInt16} AND {max_width:UInt16}
+        AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+      GROUP BY session_id
+    )
+  `;
+
+  const rows = await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        site_id: siteId,
+        device,
+        url,
+        min_width: widthRange.min,
+        max_width: widthRange.max,
+        start_date: startDateTime,
+        end_date: endDateTime,
+      },
+    })
+    .toPromise();
+
+  return HeatmapSessionHeightsRowSchema.parse(rows[0] ?? { documentHeight: 0, sessions: 0 });
 }
 
 export async function getHeatmapPageStats(

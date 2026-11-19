@@ -3517,9 +3517,11 @@
       "fixedClicksUnplaced": "{count, plural, one {# clic su un elemento fisso non è in questo layout.} other {# clic su elementi fissi non sono in questo layout.}}",
       "capture": {
         "captureButton": "Cattura pagina",
+        "recaptureButton": "Cattura di nuovo",
+        "pageChanged": "Questa pagina potrebbe essere cambiata dopo la cattura.",
         "title": "Cattura il layout {device}",
-        "howWindow": "La pagina si apre in una finestra larga {width} px. Chiudi i banner e prepara la pagina come la vedono i visitatori, poi premi Cattura nel pannello Betterlytics sulla pagina.",
-        "howTab": "La pagina si apre in una nuova scheda. Chiudi i banner e prepara la pagina come la vedono i visitatori, poi premi Cattura nel pannello Betterlytics sulla pagina.",
+        "howWindow": "La pagina si apre in una finestra larga {width} px. Chiudi i banner e prepara la pagina come la vedono i visitatori, poi premi Capture page nel pannello Betterlytics sulla pagina.",
+        "howTab": "La pagina si apre in una nuova scheda. Chiudi i banner e prepara la pagina come la vedono i visitatori, poi premi Capture page nel pannello Betterlytics sulla pagina.",
         "privacy": "Testo e immagini restano come li vedi tu. Su una pagina in cui hai effettuato l'accesso, tutti i membri di questa dashboard vedono i dati del tuo account nella cattura.",
         "hideText": "Nascondi il testo",
         "wildcardHelp": "Questa pagina della heatmap raggruppa più pagine reali. Indica la pagina da catturare.",

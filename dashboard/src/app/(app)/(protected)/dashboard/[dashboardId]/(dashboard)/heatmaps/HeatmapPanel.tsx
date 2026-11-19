@@ -22,6 +22,7 @@ import { CaptureActions, useCaptureLabel } from './CaptureActions';
 import { CaptureDialog } from './CaptureDialog';
 import { HeatmapView } from './HeatmapView';
 import { LiveHeatmapView } from './LiveHeatmapView';
+import { pageChangedSinceCapture, snapshotWindowHeight } from './pageChanged';
 import { SnapshotHeatmapView } from './SnapshotHeatmapView';
 
 const PANEL_SKELETON = 'h-[calc(100vh-18rem)] min-h-96 w-full';
@@ -103,6 +104,7 @@ export function HeatmapPanel({ url, device, selectedCaptureId, onSelectCapture }
         device={device}
         capture={capture}
         actions={actions}
+        onCapture={() => setCapturing(true)}
         onUnusable={() => markUnusable(`capture/${capture.id}`)}
       />
     );
@@ -154,6 +156,21 @@ function PanelHeader({ children, actions }: { children: ReactNode; actions: Reac
   );
 }
 
+/** A note above the heatmap, with a capture button for editors and above */
+function CaptureNotice({ message, buttonLabel, onCapture }: { message: string; buttonLabel: string; onCapture: () => void }) {
+  const { hasPermission } = useDashboardAuth();
+  return (
+    <div className='bg-muted/40 flex flex-col gap-2 rounded-md border p-3 text-sm sm:flex-row sm:items-center sm:justify-between'>
+      <p>{message}</p>
+      {hasPermission('canCaptureHeatmaps') && (
+        <Button size='sm' variant='outline' className='cursor-pointer' onClick={onCapture}>
+          {buttonLabel}
+        </Button>
+      )}
+    </div>
+  );
+}
+
 type PlainHeatmapProps = { url: string; device: HeatmapDevice; actions: ReactNode; onCapture: () => void };
 
 function PlainHeatmap({ url, device, actions, onCapture }: PlainHeatmapProps) {
@@ -173,14 +190,11 @@ function PlainHeatmap({ url, device, actions, onCapture }: PlainHeatmapProps) {
   const { width, height, points, fixedClicks } = clicksQuery.data;
   const fixedClicksNote = fixedClicks > 0 ? t('fixedClicksHidden', { count: fixedClicks }) : null;
   const prompt = (
-    <div className='bg-muted/40 flex flex-col gap-2 rounded-md border p-3 text-sm sm:flex-row sm:items-center sm:justify-between'>
-      <p>{canCapture ? t('capture.promptEditor') : t('capture.promptViewer')}</p>
-      {canCapture && (
-        <Button size='sm' variant='outline' className='cursor-pointer' onClick={onCapture}>
-          {t('capture.captureButton')}
-        </Button>
-      )}
-    </div>
+    <CaptureNotice
+      message={canCapture ? t('capture.promptEditor') : t('capture.promptViewer')}
+      buttonLabel={t('capture.captureButton')}
+      onCapture={onCapture}
+    />
   );
 
   if (points.length === 0 && fixedClicksNote) {
@@ -280,6 +294,7 @@ function SnapshotBody({
   snapshotMs,
   events,
   header,
+  notice,
   actions,
   onUnusable,
 }: {
@@ -289,6 +304,7 @@ function SnapshotBody({
   snapshotMs: number;
   events: eventWithTime[] | undefined;
   header: ReactNode;
+  notice?: ReactNode;
   actions: ReactNode;
   onUnusable: () => void;
 }) {
@@ -311,6 +327,7 @@ function SnapshotBody({
         {header}
         {unplacedFixed > 0 && <p>{t('fixedClicksUnplaced', { count: unplacedFixed })}</p>}
       </PanelHeader>
+      {notice}
       <SnapshotHeatmapView
         events={events}
         snapshotMs={snapshotMs}
@@ -323,11 +340,25 @@ function SnapshotBody({
   );
 }
 
-function CaptureHeatmap({ capture, url, device, actions, onUnusable }: SnapshotSourceProps & { capture: HeatmapCapture }) {
+function CaptureHeatmap({
+  capture,
+  url,
+  device,
+  actions,
+  onCapture,
+  onUnusable,
+}: SnapshotSourceProps & { capture: HeatmapCapture; onCapture: () => void }) {
+  const t = useTranslations('components.heatmaps.capture');
   const dashboardId = useDashboardId();
+  const { input, options } = useBAQueryParams();
   const label = useCaptureLabel();
   const href = `/api/heatmap/captures/${encodeURIComponent(capture.id)}?${new URLSearchParams({ dashboardId })}`;
   const events = useSnapshotEvents(['heatmap-capture', dashboardId, capture.id], href, onUnusable);
+  const pageHeightQuery = trpc.clickHeatmap.pageHeightSince.useQuery(
+    { ...input, url, device, width: capture.viewportWidth, capturedAt: capture.createdAt },
+    { ...options, placeholderData: undefined },
+  );
+  const pageChanged = pageChangedSinceCapture(capture, snapshotWindowHeight(events), pageHeightQuery.data);
 
   return (
     <SnapshotBody
@@ -337,6 +368,11 @@ function CaptureHeatmap({ capture, url, device, actions, onUnusable }: SnapshotS
       snapshotMs={NaN}
       events={events}
       header={<p>{label(capture)}</p>}
+      notice={
+        pageChanged && (
+          <CaptureNotice message={t('pageChanged')} buttonLabel={t('recaptureButton')} onCapture={onCapture} />
+        )
+      }
       actions={actions}
       onUnusable={onUnusable}
     />
