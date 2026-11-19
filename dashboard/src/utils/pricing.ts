@@ -8,6 +8,7 @@ const COMPACT_UNITS: Record<SupportedLanguages, { thousand: string; million: str
   en: { thousand: 'K', million: 'M' },
   da: { thousand: '\u00a0t', million: '\u00a0mio.' },
   it: { thousand: 'K', million: '\u00a0Mln' },
+  ja: { thousand: 'K', million: 'M' },
   nb: { thousand: 'k', million: '\u00a0mill.' },
 };
 
