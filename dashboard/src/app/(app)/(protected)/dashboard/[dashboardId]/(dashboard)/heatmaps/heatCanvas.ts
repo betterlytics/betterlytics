@@ -54,14 +54,20 @@ function createStamp(radius: number): HTMLCanvasElement {
   return canvas;
 }
 
+export function maxCountOf(points: HeatmapClickPoint[]): number {
+  return points.reduce((max, point) => Math.max(max, point.count), 0);
+}
+
 // Points from the click query sit on the corner of their cell, so they are drawn at its
-// center; points placed on an element are exact and pass 0
+// center; points placed on an element are exact and pass 0. Heat split over several images
+// passes the busiest point of all of them, so the colors compare.
 export function drawHeat(
   canvas: HTMLCanvasElement,
   points: HeatmapClickPoint[],
   width: number,
   height: number,
   pointOffset = HEATMAP_POINT_CELL_PX / 2,
+  maxCount = maxCountOf(points),
 ) {
   const canvasWidth = Math.max(1, Math.round(width * HEAT_RESOLUTION));
   const canvasHeight = Math.max(1, Math.round(height * HEAT_RESOLUTION));
@@ -75,7 +81,6 @@ export function drawHeat(
 
   const radius = HEAT_RADIUS_PX * HEAT_RESOLUTION;
   const stamp = createStamp(radius);
-  const maxCount = points.reduce((max, point) => Math.max(max, point.count), 0);
 
   for (const point of points) {
     ctx.globalAlpha = heatAlpha(point.count, maxCount);

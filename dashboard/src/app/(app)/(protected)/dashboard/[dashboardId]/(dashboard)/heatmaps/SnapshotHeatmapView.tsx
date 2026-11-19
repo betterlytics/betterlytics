@@ -11,7 +11,7 @@ import {
 } from '@/entities/analytics/clickHeatmap.entities';
 import { useResizeObserver } from '@/hooks/use-resize-observer';
 import { useDebounce } from '@/hooks/useDebounce';
-import { drawHeat } from './heatCanvas';
+import { drawHeat, maxCountOf } from './heatCanvas';
 import { locateInDocument, placeClicks } from './placeClicks';
 import { snapshotEvents } from './snapshotEvents';
 
@@ -37,8 +37,9 @@ type SnapshotHeatmapViewProps = {
 
 /**
  * Draws a page layout from an rrweb full snapshot (scripts blocked by the player's sandbox) and
- * the heat inside its document, so the heat scrolls with the page. Clicks land on their
- * element when it is found, otherwise at their page position.
+ * the heat inside its document, so the heat scrolls with the page and with fixed, sticky and
+ * scrolling parts of it. Clicks land on their element when it is found, otherwise at their page
+ * position.
  */
 export function SnapshotHeatmapView({
   events,
@@ -91,10 +92,10 @@ export function SnapshotHeatmapView({
       await fitLayoutWidth(replayer.iframe, viewportWidth, () => player.triggerResize());
       const doc = replayer.iframe.contentDocument;
       if (cancelled || !doc?.documentElement) return;
-      // Fixed and sticky elements are measured where they sit at the top of the page
+      // The player restores the visitor's scroll; the heatmap opens at the top of the page
       doc.defaultView?.scrollTo(0, 0);
       const placed = placeClicks(anchors, locateInDocument(doc));
-      drawHeatLayer(doc, placed.points);
+      drawHeatLayers(doc, placed.layers);
       callbacks.current.onPlaced({ unplacedFixed: placed.unplacedFixed });
     })();
 
@@ -143,23 +144,43 @@ async function fitLayoutWidth(iframe: HTMLIFrameElement, layoutWidth: number, re
   await nextLayout();
 }
 
-// Covers the whole page, so links in the layout can't be followed while it still scrolls. A
-// canvas shows nothing in the layout's script-free sandbox, so the heat is drawn here and
-// shown there as an image.
-function drawHeatLayer(doc: Document, points: HeatmapClickPoint[]) {
+// Heat on a fixed, sticky or scrolling part is drawn inside that part, so it stays on its
+// element and is cut off with it. The page's layer covers the whole page, so links in the layout
+// can't be followed while it still scrolls.
+function drawHeatLayers(doc: Document, layers: Map<HTMLElement | null, HeatmapClickPoint[]>) {
+  const maxCount = maxCountOf([...layers.values()].flat());
+  for (const [host, points] of layers) {
+    if (!host) continue;
+    // The layer is placed against the part, which a static scrolling part isn't
+    if (doc.defaultView?.getComputedStyle(host).position === 'static') {
+      host.style.setProperty('position', 'relative', 'important');
+    }
+    host.appendChild(heatLayer(doc, points, host.scrollWidth, host.scrollHeight, maxCount, 'pointer-events:none;'));
+  }
   const root = doc.documentElement;
-  const width = root.scrollWidth;
-  const height = Math.min(Math.max(root.scrollHeight, 1), HEATMAP_MAX_PAGE_HEIGHT);
+  root.appendChild(heatLayer(doc, layers.get(null) ?? [], root.scrollWidth, root.scrollHeight, maxCount, 'cursor:default;'));
+}
 
+// A canvas shows nothing in the layout's script-free sandbox, so the heat is drawn here and
+// shown there as an image
+function heatLayer(
+  doc: Document,
+  points: HeatmapClickPoint[],
+  width: number,
+  scrollHeight: number,
+  maxCount: number,
+  style: string,
+) {
+  const height = Math.min(Math.max(scrollHeight, 1), HEATMAP_MAX_PAGE_HEIGHT);
   const canvas = document.createElement('canvas');
-  drawHeat(canvas, points, width, height, 0);
+  drawHeat(canvas, points, width, height, 0, maxCount);
 
   const layer = doc.createElement('div');
-  layer.style.cssText = `position:absolute;left:0;top:0;width:${width}px;height:${height}px;z-index:2147483647;cursor:default;`;
+  layer.style.cssText = `position:absolute;left:0;top:0;width:${width}px;height:${height}px;z-index:2147483647;${style}`;
   const image = doc.createElement('img');
   image.alt = '';
   image.src = canvas.toDataURL('image/png');
   image.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;';
   layer.appendChild(image);
-  root.appendChild(layer);
+  return layer;
 }
