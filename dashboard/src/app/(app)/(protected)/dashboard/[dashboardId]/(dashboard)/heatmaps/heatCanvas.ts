@@ -54,7 +54,15 @@ function createStamp(radius: number): HTMLCanvasElement {
   return canvas;
 }
 
-export function drawHeat(canvas: HTMLCanvasElement, points: HeatmapClickPoint[], width: number, height: number) {
+// Points from the click query sit on the corner of their cell, so they are drawn at its
+// center; points placed on an element are exact and pass 0
+export function drawHeat(
+  canvas: HTMLCanvasElement,
+  points: HeatmapClickPoint[],
+  width: number,
+  height: number,
+  pointOffset = HEATMAP_POINT_CELL_PX / 2,
+) {
   const canvasWidth = Math.max(1, Math.round(width * HEAT_RESOLUTION));
   const canvasHeight = Math.max(1, Math.round(height * HEAT_RESOLUTION));
   canvas.width = canvasWidth;
@@ -68,11 +76,14 @@ export function drawHeat(canvas: HTMLCanvasElement, points: HeatmapClickPoint[],
   const radius = HEAT_RADIUS_PX * HEAT_RESOLUTION;
   const stamp = createStamp(radius);
   const maxCount = points.reduce((max, point) => Math.max(max, point.count), 0);
-  const center = HEATMAP_POINT_CELL_PX / 2;
 
   for (const point of points) {
     ctx.globalAlpha = heatAlpha(point.count, maxCount);
-    ctx.drawImage(stamp, (point.x + center) * HEAT_RESOLUTION - radius, (point.y + center) * HEAT_RESOLUTION - radius);
+    ctx.drawImage(
+      stamp,
+      (point.x + pointOffset) * HEAT_RESOLUTION - radius,
+      (point.y + pointOffset) * HEAT_RESOLUTION - radius,
+    );
   }
   ctx.globalAlpha = 1;
 

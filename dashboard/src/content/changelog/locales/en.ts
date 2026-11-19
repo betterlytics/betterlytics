@@ -1,5 +1,53 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v160ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.6.0',
+    releasedAt: '2026-12-01',
+    title: 'Heatmaps',
+    summary:
+      'See where visitors click on every page with the new Heatmaps page, split by desktop, tablet and mobile. Clicks are drawn over a capture of your page, a session replay or your live page, and editors can capture a page in a few clicks.',
+  },
+  sections: [
+    {
+      id: 'v160-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Heatmaps show where visitors click on each page, with a separate heatmap for desktop, tablet and mobile. Turn them on with data-heatmaps="true" on the tracking script.',
+            'Editors can capture a page from the Heatmaps page to draw its clicks over an exact copy of it, with a capture history for each page and device.',
+            'Pages without a capture show their clicks over a session replay recorded on that device, or over the live page when your site allows framing.',
+            'A notice shows when a page may have changed since it was captured.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v160ChangelogModalEn: ChangelogEntryData = {
+  metadata: v160ChangelogEntryEn.metadata,
+  sections: [
+    {
+      id: 'v160-modal-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Heatmaps show where visitors click, for each page and device.',
+            'Capture a page to see its clicks over an exact copy of it.',
+            'Without a capture, clicks show over a session replay or the live page.',
+            'A notice shows when a page changed since its capture.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v153ChangelogEntryEn: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.3',
@@ -884,9 +932,10 @@ const v144ChangelogEntryEn: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalEn = v153ChangelogModalEn;
+export const latestChangelogModalEn = v160ChangelogModalEn;
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  v160ChangelogEntryEn,
   v153ChangelogEntryEn,
   v152ChangelogEntryEn,
   v151ChangelogEntryEn,

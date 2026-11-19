@@ -29,8 +29,9 @@
   var MAX_PAGE_WIDTH = 16384;
   var MAX_PAGE_HEIGHT = 1000000;
 
-  // React useId output (":r1:", "«r1»", "_r_1_") changes between renders
-  var GENERATED_ID = /[:«»]|^_r_/;
+  // React useId output (":r1:", "«r1»", "_r_1_") changes between page loads, also inside
+  // library ids such as Radix's "radix-_r_v_-trigger-exit"
+  var GENERATED_ID = /[:«»]|_r_[0-9a-z]+_/i;
 
   var encoder = new TextEncoder();
   var collecting = config.sampled === true;

@@ -47,7 +47,7 @@ async function main() {
       return Number.isFinite(days) ? days : undefined;
     };
     const retentionDays = parseDays(process.env.REPLAY_RETENTION_DAYS) ?? 60;
-    const replayTables = ["session_replays", "session_replay_segments"];
+    const replayTables = ["session_replays", "session_replay_segments", "session_replay_snapshots"];
     const retentionMarker = `replay_retention_days=${retentionDays > 0 ? retentionDays : -1}`;
     for (const table of replayTables) {
       const result = await client.query({
