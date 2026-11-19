@@ -2414,6 +2414,7 @@
       "activeUsers": "{count, plural, =0 {aktive brukere} one {aktiv bruker} other {aktive brukere}}",
       "webVitals": "Web-vitals",
       "sessionReplay": "Sesjonsavspilling",
+      "heatmaps": "Varmekart",
       "monitoring": "Overvåking",
       "statusPages": "Statussider",
       "categories": {
@@ -3498,6 +3499,19 @@
         "title": "Fordeling av utgående lenker"
       }
     },
+    "heatmaps": {
+      "pagePicker": "Side",
+      "clicks": "{count, plural, one {# klikk} other {# klikk}}",
+      "devices": {
+        "desktop": "Desktop",
+        "tablet": "Nettbrett",
+        "mobile": "Mobil"
+      },
+      "noDeviceClicks": "Ingen klikk fra {device} på denne siden i perioden.",
+      "showDevice": "Vis {device} ({count, plural, one {# klikk} other {# klikk}})",
+      "noBackground": "Klikk vises der de skjedde på siden, foreløpig uten sidebakgrunn.",
+      "fixedClicksHidden": "{count, plural, one {# klikk på et fast element vises ikke ennå.} other {# klikk på faste elementer vises ikke ennå.}}"
+    },
     "webVitals": {
       "metrics": {
         "CLS": "Kumulativ layoutforskyvning",
@@ -4180,6 +4194,11 @@
     "webVitalsNoData": {
       "title": "Ingen Core Web Vitals-data ennå",
       "description": "Sørg for at sporing er aktivert.",
+      "action": "Lær mer"
+    },
+    "heatmapsNoData": {
+      "title": "Ingen klikk for varmekart ennå",
+      "description": "Se dokumentasjonen for hvordan du setter opp varmekart.",
       "action": "Lær mer"
     },
     "featureNotEnabled": {
