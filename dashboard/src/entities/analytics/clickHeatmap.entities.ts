@@ -74,7 +74,7 @@ export type HeatmapClicks = {
 export const SNAPSHOT_SETTLE_MS = 3000;
 
 // Clicks grouped by element anchor, with the group's average page position for when the
-// background doesn't have the element. An empty selector is a click on the page itself.
+// background doesn't have the element. Clicks on the page itself have no element to anchor to.
 export const HeatmapClickAnchorSchema = z.object({
   selector: z.string(),
   offsetX: z.coerce.number(),
@@ -82,6 +82,7 @@ export const HeatmapClickAnchorSchema = z.object({
   x: z.coerce.number(),
   y: z.coerce.number(),
   fixed: z.coerce.number().transform((value) => value === 1),
+  onPage: z.coerce.number().transform((value) => value === 1),
   count: z.coerce.number(),
 });
 

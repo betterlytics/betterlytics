@@ -150,37 +150,45 @@ async function fitLayoutWidth(iframe: HTMLIFrameElement, layoutWidth: number, re
 function drawHeatLayers(doc: Document, layers: Map<HTMLElement | null, HeatmapClickPoint[]>) {
   const maxCount = maxCountOf([...layers.values()].flat());
   for (const [host, points] of layers) {
-    if (!host) continue;
-    // The layer is placed against the part, which a static scrolling part isn't
-    if (doc.defaultView?.getComputedStyle(host).position === 'static') {
-      host.style.setProperty('position', 'relative', 'important');
-    }
-    host.appendChild(heatLayer(doc, points, host.scrollWidth, host.scrollHeight, maxCount, 'pointer-events:none;'));
+    if (host) host.appendChild(heatLayer(doc, points, host.scrollWidth, host.scrollHeight, maxCount, 'pointer-events:none'));
   }
   const root = doc.documentElement;
-  root.appendChild(heatLayer(doc, layers.get(null) ?? [], root.scrollWidth, root.scrollHeight, maxCount, 'cursor:default;'));
+  root.appendChild(heatLayer(doc, layers.get(null) ?? [], root.scrollWidth, root.scrollHeight, maxCount, 'cursor:default'));
 }
 
-// A canvas shows nothing in the layout's script-free sandbox, so the heat is drawn here and
-// shown there as an image
+// Covers its host's scroll area, reaching past the top and left edges when an element sits
+// there. A canvas shows nothing in the layout's script-free sandbox, so the heat is drawn here
+// and shown there as a background. The layout's own styles reach a layer inside it, so every
+// property is reset and set as important.
 function heatLayer(
   doc: Document,
   points: HeatmapClickPoint[],
-  width: number,
+  scrollWidth: number,
   scrollHeight: number,
   maxCount: number,
   style: string,
 ) {
-  const height = Math.min(Math.max(scrollHeight, 1), HEATMAP_MAX_PAGE_HEIGHT);
+  const left = points.reduce((min, point) => Math.min(min, point.x), 0);
+  const top = points.reduce((min, point) => Math.min(min, point.y), 0);
+  const width = scrollWidth - left;
+  const height = Math.min(Math.max(scrollHeight - top, 1), HEATMAP_MAX_PAGE_HEIGHT);
   const canvas = document.createElement('canvas');
-  drawHeat(canvas, points, width, height, 0, maxCount);
+  const shifted = points.map((point) => ({ ...point, x: point.x - left, y: point.y - top }));
+  drawHeat(canvas, shifted, width, height, 0, maxCount);
 
   const layer = doc.createElement('div');
-  layer.style.cssText = `position:absolute;left:0;top:0;width:${width}px;height:${height}px;z-index:2147483647;${style}`;
-  const image = doc.createElement('img');
-  image.alt = '';
-  image.src = canvas.toDataURL('image/png');
-  image.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;';
-  layer.appendChild(image);
+  layer.style.cssText = [
+    'all:revert',
+    'position:absolute',
+    `left:${left}px`,
+    `top:${top}px`,
+    `width:${width}px`,
+    `height:${height}px`,
+    'z-index:2147483647',
+    `background:url("${canvas.toDataURL('image/png')}") 0 0 / 100% 100% no-repeat`,
+    style,
+  ]
+    .map((declaration) => `${declaration} !important`)
+    .join(';');
   return layer;
 }

@@ -10,9 +10,9 @@ export type PlacedClicks<Host> = { layers: Map<Host | null, HeatmapClickPoint[]>
 
 /**
  * Puts each click on its element when the selector finds exactly one element with a size,
- * otherwise at its page position. Fixed and sticky clicks have no usable page position (it
- * includes the scroll), so without their element they are only counted. An empty selector is
- * a click on the page itself, placed by its page position.
+ * otherwise at its page position, like clicks on the page itself. Fixed and sticky clicks have
+ * no usable page position (it includes the scroll), so without their element they are only
+ * counted.
  */
 export function placeClicks<Host>(
   anchors: HeatmapClickAnchor[],
@@ -29,9 +29,9 @@ export function placeClicks<Host>(
   };
 
   for (const anchor of anchors) {
-    let box = boxes.get(anchor.selector);
+    let box = anchor.onPage ? null : boxes.get(anchor.selector);
     if (box === undefined) {
-      box = anchor.selector ? locate(anchor.selector) : null;
+      box = locate(anchor.selector);
       boxes.set(anchor.selector, box);
     }
     if (box) {
@@ -52,7 +52,9 @@ export function placeClicks<Host>(
 
 /**
  * Finds a selector's element in a rendered page. An element inside a fixed, sticky or scrolling
- * part is measured from that part's content corner, so heat drawn inside the part stays on it.
+ * part is measured from that part's content corner, so heat drawn inside the part stays on it. A
+ * static part is made positioned before anything is measured, so a layer inside it is placed
+ * against it.
  */
 export function locateInDocument(doc: Document): (selector: string) => LocatedElement<HTMLElement> | null {
   const view = doc.defaultView;
@@ -64,9 +66,13 @@ export function locateInDocument(doc: Document): (selector: string) => LocatedEl
       return null;
     }
     if (matches.length !== 1) return null;
+    const host = view ? hostOf(matches[0], view) : null;
+    if (host && view?.getComputedStyle(host).position === 'static') {
+      host.style.setProperty('position', 'relative', 'important');
+      host.style.setProperty('inset', 'auto', 'important');
+    }
     const rect = matches[0].getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) return null;
-    const host = view ? hostOf(matches[0], view) : null;
     if (!host) {
       return {
         host: null,
@@ -110,18 +116,28 @@ const CANNOT_HOST = new Set([
   'TR',
 ]);
 
-// The closest part that moves apart from the page: a fixed or sticky element, or one scrolling
-// its own content. The page itself is null.
+/**
+ * The closest part that moves apart from the page: a fixed or sticky element, or one scrolling
+ * its own content. A fixed or sticky part that can't hold heat, a sticky table header say, is
+ * stood in for by the outermost element inside it on the way up, which moves with it. The page
+ * is null, which is also where a fixed or sticky image ends up, having nothing inside it.
+ */
 function hostOf(element: Element, view: Window): HTMLElement | null {
   const { body, documentElement } = element.ownerDocument;
+  let inside: HTMLElement | null = null;
   for (let el: Element | null = element; el && el !== body && el !== documentElement; el = el.parentElement) {
-    if (el.namespaceURI !== XHTML_NAMESPACE || CANNOT_HOST.has(el.tagName)) continue;
     const style = view.getComputedStyle(el);
-    if (style.display === 'inline' || style.display === 'contents') continue;
-    if (style.position === 'fixed' || style.position === 'sticky') return el as HTMLElement;
+    const canHost =
+      el.namespaceURI === XHTML_NAMESPACE &&
+      !CANNOT_HOST.has(el.tagName) &&
+      style.display !== 'inline' &&
+      style.display !== 'contents';
+    if (style.position === 'fixed' || style.position === 'sticky') return canHost ? (el as HTMLElement) : inside;
+    if (!canHost) continue;
     const scrollsY = SCROLLING_OVERFLOW.has(style.overflowY) && el.scrollHeight > el.clientHeight;
     const scrollsX = SCROLLING_OVERFLOW.has(style.overflowX) && el.scrollWidth > el.clientWidth;
     if (scrollsY || scrollsX) return el as HTMLElement;
+    inside = el as HTMLElement;
   }
   return null;
 }
