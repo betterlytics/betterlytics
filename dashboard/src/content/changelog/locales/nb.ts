@@ -1,5 +1,53 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v160ChangelogEntryNb: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.6.0',
+    releasedAt: '2026-12-01',
+    title: 'Varmekart',
+    summary:
+      'Se hvor de besøkende klikker på hver side med den nye Varmekart-siden, delt opp i desktop, nettbrett og mobil. Klikkene vises over et opptak av siden, en sesjonsavspilling eller live-siden, og redaktører kan ta opp en side med noen få klikk.',
+  },
+  sections: [
+    {
+      id: 'v160-new-features',
+      title: 'Nye funksjoner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Varmekart viser hvor de besøkende klikker på hver side, med et eget varmekart for desktop, nettbrett og mobil. Slå dem på med data-heatmaps="true" på sporingsskriptet.',
+            'Redaktører kan ta opp en side fra Varmekart-siden og se klikkene over en nøyaktig kopi av den, med en opptakshistorikk for hver side og enhet.',
+            'Sider uten opptak viser klikkene over en sesjonsavspilling fra den enheten, eller over live-siden når nettstedet ditt tillater det.',
+            'En melding vises når en side kan ha endret seg etter opptaket.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v160ChangelogModalNb: ChangelogEntryData = {
+  metadata: v160ChangelogEntryNb.metadata,
+  sections: [
+    {
+      id: 'v160-modal-new-features',
+      title: 'Nye funksjoner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Varmekart viser hvor de besøkende klikker, for hver side og enhet.',
+            'Ta opp en side for å se klikkene over en nøyaktig kopi av den.',
+            'Uten opptak vises klikkene over en sesjonsavspilling eller live-siden.',
+            'En melding vises når en side har endret seg etter opptaket.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v153ChangelogEntryNb: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.3',
@@ -886,9 +934,10 @@ const v144ChangelogEntryNb: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalNb = v153ChangelogModalNb;
+export const latestChangelogModalNb = v160ChangelogModalNb;
 
 export const changelogEntriesNb: readonly ChangelogEntryData[] = [
+  v160ChangelogEntryNb,
   v153ChangelogEntryNb,
   v152ChangelogEntryNb,
   v151ChangelogEntryNb,
