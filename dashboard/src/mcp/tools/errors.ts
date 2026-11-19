@@ -13,6 +13,7 @@ import {
   getErrorGroupTimestampsForSite,
   getErrorOccurrenceForSite,
   getSessionTrailForSite,
+  type ErrorsContext,
 } from '@/services/analytics/errors.service';
 import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
 
@@ -60,17 +61,18 @@ function formatErrorGroup(
   };
 }
 
-async function lookupByFingerprint(siteId: string, dashboardId: string, fingerprint: string) {
-  const group = await getErrorGroupForSite(siteId, dashboardId, fingerprint);
+async function lookupByFingerprint(ctx: ErrorsContext, fingerprint: string) {
+  const group = await getErrorGroupForSite(ctx, fingerprint);
   if (!group) return { error_groups: [], total: 0 };
   return { error_groups: [formatErrorGroup(group)], total: 1 };
 }
 
 export async function executeListErrors(rawInput: unknown, siteId: string, dashboardId: string) {
   const input = McpListErrorsInputSchema.parse(rawInput);
+  const ctx: ErrorsContext = { siteId, dashboardId, isDemo: false };
 
   if (input.fingerprint) {
-    return lookupByFingerprint(siteId, dashboardId, input.fingerprint);
+    return lookupByFingerprint(ctx, input.fingerprint);
   }
 
   const timeRange = resolveTimeRange(input);
@@ -83,7 +85,7 @@ export async function executeListErrors(rawInput: unknown, siteId: string, dashb
     queryFilters: filters,
   });
 
-  let groups = await getErrorGroupsForSite(siteQuery, dashboardId);
+  let groups = await getErrorGroupsForSite(ctx, siteQuery);
 
   if (input.search) {
     const needle = input.search.toLowerCase();
@@ -99,7 +101,7 @@ export async function executeListErrors(rawInput: unknown, siteId: string, dashb
   }
 
   const fingerprints = limited.map((g) => g.error_fingerprint);
-  const { firstSeenMap, lastSeenMap } = await getErrorGroupTimestampsForSite(siteId, fingerprints);
+  const { firstSeenMap, lastSeenMap } = await getErrorGroupTimestampsForSite(ctx, fingerprints);
 
   return {
     error_groups: limited.map((g) =>
@@ -127,10 +129,11 @@ export const McpGetErrorInputBaseSchema = z.object({
     ),
 });
 
-export async function executeGetError(rawInput: unknown, siteId: string) {
+export async function executeGetError(rawInput: unknown, siteId: string, dashboardId: string) {
   const input = McpGetErrorInputBaseSchema.parse(rawInput);
+  const ctx: ErrorsContext = { siteId, dashboardId, isDemo: false };
 
-  const occurrence = await getErrorOccurrenceForSite(siteId, input.fingerprint, input.occurrenceOffset);
+  const occurrence = await getErrorOccurrenceForSite(ctx, input.fingerprint, input.occurrenceOffset);
   if (!occurrence) {
     return { error: 'No occurrence found for this fingerprint and offset.' };
   }
@@ -155,7 +158,7 @@ export async function executeGetError(rawInput: unknown, siteId: string) {
   };
 
   if (input.includeBreadcrumbs && occurrence.session_id) {
-    const trail = await getSessionTrailForSite(siteId, occurrence.session_id);
+    const trail = await getSessionTrailForSite(ctx, occurrence.session_id);
     result.breadcrumbs = trail.map((e) => ({
       timestamp: e.event.timestamp,
       type: e.label,

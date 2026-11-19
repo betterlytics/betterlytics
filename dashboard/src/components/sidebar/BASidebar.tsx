@@ -156,7 +156,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
       <SidebarSeparator className='mx-0' />
 
       <SidebarContent className='bg-sidebar overflow-x-hidden'>
-        <SidebarGroup>
+        <SidebarGroup className='pb-0 group-data-[collapsible=icon]:pb-2'>
           <SidebarGroupContent>
             <Suspense fallback={null}>
               <ActiveUsersLabel />

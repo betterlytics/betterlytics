@@ -127,7 +127,7 @@ const ANALYTICS_TOOLS: DashboardTool[] = [
     description:
       'Get detailed information about a specific error, including the full stack trace, browser/OS/device context, and the session trail of events leading up to the error. Use the fingerprint from list_errors, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
     inputSchema: McpGetErrorInputBaseSchema,
-    execute: (params, d) => executeGetError(params, d.siteId),
+    execute: (params, d) => executeGetError(params, d.siteId, d.dashboardId),
   },
 ];
 

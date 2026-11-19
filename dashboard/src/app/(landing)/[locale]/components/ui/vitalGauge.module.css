@@ -1,0 +1,18 @@
+@reference '../../landing.css';
+
+@layer components {
+  .value {
+    display: inline-flex;
+    align-items: baseline;
+    font-size: calc(var(--size) * 0.16);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--level-text, var(--color-muted));
+    --number-flow-char-height: 1em;
+  }
+  .flow {
+    display: inline-flex;
+    align-items: baseline;
+  }
+}

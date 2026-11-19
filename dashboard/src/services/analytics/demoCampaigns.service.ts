@@ -1,6 +1,5 @@
 import 'server-only';
 
-import moment from 'moment-timezone';
 import { DEMO_CAMPAIGNS, type DemoCampaign } from '@/constants/demoCampaigns';
 import type * as campaignRepository from '@/repositories/clickhouse/campaign.repository';
 import type { CampaignAudienceProfileRow } from '@/repositories/clickhouse/campaign.repository';
@@ -13,6 +12,7 @@ import type {
 } from '@/entities/analytics/campaign.entities';
 import type { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { toDateTimeString } from '@/utils/dateFormatters';
+import { BUCKET_STEP, bucketStarts, hashToUnit } from '@/utils/demoData';
 
 type RawMetrics = Omit<RawCampaignData, 'utm_campaign_name'>;
 type WeightedLabels = DemoCampaign['sources'];
@@ -42,23 +42,6 @@ const AUDIENCE_DIMENSION_FIELD = {
   browser: 'browsers',
   os: 'operatingSystems',
 } as const satisfies Record<CampaignAudienceProfileRow['dimension'], keyof DemoCampaign>;
-
-const BUCKET_STEP: Record<string, { amount: number; unit: moment.unitOfTime.DurationConstructor }> = {
-  minute_15: { amount: 15, unit: 'minutes' },
-  minute_30: { amount: 30, unit: 'minutes' },
-  hour: { amount: 1, unit: 'hour' },
-  day: { amount: 1, unit: 'day' },
-};
-
-// Deterministic value in [0, 1), so the same window always renders the same numbers
-function hashToUnit(...parts: Array<string | number>): number {
-  let hash = 0x811c9dc5;
-  for (const char of parts.join('|')) {
-    hash ^= char.charCodeAt(0);
-    hash = Math.imul(hash, 0x01000193);
-  }
-  return (hash >>> 0) / 0x100000000;
-}
 
 function jitter(spread: number, ...parts: Array<string | number>): number {
   return 1 + (hashToUnit(...parts) * 2 - 1) * spread;
@@ -174,23 +157,6 @@ function bucketWeight(campaign: DemoCampaign, startMs: number, endMs: number, su
     weight += (hourWeight(campaign, hourMs) * overlapMs) / HOUR_MS;
   }
   return subHour ? weight * jitter(0.4, campaign.name, 'bucket', startMs) : weight;
-}
-
-// Bucket starts as ClickHouse's toStartOfInterval in the query timezone would produce them
-function bucketStarts(siteQuery: BASiteQuery): moment.Moment[] {
-  const step = BUCKET_STEP[siteQuery.granularity] ?? BUCKET_STEP.hour;
-  const cursor = moment.tz(siteQuery.startDate, siteQuery.timezone);
-  if (step.unit === 'minutes') {
-    cursor.startOf('minute').subtract(cursor.minute() % step.amount, 'minutes');
-  } else {
-    cursor.startOf(step.unit === 'day' ? 'day' : 'hour');
-  }
-  const starts: moment.Moment[] = [];
-  while (cursor.valueOf() <= siteQuery.endDate.getTime()) {
-    starts.push(cursor.clone());
-    cursor.add(step.amount, step.unit);
-  }
-  return starts;
 }
 
 export const demoCampaignDataSource = {

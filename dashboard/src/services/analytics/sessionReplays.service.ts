@@ -8,6 +8,7 @@ import { DEMO_SESSION_REPLAYS } from '@/constants/demoSessionReplays';
 import type { AuthContext } from '@/entities/auth/authContext.entities';
 import type { SessionReplay } from '@/entities/analytics/sessionReplays.entities';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { demoNow, demoReplayWindow } from '@/utils/demoData';
 
 const STREAM_PREFETCH_AHEAD = 4;
 
@@ -35,17 +36,16 @@ export async function getSessionReplayForSite(
   return getSessionReplayById(authContext.siteId, sessionId);
 }
 
-// Fixed recordings, re-dated relative to now so the demo always shows recent sessions
 function getDemoSessionReplays(siteId: string): SessionReplay[] {
-  const now = Date.now();
+  const now = demoNow();
   return DEMO_SESSION_REPLAYS.map(({ endedMinutesAgo, ...replay }) => {
-    const endedAt = new Date(now - endedMinutesAgo * 60_000);
-    const startedAt = new Date(endedAt.getTime() - replay.duration * 1000);
+    const recorded = demoReplayWindow({ endedMinutesAgo, duration: replay.duration }, now);
+    const startedAt = new Date(recorded.startedAt);
     return {
       ...replay,
       site_id: siteId,
       started_at: startedAt,
-      ended_at: endedAt,
+      ended_at: new Date(recorded.endedAt),
       date: startedAt.toISOString().slice(0, 10),
       s3_prefix: '',
     };

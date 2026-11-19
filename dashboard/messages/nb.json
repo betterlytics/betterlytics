@@ -1107,8 +1107,8 @@
           "description": "ClickHouse-drevet analysemotor gir responstid under ett sekund i alle skalaer."
         },
         "mcpServer": {
-          "title": "MCP-server",
-          "description": "Spør analysedataene dine fra AI-assistenter som Claude. Innebygd MCP-server for naturlig språktilgang til metrikker, funneler og brukerreiser."
+          "title": "MCP",
+          "description": "La AI-assistenter som Claude jobbe med analysedataene dine. Innebygd MCP lar deg spørre om metrikker, trakter og brukerreiser på vanlig norsk."
         },
         "emailSupport": {
           "title": "E-postsupport",
@@ -1251,7 +1251,7 @@
     },
     "mcp": {
       "title": "Slipp din *egen*\nagent løs på dataene",
-      "lede": "Betterlytics har en innebygd MCP-server. Spør på vanlig norsk og få svar på tvers av alt sammen.",
+      "lede": "Betterlytics har innebygd MCP. Spør på vanlig norsk og få svar på tvers av alt sammen.",
       "lead": "Still spørsmål, ikke spørringer.",
       "body": "Agenten din leser skjemaet og kobler sammen trafikk, trakter, feil og oppetid.",
       "worksWith": "Fungerer med",
@@ -1349,6 +1349,8 @@
         "uptime": "Oppetidsovervåking",
         "replay": "Sesjonsavspilling",
         "errors": "Feilsporing",
+        "vitals": "Core Web Vitals",
+        "mcp": "MCP",
         "pricing": "Priser"
       },
       "company": {
@@ -1443,7 +1445,7 @@
         "operational": "I drift"
       },
       "transcript": {
-        "alt": "En terminaløkt: En agent får spørsmål om hvilke sider som mistet trafikk etter redesignet i august. Den henter sidevisninger og feil via MCP-serveren i Betterlytics og finner ut at /pricing har falt 34 %, rammet av en TypeError som ble rullet ut samme dag.",
+        "alt": "En terminaløkt: En agent får spørsmål om hvilke sider som mistet trafikk etter redesignet i august. Den henter sidevisninger og feil via Betterlytics MCP og finner ut at /pricing har falt 34 %, rammet av en TypeError som ble rullet ut samme dag.",
         "redesign": {
           "question": "hvilke sider har mistet trafikk etter redesignet i august?",
           "say": "Jeg sammenligner daglige sidevisninger i juli og august, og ser så etter feil på sidene som falt.",
@@ -1465,7 +1467,7 @@
           "signups": "Google 164 · ChatGPT 71 · Hacker News 9",
           "answer": "ChatGPT sender en niendedel så mange besøkende som Google, men 3,4 % av dem registrerer seg, mot 0,9 % – nesten fire ganger så høy andel."
         },
-        "uptimeAlt": "En terminaløkt: En agent blir bedt om å undersøke et nedetidsvarsel for Checkout. Den leser den åpne hendelsen via MCP-serveren i Betterlytics, finner en commit som ble rullet ut tre minutter før driftsavbruddet, og tilbyr å reversere den. Deretter regner den ut hva gårsdagens driftsavbrudd i kassen kostet i salg.",
+        "uptimeAlt": "En terminaløkt: En agent blir bedt om å undersøke et nedetidsvarsel for Checkout. Den leser den åpne hendelsen via Betterlytics MCP, finner en commit som ble rullet ut tre minutter før driftsavbruddet, og tilbyr å reversere den. Deretter regner den ut hva gårsdagens driftsavbrudd i kassen kostet i salg.",
         "investigate": {
           "question": "checkout varsler at den er nede, kan du undersøke?",
           "say": "Jeg henter den åpne hendelsen fra Betterlytics og sjekker så hva som ble rullet ut rett før den startet.",
@@ -1473,7 +1475,7 @@
           "commits": "a41f2c9 10:09 Move Stripe keys to env vars",
           "answer": "Checkout har svart med 503 siden 10:12, tre minutter etter at a41f2c9 flyttet Stripe-nøklene til miljøvariabler. Skal jeg reversere den?"
         },
-        "debugAlt": "En terminaløkt: En agent får høre at det ikke skjer noe når man velger en plan. Den henter feilene på /pricing via MCP-serveren i Betterlytics, leser stack trace og sesjonsforløp for en TypeError, åpner pricing.js på linje 142 og foreslår en rettelse. Deretter får den spørsmål om hvilke feil som bør fikses først, sorterer ukens feil etter hvor mange sesjoner de har rammet, og velger den samme TypeError-en.",
+        "debugAlt": "En terminaløkt: En agent får høre at det ikke skjer noe når man velger en plan. Den henter feilene på /pricing via Betterlytics MCP, leser stack trace og sesjonsforløp for en TypeError, åpner pricing.js på linje 142 og foreslår en rettelse. Deretter får den spørsmål om hvilke feil som bør fikses først, sorterer ukens feil etter hvor mange sesjoner de har rammet, og velger den samme TypeError-en.",
         "debug": {
           "question": "folk sier det ikke skjer noe når de velger plan, kan du ta en titt?",
           "say": "Jeg sjekker feilene på /pricing først.",
@@ -1716,7 +1718,7 @@
       },
       "agent": {
         "title": "Spør agenten din *hvorfor* den gikk ned",
-        "lede": "Monitorer og hendelser ligger i den innebygde MCP-serveren, så agenten din kan granske et driftsavbrudd ved siden av koden, trafikken og feilene dine.",
+        "lede": "Monitorer og driftshendelser er tilgjengelige via innebygd MCP, så agenten din kan undersøke et driftsavbrudd sammen med koden, trafikken og feilene dine.",
         "lead": "Fra varsel til årsak med ett spørsmål",
         "body": "Agenten din leser den åpne hendelsen, sjekker hva som ble rullet ut rett før, og kommer tilbake med den sannsynlige årsaken og en rettelse du kan godkjenne. Eller legg et driftsavbrudd opp mot trafikk og salg for å se hva det kostet.",
         "cta": "Sett opp MCP"
@@ -2126,7 +2128,7 @@
       },
       "agent": {
         "title": "Overlat bugen *til agenten din*",
-        "lede": "Kodeagenten din kan slå opp feil via den innebygde MCP-serveren og jobbe med rettelsen rett ved siden av koden din.",
+        "lede": "Kodeagenten din kan slå opp feil via innebygd MCP og jobbe med rettelsen rett ved siden av koden din.",
         "lead": "Fra klage til rettelse med ett spørsmål",
         "body": "Spør Claude Code, Cursor eller en hvilken som helst MCP-klient om en klage. Den finner feilen som hører til, leser stack trace og sesjonsforløp, og åpner filen stacken peker på.",
         "cta": "Sett opp MCP"
@@ -2210,6 +2212,484 @@
         "lede": "Legg til Betterlytics-skriptet, eller ett attributt hvis du allerede har det, så begynner feilene å dukke opp i dashboardet ditt. Gratis på alle planer.",
         "primary": "Start feilsporing gratis",
         "secondary": "Les dokumentasjonen om feilsporing"
+      }
+    },
+    "vitals": {
+      "seo": {
+        "title": "Overvåking av Core Web Vitals fra ekte besøkende | Betterlytics",
+        "description": "Gratis overvåking av Core Web Vitals hos ekte besøkende: LCP, INP, CLS, FCP og TTFB fra deres egne nettlesere, fordelt på side, enhet, land og nettleser."
+      },
+      "hero": {
+        "eyebrow": "Core Web Vitals",
+        "title": "Se hvor raskt nettstedet ditt er for ekte besøkende, og hvor det går tregt",
+        "lede": "Betterlytics måler LCP, INP, CLS, FCP og TTFB i de besøkendes egne nettlesere og viser hvilke sider, enheter og land som er trege. Det er gratis på alle planer og slås på med ett attributt.",
+        "primary": "Start måling gratis",
+        "secondary": "Les dokumentasjonen"
+      },
+      "specs": {
+        "metrics": {
+          "unit": "målinger",
+          "label": "Målt slik Google gjør det",
+          "body": "De tre Core Web Vitals, LCP, INP og CLS, pluss FCP og TTFB."
+        },
+        "traffic": {
+          "unit": "besøk",
+          "label": "Ingen krav til trafikk",
+          "body": "Alle sider vises fra første besøk, også de med lite trafikk."
+        },
+        "weight": {
+          "unit": "KB",
+          "label": "Belaster ikke sidene dine",
+          "body": "Måleskriptet, gzippet. Det lastes inn uten å blokkere siden."
+        },
+        "thesis": {
+          "unit": "dagers forsinkelse",
+          "label": "Se effekten av en fiks samme dag",
+          "body": "Googles rapporter dekker de siste 28 dagene, så det tar uker før en fiks synes der. Betterlytics viser den etter hvert som nye sideinnlastinger kommer inn."
+        }
+      },
+      "blindSpot": {
+        "title": "Trege sider *ser fine ut* fra serverne dine",
+        "lede": "Serversjekkene dine er grønne, men ventetiden oppstår i de besøkendes nettlesere. Betterlytics måler den der, ved hver sideinnlasting.",
+        "feel": "Det de besøkende merker",
+        "measure": "Det Betterlytics måler",
+        "thoughts": {
+          "loading": "Laster fortsatt…",
+          "photos": "Hvor er bildene?",
+          "pay": "Jeg trykket på Betal. Ingenting skjedde.",
+          "typing": "Søkefeltet henger etter når jeg skriver.",
+          "jumped": "Den flyttet seg, og jeg traff feil knapp.",
+          "blank": "Virker denne siden i det hele tatt?",
+          "menu": "Hvorfor åpner ikke menyen seg?",
+          "elsewhere": "Jeg finner det et annet sted.",
+          "moving": "Siden hopper hele tiden.",
+          "come": "Kom igjen, da!"
+        },
+        "vitals": {
+          "LCP": "Hovedinnhold vist",
+          "INP": "Respons på trykk",
+          "CLS": "Layoutforskyvning",
+          "FCP": "Første innhold vist",
+          "TTFB": "Serverrespons"
+        },
+        "source": "<link>Google fant</link> at risikoen for at besøkende forlater siden, øker med 32 % når lastetiden går fra 1 til 3 sekunder.",
+        "alt": "Til venstre driver tanker forbi som de besøkende har, men aldri sender: en side som fortsatt laster, et trykk på Betal som ikke gjorde noe, en layout som flyttet seg under noens finger, en tom skjerm og en meny som ikke vil åpne seg. Til høyre Betterlytics’ fem målere for kassesiden: hovedinnholdet vises etter 3,3 sekunder, som er middels; trykk får respons etter 520 millisekunder, som er dårlig; layoutforskyvningen er 0,05, som er bra; det første innholdet vises etter 2 sekunder, som er middels; og serveren svarer på 640 millisekunder, som er bra."
+      },
+      "field": {
+        "title": "Se hvem som venter *lengst*",
+        "lede": "Besøkende laster inn sidene dine på egne telefoner og nettverk. Betterlytics fordeler innlastingene på land, side, enhet og nettleser.",
+        "levels": {
+          "good": "God",
+          "fair": "Middels",
+          "poor": "Dårlig"
+        },
+        "split": "Fordelt på",
+        "tabs": {
+          "countries": "Land",
+          "pages": "Sider",
+          "devices": "Enheter",
+          "browsers": "Nettlesere",
+          "os": "OS"
+        },
+        "columns": {
+          "countries": "Land",
+          "pages": "Side",
+          "devices": "Enhet",
+          "browsers": "Nettleser",
+          "os": "Operativsystem",
+          "lcp": "LCP"
+        },
+        "devices": {
+          "desktop": "Desktop",
+          "mobile": "Mobil",
+          "tablet": "Nettbrett"
+        },
+        "visitors": "Alle besøkende"
+      },
+      "anatomy": {
+        "title": "Fem tall fra *én sideinnlasting*",
+        "lede": "Hver måling fanger sitt eget øyeblikk, så du kan skille en treg server fra et tungt bilde eller en knapp som henger. Velg en for å se når den måles.",
+        "alt": "En filmstripe av en side som lastes inn på en telefon, ett bilde hvert halve sekund i {end}. Den første byten kommer etter {ttfb}, men skjermen er tom til overskriften tegnes etter {fcp}. Resten av teksten og knappen følger, med plass satt av til bildet, og bildet, det største elementet, tegnes etter {lcp}. Etter {cls} skyver et banner alt nedover, en layoutforskyvning på {shift}. Den besøkende trykker på knappen etter {inp}, og siden viser responsen {response} senere. Velg en måling for å se når den måles.",
+        "callouts": {
+          "shift": "Hopp",
+          "tap": "Trykk"
+        },
+        "metrics": {
+          "TTFB": {
+            "name": "Time to First Byte",
+            "body": "Hvor lang tid serveren bruker på å begynne å sende siden."
+          },
+          "FCP": {
+            "name": "First Contentful Paint",
+            "body": "Når den første teksten eller det første bildet dukker opp."
+          },
+          "LCP": {
+            "name": "Largest Contentful Paint",
+            "body": "Når det største bildet eller den største tekstblokken vises. Det er vanligvis da siden ser klar ut."
+          },
+          "CLS": {
+            "name": "Cumulative Layout Shift",
+            "body": "En score for hvor mye layouten hopper rundt mens ting lastes inn."
+          },
+          "INP": {
+            "name": "Interaction to Next Paint",
+            "body": "Hvor lang tid siden bruker på å reagere på skjermen når noen klikker, trykker eller skriver. Det er de tregeste responsene som avgjør."
+          }
+        }
+      },
+      "priority": {
+        "title": "Se hvilken side du bør *fikse først*",
+        "lede": "Sidene rangeres etter score og trafikk, så en treg side som få ser, ikke sniker i køen.",
+        "axisX": "Andel av sideinnlastinger",
+        "axisY": "Ytelsesscore",
+        "highest": "Størst potensial",
+        "list": "Fiks først",
+        "share": "{share} av trafikken",
+        "score": "Score",
+        "opportunity": "Potensial",
+        "grades": {
+          "great": "Utmerket",
+          "okay": "OK",
+          "poor": "Dårlig"
+        },
+        "recipe": {
+          "title": "Score og potensial",
+          "body": "Vektene over setter målingene sammen til én score fra 0 til 100. Potensial viser hvilken fiks som hjelper flest besøkende."
+        },
+        "cta": "Slik beregnes scoren"
+      },
+      "setup": {
+        "title": "Slå det på med *ett* attributt",
+        "lede": "Web Vitals følger med Betterlytics-skriptet. Legg til ett attributt i script-taggen, så begynner de neste sideinnlastingene å rapportere.",
+        "label": "Legg dette til i script-taggen for Betterlytics",
+        "npm": "Bruker du <link>npm-pakken</link>? Legg til <code>enableWebVitals: true</code> i <code>init()</code>.",
+        "copy": "Kopier attributtet",
+        "copied": "Kopiert",
+        "cta": "Les oppsettsguiden"
+      },
+      "related": {
+        "lede": "Core Web Vitals er én del av Betterlytics. Alt nedenfor deler dashboard, innlogging og faktura."
+      },
+      "faq": {
+        "title": "Ofte stilte spørsmål",
+        "items": {
+          "what": {
+            "q": "Hva er Core Web Vitals?",
+            "a": "Core Web Vitals er Googles målinger av hvordan det oppleves å laste inn og bruke en side: Largest Contentful Paint for innlasting, Interaction to Next Paint for responsivitet og Cumulative Layout Shift for visuell stabilitet. Betterlytics registrerer også First Contentful Paint og Time to First Byte, som hjelper deg å forstå en treg LCP."
+          },
+          "ranking": {
+            "q": "Hjelper det rangeringen min i Google?",
+            "a": "Det kan det, fordi det viser deg hva du bør fikse. Google bruker Core Web Vitals som ett av rangeringssignalene sine, og Betterlytics vurderer dem på samme måte, ved 75-persentilen, så du ser hvilke sider som ikke holder mål. Fiks dem, og du ser endringen i Betterlytics samme dag, uker før det slår ut i Googles data for de siste 28 dagene."
+          },
+          "free": {
+            "q": "Er overvåking av Core Web Vitals gratis?",
+            "a": "Ja. Det er inkludert i alle planer, også gratisplanen. Hver målt sideinnlasting sender alle fem målingene som én hendelse, og den teller i den månedlige hendelseskvoten din, akkurat som en sidevisning."
+          },
+          "lab": {
+            "q": "Hvordan skiller dette seg fra Lighthouse eller PageSpeed Insights?",
+            "a": "Lighthouse er en labtest: den laster inn siden din én gang, på en simulert enhet og et simulert nettverk. Betterlytics er real user monitoring: det måler hva de besøkende faktisk fikk, på sine egne enheter. PageSpeed Insights legger til feltdata fra Chrome UX Report, som bare teller Chrome på desktop og Android, dekker de siste 28 dagene og bare vises for sider og nettsteder med nok trafikk. Bruk labverktøyene til å feilsøke en side, og Betterlytics til å se hva de besøkende opplevde."
+          },
+          "campaigns": {
+            "q": "Kan jeg se Web Vitals for én kampanje eller trafikkilde?",
+            "a": "Ja. Web Vitals fungerer med filtrene i dashboardet ditt, så du kan se hvor raskt sidene dine lastes for besøkende fra én kampanje eller henvisningskilde. Det er en rask måte å sjekke sidene annonsene dine sender folk til."
+          },
+          "browsers": {
+            "q": "Hvilke nettlesere rapporterer Web Vitals?",
+            "a": "Alle moderne nettlesere. Chrome, Edge, Opera, Samsung Internet og andre Chromium-baserte nettlesere rapporterer alle fem målingene. Nyere versjoner av Safari og Firefox, på desktop og mobil, rapporterer alle unntatt CLS, som bare Chromium måler. En nettleser som ikke kan måle en verdi, hopper over den og rapporterer resten."
+          },
+          "speed": {
+            "q": "Blir nettstedet mitt tregere av målingen?",
+            "a": "Ikke slik at de besøkende merker det. Måleskriptet er på 2,6 KB gzippet og lastes inn uten å blokkere siden. Alle fem verdiene sendes i én liten forespørsel når den besøkende forlater siden eller bytter fane."
+          },
+          "spa": {
+            "q": "Fungerer det med single-page-apper?",
+            "a": "Delvis. I en single-page-app måler Betterlytics den første innlastingen og registrerer den på siden som er åpen når den besøkende går. Ruteendringer etter det måles ikke som egne sideinnlastinger."
+          },
+          "attribution": {
+            "q": "Kan det fortelle meg hvilket element som gjorde en side treg?",
+            "a": "Nei. Betterlytics viser hvor treg hver side var, og for hvem, fordelt på enhet, land, nettleser og OS. Elementet bak en treg LCP eller skriptet bak en treg INP finner du ved å åpne siden i Chrome DevTools eller kjøre Lighthouse på den."
+          },
+          "privacy": {
+            "q": "Bruker det cookies, eller samler det inn personopplysninger?",
+            "a": "Nei. Som resten av Betterlytics bruker Web Vitals ingen cookies. Hver måling er bare fem tall pluss detaljene en sidevisning allerede har, som side, nettleser og land."
+          },
+          "dedicated": {
+            "q": "Når passer et dedikert ytelsesverktøy bedre?",
+            "a": "Et dedikert ytelsesverktøy passer bedre hvis du vil se hvilket element som gjør en side treg, eller trenger Web Vitals for ruteendringer på klientsiden, varsler, labtester eller måling i native mobilapper. Betterlytics passer best når du vil se hastighet sammen med trafikk, feil og opptak, fra ett skript og ett dashboard."
+          }
+        }
+      },
+      "cta": {
+        "title": "Mål din første ekte sideinnlasting i dag",
+        "lede": "Legg til Betterlytics-skriptet, eller ett attributt hvis du allerede har det, så begynner ekte sideinnlastinger å dukke opp i dashboardet ditt. Gratis på alle planer.",
+        "primary": "Start måling gratis",
+        "secondary": "Les dokumentasjonen om Web Vitals"
+      }
+    },
+    "mcpServer": {
+      "seo": {
+        "title": "MCP-server for nettanalyse med AI-agenter | Betterlytics",
+        "description": "Spør Claude, Cursor, Codex eller en annen MCP-klient om trafikk, trakter, feil og oppetid, og få svar basert på de faktiske dataene dine. Gratis på alle planer."
+      },
+      "hero": {
+        "eyebrow": "MCP",
+        "title": "Spør AI-agenten din om trafikk, feil og oppetid",
+        "lede": "Betterlytics har innebygd MCP. Spør Claude, Cursor eller Codex om nettstedet ditt og få svar basert på de faktiske tallene dine, i chatten, editoren eller terminalen du allerede bruker. Gratis på alle planer.",
+        "primary": "Koble til agenten din gratis",
+        "secondary": "Les oppsettsguiden"
+      },
+      "window": {
+        "label": "Eksempeløkter",
+        "note": "Eksempeløkter med fiktive data.",
+        "you": "Du",
+        "chat": {
+          "tab": "Hvorfor falt registreringene?",
+          "nav": {
+            "newChat": "New",
+            "search": "Search",
+            "projects": "Projects",
+            "artifacts": "Artifacts",
+            "scheduled": "Scheduled",
+            "customize": "Customize"
+          },
+          "recents": "Recents",
+          "chats": {
+            "drop": "Fall i registreringer 5. nov.",
+            "recap": "Ukentlig trafikkoversikt",
+            "pricing": "Feil på prissiden",
+            "friday": "Sjekkliste for Black Friday"
+          },
+          "viewAll": "View all",
+          "plan": "Pro",
+          "question": "Registreringene falt i går ettermiddag. Hva skjedde?",
+          "tools": "Used 3 Betterlytics tools",
+          "lead": "Checkout-tjenesten din var nede i 19 minutter, og registreringene falt samtidig.",
+          "chart": {
+            "signups": "Registreringer per time",
+            "failed": "Feilet mens checkout var nede",
+            "tipSignups": "{count} registreringer",
+            "tipFailed": "{count} feilet",
+            "summary": "Stolpediagram over registreringer per time fra 10:00 til 18:00: 431 til 524 hver time unntatt kl. 14:00, med 343 registreringer og 164 som feilet mens checkout var nede."
+          },
+          "points": {
+            "a": "Checkout svarte ikke fra 14:02 til 14:21.",
+            "b": "Registreringsskjemaet sendes til checkout.acme.com, så 211 forsøk feilet med «Failed to fetch», fordelt på 164 besøk.",
+            "c": "Registreringene var tilbake på normalt nivå innen kl. 15:00."
+          },
+          "close": "Med retry på registreringskallet ville de fleste ha gått gjennom. Skal jeg lage et utkast?",
+          "reply": "Reply…",
+          "connector": "Betterlytics",
+          "model": "Opus 5.5",
+          "effort": "Medium"
+        },
+        "cursor": {
+          "tab": "Fiks feilen på /pricing",
+          "review": "Ready for review",
+          "agents": {
+            "fix": {
+              "title": "Fiks planvelgeren",
+              "sub": "Tåler tidlige klikk"
+            },
+            "retry": {
+              "title": "Retry av registreringer",
+              "sub": "Retry med backoff"
+            },
+            "alerts": {
+              "title": "Checkout-timeoutvarsler",
+              "sub": "Tydeligere varseltekst"
+            },
+            "recap": {
+              "title": "Ukentlig trafikkoversikt",
+              "sub": "Oppsummering klar"
+            }
+          },
+          "question": "Folk sier at det ikke skjer noe når de velger en plan på /pricing. Kan du fikse det?",
+          "thought": "Thought",
+          "called": "Called",
+          "read": "Read",
+          "answer": "Betterlytics viser en TypeError på /pricing i 318 besøk denne uken. Klikk som kommer før planene er lastet inn, finner <c>selected</c> fortsatt null, så linje 142 kaster en feil. Jeg har lagt inn en sjekk, så et tidlig klikk blir ignorert i stedet for å ødelegge siden.",
+          "worked": "Worked for 38s",
+          "placeholder": "Add a follow-up…",
+          "mode": "Agent",
+          "undo": "Undo",
+          "keep": "Keep"
+        },
+        "codex": {
+          "tab": "Ødela deployen noe?",
+          "newChat": "New chat",
+          "projects": "Projects",
+          "recents": "Recents",
+          "showMore": "Show more",
+          "chats": {
+            "deploy": "Sjekk deployen kl. 15:30",
+            "pricing": "Fiks krasjet i planvelgeren",
+            "retry": "Retry av registreringer",
+            "recap": "Ukentlig trafikkoversikt",
+            "checkout": "Checkout-timeoutvarsler"
+          },
+          "question": "Ødela deployen kl. 15:30 noe?",
+          "say": "Jeg sjekker oppetid, feil og trafikk siden kl. 15:30.",
+          "called": "Called",
+          "monitors": "4 monitorer, alle oppe",
+          "incidents": "0 driftshendelser i dag",
+          "errors": "2 feilgrupper den siste timen, begge først sett før i dag",
+          "traffic": "15:00 → 1 284 og 16:00 → 1 311 sidevisninger (samme timer i går: 1 240 og 1 296)",
+          "answer": "Ingenting ble ødelagt. Alle monitorene holdt seg oppe, ingen nye feiltyper har dukket opp etter 15:30, og trafikken er på linje med i går.",
+          "worked": "Worked for 9s",
+          "placeholder": "Ask for follow-up changes",
+          "approve": "Approve for me",
+          "effort": "High"
+        }
+      },
+      "specs": {
+        "connection": {
+          "unit": "tilkobling",
+          "label": "Fra trakter til stack traces",
+          "body": "Trafikk, brukerreiser, trakter, feil, oppetid og statussider kan alle hentes via den samme tilkoblingen."
+        },
+        "free": {
+          "value": "Gratis",
+          "unit": "på alle planer",
+          "label": "Ingen tilleggskjøp",
+          "body": "Det er med i gratisplanen også, og ingenting agenten din slår opp, teller med i den månedlige hendelseskvoten din."
+        },
+        "thesis": {
+          "unit": "cookies",
+          "label": "Ingen personopplysninger å gi fra seg",
+          "body": "Betterlytics lagrer verken cookies eller IP-adresser, så agenten din ser bare personopplysninger hvis nettstedet ditt selv sender dem."
+        }
+      },
+      "tools": {
+        "title": "Ett spørsmål kan dekke *hele nettstedet ditt*",
+        "lede": "Agenten din kan sjekke trafikk, feil, oppetid og statussiden din før den svarer. Velg et eksempelspørsmål for å se hvilke verktøy den bruker.",
+        "agent": "Agenten din",
+        "agentBody": "Fungerer med Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Antigravity og Codex",
+        "server": "Betterlytics MCP",
+        "copy": "Kopier spørsmålet",
+        "copied": "Kopiert",
+        "pick": "Eksempelspørsmål",
+        "featured": "Utvalgte",
+        "groups": {
+          "analytics": "Nettanalyse",
+          "errors": "Feilsporing",
+          "uptime": "Oppetidsovervåking",
+          "status": "Statussider"
+        },
+        "questions": {
+          "morning": "Gi meg en morgensjekk av trafikk, feil, oppetid og statussiden vår.",
+          "launch": "Vi lanserte på Product Hunt i dag. Hvordan går det?",
+          "signups": "Registreringene falt i går ettermiddag. Hva skjedde?",
+          "pricing": "Folk sier at det ikke skjer noe når de velger en plan på /pricing. Hvorfor?",
+          "deploy": "Ødela deployen kl. 15:30 noe?",
+          "outage": "Checkout er nede. Koster det oss registreringer, og har vi lagt ut en driftsmelding?"
+        },
+        "asks": {
+          "describe": "Hva kan du slå opp i Betterlytics?",
+          "list_dashboards": "Hvilke av nettstedene våre kan du se?",
+          "query": "Hvilke sider fikk flest besøkende fra Hacker News denne uken?",
+          "query_sessions": "Hvilke landingssider har høyest fluktfrekvens denne måneden?",
+          "user_journeys": "Hvor går de besøkende videre fra prissiden?",
+          "funnel_preview": "Hvor mange av dem som begynner å registrere seg, fullfører faktisk?",
+          "list_funnels": "Hvilket trinn i onboarding-trakten vår mister flest?",
+          "list_global_properties": "Gir variant B av forsiden flere registreringer?",
+          "list_errors": "Hvilke feil skjer bare i Safari?",
+          "get_error": "Hva gjorde den besøkende rett før den siste TypeError-en?",
+          "list_monitors": "Er alt oppe, og går noen SSL-sertifikater snart ut?",
+          "list_monitor_incidents": "Hvor lenge varte hvert driftsavbrudd denne uken, og hvorfor?",
+          "list_status_pages": "Hva forteller statussiden vår de besøkende akkurat nå?",
+          "list_incident_suggestions": "Har vi glemt å legge ut en driftsmelding om et nylig driftsavbrudd?"
+        }
+      },
+      "setup": {
+        "title": "Legg det til i klienten du *allerede* bruker",
+        "lede": "Opprett en API-nøkkel i Betterlytics-innstillingene dine, lim inn én kodesnutt i klienten din og begynn å spørre. I VS Code holder det med ett klikk.",
+        "label": "Klienten din",
+        "other": "Eksterne MCP-klienter med API-nøkkel fungerer også.",
+        "install": {
+          "vs-code": "Installer i VS Code",
+          "cursor": "Legg til i Cursor"
+        },
+        "installNote": {
+          "vs-code": "Eller hopp over filen. VS Code åpnes og ber om API-nøkkelen din.",
+          "cursor": "Eller hopp over filen. Lim inn API-nøkkelen i oppsettsguiden, så tar Cursor seg av installasjonen."
+        },
+        "clients": {
+          "claude": "Åpne Developer under Settings, deretter Edit Config, og legg til dette.",
+          "claude-code": "Kjør dette i terminalen din.",
+          "cursor": "Legg dette til i prosjektet ditt.",
+          "vs-code": "Legg dette til i prosjektet ditt.",
+          "windsurf": "Legg dette til i MCP-konfigurasjonen til Windsurf.",
+          "antigravity": "Legg dette til i MCP-konfigurasjonen til Antigravity.",
+          "codex": "Legg dette til i Codex-konfigurasjonen din."
+        },
+        "notes": {
+          "claude": "Krever Node.js for å kjøre mcp-remote. På Windows bruker du konfigurasjonen i oppsettsguiden.",
+          "antigravity": "For ett enkelt workspace legger du det heller til i .agents/mcp_config.json."
+        },
+        "copy": "Kopier",
+        "copied": "Kopiert",
+        "guide": "Oppsettsguide",
+        "cta": "Les oppsettsguiden",
+        "trust": {
+          "read": {
+            "title": "Kun lesetilgang",
+            "body": "Alle de 14 verktøyene kan bare lese. Agenten din kan ikke endre innstillinger, slette data eller legge ut driftsmeldinger."
+          },
+          "scope": {
+            "title": "Du bestemmer hva den ser",
+            "body": "Hver API-nøkkel gjelder ett nettsted, så agenten din ser bare nettstedene du velger."
+          },
+          "revoke": {
+            "title": "Trekk tilbake når du vil",
+            "body": "Trekk tilbake en API-nøkkel når som helst, så stopper tilgangen med en gang. Eller gi den en utløpsdato."
+          }
+        }
+      },
+      "related": {
+        "lede": "MCP er én del av Betterlytics. Alt nedenfor ligger i samme dashboard, med samme innlogging og faktura."
+      },
+      "faq": {
+        "title": "Ofte stilte spørsmål",
+        "items": {
+          "what": {
+            "q": "Hva er MCP?",
+            "a": "MCP, Model Context Protocol, er en åpen standard som lar AI-agenter bruke verktøy i andre apper. Med Betterlytics MCP kan agenter som Claude, Cursor og Codex lese trafikk, feil, oppetid og statussider for nettstedet ditt, så de svarer med de faktiske tallene dine."
+          },
+          "free": {
+            "q": "Koster MCP ekstra?",
+            "a": "Nei. Det er inkludert i alle planer, også gratisplanen, og ingenting agenten din slår opp, teller med i den månedlige hendelseskvoten din."
+          },
+          "clients": {
+            "q": "Hvilke AI-klienter fungerer det med?",
+            "a": "Oppsettsguiden viser steg for steg hvordan du setter det opp i Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Antigravity og Codex. Andre klienter fungerer også, så lenge de kan koble til en ekstern MCP-server med en API-nøkkel."
+          },
+          "scope": {
+            "q": "Hva kan agenten min se?",
+            "a": "Nesten alt på nettstedet du kobler til: trafikk, sesjoner, hendelser, trakter, brukerreiser, globale egenskaper, feil med stack traces og sesjonsforløp, monitorer, driftshendelser og statussider."
+          },
+          "provider": {
+            "q": "Blir dataene mine sendt til AI-leverandøren?",
+            "a": "Det agenten din leser, blir en del av samtalen, så det håndteres av modellen og klienten du bruker, på deres vilkår. Betterlytics setter ingen cookies og lagrer ingen IP-adresser, så svarene kan knyttes til en person bare hvis nettstedet ditt selv sender data som kan identifisere noen."
+          },
+          "sites": {
+            "q": "Kan jeg koble til mer enn ett nettsted?",
+            "a": "Ja. Hver API-nøkkel gjelder ett nettsted, så opprett én for hvert nettsted og legg dem til i klienten under hvert sitt navn, for eksempel betterlytics-shop og betterlytics-blog."
+          },
+          "revoke": {
+            "q": "Hvordan fjerner jeg tilgangen?",
+            "a": "Slett API-nøkkelen i Betterlytics, så mister agenten din tilgangen med en gang. API-nøkler kan også utløpe av seg selv etter 30, 90 eller 180 dager."
+          },
+          "schema": {
+            "q": "Må jeg vite hvordan dataene er lagret?",
+            "a": "Nei. Agenten din slår opp hvilke metrikker, filtre og tidsperioder den kan bruke, velger riktige verktøy og henter dataene. Du trenger bare å spørre med dine egne ord."
+          }
+        }
+      },
+      "cta": {
+        "title": "Still ditt første spørsmål i dag",
+        "lede": "Registrer deg, legg til skriptet på nettstedet ditt og koble til agenten din. Gratis på alle planer.",
+        "primary": "Koble til agenten din gratis",
+        "secondary": "Les oppsettsguiden"
       }
     }
   },

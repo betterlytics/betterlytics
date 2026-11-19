@@ -141,12 +141,7 @@ export function ReplayPage() {
         items={[
           { key: 'analytics', icon: <MousePointerClick className='size-4' />, href: LINKS.docs, docs: true },
           { key: 'errors', icon: <Bug className='size-4' />, href: '/features/error-tracking' },
-          {
-            key: 'vitals',
-            icon: <Gauge className='size-4' />,
-            href: `${LINKS.docs}/dashboard/web-vitals`,
-            docs: true,
-          },
+          { key: 'vitals', icon: <Gauge className='size-4' />, href: '/features/core-web-vitals' },
           { key: 'uptime', icon: <Activity className='size-4' />, href: '/features/uptime-monitoring' },
         ]}
       />
