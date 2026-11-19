@@ -36,14 +36,28 @@ export function useSessionManager(): UseSessionManagerReturn {
 
   const sessions = useMemo(() => sessionQuery.data?.pages.flatMap((page) => page) ?? [], [sessionQuery.data]);
 
+  // A linked session (from an error or a heatmap) can lie outside the period or the loaded pages
+  const linkedInList = sessionIdParam ? sessions.some((s) => s.session_id === sessionIdParam) : true;
+  const linkedEnabled = Boolean(sessionIdParam) && !sessionQuery.isLoading && !linkedInList;
+  const linkedQuery = trpc.sessionReplays.byId.useQuery(
+    { dashboardId: input.dashboardId, sessionId: sessionIdParam ?? '' },
+    { enabled: linkedEnabled },
+  );
+  const linkedSession = linkedQuery.data ?? null;
+  const linkedPending = linkedEnabled && linkedQuery.isPending;
+
   useEffect(() => {
-    if (sessions.length === 0) {
+    const linked =
+      (sessionIdParam ? sessions.find((s) => s.session_id === sessionIdParam) : undefined) ??
+      (linkedSession?.session_id === sessionIdParam ? linkedSession : undefined);
+    // Wait for the linked session rather than starting another one first
+    if (!linked && linkedPending) return;
+
+    const chosen = linked ?? sessions[0];
+    if (!chosen) {
       setSelectedSession(null);
       return;
     }
-
-    const chosen =
-      (sessionIdParam ? sessions.find((s) => s.session_id === sessionIdParam) : undefined) ?? sessions[0];
 
     setSelectedSession((prev) => {
       if (prev?.session_id === chosen.session_id) {
@@ -51,7 +65,7 @@ export function useSessionManager(): UseSessionManagerReturn {
       }
       return chosen;
     });
-  }, [sessionIdParam, sessions]);
+  }, [sessionIdParam, sessions, linkedSession, linkedPending]);
 
   const selectSession = (session: SessionReplay) => {
     if (selectedSession?.session_id === session.session_id) {

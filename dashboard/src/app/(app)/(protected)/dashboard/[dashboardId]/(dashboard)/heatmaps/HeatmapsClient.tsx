@@ -17,15 +17,16 @@ import {
   type HeatmapDevice,
   type HeatmapDeviceShareRow,
 } from '@/entities/analytics/clickHeatmap.entities';
-import { HeatmapView } from './HeatmapView';
+import { HeatmapPanel } from './HeatmapPanel';
 
 function useHeatmapSelection() {
   const searchParams = useSearchParams();
   const path = searchParams?.get('path') || undefined;
   const parsedDevice = HeatmapDeviceSchema.safeParse(searchParams?.get('device'));
   const device = parsedDevice.success ? parsedDevice.data : undefined;
+  const capture = searchParams?.get('capture') || undefined;
 
-  const setSelection = useCallback((next: { path?: string; device?: HeatmapDevice }) => {
+  const setSelection = useCallback((next: { path?: string; device?: HeatmapDevice; capture?: string }) => {
     const params = new URLSearchParams(window.location.search);
     for (const [key, value] of Object.entries(next)) {
       if (value) params.set(key, value);
@@ -35,7 +36,7 @@ function useHeatmapSelection() {
     window.history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}`);
   }, []);
 
-  return { path, device, setSelection };
+  return { path, device, capture, setSelection };
 }
 
 function pickBusiestDevice(shares: HeatmapDeviceShareRow[]): HeatmapDevice {
@@ -60,11 +61,6 @@ export function HeatmapsClient() {
   const totalClicks = shares?.reduce((sum, share) => sum + share.clicks, 0) ?? 0;
   const selectedDevice = selection.device ?? (shares ? pickBusiestDevice(shares) : undefined);
 
-  const clicksQuery = trpc.clickHeatmap.clicks.useQuery(
-    { ...input, url: selectedPath ?? '', device: selectedDevice ?? 'desktop' },
-    { ...options, placeholderData: undefined, enabled: selectedPath !== undefined && selectedDevice !== undefined },
-  );
-
   const pageOptions = useMemo(() => {
     if (!selectedPath || pages.some((page) => page.url === selectedPath)) return pages;
     return [{ url: selectedPath, clicks: totalClicks }, ...pages];
@@ -84,13 +80,14 @@ export function HeatmapsClient() {
 
   const deviceClicks = shares?.find((share) => share.device === selectedDevice)?.clicks ?? 0;
   const devicesWithClicks = shares?.filter((share) => share.clicks > 0 && share.device !== selectedDevice) ?? [];
-  const fixedClicks = clicksQuery.data?.fixedClicks ?? 0;
-  const fixedClicksNote = fixedClicks > 0 ? t('fixedClicksHidden', { count: fixedClicks }) : null;
 
   return (
     <div className='space-y-3'>
       <div className='flex flex-col gap-3 md:flex-row md:items-end md:justify-between'>
-        <Select value={selectedPath} onValueChange={(path) => selection.setSelection({ path, device: undefined })}>
+        <Select
+          value={selectedPath}
+          onValueChange={(path) => selection.setSelection({ path, device: undefined, capture: undefined })}
+        >
           <SelectTrigger className='w-full md:w-96' aria-label={t('pagePicker')}>
             <SelectValue />
           </SelectTrigger>
@@ -106,7 +103,9 @@ export function HeatmapsClient() {
 
         <UnderlineTabs
           value={selectedDevice ?? ''}
-          onValueChange={(value) => selection.setSelection({ device: HeatmapDeviceSchema.parse(value) })}
+          onValueChange={(value) =>
+            selection.setSelection({ device: HeatmapDeviceSchema.parse(value), capture: undefined })
+          }
         >
           <UnderlineTabsList>
             {HEATMAP_DEVICES.map((device) => {
@@ -148,22 +147,13 @@ export function HeatmapsClient() {
             ))}
           </div>
         </div>
-      ) : clicksQuery.data?.points.length === 0 && fixedClicksNote ? (
-        <div className='bg-card flex min-h-72 items-center justify-center rounded-lg border p-6 text-center'>
-          <p className='text-muted-foreground'>{fixedClicksNote}</p>
-        </div>
-      ) : clicksQuery.data ? (
-        <div className='space-y-2'>
-          <p className='text-muted-foreground text-xs'>{t('noBackground')}</p>
-          {fixedClicksNote && <p className='text-muted-foreground text-xs'>{fixedClicksNote}</p>}
-          <HeatmapView
-            width={clicksQuery.data.width}
-            height={clicksQuery.data.height}
-            points={clicksQuery.data.points}
-          />
-        </div>
       ) : (
-        <Skeleton className='h-[calc(100vh-18rem)] min-h-96 w-full' />
+        <HeatmapPanel
+          url={selectedPath}
+          device={selectedDevice}
+          selectedCaptureId={selection.capture}
+          onSelectCapture={(capture) => selection.setSelection({ capture })}
+        />
       )}
     </div>
   );

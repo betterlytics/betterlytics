@@ -131,3 +131,48 @@ export async function getSessionReplays(
 
   return SessionReplayArraySchema.parse(result);
 }
+
+// One replay by id, for links to a session outside the list's period or loaded pages
+export async function getSessionReplayById(siteId: string, sessionId: string): Promise<SessionReplay | null> {
+  const query = safeSql`
+    SELECT
+      r.site_id AS site_id,
+      toString(r.session_id) as session_id,
+      toString(r.visitor_id) as visitor_id,
+      r.started_at,
+      r.ended_at,
+      r.duration,
+      r.date,
+      r.size_bytes,
+      r.event_count,
+      r.s3_prefix,
+      r.start_url,
+      r.recorded_error_count AS error_count,
+      r.rage_click_count,
+      e.device_type,
+      e.browser,
+      e.os,
+      e.country_code
+    FROM (
+      SELECT *
+      FROM analytics.session_replays FINAL
+      WHERE site_id = {site_id:String}
+        AND session_id = {session_id:UInt64}
+    ) AS r
+    LEFT ANY JOIN (
+      SELECT site_id, session_id, device_type, browser, os, country_code
+      FROM analytics.sessions FINAL
+      WHERE site_id = {site_id:String}
+        AND session_id = {session_id:UInt64}
+    ) AS e USING (site_id, session_id)
+    LIMIT 1
+  `;
+
+  const result = await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, site_id: siteId, session_id: sessionId },
+    })
+    .toPromise();
+
+  return SessionReplayArraySchema.parse(result)[0] ?? null;
+}

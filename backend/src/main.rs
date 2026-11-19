@@ -53,6 +53,7 @@ use db::{Database, SharedDatabase};
 use geoip::GeoIpService;
 use geoip_updater::GeoIpUpdater;
 use heatmap::HeatmapCtx;
+use heatmap::capture::CaptureCtx;
 use metrics::MetricsCollector;
 use postgres::PostgresPool;
 use config::ReplayStorage;
@@ -202,6 +203,13 @@ async fn main() {
             .await
             .expect("Failed to create salts PostgreSQL pool"),
     );
+    // Capture uploads hold a connection while the snapshot is stored, so they get their own
+    // pool on the same read-write role and can never starve salt rotation.
+    let capture_pool = Arc::new(
+        PostgresPool::new(&config.salts_database_url, "betterlytics_heatmap_captures", 3)
+            .await
+            .expect("Failed to create heatmap capture PostgreSQL pool"),
+    );
     salt::init(salts_pool)
         .await
         .expect("Failed to initialize salt service");
@@ -282,6 +290,15 @@ async fn main() {
         click_tx: channels.heatmap_clicks,
     });
 
+    // Also always on: captures use REPLAY_STORAGE's choice even with replay off
+    let capture_ctx = Arc::new(CaptureCtx {
+        pool: capture_pool,
+        db: db.clone(),
+        s3: s3_service.clone(),
+        mode: config.replay_storage,
+        metrics: metrics_collector.clone(),
+    });
+
 	let mut router = Router::new()
 		.route("/health", get(health_check))
 		.route("/event", post(track_event))
@@ -291,6 +308,12 @@ async fn main() {
 			post(heatmap::upload_clicks)
 				.with_state(heatmap_ctx)
 				.layer(DefaultBodyLimit::max(heatmap::MAX_BATCH_BYTES)),
+		)
+		.route(
+			"/heatmap/capture",
+			post(heatmap::capture::upload_capture)
+				.with_state(capture_ctx)
+				.layer(DefaultBodyLimit::max(heatmap::capture::BODY_LIMIT_BYTES)),
 		)
 		.route("/site-id", get(generate_site_id_handler))
 		.route("/metrics", get(metrics_handler));

@@ -93,6 +93,14 @@ impl S3Service {
             .map_err(|_| anyhow::anyhow!("S3 put_segment timed out"))??;
         Ok(())
     }
+
+    pub async fn delete_object(&self, key: &str) -> Result<()> {
+        let req = self.client.delete_object().bucket(&self.bucket).key(key).send();
+        tokio::time::timeout(std::time::Duration::from_secs(PUT_TIMEOUT_SECS), req)
+            .await
+            .map_err(|_| anyhow::anyhow!("S3 delete_object timed out"))??;
+        Ok(())
+    }
 }
 
 async fn head_bucket_check(client: &Client, bucket: &str) -> Result<()> {

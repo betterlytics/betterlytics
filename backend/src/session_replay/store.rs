@@ -162,7 +162,7 @@ fn object_key(site_id: &str, session_id: u64, filename: &str) -> String {
 }
 
 #[derive(Debug)]
-enum GunzipError {
+pub(crate) enum GunzipError {
     Invalid(&'static str),
     TooLarge,
 }
@@ -173,7 +173,7 @@ fn read_gzip(bytes: &[u8], limit: u64) -> std::io::Result<Vec<u8>> {
     Ok(out)
 }
 
-fn gunzip_capped(bytes: &[u8], cap: u64) -> Result<String, GunzipError> {
+pub(crate) fn gunzip_capped(bytes: &[u8], cap: u64) -> Result<String, GunzipError> {
     let out = read_gzip(bytes, cap + 1).map_err(|_| GunzipError::Invalid("invalid gzip"))?;
     if out.len() as u64 > cap {
         return Err(GunzipError::TooLarge);

@@ -1,0 +1,133 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
+import rrwebPlayer from 'rrweb-player';
+import 'rrweb-player/dist/style.css';
+import type { eventWithTime } from '@rrweb/types';
+import {
+  HEATMAP_MAX_PAGE_HEIGHT,
+  type HeatmapClickAnchor,
+  type HeatmapClickPoint,
+} from '@/entities/analytics/clickHeatmap.entities';
+import { useResizeObserver } from '@/hooks/use-resize-observer';
+import { useDebounce } from '@/hooks/useDebounce';
+import { drawHeat } from './heatCanvas';
+import { locateInDocument, placeClicks } from './placeClicks';
+import { snapshotEvents } from './snapshotEvents';
+
+const FONTS_WAIT_MS = 1500;
+
+type SnapshotHeatmapViewProps = {
+  events: eventWithTime[];
+  snapshotMs: number;
+  viewportWidth: number;
+  anchors: HeatmapClickAnchor[];
+  onPlaced: (result: { unplacedFixed: number }) => void;
+  onUnusable: () => void;
+};
+
+/**
+ * Draws a page layout from an rrweb full snapshot (scripts blocked by the player's sandbox) and
+ * the heat inside its document, so the heat scrolls with the page. Clicks land on their
+ * element when it is found, otherwise at their page position.
+ */
+export function SnapshotHeatmapView({
+  events,
+  snapshotMs,
+  viewportWidth,
+  anchors,
+  onPlaced,
+  onUnusable,
+}: SnapshotHeatmapViewProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const size = useDebounce(useResizeObserver(containerRef), 200);
+  const callbacks = useRef({ onPlaced, onUnusable });
+  callbacks.current = { onPlaced, onUnusable };
+
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame || size.width === 0 || size.height === 0) return;
+    const slice = snapshotEvents(events, snapshotMs);
+    if (!slice) {
+      callbacks.current.onUnusable();
+      return;
+    }
+
+    frame.innerHTML = '';
+    const player = new rrwebPlayer({
+      target: frame,
+      props: {
+        events: slice,
+        autoPlay: false,
+        showController: false,
+        width: size.width,
+        height: size.height,
+        maxScale: 1,
+        mouseTail: false,
+        skipInactive: false,
+      },
+    });
+    // Pausing just past the last event applies all of them; events at the pause time itself wait
+    player.goto(slice[slice.length - 1].timestamp - slice[0].timestamp + 1, false);
+    const replayer = player.getReplayer();
+    replayer.enableInteract();
+
+    let cancelled = false;
+    void settled(replayer.iframe.contentDocument).then(() => {
+      const doc = replayer.iframe.contentDocument;
+      if (cancelled || !doc?.documentElement) return;
+      // Fixed and sticky elements are measured where they sit at the top of the page
+      doc.defaultView?.scrollTo(0, 0);
+      const placed = placeClicks(anchors, locateInDocument(doc));
+      drawHeatLayer(doc, placed.points, viewportWidth);
+      callbacks.current.onPlaced({ unplacedFixed: placed.unplacedFixed });
+    });
+
+    return () => {
+      cancelled = true;
+      try {
+        player.pause();
+      } catch {}
+      (player as unknown as { $destroy?: () => void }).$destroy?.();
+      frame.innerHTML = '';
+    };
+  }, [events, snapshotMs, viewportWidth, anchors, size]);
+
+  return (
+    <div
+      ref={containerRef}
+      className='bg-card h-[calc(100vh-18rem)] min-h-96 overflow-hidden rounded-lg border [&_.replayer-mouse]:!hidden [&_.rr-player]:!bg-transparent [&_.rr-player]:!shadow-none'
+    >
+      <div ref={frameRef} className='h-full w-full' />
+    </div>
+  );
+}
+
+// Layout depends on web fonts; give them a moment, then let the page lay out
+async function settled(doc: Document | null) {
+  if (!doc) return;
+  await Promise.race([doc.fonts?.ready, new Promise((resolve) => setTimeout(resolve, FONTS_WAIT_MS))]);
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+}
+
+// Covers the whole page, so links in the layout can't be followed while it still scrolls. A
+// canvas shows nothing in the layout's script-free sandbox, so the heat is drawn here and
+// shown there as an image.
+function drawHeatLayer(doc: Document, points: HeatmapClickPoint[], minWidth: number) {
+  const root = doc.documentElement;
+  const width = Math.max(root.scrollWidth, minWidth);
+  const height = Math.min(Math.max(root.scrollHeight, 1), HEATMAP_MAX_PAGE_HEIGHT);
+
+  const canvas = document.createElement('canvas');
+  drawHeat(canvas, points, width, height, 0);
+
+  const layer = doc.createElement('div');
+  layer.style.cssText = `position:absolute;left:0;top:0;width:${width}px;height:${height}px;z-index:2147483647;background:rgba(15,23,42,0.3);cursor:default;`;
+  const image = doc.createElement('img');
+  image.alt = '';
+  image.src = canvas.toDataURL('image/png');
+  image.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;';
+  layer.appendChild(image);
+  root.appendChild(layer);
+}

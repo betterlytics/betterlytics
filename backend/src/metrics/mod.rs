@@ -67,6 +67,7 @@ pub struct MetricsCollector {
     heatmap_clicks_accepted_total: IntCounter,
     heatmap_clicks_dropped_total: IntCounterVec,
     heatmap_batches_refused_total: IntCounterVec,
+    heatmap_capture_uploads_total: IntCounterVec,
 
     // System info
     system: Arc<RwLock<System>>,
@@ -308,6 +309,14 @@ impl MetricsCollector {
             &["reason"],
         )?;
 
+        let heatmap_capture_uploads_total = IntCounterVec::new(
+            Opts::new(
+                "heatmap_capture_uploads_total",
+                "Heatmap capture uploads, grouped by outcome",
+            ),
+            &["outcome"],
+        )?;
+
         registry.register(Box::new(system_cpu_usage.clone()))?;
         registry.register(Box::new(system_memory_usage.clone()))?;
         registry.register(Box::new(system_memory_total.clone()))?;
@@ -346,6 +355,7 @@ impl MetricsCollector {
         registry.register(Box::new(heatmap_clicks_accepted_total.clone()))?;
         registry.register(Box::new(heatmap_clicks_dropped_total.clone()))?;
         registry.register(Box::new(heatmap_batches_refused_total.clone()))?;
+        registry.register(Box::new(heatmap_capture_uploads_total.clone()))?;
 
         let mut system = System::new_all();
         system.refresh_all(); // This refresh is an attempt to ensure that when the metrics_updater starts it has accurate initial values
@@ -391,6 +401,7 @@ impl MetricsCollector {
             heatmap_clicks_accepted_total,
             heatmap_clicks_dropped_total,
             heatmap_batches_refused_total,
+            heatmap_capture_uploads_total,
             system: Arc::new(RwLock::new(system)),
             current_pid,
         };
@@ -599,6 +610,12 @@ impl MetricsCollector {
         self.heatmap_clicks_dropped_total
             .with_label_values(&[reason])
             .inc_by(count);
+    }
+
+    pub fn increment_heatmap_capture_uploads(&self, outcome: &str) {
+        self.heatmap_capture_uploads_total
+            .with_label_values(&[outcome])
+            .inc();
     }
 
     pub fn increment_heatmap_batches_refused(&self, reason: &str) {

@@ -8213,6 +8213,10 @@ or you can use record.mirror to access the mirror instance during recording.`;
   if (window.__betterlytics_replay_initialized__) {
     return;
   }
+  // A heatmap capture records no visitor; it runs in its own block at the end of this file
+  if (window.__betterlytics_capture__) {
+    return;
+  }
   var handoff = window.__betterlytics_replay_config__;
   if (!handoff || !handoff.siteId || !handoff.serverUrl || !handoff.script) {
     // A cached analytics.js older than the handoff still writes data-server-url onto its own tag before loading us
@@ -8477,6 +8481,9 @@ or you can use record.mirror to access the mirror instance during recording.`;
       if (payload.format) {
         qs += "&format=" + payload.format;
       }
+      if (payload.snapshots && payload.snapshots.length) {
+        qs += "&snapshots=" + encodeURIComponent(JSON.stringify(payload.snapshots));
+      }
 
       return fetch(apiBase + "/replay/segment?" + qs, {
         method: "POST",
@@ -8540,11 +8547,29 @@ or you can use record.mirror to access the mirror instance during recording.`;
       return count;
     }
 
+    // Full snapshots in the chunk, indexed by the backend so heatmaps can use a page's layout
+    function snapshotsIn(events) {
+      var found = [];
+      for (var i = 0; i + 1 < events.length && found.length < 5; i++) {
+        var e = events[i];
+        if (e.type === 4 && events[i + 1].type === 2 && e.data && typeof e.data.href === "string") {
+          found.push({
+            u: e.data.href,
+            w: e.data.clientWidth || e.data.width,
+            h: e.data.height,
+            t: e.timestamp,
+          });
+        }
+      }
+      return found;
+    }
+
     function buildChunk(events, lastEventTs, startedAtMs) {
       var seq = state.chunkSeq++;
       var chunkId = pageNonce + "-" + (seq < 10000 ? ("000" + seq).slice(-4) : seq);
       var errors = collectChunkErrors(events);
       var rageClickCount = countRageClicks(events);
+      var snapshots = snapshotsIn(events);
       return encodeReplayChunk(JSON.stringify(events)).then(function (enc) {
         if (errors.length) {
           var metadata = new TextEncoder().encode(JSON.stringify(errors));
@@ -8559,6 +8584,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
         enc.startedAtMs = startedAtMs || state.startedAt;
         enc.eventCount = events.length;
         enc.rageClickCount = rageClickCount;
+        enc.snapshots = snapshots;
         enc.chunkId = chunkId;
         return enc;
       });
@@ -8935,6 +8961,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
 
       if (e.type === 4 && e.data && typeof e.data.href === "string") {
         e.data.href = normalizePageUrl(e.data.href);
+        // Meta width includes the scrollbar; heatmap clicks bucket devices by clientWidth
+        e.data.clientWidth = document.documentElement.clientWidth || e.data.width;
       }
 
       state.lastActivity = Math.max(state.lastActivity, e.timestamp);
@@ -9134,4 +9162,415 @@ or you can use record.mirror to access the mirror instance during recording.`;
       stopRecording();
     }
   })();
+})();
+
+// Betterlytics heatmap capture: one snapshot of the editor's own view of the page, started by a
+// capture link from the dashboard. Nothing is tracked; analytics.js stops before any event.
+(function () {
+  var capture = window.__betterlytics_capture__;
+  if (!capture || !capture.token || window.__betterlytics_capture_started__) {
+    return;
+  }
+  window.__betterlytics_capture_started__ = true;
+
+  var endpoint;
+  try {
+    endpoint = new URL(capture.serverUrl).origin + "/heatmap/capture";
+  } catch (e) {
+    return;
+  }
+
+  var SCROLL_STEP_DELAY_MS = 150;
+  var MAX_SCROLL_STEPS = 60;
+  var IMAGE_WAIT_MS = 3000;
+  // Inlined fonts count toward the upload limit of 10 MB compressed
+  var MAX_FONT_BYTES = 4 * 1024 * 1024;
+  var FONT_FACE = /@font-face\s*{[^}]*}/g;
+  var CSS_URL = /url\(\s*(['"]?)([^'")]+)\1\s*\)/g;
+  // A link is used up only once a capture is stored, so other refusals can be retried
+  var FINAL_REASONS = ["link_invalid", "wrong_origin", "too_large"];
+  // Typed text lives in these as text, which maskAllInputs doesn't reach; site masks are honored
+  var TYPED_TEXT = 'textarea, [contenteditable]:not([contenteditable="false"]), [data-rrweb-mask]';
+
+  // The page is scrolled through first, so lazy content loads and anything that opens on
+  // scroll can be closed by the editor before capturing
+  var panel = createPanel();
+  panel.show("working", "Loading the whole page...");
+  scrollThrough()
+    .then(waitForImages)
+    .then(function () {
+      panel.show(
+        "ready",
+        capture.hideText
+          ? "Set the page up the way visitors see it, then capture it. Text is hidden and form fields are masked."
+          : "Set the page up the way visitors see it, then capture it. Text and images are kept as you see them; form fields are masked."
+      );
+    });
+
+  function startCapture() {
+    panel.show("working", "Capturing...");
+    scrollToTop()
+      .then(function () {
+        return inlineFonts(takeSnapshot());
+      })
+      .then(function (events) {
+        panel.show("working", "Uploading...");
+        return upload(events);
+      })
+      .then(function (result) {
+        if (result.ok) {
+          finish("done", "Captured. You can close this window.");
+        } else if (FINAL_REASONS.indexOf(result.reason) === -1) {
+          panel.show("failed", result.message);
+        } else {
+          finish("final", result.message);
+        }
+      })
+      .catch(function () {
+        panel.show("failed", "The page could not be captured. Try again.");
+      });
+  }
+
+  function finish(state, message) {
+    if (capture.forget) capture.forget();
+    panel.show(state, message);
+  }
+
+  // Instant, also on sites with scroll-behavior: smooth, so the page isn't caught mid-scroll
+  function scrollInstantly(top) {
+    window.scrollTo({ top: top, left: 0, behavior: "instant" });
+  }
+
+  function scrollThrough() {
+    return new Promise(function (resolve) {
+      var root = document.documentElement;
+      var step = Math.max(200, Math.round(window.innerHeight * 0.8));
+      var steps = 0;
+      function next() {
+        var bottom = root.scrollHeight - window.innerHeight;
+        if (window.scrollY >= bottom - 1 || steps >= MAX_SCROLL_STEPS) {
+          scrollToTop().then(resolve);
+          return;
+        }
+        steps++;
+        scrollInstantly(Math.min(bottom, window.scrollY + step));
+        setTimeout(next, SCROLL_STEP_DELAY_MS);
+      }
+      next();
+    });
+  }
+
+  function scrollToTop() {
+    scrollInstantly(0);
+    return new Promise(function (resolve) {
+      requestAnimationFrame(function () {
+        requestAnimationFrame(resolve);
+      });
+    });
+  }
+
+  function waitForImages() {
+    var pending = Array.prototype.filter.call(document.images, function (img) {
+      return !img.complete;
+    });
+    var loaded = Promise.all(
+      pending.map(function (img) {
+        return new Promise(function (resolve) {
+          img.addEventListener("load", resolve, { once: true });
+          img.addEventListener("error", resolve, { once: true });
+        });
+      })
+    );
+    return Promise.race([
+      loaded,
+      new Promise(function (resolve) {
+        setTimeout(resolve, IMAGE_WAIT_MS);
+      }),
+    ]);
+  }
+
+  // rrweb emits the Meta event and the full snapshot while record() starts on a loaded page,
+  // so recording stops right after. The panel is taken out so it never ends up in the capture.
+  function takeSnapshot() {
+    var events = [];
+    var stop = null;
+    panel.detach();
+    try {
+      stop = window.rrweb.record({
+        emit: function (event) {
+          events.push(event);
+        },
+        maskAllInputs: true,
+        maskTextSelector: capture.hideText ? "*" : TYPED_TEXT,
+        recordCanvas: false,
+        slimDOMOptions: {
+          comment: true,
+          headFavicon: true,
+          headWhitespace: true,
+          headMetaHttpEquiv: true,
+        },
+      });
+    } finally {
+      if (stop) stop();
+      panel.attach();
+    }
+    events.forEach(function (event) {
+      if (event.type === 4 && event.data) {
+        event.data.clientWidth = viewportWidth();
+      }
+      if (event.type === 2 && event.data && event.data.node) {
+        cleanNode(event.data.node);
+      }
+    });
+    return events;
+  }
+
+  // A base tag would point the layout's relative URLs and links somewhere else in the dashboard
+  function cleanNode(node) {
+    if (node.type === 2 && node.tagName === "base" && node.attributes) {
+      delete node.attributes.href;
+      delete node.attributes.target;
+    }
+    if (node.childNodes) {
+      node.childNodes.forEach(cleanNode);
+    }
+  }
+
+  // The dashboard can't load this site's fonts (font requests need CORS), so the site's own
+  // @font-face files are embedded in the captured stylesheets
+  function inlineFonts(events) {
+    var styles = [];
+    events.forEach(function (event) {
+      if (event.type === 2 && event.data && event.data.node) {
+        collectStyles(event.data.node, styles);
+      }
+    });
+    var urls = [];
+    styles.forEach(function (style) {
+      fontUrls(style.owner[style.key]).forEach(function (url) {
+        if (urls.indexOf(url) === -1) urls.push(url);
+      });
+    });
+    var budget = MAX_FONT_BYTES;
+    return urls
+      .reduce(function (prev, url) {
+        return prev.then(function (inlined) {
+          return fetchAsDataUrl(url, budget).then(function (dataUrl) {
+            if (dataUrl) {
+              budget -= dataUrl.length;
+              inlined[url] = dataUrl;
+            }
+            return inlined;
+          });
+        });
+      }, Promise.resolve({}))
+      .then(function (inlined) {
+        styles.forEach(function (style) {
+          style.owner[style.key] = style.owner[style.key].replace(FONT_FACE, function (face) {
+            return face.replace(CSS_URL, function (match, quote, url) {
+              return inlined[url] ? 'url("' + inlined[url] + '")' : match;
+            });
+          });
+        });
+        return events;
+      });
+  }
+
+  // Linked and script-built stylesheets carry their CSS as _cssText; an inline <style> block
+  // keeps it as a text node
+  function collectStyles(node, out) {
+    if (node.type === 2 && node.attributes && typeof node.attributes._cssText === "string") {
+      out.push({ owner: node.attributes, key: "_cssText" });
+    } else if (node.type === 3 && node.isStyle && typeof node.textContent === "string") {
+      out.push({ owner: node, key: "textContent" });
+    }
+    if (node.childNodes) {
+      node.childNodes.forEach(function (child) {
+        collectStyles(child, out);
+      });
+    }
+  }
+
+  function fontUrls(cssText) {
+    var found = [];
+    (cssText.match(FONT_FACE) || []).forEach(function (face) {
+      face.replace(CSS_URL, function (match, quote, url) {
+        try {
+          if (new URL(url, window.location.href).origin === window.location.origin) {
+            found.push(url);
+          }
+        } catch (e) {}
+        return match;
+      });
+    });
+    return found;
+  }
+
+  function fetchAsDataUrl(url, budget) {
+    return fetch(url, { credentials: "same-origin" })
+      .then(function (res) {
+        return res.ok ? res.blob() : null;
+      })
+      .then(function (blob) {
+        // Base64 makes a file a third larger
+        if (!blob || blob.size * 1.37 > budget) return null;
+        return new Promise(function (resolve) {
+          var reader = new FileReader();
+          reader.onload = function () {
+            resolve(typeof reader.result === "string" ? reader.result : null);
+          };
+          reader.onerror = function () {
+            resolve(null);
+          };
+          reader.readAsDataURL(blob);
+        });
+      })
+      .catch(function () {
+        return null;
+      });
+  }
+
+  function viewportWidth() {
+    return document.documentElement.clientWidth || window.innerWidth;
+  }
+
+  function gzip(text) {
+    var bytes = new TextEncoder().encode(text);
+    if (typeof CompressionStream === "undefined") {
+      return Promise.resolve({ bytes: bytes, gzip: false });
+    }
+    try {
+      var stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream("gzip"));
+      return new Response(stream)
+        .arrayBuffer()
+        .then(function (buffer) {
+          return { bytes: new Uint8Array(buffer), gzip: true };
+        })
+        .catch(function () {
+          return { bytes: bytes, gzip: false };
+        });
+    } catch (e) {
+      return Promise.resolve({ bytes: bytes, gzip: false });
+    }
+  }
+
+  function upload(events) {
+    return gzip(JSON.stringify(events)).then(function (encoded) {
+      var query =
+        "viewport_width=" +
+        viewportWidth() +
+        "&document_height=" +
+        capture.documentHeight() +
+        (encoded.gzip ? "&encoding=gzip" : "");
+      return fetch(endpoint + "?" + query, {
+        method: "POST",
+        credentials: "omit",
+        headers: { Authorization: "Bearer " + capture.token },
+        body: encoded.bytes,
+      }).then(
+        function (res) {
+          if (res.ok) return { ok: true };
+          return res.json().then(
+            function (body) {
+              return { ok: false, reason: body.reason, message: body.message };
+            },
+            function () {
+              return {
+                ok: false,
+                reason: res.status === 413 ? "too_large" : "failed",
+                message:
+                  res.status === 413
+                    ? "This page is too large to capture."
+                    : "The capture could not be uploaded (" + res.status + "). Try again.",
+              };
+            }
+          );
+        },
+        function () {
+          return {
+            ok: false,
+            reason: "network",
+            message: "The capture could not be uploaded. This page's security settings may block it.",
+          };
+        }
+      );
+    });
+  }
+
+  // Shadow DOM keeps the page's CSS off the panel
+  function createPanel() {
+    var host = document.createElement("div");
+    host.setAttribute("data-betterlytics-capture", "");
+    host.style.cssText = "all:initial;position:fixed;right:16px;bottom:16px;z-index:2147483647;";
+    var root = host.attachShadow ? host.attachShadow({ mode: "closed" }) : host;
+    root.innerHTML =
+      "<style>" +
+      ".panel{box-sizing:border-box;width:320px;padding:16px;border-radius:12px;background:#111827;color:#f9fafb;" +
+      "font:14px/1.45 system-ui,-apple-system,'Segoe UI',sans-serif;box-shadow:0 12px 32px rgba(0,0,0,.35)}" +
+      ".title{font-weight:600;margin:0 0 6px}.message{margin:0 0 12px;color:#d1d5db}" +
+      "button{font:inherit;font-weight:600;border:0;border-radius:8px;padding:8px 14px;cursor:pointer;background:#6366f1;color:#fff}" +
+      "button[hidden]{display:none}.done .title{color:#86efac}.failed .title,.final .title{color:#fca5a5}" +
+      "</style>" +
+      '<div class="panel"><p class="title"></p><p class="message"></p><button type="button"></button></div>';
+    var box = root.querySelector(".panel");
+    var title = root.querySelector(".title");
+    var message = root.querySelector(".message");
+    var button = root.querySelector("button");
+    var action = null;
+    button.addEventListener("click", function () {
+      if (action) action();
+    });
+    document.documentElement.appendChild(host);
+
+    // Kept in the visible part of the page: on a phone a page wider than the screen widens the
+    // layout viewport, and a corner of that is off screen
+    function place() {
+      var view = window.visualViewport;
+      if (!view) return;
+      var width = Math.min(320, Math.max(200, view.width - 32));
+      box.style.width = width + "px";
+      host.style.right = "auto";
+      host.style.bottom = "auto";
+      host.style.left = Math.max(0, Math.round(view.offsetLeft + view.width - width - 16)) + "px";
+      host.style.top = Math.max(0, Math.round(view.offsetTop + view.height - box.offsetHeight - 16)) + "px";
+    }
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", place);
+      window.visualViewport.addEventListener("scroll", place);
+    }
+
+    var states = {
+      ready: { title: "Betterlytics heatmap capture", label: "Capture page", action: startCapture },
+      working: { title: "Capturing this page", label: null, action: null },
+      done: {
+        title: "Page captured",
+        label: "Close window",
+        action: function () {
+          window.close();
+        },
+      },
+      failed: { title: "Capture failed", label: "Try again", action: startCapture },
+      final: { title: "Capture failed", label: null, action: null },
+    };
+
+    return {
+      show: function (state, text) {
+        var s = states[state];
+        box.className = "panel " + state;
+        title.textContent = s.title;
+        message.textContent = text;
+        button.hidden = !s.label;
+        button.textContent = s.label || "";
+        action = s.action;
+        place();
+      },
+      detach: function () {
+        host.remove();
+      },
+      attach: function () {
+        document.documentElement.appendChild(host);
+        place();
+      },
+    };
+  }
 })();

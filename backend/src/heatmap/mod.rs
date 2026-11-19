@@ -1,6 +1,8 @@
 //! Heatmap click ingestion: the collector sends one batch of clicks per page view,
 //! stored as one `analytics.heatmap_clicks` row per click.
 
+pub mod capture;
+
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
 
@@ -36,8 +38,8 @@ const MAX_SELECTOR_CHARS: usize = 200;
 const MAX_SITE_ID_CHARS: usize = 100;
 const MAX_URL_CHARS: usize = 2048;
 const MAX_SCREEN_RESOLUTION_CHARS: usize = 32;
-const MAX_VIEWPORT_WIDTH: u32 = 16_384;
-const MAX_DOCUMENT_HEIGHT: u32 = 1_000_000;
+pub(crate) const MAX_VIEWPORT_WIDTH: u32 = 16_384;
+pub(crate) const MAX_DOCUMENT_HEIGHT: u32 = 1_000_000;
 const MAX_CLICK_AGE_MS: f64 = 24.0 * 60.0 * 60.0 * 1000.0;
 /// A heatmap is an aggregate, so one session's clicks past this add little, and without it a
 /// script could store unbilled rows for as long as it keeps one pageview's session alive
@@ -368,7 +370,7 @@ fn reserve_session_clicks(session_id: u64, wanted: usize) -> usize {
 
 /// The `device.rs` buckets with laptop and desktop merged, applied to the viewport,
 /// since the page layout follows the viewport rather than the screen
-fn device_from_viewport(viewport_width: u32) -> &'static str {
+pub(crate) fn device_from_viewport(viewport_width: u32) -> &'static str {
     match viewport_width {
         0..=575 => "mobile",
         576..=991 => "tablet",

@@ -182,6 +182,30 @@ pub struct SessionReplaySegmentRow {
     pub data: String,
 }
 
+#[derive(clickhouse::Row, Serialize, Debug, PartialEq)]
+pub struct SessionReplaySnapshotRow {
+    pub site_id: String,
+    pub session_id: u64,
+    pub url: String,
+    pub device: String,
+    pub viewport_width: u16,
+    pub viewport_height: u16,
+    pub filename: String,
+    pub snapshot_ms: i64,
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub timestamp: DateTime<Utc>,
+    #[serde(with = "clickhouse::serde::chrono::date")]
+    pub date: NaiveDate,
+}
+
+#[derive(clickhouse::Row, Serialize, Debug)]
+pub struct HeatmapCaptureRow {
+    pub site_id: String,
+    pub capture_id: String,
+    pub size_bytes: u64,
+    pub data: String,
+}
+
 #[derive(clickhouse::Row, Serialize, Debug)]
 pub struct TelemetryPingRow {
     #[serde(with = "clickhouse::serde::chrono::date")]
