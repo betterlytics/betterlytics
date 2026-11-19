@@ -4691,7 +4691,6 @@
     },
     "heatmapCaptures": {
       "capturePathRequired": "This heatmap page groups several real pages. Enter the real page to capture.",
-      "demoDashboard": "Heatmap captures are not available on the demo dashboard.",
       "pageMismatch": "The page to capture is not one of the pages grouped under this heatmap page.",
       "storageNotConfigured": "Heatmap captures need storage: this server is set to store replays in S3, but S3 is not configured. Configure S3 or set REPLAY_STORAGE=clickhouse."
     }

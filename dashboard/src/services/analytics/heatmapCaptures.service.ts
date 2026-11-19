@@ -10,7 +10,6 @@ import type {
 } from '@/entities/analytics/heatmapCaptures.entities';
 import { replayStorage, s3Env } from '@/lib/env';
 import { UserException } from '@/lib/exceptions';
-import { isPublicDashboardId } from '@/services/auth/auth.service';
 import {
   createHeatmapCaptureLink,
   deleteHeatmapCaptureRow,
@@ -38,10 +37,7 @@ function hashCaptureToken(token: string): string {
 // bound to one real page: the page path itself, or for a data-dynamic-urls wildcard path the
 // real page the editor picked, and the backend refuses a snapshot of any other page.
 export async function createCaptureLink(ctx: AuthContext, input: CreateHeatmapCaptureLinkInput) {
-  if (isPublicDashboardId(ctx.dashboardId)) {
-    const t = await getTranslations('validation.heatmapCaptures');
-    throw new UserException(t('demoDashboard'));
-  }
+  assertMemberContext(ctx);
   if (input.path.includes('*') && !input.capturePath) {
     const t = await getTranslations('validation.heatmapCaptures');
     throw new UserException(t('capturePathRequired'));

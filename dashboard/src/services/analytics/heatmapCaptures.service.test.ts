@@ -3,7 +3,6 @@ import type { AuthContext } from '@/entities/auth/authContext.entities';
 
 vi.mock('next-intl/server', () => ({ getTranslations: vi.fn(async () => (key: string) => key) }));
 vi.mock('@/lib/env', () => ({ replayStorage: 'clickhouse', s3Env: { enabled: false, bucket: undefined } }));
-vi.mock('@/services/auth/auth.service', () => ({ isPublicDashboardId: vi.fn(() => false) }));
 vi.mock('@/repositories/postgres/heatmapCaptures.repository', () => ({
   createHeatmapCaptureLink: vi.fn(),
   deleteHeatmapCaptureRow: vi.fn(),
@@ -13,7 +12,7 @@ vi.mock('@/repositories/postgres/heatmapCaptures.repository', () => ({
 vi.mock('@/repositories/heatmapCaptureSnapshots.repository', () => ({ captureSnapshotStoreFor: vi.fn() }));
 
 import { createHeatmapCaptureLink } from '@/repositories/postgres/heatmapCaptures.repository';
-import { createCaptureLink } from '@/services/analytics/heatmapCaptures.service';
+import { createCaptureLink, HeatmapCapturesForbiddenError } from '@/services/analytics/heatmapCaptures.service';
 
 const createLinkRow = vi.mocked(createHeatmapCaptureLink);
 
@@ -55,6 +54,15 @@ describe('createCaptureLink', () => {
       { path: '/profile/*/posts', device: 'desktop', capturePath: '/profile/betterlytics/posts' },
       expect.any(String),
     );
+  });
+
+  it('refuses a public demo view', async () => {
+    const demoCtx: AuthContext = { ...ctx, userId: 'demo', role: 'viewer', isDemo: true };
+
+    await expect(createCaptureLink(demoCtx, { path: '/pricing', device: 'desktop' })).rejects.toThrow(
+      HeatmapCapturesForbiddenError,
+    );
+    expect(createLinkRow).not.toHaveBeenCalled();
   });
 
   it('asks for a real page when the page path has a wildcard', async () => {
