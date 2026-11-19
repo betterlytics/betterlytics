@@ -110,7 +110,6 @@ export function LiveHeatmapView({ pageUrl, pagePath, width, viewportHeight, poin
           className='pointer-events-none absolute top-0 left-0 origin-top-left'
           style={{ width, height, transform: `scale(${scale})` }}
         >
-          <div className='absolute inset-0 bg-slate-900/30' />
           <canvas ref={canvasRef} className='absolute inset-0 h-full w-full' />
         </div>
       </div>

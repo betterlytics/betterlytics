@@ -131,7 +131,7 @@ function drawHeatLayer(doc: Document, points: HeatmapClickPoint[], minWidth: num
   drawHeat(canvas, points, width, height, 0);
 
   const layer = doc.createElement('div');
-  layer.style.cssText = `position:absolute;left:0;top:0;width:${width}px;height:${height}px;z-index:2147483647;background:rgba(15,23,42,0.3);cursor:default;`;
+  layer.style.cssText = `position:absolute;left:0;top:0;width:${width}px;height:${height}px;z-index:2147483647;cursor:default;`;
   const image = doc.createElement('img');
   image.alt = '';
   image.src = canvas.toDataURL('image/png');
