@@ -11,6 +11,7 @@ import {
   hasHeatmapClicks,
 } from '@/repositories/clickhouse/clickHeatmap.repository';
 import { toDateTimeString } from '@/utils/dateFormatters';
+import { env } from '@/lib/env';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { findLatestReplaySnapshot } from '@/repositories/clickhouse/replaySnapshots.repository';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
@@ -118,8 +119,11 @@ export async function getVisitedOrigin(siteQuery: BASiteQuery, dashboardId: stri
   return { origin: host ? originOf(host) : null, domain: dashboard.domain };
 }
 
+// In development the local pages are the dashboard's own (dashboard tracking), so they get its port
 function originOf(host: string) {
-  return `${LOCAL_HOST.test(host) ? 'http' : 'https'}://${host}`;
+  if (!LOCAL_HOST.test(host)) return `https://${host}`;
+  const port = env.IS_DEVELOPMENT ? new URL(env.PUBLIC_BASE_URL).port : '';
+  return `http://${host}${port ? `:${port}` : ''}`;
 }
 
 export async function getHeatmapClickAnchorsForPage(

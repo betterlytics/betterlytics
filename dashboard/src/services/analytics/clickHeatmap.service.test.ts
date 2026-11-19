@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   getCaptureOrigin,
   getHeatmapBackground,
@@ -35,6 +35,9 @@ vi.mock('@/repositories/clickhouse/replaySnapshots.repository', () => ({
 vi.mock('@/repositories/postgres/dashboard.repository', () => ({
   findDashboardById: vi.fn(),
 }));
+
+const mockEnv = vi.hoisted(() => ({ IS_DEVELOPMENT: false, PUBLIC_BASE_URL: 'http://run-3.localhost:3020' }));
+vi.mock('@/lib/env', () => ({ env: mockEnv }));
 
 const siteQuery = { siteId: 'test-site' } as unknown as BASiteQuery;
 
@@ -190,6 +193,35 @@ describe('getCaptureOrigin', () => {
     await expect(getCaptureOrigin(siteQuery, 'dash', '/pricing')).resolves.toEqual({
       origin: 'http://shop.localhost',
       domain: 'shop.localhost',
+    });
+  });
+
+  describe('in development', () => {
+    beforeEach(() => {
+      mockEnv.IS_DEVELOPMENT = true;
+    });
+    afterEach(() => {
+      mockEnv.IS_DEVELOPMENT = false;
+    });
+
+    it("gives local hosts the dashboard's port", async () => {
+      vi.mocked(getMostVisitedHost).mockResolvedValue('run-3.localhost');
+      vi.mocked(findDashboardById).mockResolvedValue(dashboard('localhost'));
+
+      await expect(getCaptureOrigin(siteQuery, 'dash', '/pricing')).resolves.toEqual({
+        origin: 'http://run-3.localhost:3020',
+        domain: 'localhost',
+      });
+    });
+
+    it('leaves other hosts alone', async () => {
+      vi.mocked(getMostVisitedHost).mockResolvedValue('www.example.com');
+      vi.mocked(findDashboardById).mockResolvedValue(dashboard('example.com'));
+
+      await expect(getCaptureOrigin(siteQuery, 'dash', '/pricing')).resolves.toEqual({
+        origin: 'https://www.example.com',
+        domain: 'example.com',
+      });
     });
   });
 });
