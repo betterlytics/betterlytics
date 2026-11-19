@@ -14,6 +14,7 @@ import {
   Activity,
   AlertTriangle,
   Radio,
+  MousePointerClick,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -107,6 +108,14 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
       key: 'sessionReplay',
       href: '/replay',
       icon: <Video size={ICON_SIZE} />,
+      hideOnMobile: true,
+    },
+    {
+      name: t('heatmaps'),
+      key: 'heatmaps',
+      href: '/heatmaps',
+      icon: <MousePointerClick size={ICON_SIZE} />,
+      hidden: isDemo,
       hideOnMobile: true,
     },
   ];
