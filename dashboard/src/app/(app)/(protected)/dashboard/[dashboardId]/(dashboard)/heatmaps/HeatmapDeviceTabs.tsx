@@ -29,7 +29,7 @@ export function HeatmapDeviceTabs({ value, devicesWithData, onValueChange }: Hea
           const label =
             devicesWithData && !devicesWithData.includes(device) ? t('deviceNoData', { device: name }) : null;
           return (
-            <Tooltip key={device}>
+            <Tooltip key={device} disableHoverableContent>
               <TooltipTrigger asChild>
                 {/* The tooltip sets its own data-state on the trigger, so the selected tab is styled by aria-selected */}
                 <TabsTrigger
