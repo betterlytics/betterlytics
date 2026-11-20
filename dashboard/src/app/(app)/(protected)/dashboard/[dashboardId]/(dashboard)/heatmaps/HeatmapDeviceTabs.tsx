@@ -29,6 +29,7 @@ export function HeatmapDeviceTabs({ value, devicesWithData, onValueChange }: Hea
           const label =
             devicesWithData && !devicesWithData.includes(device) ? t('deviceNoData', { device: name }) : null;
           return (
+            // Hoverable content keeps a wide no-data tooltip open while the pointer moves on to the next tab
             <Tooltip key={device} disableHoverableContent>
               <TooltipTrigger asChild>
                 {/* The tooltip sets its own data-state on the trigger, so the selected tab is styled by aria-selected */}
