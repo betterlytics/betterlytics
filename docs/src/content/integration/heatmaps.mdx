@@ -62,7 +62,7 @@ Heatmaps never collect text from the page, input values, keystrokes or screensho
 
 ## Stable element ids
 
-Clicks are tied to the element that was clicked, so they stay on the right button when content above it moves or the layout is shown at another width. The tracker describes each element with a selector that matches only that element, plus one more level of the page around it so a similar element further down doesn't match too, and prefers an `id` attribute when there is one.
+Clicks are tied to the element that was clicked, so they stay on the right button when content above it moves or the layout is shown at another width. The tracker describes each element with a selector that matches only that element, plus one more level of the page around it, which helps tell it apart from similar elements that appear later, and prefers an `id` attribute when there is one.
 
 Give the elements you care about, such as calls to action, navigation links and form buttons, a plain `id` that stays the same on every page load:
 
@@ -70,7 +70,7 @@ Give the elements you care about, such as calls to action, navigation links and 
 <button id="signup-cta">Start free trial</button>
 ```
 
-Ids generated at runtime, such as React's `useId()` output (`:r1:` or `«r1»`), change between page loads, so only the fixed text around the generated part is used, such as the start and end of `radix-«r1»-trigger-pages`. Without a usable id, the selector falls back to tag names and up to two class names, which can stop matching when classes or the page structure change. A click on an element that no selector of up to 500 characters picks out on its own isn't recorded.
+Ids generated at runtime, such as React's `useId()` output (`:r1:` or `«r1»`), change between page loads. When there is fixed text after the generated part, as in `radix-«r1»-trigger-pages`, the text around it is used; otherwise the id is skipped. Without a usable id, the selector falls back to tag names and up to two class names, which can stop matching when classes or the page structure change. A click on an element that no selector of up to 500 characters picks out on its own isn't recorded.
 
 ## Content-Security-Policy
 

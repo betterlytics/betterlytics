@@ -108,9 +108,10 @@
     return base + positionIfShared(el, base);
   }
 
-  // Walks up until the selector matches only the target, then takes in the next ancestor too, so
-  // a look-alike that renders later (the same kind of card further down) doesn't match as well.
-  // Gives up at the length cap. The page itself (html, body) keeps a selector of one part.
+  // Walks up until the selector matches only the target, then takes in the next ancestor too, which
+  // often keeps a look-alike that renders later (the same kind of card further down) from matching
+  // as well. Gives up at the length cap. That ancestor is never the body: there is only one, and its
+  // classes change with themes and open dialogs. The page itself (html, body) keeps one part.
   function chainFor(target, withClasses) {
     var parts = [];
     for (var el = target; el && el.nodeType === 1; el = el.parentElement) {
@@ -126,7 +127,9 @@
       if (selector.length > MAX_SELECTOR_CHARS) return "";
       if (matchesOnce(selector)) {
         var parent = el.parentElement;
-        if (!parent || parent === document.documentElement) return selector;
+        if (!parent || parent === document.body || parent === document.documentElement) {
+          return selector;
+        }
         var longer = (idPart(parent) || partFor(parent, withClasses)) + " > " + selector;
         return longer.length <= MAX_SELECTOR_CHARS ? longer : selector;
       }
