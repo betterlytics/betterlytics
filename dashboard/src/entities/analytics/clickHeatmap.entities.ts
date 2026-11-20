@@ -26,19 +26,13 @@ export const HEATMAP_MAX_PAGE_HEIGHT = 20000;
 
 export const HEATMAP_POINT_CELL_PX = 4;
 
+// A page visited in the period, with the devices it has heatmap clicks from in that period
 export const HeatmapPageRowSchema = z.object({
   url: z.string(),
-  clicks: z.coerce.number(),
+  devices: z.array(HeatmapDeviceSchema),
 });
 
 export type HeatmapPageRow = z.infer<typeof HeatmapPageRowSchema>;
-
-export const HeatmapDeviceShareRowSchema = z.object({
-  device: HeatmapDeviceSchema,
-  clicks: z.coerce.number(),
-});
-
-export type HeatmapDeviceShareRow = z.infer<typeof HeatmapDeviceShareRowSchema>;
 
 export const HeatmapClickPointSchema = z.object({
   x: z.coerce.number(),
@@ -47,13 +41,6 @@ export const HeatmapClickPointSchema = z.object({
 });
 
 export type HeatmapClickPoint = z.infer<typeof HeatmapClickPointSchema>;
-
-export const HeatmapPageStatsRowSchema = z.object({
-  documentHeight: z.coerce.number(),
-  fixedClicks: z.coerce.number(),
-});
-
-export type HeatmapPageStatsRow = z.infer<typeof HeatmapPageStatsRowSchema>;
 
 export const HeatmapSessionHeightsRowSchema = z.object({
   documentHeight: z.coerce.number(),
@@ -64,9 +51,7 @@ export type HeatmapSessionHeightsRow = z.infer<typeof HeatmapSessionHeightsRowSc
 
 export type HeatmapClicks = {
   width: number;
-  height: number;
   points: HeatmapClickPoint[];
-  fixedClicks: number;
 };
 
 // Changes right after a snapshot are applied too: an in-app navigation snapshots the page

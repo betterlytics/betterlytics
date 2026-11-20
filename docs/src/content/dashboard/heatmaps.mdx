@@ -11,11 +11,11 @@ Heatmaps show where visitors click on a page. Pick a page and a device, and the 
 
 ## Reading a heatmap
 
-- **Page:** the page picker lists the pages with clicks in the selected period, and you can search it. Pages grouped with `data-dynamic-urls` show their pattern, such as `/profile/*/posts`.
-- **Device tabs:** Desktop, Tablet and Mobile each get their own heatmap, since layouts change with the window width. Each tab shows its share of the page's clicks.
+- **Page:** the page picker lists the pages visited in the selected period, most visited first, and you can search all of them. A warning sign marks pages without heatmap data in the period. Pages grouped with `data-dynamic-urls` show their pattern, such as `/profile/*/posts`.
+- **Devices:** Desktop, Tablet and Mobile each get their own heatmap, since layouts change with the window width. A warning sign on a device means the page has no data from it in the period; its layout is still shown and can be captured.
 - **Period:** the date range decides which clicks are drawn.
-- **Fixed elements:** clicks on fixed or sticky elements, such as a header that stays on screen, are drawn on that element when a capture or replay layout has it. On the live page and the plain canvas they're left out, and the bar above the heatmap says how many.
-- **Hidden clicks:** on a capture or replay layout, clicks are drawn on the element they were made on. A click isn't drawn when its element isn't on the layout, or when several elements look the same and none is clearly where the click was made. The bar above the heatmap says how many clicks are hidden; giving the elements a [stable id](/integration/heatmaps#stable-element-ids) helps.
+- **Fixed elements:** clicks on fixed or sticky elements, such as a header that stays on screen, are drawn on that element when a capture or replay layout has it. On the live page they're left out.
+- **Hidden clicks:** on a capture or replay layout, clicks are drawn on the element they were made on. A click isn't drawn when its element isn't on the layout, or when several elements look the same and none is clearly where the click was made; giving the elements a [stable id](/integration/heatmaps#stable-element-ids) helps.
 
 Heatmaps aren't available on public dashboards.
 
@@ -24,9 +24,9 @@ Heatmaps aren't available on public dashboards.
 The panel picks a background for each page and device, in this order:
 
 1. **A capture** of the page: the newest one, or one you picked from the capture history. Clicks land on the elements they were made on.
-2. **A replay layout:** a [session replay](/dashboard/session-replay) recorded on that device, when Session Replay is on. The panel shows the recording date and links to the replay.
+2. **A capture from the latest replay:** the layout from a [session replay](/dashboard/session-replay) recorded on that device, when Session Replay is on. The panel shows the recording date.
 3. **The live page**, framed at the device's width, when your site allows framing (see [Showing your live page](/integration/heatmaps#showing-your-live-page)). It shows the page as it is now, which may differ from when the clicks happened. Pages grouped with `data-dynamic-urls` skip this step.
-4. **A plain canvas**, with a prompt to capture the page.
+4. **No capture:** a prompt to capture the page.
 
 The bar above the heatmap shows which background you're looking at. When a background can't be loaded, for example because the replay has expired, the panel moves on to the next one.
 
@@ -38,8 +38,8 @@ A capture is a snapshot of a page, taken in your own browser at the device's wid
 
 To capture a page:
 
-1. Open the page and device tab in Heatmaps, then click **Capture page**. The tab needs clicks in the selected period; widen the date range if it shows none.
-2. In the dialog, check the **Page** address to open, turn on **Hide text** if you need it, and click **Open page**. The page opens in a window at the device's width: 1440 px for Desktop, 768 px for Tablet and 390 px for Mobile.
+1. Pick the page and device in Heatmaps, then click **Capture page**.
+2. In the dialog, check the **Page** address to open, turn on **Enable privacy masking** if you need it, and click **Open page**. The page opens in a window at the device's width: 768 px for Tablet and 390 px for Mobile. Desktop fills your screen, up to 1920 × 1080 px.
 3. Close cookie banners and set the page up the way visitors see it, then press **Capture page** in the Betterlytics panel on the page.
 
 Keep the window at its size and don't zoom until the capture is done. A capture whose window width falls outside the device's range is refused, and the panel on the page says why.
@@ -48,7 +48,7 @@ The page needs the Betterlytics tracking script, but not `data-heatmaps` or Sess
 
 ### What a capture keeps
 
-- Text and images as you see them. A capture of a page you're signed in to shows your account details to every member of the dashboard, so turn on **Hide text** in the capture dialog to mask all text, or capture while signed in to a test account.
+- Text and images as you see them. A capture of a page you're signed in to shows your account details to every member of the dashboard, so turn on **Enable privacy masking** in the capture dialog to mask all text, or capture while signed in to a test account.
 - Form inputs and typed text are always masked, and so are elements marked with `data-rrweb-mask`.
 - Images stay links to your site, so an image you later remove from your site disappears from the capture too. Fonts from your own site are stored with the capture.
 
@@ -70,7 +70,7 @@ A page grouped with `data-dynamic-urls`, such as `/profile/*/posts`, isn't a sin
 
 ## Capture history
 
-Click the capture's date in the bar above the heatmap to list the captures for the page and device, newest first, with when, by whom and from which address each was taken. Pick an older one to show it instead of the newest. Owners, admins and editors can delete a capture. Betterlytics keeps the 10 newest captures per page and device.
+Click the capture's date in the bar above the heatmap to list the captures for the page and device, newest first, with the day, by whom and from which address each was taken. Pick an older one to show it instead of the newest. Owners, admins and editors can delete a capture with the trash icon next to it. Betterlytics keeps the 10 newest captures per page and device.
 
 ### When a page has changed
 

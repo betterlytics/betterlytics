@@ -49,6 +49,17 @@ export function captureUrl(url: string, token: string, pagePath: string, hideTex
   return `${url}#${params}`;
 }
 
-export function captureWindowFeatures(device: HeatmapDevice): string {
-  return `popup,width=${HEATMAP_DEVICE_WIDTHS[device]},height=${HEATMAP_DEVICE_VIEWPORT_HEIGHTS[device]}`;
+// The most common desktop screen. Desktop windows fill the editor's screen up to this size, so
+// captures on large monitors stay at a width most visitors have.
+const DESKTOP_MAX_WINDOW = { width: 1920, height: 1080 };
+
+type CaptureScreen = Pick<Screen, 'availWidth' | 'availHeight'> & { availLeft?: number; availTop?: number };
+
+export function captureWindowFeatures(device: HeatmapDevice, screen: CaptureScreen): string {
+  if (device !== 'desktop') {
+    return `popup,width=${HEATMAP_DEVICE_WIDTHS[device]},height=${HEATMAP_DEVICE_VIEWPORT_HEIGHTS[device]}`;
+  }
+  const width = Math.min(screen.availWidth, DESKTOP_MAX_WINDOW.width);
+  const height = Math.min(screen.availHeight, DESKTOP_MAX_WINDOW.height);
+  return `popup,width=${width},height=${height},left=${screen.availLeft ?? 0},top=${screen.availTop ?? 0}`;
 }

@@ -117,7 +117,7 @@ describe('placeClicks', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('puts a click on its element by its offset inside it', () => {
-    const { layers } = placeClicks(
+    const layers = placeClicks(
       [anchor('button#buy', { ...onBuy, offsetX: 0.25, offsetY: 1, count: 3 })],
       find,
       PAGE_HEIGHT,
@@ -126,7 +126,7 @@ describe('placeClicks', () => {
   });
 
   it('groups clicks by the host their element moves with', () => {
-    const { layers } = placeClicks(
+    const layers = placeClicks(
       [anchor('nav > a.pricing', { fixed: true }), anchor('button#buy', onBuy)],
       find,
       PAGE_HEIGHT,
@@ -135,18 +135,17 @@ describe('placeClicks', () => {
     expect(layers.get(null)).toEqual([{ x: 360, y: 1020, count: 1 }]);
   });
 
-  it('counts clicks whose element is missing instead of drawing them at their page position', () => {
-    const result = placeClicks(
+  it('leaves out clicks whose element is missing instead of drawing them at their page position', () => {
+    const layers = placeClicks(
       [anchor('a.renamed', { count: 2 }), anchor('nav.sticky', { fixed: true, count: 4 })],
       find,
       PAGE_HEIGHT,
     );
-    expect(result.unplaced).toBe(6);
-    expect(result.layers.size).toBe(0);
+    expect(layers.size).toBe(0);
   });
 
   it('places clicks on the page itself by their page position', () => {
-    const { layers } = placeClicks(
+    const layers = placeClicks(
       [anchor('', { onPage: true, offsetX: 0, offsetY: 0, x: 640, y: 90 })],
       find,
       PAGE_HEIGHT,
@@ -155,10 +154,9 @@ describe('placeClicks', () => {
     expect(find).not.toHaveBeenCalled();
   });
 
-  it('only counts fixed clicks on the page itself', () => {
-    const result = placeClicks([anchor('', { onPage: true, fixed: true, count: 2 })], find, PAGE_HEIGHT);
-    expect(result.unplaced).toBe(2);
-    expect(result.layers.size).toBe(0);
+  it('leaves out fixed clicks on the page itself', () => {
+    const layers = placeClicks([anchor('', { onPage: true, fixed: true, count: 2 })], find, PAGE_HEIGHT);
+    expect(layers.size).toBe(0);
   });
 
   it('looks each selector up once and measures each element once', () => {
@@ -178,7 +176,7 @@ describe('placeClicks', () => {
     const onTopCard = { x: 60, y: 944, relY: 944 / 3974 };
 
     it('gives clicks to the one clearly closest to where they were made', () => {
-      const { layers } = placeClicks(
+      const layers = placeClicks(
         [anchor('div > button', onTopCard)],
         () => [lowerCard, topCard],
         PAGE_HEIGHT,
@@ -187,22 +185,21 @@ describe('placeClicks', () => {
       expect(lowerCard.locate).not.toHaveBeenCalled();
     });
 
-    it('counts clicks on ones too close together to tell apart', () => {
+    it('leaves out clicks on ones too close together to tell apart', () => {
       const first = candidate({ left: 20, top: 900, width: 300, height: 40 });
       const second = candidate({ left: 20, top: 940, width: 300, height: 40 });
-      const result = placeClicks([anchor('li > a', { x: 60, y: 930, relY: 930 / PAGE_HEIGHT })], () => [first, second], PAGE_HEIGHT);
-      expect(result.unplaced).toBe(1);
-      expect(result.layers.size).toBe(0);
+      const layers = placeClicks([anchor('li > a', { x: 60, y: 930, relY: 930 / PAGE_HEIGHT })], () => [first, second], PAGE_HEIGHT);
+      expect(layers.size).toBe(0);
     });
 
-    it('counts clicks whose only match is far from where they were made', () => {
-      const result = placeClicks([anchor('div > button', onTopCard)], () => [lowerCard], PAGE_HEIGHT);
-      expect(result.unplaced).toBe(1);
+    it('leaves out clicks whose only match is far from where they were made', () => {
+      const layers = placeClicks([anchor('div > button', onTopCard)], () => [lowerCard], PAGE_HEIGHT);
+      expect(layers.size).toBe(0);
     });
 
-    it('counts fixed clicks on a repeated element, whose page position includes the scroll', () => {
-      const result = placeClicks([anchor('header a', { fixed: true, count: 3 })], () => [topCard, lowerCard], PAGE_HEIGHT);
-      expect(result.unplaced).toBe(3);
+    it('leaves out fixed clicks on a repeated element, whose page position includes the scroll', () => {
+      const layers = placeClicks([anchor('header a', { fixed: true, count: 3 })], () => [topCard, lowerCard], PAGE_HEIGHT);
+      expect(layers.size).toBe(0);
     });
   });
 
@@ -213,8 +210,7 @@ describe('placeClicks', () => {
       { left: 0, top: 60, width: 1024, height: 708 },
       { host: panel, left: 20, top: 2000, width: 120, height: 40 },
     );
-    const { layers, unplaced } = placeClicks([anchor('main button.save', { x: 80, y: 320, relY: 320 / 768 })], () => [save], 768);
-    expect(unplaced).toBe(0);
+    const layers = placeClicks([anchor('main button.save', { x: 80, y: 320, relY: 320 / 768 })], () => [save], 768);
     expect(layers.get(panel)).toEqual([{ x: 80, y: 2020, count: 1 }]);
   });
 
@@ -223,12 +219,11 @@ describe('placeClicks', () => {
     const stretched = candidate({ left: 20, top: 1990, width: 110, height: 32 });
     // Made 300 px down while the rest of the page was still loading
     const loading = candidate({ left: 20, top: 290, width: 110, height: 32 });
-    const { layers, unplaced } = placeClicks(
+    const layers = placeClicks(
       [anchor('a.stretched', { x: 60, y: 3200, relY: 0.5 }), anchor('a.loading', { x: 60, y: 300, relY: 0.6 })],
       (selector) => (selector === 'a.stretched' ? [stretched] : [loading]),
       PAGE_HEIGHT,
     );
-    expect(unplaced).toBe(0);
     expect(layers.get(null)).toEqual([
       { x: 75, y: 2006, count: 1 },
       { x: 75, y: 306, count: 1 },

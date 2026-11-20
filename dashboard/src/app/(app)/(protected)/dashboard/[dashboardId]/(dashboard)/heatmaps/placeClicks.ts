@@ -13,7 +13,7 @@ export type LocatedElement<Host> = ElementBox & { host: Host | null };
 export type Candidate<Host> = { area: ElementBox; locate: () => LocatedElement<Host> };
 
 /** Points per host, with the page's points under null */
-export type PlacedClicks<Host> = { layers: Map<Host | null, HeatmapClickPoint[]>; unplaced: number };
+export type PlacedClicks<Host> = Map<Host | null, HeatmapClickPoint[]>;
 
 // A look-alike is only picked when every other one is at least this many times farther from where
 // the clicks were made, and at least that many times CLOSE_PX
@@ -27,8 +27,8 @@ const MAX_DRIFT = 0.25;
 /**
  * Puts each click on its element, by its offset inside it. When the selector matches several
  * elements, the one clearly closest to where the clicks were made gets them. Clicks whose element
- * is missing, can't be told apart from look-alikes, or sits far from where they were made are only
- * counted: at their page position they would land on whatever this layout has there. Clicks on the
+ * is missing, can't be told apart from look-alikes, or sits far from where they were made are left
+ * out: at their page position they would land on whatever this layout has there. Clicks on the
  * page itself have no element and are drawn at their page position, unless they were on a fixed
  * part, whose page position includes the scroll.
  */
@@ -39,8 +39,7 @@ export function placeClicks<Host>(
 ): PlacedClicks<Host> {
   const found = new Map<string, Candidate<Host>[]>();
   const located = new Map<Candidate<Host>, LocatedElement<Host>>();
-  const layers = new Map<Host | null, HeatmapClickPoint[]>();
-  let unplaced = 0;
+  const layers: PlacedClicks<Host> = new Map();
 
   const add = (host: Host | null, point: HeatmapClickPoint) => {
     const points = layers.get(host);
@@ -50,8 +49,7 @@ export function placeClicks<Host>(
 
   for (const anchor of anchors) {
     if (anchor.onPage) {
-      if (anchor.fixed) unplaced += anchor.count;
-      else add(null, { x: anchor.x, y: anchor.y, count: anchor.count });
+      if (!anchor.fixed) add(null, { x: anchor.x, y: anchor.y, count: anchor.count });
       continue;
     }
     let candidates = found.get(anchor.selector);
@@ -60,10 +58,7 @@ export function placeClicks<Host>(
       found.set(anchor.selector, candidates);
     }
     const candidate = pick(candidates, anchor, pageHeight);
-    if (!candidate) {
-      unplaced += anchor.count;
-      continue;
-    }
+    if (!candidate) continue;
     let box = located.get(candidate);
     if (!box) {
       box = candidate.locate();
@@ -76,7 +71,7 @@ export function placeClicks<Host>(
     });
   }
 
-  return { layers, unplaced };
+  return layers;
 }
 
 function pick<Host>(candidates: Candidate<Host>[], anchor: HeatmapClickAnchor, pageHeight: number) {

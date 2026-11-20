@@ -1,48 +1,52 @@
 'use client';
 
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
+import { TriangleAlert } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { DeviceIcon } from '@/components/icons';
-import { formatPercentage } from '@/utils/formatters';
 import {
   HEATMAP_DEVICES,
   HeatmapDeviceSchema,
   type HeatmapDevice,
-  type HeatmapDeviceShareRow,
 } from '@/entities/analytics/clickHeatmap.entities';
 
 type HeatmapDeviceTabsProps = {
-  value: HeatmapDevice | undefined;
-  shares: HeatmapDeviceShareRow[] | undefined;
+  value: HeatmapDevice;
+  /** The devices the page has data from, or undefined without a page */
+  devicesWithData: HeatmapDevice[] | undefined;
   onValueChange: (device: HeatmapDevice) => void;
 };
 
-export function HeatmapDeviceTabs({ value, shares, onValueChange }: HeatmapDeviceTabsProps) {
-  const t = useTranslations('components.heatmaps.devices');
-  const locale = useLocale();
-  const totalClicks = shares?.reduce((sum, share) => sum + share.clicks, 0) ?? 0;
+export function HeatmapDeviceTabs({ value, devicesWithData, onValueChange }: HeatmapDeviceTabsProps) {
+  const t = useTranslations('components.heatmaps');
 
   return (
-    <Tabs value={value ?? ''} onValueChange={(next) => onValueChange(HeatmapDeviceSchema.parse(next))}>
-      <TabsList className='bg-secondary dark:inset-shadow-background h-9 w-full gap-1 px-1 inset-shadow-sm sm:w-auto'>
+    <Tabs value={value} onValueChange={(next) => onValueChange(HeatmapDeviceSchema.parse(next))}>
+      <TabsList className='h-7 gap-0.5 bg-transparent p-0'>
         {HEATMAP_DEVICES.map((device) => {
-          const clicks = shares?.find((share) => share.device === device)?.clicks ?? 0;
+          const name = t(`devices.${device}`);
+          const label =
+            devicesWithData && !devicesWithData.includes(device) ? t('deviceNoData', { device: name }) : null;
           return (
-            <TabsTrigger
-              key={device}
-              value={device}
-              className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground cursor-pointer gap-1.5 rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
-            >
-              <DeviceIcon type={device} className='size-3.5' />
-              {t(device)}
-              {shares && (
-                <span className='text-muted-foreground font-normal tabular-nums'>
-                  {formatPercentage(totalClicks > 0 ? (clicks / totalClicks) * 100 : 0, locale, {
-                    maximumFractionDigits: 0,
-                  })}
-                </span>
-              )}
-            </TabsTrigger>
+            <Tooltip key={device}>
+              <TooltipTrigger asChild>
+                {/* The tooltip sets its own data-state on the trigger, so the selected tab is styled by aria-selected */}
+                <TabsTrigger
+                  value={device}
+                  aria-label={label ?? name}
+                  className='text-muted-foreground hover:text-foreground aria-selected:bg-card aria-selected:text-foreground aria-selected:ring-border dark:aria-selected:bg-accent dark:aria-selected:text-foreground relative size-7 flex-none cursor-pointer rounded-md border-0 p-0 aria-selected:shadow-sm aria-selected:ring-1'
+                >
+                  <DeviceIcon type={device} className='size-3.5' />
+                  {label && (
+                    <TriangleAlert className='absolute top-0.5 right-0.5 size-2.5 fill-amber-500 text-amber-50 dark:text-amber-950' />
+                  )}
+                </TabsTrigger>
+              </TooltipTrigger>
+              <TooltipContent side='bottom' className='max-w-xs'>
+                {label ?? name}
+              </TooltipContent>
+            </Tooltip>
           );
         })}
       </TabsList>

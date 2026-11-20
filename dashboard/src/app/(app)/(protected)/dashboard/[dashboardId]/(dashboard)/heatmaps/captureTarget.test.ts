@@ -75,9 +75,19 @@ describe('captureUrl', () => {
 });
 
 describe('captureWindowFeatures', () => {
-  it('opens every device in a window of its width', () => {
-    expect(captureWindowFeatures('desktop')).toBe('popup,width=1440,height=900');
-    expect(captureWindowFeatures('tablet')).toBe('popup,width=768,height=1024');
-    expect(captureWindowFeatures('mobile')).toBe('popup,width=390,height=844');
+  const laptop = { availWidth: 1536, availHeight: 816, availLeft: 0, availTop: 0 };
+
+  it('opens tablet and mobile in a window of their width', () => {
+    expect(captureWindowFeatures('tablet', laptop)).toBe('popup,width=768,height=1024');
+    expect(captureWindowFeatures('mobile', laptop)).toBe('popup,width=390,height=844');
+  });
+
+  it("fills the editor's screen on desktop", () => {
+    expect(captureWindowFeatures('desktop', laptop)).toBe('popup,width=1536,height=816,left=0,top=0');
+  });
+
+  it('stops at 1920 by 1080 on larger screens, on the screen the dashboard is on', () => {
+    const monitor = { availWidth: 2560, availHeight: 1400, availLeft: 1536, availTop: -200 };
+    expect(captureWindowFeatures('desktop', monitor)).toBe('popup,width=1920,height=1080,left=1536,top=-200');
   });
 });

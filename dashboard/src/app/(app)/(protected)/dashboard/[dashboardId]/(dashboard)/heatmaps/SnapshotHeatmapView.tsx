@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import rrwebPlayer from 'rrweb-player';
 import 'rrweb-player/dist/style.css';
 import type { eventWithTime } from '@rrweb/types';
@@ -31,7 +31,6 @@ type SnapshotHeatmapViewProps = {
   snapshotMs: number;
   viewportWidth: number;
   anchors: HeatmapClickAnchor[];
-  onPlaced: (result: { unplaced: number }) => void;
   onUnusable: () => void;
 };
 
@@ -39,21 +38,21 @@ type SnapshotHeatmapViewProps = {
  * Draws a page layout from an rrweb full snapshot (scripts blocked by the player's sandbox) and
  * the heat inside its document, so the heat scrolls with the page and with fixed, sticky and
  * scrolling parts of it. Clicks land on their element; clicks whose element can't be found on this
- * layout are counted instead of drawn.
+ * layout are left out. New clicks only redraw the heat, so the layout and its scroll stay put.
  */
 export function SnapshotHeatmapView({
   events,
   snapshotMs,
   viewportWidth,
   anchors,
-  onPlaced,
   onUnusable,
 }: SnapshotHeatmapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const size = useDebounce(useResizeObserver(containerRef), 200);
-  const callbacks = useRef({ onPlaced, onUnusable });
-  callbacks.current = { onPlaced, onUnusable };
+  const [layout, setLayout] = useState<Document | null>(null);
+  const callbacks = useRef({ onUnusable });
+  callbacks.current = { onUnusable };
 
   useEffect(() => {
     const frame = frameRef.current;
@@ -94,20 +93,26 @@ export function SnapshotHeatmapView({
       if (cancelled || !doc?.documentElement) return;
       // The player restores the visitor's scroll; the heatmap opens at the top of the page
       doc.defaultView?.scrollTo(0, 0);
-      const placed = placeClicks(anchors, findInDocument(doc), doc.documentElement.scrollHeight);
-      drawHeatLayers(doc, placed.layers);
-      callbacks.current.onPlaced({ unplaced: placed.unplaced });
+      setLayout(doc);
     })();
 
     return () => {
       cancelled = true;
+      setLayout(null);
       try {
         player.pause();
       } catch {}
       (player as unknown as { $destroy?: () => void }).$destroy?.();
       frame.innerHTML = '';
     };
-  }, [events, snapshotMs, viewportWidth, anchors, size]);
+  }, [events, snapshotMs, viewportWidth, size]);
+
+  useEffect(() => {
+    if (!layout?.documentElement) return;
+    const placed = placeClicks(anchors, findInDocument(layout), layout.documentElement.scrollHeight);
+    const drawn = drawHeatLayers(layout, placed);
+    return () => drawn.forEach((layer) => layer.remove());
+  }, [layout, anchors]);
 
   return (
     <div className='h-full p-4 sm:p-6'>
@@ -149,13 +154,24 @@ async function fitLayoutWidth(iframe: HTMLIFrameElement, layoutWidth: number, re
 // Heat on a fixed, sticky or scrolling part is drawn inside that part, so it stays on its
 // element and is cut off with it. The page's layer covers the whole page, so links in the layout
 // can't be followed while it still scrolls.
-function drawHeatLayers(doc: Document, layers: Map<HTMLElement | null, HeatmapClickPoint[]>) {
+function drawHeatLayers(doc: Document, layers: Map<HTMLElement | null, HeatmapClickPoint[]>): HTMLElement[] {
   const maxCount = maxCountOf([...layers.values()].flat());
+  const drawn: HTMLElement[] = [];
   for (const [host, points] of layers) {
-    if (host) host.appendChild(heatLayer(doc, points, host.scrollWidth, host.scrollHeight, maxCount, 'pointer-events:none'));
+    if (!host) continue;
+    drawn.push(
+      host.appendChild(
+        heatLayer(doc, points, host.scrollWidth, host.scrollHeight, maxCount, 'pointer-events:none'),
+      ),
+    );
   }
   const root = doc.documentElement;
-  root.appendChild(heatLayer(doc, layers.get(null) ?? [], root.scrollWidth, root.scrollHeight, maxCount, 'cursor:default'));
+  drawn.push(
+    root.appendChild(
+      heatLayer(doc, layers.get(null) ?? [], root.scrollWidth, root.scrollHeight, maxCount, 'cursor:default'),
+    ),
+  );
+  return drawn;
 }
 
 // Covers its host's scroll area, reaching past the top and left edges when an element sits

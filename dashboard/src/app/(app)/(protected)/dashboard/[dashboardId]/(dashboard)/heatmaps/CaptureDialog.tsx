@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/dialog';
 import { createHeatmapCaptureLinkAction } from '@/app/actions/analytics/heatmapCaptures.actions';
 import { HEATMAP_CAPTURE_LINK_TTL_MS, type HeatmapCapture } from '@/entities/analytics/heatmapCaptures.entities';
-import { HEATMAP_DEVICE_WIDTHS, type HeatmapDevice } from '@/entities/analytics/clickHeatmap.entities';
+import type { HeatmapDevice } from '@/entities/analytics/clickHeatmap.entities';
 import {
   captureUrl,
   captureWindowFeatures,
@@ -124,7 +124,7 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
     }
     setError(null);
 
-    const opened = window.open('', `betterlytics-capture-${device}`, captureWindowFeatures(device));
+    const opened = window.open('', `betterlytics-capture-${device}`, captureWindowFeatures(device, window.screen));
     if (!opened) {
       toast.error(t('popupBlocked'));
       return;
@@ -149,7 +149,7 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
       ? t('errors.originFailed')
       : null;
   const pathWildcard = 'error' in target && target.error === 'wildcard';
-  const note = alert ?? (pathWildcard ? t('wildcardHint') : t('navigateHint'));
+  const note = alert ?? (pathWildcard ? t('wildcardHint') : null);
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -158,26 +158,11 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
         onOpenAutoFocus={focusAddress}
         onInteractOutside={keepOpenWhileWaiting}
         onEscapeKeyDown={keepOpenWhileWaiting}
+        {...(waiting ? {} : { 'aria-describedby': undefined })}
       >
         <DialogHeader>
           <DialogTitle>{t('title', { device: tDevices(device) })}</DialogTitle>
-          <DialogDescription>
-            {waiting ? (
-              t('waitingHint')
-            ) : (
-              <>
-                {t('howWindow', { width: HEATMAP_DEVICE_WIDTHS[device] })}{' '}
-                <ExternalLink
-                  href={`${DOCS_URL}#capturing-pages`}
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  className='text-primary whitespace-nowrap hover:underline'
-                >
-                  {t('learnMore')}
-                </ExternalLink>
-              </>
-            )}
-          </DialogDescription>
+          {waiting && <DialogDescription>{t('waitingHint')}</DialogDescription>}
         </DialogHeader>
 
         {waiting ? (
@@ -194,7 +179,7 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
             </ExternalLink>
           </div>
         ) : (
-          <div className='space-y-5'>
+          <div className='space-y-6 py-2'>
             <div className='space-y-2'>
               <Label htmlFor='capture-address'>{t('pageLabel')}</Label>
               <Input
@@ -206,7 +191,7 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
                 spellCheck={false}
                 autoComplete='off'
                 aria-invalid={alert ? true : undefined}
-                aria-describedby='capture-address-note'
+                aria-describedby={note ? 'capture-address-note' : undefined}
                 className='font-mono text-sm'
                 onChange={(event) => {
                   setEditedAddress(event.target.value);
@@ -216,25 +201,36 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
                   if (event.key === 'Enter') handleOpen();
                 }}
               />
-              <p
-                id='capture-address-note'
-                role={alert ? 'alert' : undefined}
-                className={alert ? 'text-destructive text-xs' : 'text-muted-foreground text-xs'}
-              >
-                {note}
-              </p>
+              {note && (
+                <p
+                  id='capture-address-note'
+                  role={alert ? 'alert' : undefined}
+                  className={alert ? 'text-destructive text-xs' : 'text-muted-foreground text-xs'}
+                >
+                  {note}
+                </p>
+              )}
             </div>
             <SettingToggle
               id='capture-hide-text'
               label={t('hideText')}
-              description={t('hideTextHint')}
               checked={hideText}
               onCheckedChange={setHideText}
             />
           </div>
         )}
 
-        <DialogFooter>
+        <DialogFooter className='sm:items-center'>
+          {!waiting && (
+            <ExternalLink
+              href={`${DOCS_URL}#capturing-pages`}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='text-primary text-center text-sm hover:underline sm:mr-auto sm:text-left'
+            >
+              {t('learnMore')}
+            </ExternalLink>
+          )}
           <Button variant='outline' className='cursor-pointer' onClick={onClose}>
             {waiting ? t('close') : t('cancel')}
           </Button>

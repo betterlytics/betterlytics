@@ -1,17 +1,15 @@
 'use client';
 
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import Link from 'next/link';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import type { eventWithTime } from '@rrweb/types';
-import { Camera, ChevronDown, EyeOff, Globe, History, SquareDashed, TriangleAlert, Video } from 'lucide-react';
+import { Camera, ChevronDown, Globe, History, TriangleAlert, Video } from 'lucide-react';
 import { trpc } from '@/trpc/client';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { Button } from '@/components/ui/button';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
-import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import {
   HEATMAP_DEVICE_VIEWPORT_HEIGHTS,
   type HeatmapDevice,
@@ -20,8 +18,8 @@ import {
 import type { HeatmapCapture } from '@/entities/analytics/heatmapCaptures.entities';
 import { CaptureButton, CaptureHistoryMenu, useCaptureDetails } from './CaptureActions';
 import { CaptureDialog } from './CaptureDialog';
-import { FrameBadge, FrameLabel, FrameMessage, FrameSpinner, HeatmapFrame } from './HeatmapFrame';
-import { HeatmapView } from './HeatmapView';
+import { FrameBadge, FrameLabel, FrameSpinner, HeatmapFrame } from './HeatmapFrame';
+import { NoCaptureMessage, SetUpHeatmapsMessage } from './HeatmapsEmptyState';
 import { LiveHeatmapView } from './LiveHeatmapView';
 import { pageChangedSinceCapture, snapshotWindowHeight } from './pageChanged';
 import { SnapshotHeatmapView } from './SnapshotHeatmapView';
@@ -29,17 +27,26 @@ import { SnapshotHeatmapView } from './SnapshotHeatmapView';
 type HeatmapPanelProps = {
   url: string;
   device: HeatmapDevice;
+  /** Whether the site has any heatmap clicks at all, undefined while loading */
+  siteHasClicks: boolean | undefined;
   selectedCaptureId: string | undefined;
   onSelectCapture: (captureId: string | undefined) => void;
 };
 
 /**
  * Picks the background for a page and device, in order: the chosen or newest capture, a
- * visitor's replay layout, the live page when it allows framing, then the plain canvas with a
- * prompt to capture.
+ * visitor's replay layout, the live page when it allows framing, else a prompt to capture.
+ * Mounted once per page and device, so a new period keeps showing the current data until the
+ * new data replaces it.
  */
-export function HeatmapPanel({ url, device, selectedCaptureId, onSelectCapture }: HeatmapPanelProps) {
-  const t = useTranslations('components.heatmaps.capture');
+export function HeatmapPanel({
+  url,
+  device,
+  siteHasClicks,
+  selectedCaptureId,
+  onSelectCapture,
+}: HeatmapPanelProps) {
+  const t = useTranslations('components.heatmaps');
   const dashboardId = useDashboardId();
   const { isDemo } = useDashboardAuth();
   const { input, options } = useBAQueryParams();
@@ -50,7 +57,7 @@ export function HeatmapPanel({ url, device, selectedCaptureId, onSelectCapture }
   );
   const backgroundQuery = trpc.clickHeatmap.background.useQuery(
     { ...input, url, device },
-    { ...options, placeholderData: undefined },
+    { ...options, enabled: siteHasClicks === true },
   );
   // Only ever grows, so a background that failed never comes back and the order always ends
   const [unusable, setUnusable] = useState<ReadonlySet<string>>(new Set());
@@ -67,19 +74,17 @@ export function HeatmapPanel({ url, device, selectedCaptureId, onSelectCapture }
   const useCapture = capture !== undefined && !unusable.has(`capture/${capture.id}`);
   const useReplay =
     !useCapture && background?.kind === 'replay' && !unusable.has(snapshotKey(background.snapshot));
-  const wantsLivePage = !isDemo && !capturesLoading && !backgroundQuery.isPending && !useCapture && !useReplay;
+  const wantsLivePage =
+    siteHasClicks === true &&
+    !isDemo &&
+    !capturesLoading &&
+    !backgroundQuery.isPending &&
+    !useCapture &&
+    !useReplay;
   const livePageQuery = trpc.clickHeatmap.livePage.useQuery(
     { ...input, url },
-    { ...options, placeholderData: undefined, enabled: wantsLivePage },
+    { ...options, enabled: wantsLivePage },
   );
-
-  if (capturesLoading || backgroundQuery.isPending || (wantsLivePage && livePageQuery.isPending)) {
-    return (
-      <HeatmapFrame>
-        <FrameSpinner />
-      </HeatmapFrame>
-    );
-  }
 
   const openCapture = () => setCapturing(true);
   // A capture that failed to load stays reachable, to pick another one or delete it
@@ -91,21 +96,38 @@ export function HeatmapPanel({ url, device, selectedCaptureId, onSelectCapture }
       trigger={
         <Button variant='ghost' size='sm' className='h-7 cursor-pointer gap-1.5 px-2 text-xs'>
           <History className='size-3.5' />
-          {t('history', { count: captures.length })}
+          {t('capture.history', { count: captures.length })}
         </Button>
       }
     />
   );
-  const actions = (emphasis: boolean) => (
+  const actions = (
     <>
       {history}
-      <CaptureButton onClick={openCapture} emphasis={emphasis} />
+      <CaptureButton onClick={openCapture} />
     </>
   );
 
   let view: ReactNode;
   const livePage = livePageQuery.data;
-  if (useCapture) {
+  if (siteHasClicks === false) {
+    view = (
+      <HeatmapFrame actions={actions}>
+        <SetUpHeatmapsMessage />
+      </HeatmapFrame>
+    );
+  } else if (
+    siteHasClicks === undefined ||
+    capturesLoading ||
+    backgroundQuery.isPending ||
+    (wantsLivePage && livePageQuery.isPending)
+  ) {
+    view = (
+      <HeatmapFrame actions={actions}>
+        <FrameSpinner />
+      </HeatmapFrame>
+    );
+  } else if (useCapture) {
     view = (
       <CaptureHeatmap
         key={capture.id}
@@ -126,7 +148,7 @@ export function HeatmapPanel({ url, device, selectedCaptureId, onSelectCapture }
         url={url}
         device={device}
         snapshot={background.snapshot}
-        actions={actions(false)}
+        actions={actions}
         onUnusable={() => markUnusable(key)}
       />
     );
@@ -137,12 +159,19 @@ export function HeatmapPanel({ url, device, selectedCaptureId, onSelectCapture }
         url={url}
         device={device}
         pageUrl={livePage}
-        actions={actions(false)}
+        actions={actions}
         onUnusable={() => markUnusable(`live/${livePage}`)}
       />
     );
   } else {
-    view = <PlainHeatmap url={url} device={device} actions={actions(true)} />;
+    view = (
+      <HeatmapFrame
+        info={<FrameLabel icon={<TriangleAlert />} label={t('source.none')} tone='warning' />}
+        actions={actions}
+      >
+        <NoCaptureMessage onCapture={openCapture} />
+      </HeatmapFrame>
+    );
   }
 
   return (
@@ -165,59 +194,6 @@ function snapshotKey(snapshot: HeatmapReplaySnapshot) {
   return `replay/${snapshot.sessionId}/${snapshot.filename}/${snapshot.snapshotMs}`;
 }
 
-function HiddenClicksBadge({ hint, count }: { hint: string; count: number }) {
-  const t = useTranslations('components.heatmaps');
-  if (count === 0) return null;
-  return <FrameBadge icon={<EyeOff />} label={t('hiddenClicks', { count })} hint={hint} />;
-}
-
-function useHeatmapClicks(url: string, device: HeatmapDevice) {
-  const { input, options } = useBAQueryParams();
-  return trpc.clickHeatmap.clicks.useQuery({ ...input, url, device }, { ...options, placeholderData: undefined })
-    .data;
-}
-
-type PlainHeatmapProps = { url: string; device: HeatmapDevice; actions: ReactNode };
-
-function PlainHeatmap({ url, device, actions }: PlainHeatmapProps) {
-  const t = useTranslations('components.heatmaps');
-  const { hasPermission } = useDashboardAuth();
-  const clicks = useHeatmapClicks(url, device);
-  const allFixed = clicks !== undefined && clicks.points.length === 0 && clicks.fixedClicks > 0;
-
-  return (
-    <HeatmapFrame
-      info={
-        <>
-          <FrameLabel
-            icon={<SquareDashed />}
-            label={t('source.none')}
-            hint={hasPermission('canCaptureHeatmaps') ? t('source.noneHintEditor') : t('source.noneHintViewer')}
-          />
-          {clicks && !allFixed && (
-            <HiddenClicksBadge
-              count={clicks.fixedClicks}
-              hint={t('fixedClicksHidden', { count: clicks.fixedClicks })}
-            />
-          )}
-        </>
-      }
-      actions={actions}
-    >
-      {!clicks ? (
-        <FrameSpinner />
-      ) : allFixed ? (
-        <FrameMessage
-          icon={<EyeOff className='h-5 w-5' />}
-          title={t('fixedClicksHidden', { count: clicks.fixedClicks })}
-        />
-      ) : (
-        <HeatmapView width={clicks.width} height={clicks.height} points={clicks.points} />
-      )}
-    </HeatmapFrame>
-  );
-}
-
 type LiveHeatmapProps = {
   url: string;
   device: HeatmapDevice;
@@ -228,21 +204,12 @@ type LiveHeatmapProps = {
 
 function LiveHeatmap({ url, device, pageUrl, actions, onUnusable }: LiveHeatmapProps) {
   const t = useTranslations('components.heatmaps');
-  const clicks = useHeatmapClicks(url, device);
+  const { input, options } = useBAQueryParams();
+  const clicks = trpc.clickHeatmap.clicks.useQuery({ ...input, url, device }, options).data;
 
   return (
     <HeatmapFrame
-      info={
-        <>
-          <FrameLabel icon={<Globe />} label={t('source.live')} hint={t('source.liveHint')} />
-          {clicks && (
-            <HiddenClicksBadge
-              count={clicks.fixedClicks}
-              hint={t('fixedClicksHidden', { count: clicks.fixedClicks })}
-            />
-          )}
-        </>
-      }
+      info={<FrameLabel icon={<Globe />} label={t('source.live')} hint={t('source.liveHint')} />}
       actions={actions}
     >
       {clicks ? (
@@ -293,32 +260,17 @@ type SnapshotBodyProps = {
 };
 
 function SnapshotBody({ url, device, width, snapshotMs, events, info, actions, onUnusable }: SnapshotBodyProps) {
-  const t = useTranslations('components.heatmaps');
   const { input, options } = useBAQueryParams();
-  const [unplaced, setUnplaced] = useState(0);
-  const anchorsQuery = trpc.clickHeatmap.anchors.useQuery(
-    { ...input, url, device, width },
-    { ...options, placeholderData: undefined },
-  );
-  const handlePlaced = useCallback(({ unplaced }: { unplaced: number }) => setUnplaced(unplaced), []);
+  const anchorsQuery = trpc.clickHeatmap.anchors.useQuery({ ...input, url, device, width }, options);
 
   return (
-    <HeatmapFrame
-      info={
-        <>
-          {info}
-          <HiddenClicksBadge count={unplaced} hint={t('clicksUnplaced', { count: unplaced })} />
-        </>
-      }
-      actions={actions}
-    >
+    <HeatmapFrame info={info} actions={actions}>
       {events && anchorsQuery.data ? (
         <SnapshotHeatmapView
           events={events}
           snapshotMs={snapshotMs}
           viewportWidth={width}
           anchors={anchorsQuery.data}
-          onPlaced={handlePlaced}
           onUnusable={onUnusable}
         />
       ) : (
@@ -355,7 +307,7 @@ function CaptureHeatmap({
   const events = useSnapshotEvents(['heatmap-capture', dashboardId, capture.id], href, onUnusable);
   const pageHeightQuery = trpc.clickHeatmap.pageHeightSince.useQuery(
     { ...input, url, device, width: capture.viewportWidth, capturedAt: capture.createdAt },
-    { ...options, placeholderData: undefined },
+    options,
   );
   const pageChanged = pageChangedSinceCapture(capture, snapshotWindowHeight(events), pageHeightQuery.data);
   const { date, name } = details(capture);
@@ -390,17 +342,12 @@ function CaptureHeatmap({
               icon={<TriangleAlert />}
               label={t('capture.pageChanged')}
               hint={t('capture.pageChangedHint')}
-              tone='warning'
             />
           )}
         </>
       }
       actions={
-        <CaptureButton
-          onClick={onCapture}
-          emphasis={pageChanged}
-          label={pageChanged ? t('capture.recaptureButton') : undefined}
-        />
+        <CaptureButton onClick={onCapture} label={pageChanged ? t('capture.recaptureButton') : undefined} />
       }
       onUnusable={onUnusable}
     />
@@ -419,7 +366,6 @@ function ReplayHeatmap({ snapshot, url, device, actions, onUnusable }: ReplayHea
   const t = useTranslations('components.heatmaps');
   const locale = useLocale();
   const dashboardId = useDashboardId();
-  const { resolveHref } = useDashboardNavigation();
   const params = new URLSearchParams({
     dashboardId,
     sessionId: snapshot.sessionId,
@@ -441,19 +387,11 @@ function ReplayHeatmap({ snapshot, url, device, actions, onUnusable }: ReplayHea
       snapshotMs={snapshot.snapshotMs}
       events={events}
       info={
-        <>
-          <FrameLabel
-            icon={<Video />}
-            label={t('source.replay', { date: recordedOn })}
-            hint={t('source.replayHint')}
-          />
-          <Link
-            href={resolveHref(`/replay?sessionId=${snapshot.sessionId}`)}
-            className='text-primary shrink-0 px-1 hover:underline'
-          >
-            {t('watchReplay')}
-          </Link>
-        </>
+        <FrameLabel
+          icon={<Video />}
+          label={t('source.replay', { date: recordedOn })}
+          hint={t('source.replayHint')}
+        />
       }
       actions={actions}
       onUnusable={onUnusable}

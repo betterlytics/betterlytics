@@ -6,7 +6,6 @@ import {
   getHeatmapBackground,
   getHeatmapClickAnchorsForPage,
   getHeatmapClicksForPage,
-  getHeatmapDeviceSharesForPage,
   getHeatmapPageHeightSince,
   getHeatmapPagesForSite,
 } from '@/services/analytics/clickHeatmap.service';
@@ -20,10 +19,6 @@ export const clickHeatmapRouter = createRouter({
 
   pages: analyticsProcedure.query(async ({ ctx }) => {
     return getHeatmapPagesForSite(ctx.main);
-  }),
-
-  devices: analyticsProcedure.input(z.object({ url: z.string() })).query(async ({ ctx, input }) => {
-    return getHeatmapDeviceSharesForPage(ctx.main, input.url);
   }),
 
   clicks: analyticsProcedure

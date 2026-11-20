@@ -9,12 +9,8 @@ import {
   HeatmapClickPoint,
   HeatmapClickPointSchema,
   HeatmapDevice,
-  HeatmapDeviceShareRow,
-  HeatmapDeviceShareRowSchema,
   HeatmapPageRow,
   HeatmapPageRowSchema,
-  HeatmapPageStatsRow,
-  HeatmapPageStatsRowSchema,
   HeatmapSessionHeightsRow,
   HeatmapSessionHeightsRowSchema,
 } from '@/entities/analytics/clickHeatmap.entities';
@@ -36,16 +32,31 @@ export async function hasHeatmapClicks(siteId: string): Promise<boolean> {
   return result.length > 0;
 }
 
+// Pages visited in the period, most visited first, with the devices each has heatmap clicks from.
+// Clicks only need a session with a pageview, which can start before the period, so pages
+// with clicks but no pageview in it are listed too.
 export async function getHeatmapPages(siteQuery: BASiteQuery, limit: number): Promise<HeatmapPageRow[]> {
   const { siteId, startDateTime, endDateTime } = siteQuery;
 
   const query = safeSql`
-    SELECT url, count() AS clicks
-    FROM analytics.heatmap_clicks
-    WHERE site_id = {site_id:String}
-      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+    SELECT url, groupUniqArrayIf(device, device != '') AS devices
+    FROM (
+      SELECT url, '' AS device, count() AS views
+      FROM analytics.events
+      WHERE site_id = {site_id:String}
+        AND event_type = 'pageview'
+        AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+      GROUP BY url
+      UNION ALL
+      SELECT url, toString(device) AS device, 0 AS views
+      FROM analytics.heatmap_clicks
+      WHERE site_id = {site_id:String}
+        AND device IN {devices:Array(String)}
+        AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+      GROUP BY url, device
+    )
     GROUP BY url
-    ORDER BY clicks DESC, url ASC
+    ORDER BY sum(views) DESC, url ASC
     LIMIT {limit:UInt32}
   `;
 
@@ -54,6 +65,7 @@ export async function getHeatmapPages(siteQuery: BASiteQuery, limit: number): Pr
       params: {
         ...query.taggedParams,
         site_id: siteId,
+        devices: HEATMAP_DEVICES,
         start_date: startDateTime,
         end_date: endDateTime,
         limit,
@@ -62,35 +74,6 @@ export async function getHeatmapPages(siteQuery: BASiteQuery, limit: number): Pr
     .toPromise();
 
   return rows.map((row) => HeatmapPageRowSchema.parse(row));
-}
-
-export async function getHeatmapDeviceShares(siteQuery: BASiteQuery, url: string): Promise<HeatmapDeviceShareRow[]> {
-  const { siteId, startDateTime, endDateTime } = siteQuery;
-
-  const query = safeSql`
-    SELECT device, count() AS clicks
-    FROM analytics.heatmap_clicks
-    WHERE site_id = {site_id:String}
-      AND url = {url:String}
-      AND device IN {devices:Array(String)}
-      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-    GROUP BY device
-  `;
-
-  const rows = await clickhouse
-    .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        site_id: siteId,
-        url,
-        devices: HEATMAP_DEVICES,
-        start_date: startDateTime,
-        end_date: endDateTime,
-      },
-    })
-    .toPromise();
-
-  return rows.map((row) => HeatmapDeviceShareRowSchema.parse(row));
 }
 
 export async function getHeatmapClickPoints(
@@ -296,38 +279,4 @@ export async function getHeatmapSessionHeights(
     .toPromise();
 
   return HeatmapSessionHeightsRowSchema.parse(rows[0] ?? { documentHeight: 0, sessions: 0 });
-}
-
-export async function getHeatmapPageStats(
-  siteQuery: BASiteQuery,
-  url: string,
-  device: HeatmapDevice,
-): Promise<HeatmapPageStatsRow> {
-  const { siteId, startDateTime, endDateTime } = siteQuery;
-
-  const query = safeSql`
-    SELECT
-      quantileExact(0.5)(document_height) AS documentHeight,
-      countIf(is_fixed) AS fixedClicks
-    FROM analytics.heatmap_clicks
-    WHERE site_id = {site_id:String}
-      AND device = {device:String}
-      AND url = {url:String}
-      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-  `;
-
-  const rows = await clickhouse
-    .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        site_id: siteId,
-        device,
-        url,
-        start_date: startDateTime,
-        end_date: endDateTime,
-      },
-    })
-    .toPromise();
-
-  return HeatmapPageStatsRowSchema.parse(rows[0] ?? { documentHeight: 0, fixedClicks: 0 });
 }
