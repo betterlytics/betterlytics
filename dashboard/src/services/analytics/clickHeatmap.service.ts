@@ -16,13 +16,11 @@ import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import {
   HEATMAP_DEVICE_WIDTHS,
   HEATMAP_MAX_PAGE_HEIGHT,
+  HEATMAP_PAGE_LIMIT,
   HeatmapBackground,
   HeatmapClicks,
   HeatmapDevice,
 } from '@/entities/analytics/clickHeatmap.entities';
-
-// Every page is loaded at once and searched in the browser, like filter values
-const HEATMAP_PAGE_LIMIT = 5000;
 
 export async function getHasHeatmapClicks(siteId: string): Promise<boolean> {
   return hasHeatmapClicks(siteId);

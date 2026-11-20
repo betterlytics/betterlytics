@@ -4,10 +4,9 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import type { eventWithTime } from '@rrweb/types';
-import { Camera, ChevronDown, Globe, History, TriangleAlert, Video } from 'lucide-react';
+import { Camera, Globe, History, TriangleAlert, Video } from 'lucide-react';
 import { trpc } from '@/trpc/client';
 import { useBAQueryParams } from '@/trpc/hooks';
-import { Button } from '@/components/ui/button';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import {
@@ -18,7 +17,7 @@ import {
 import type { HeatmapCapture } from '@/entities/analytics/heatmapCaptures.entities';
 import { CaptureButton, CaptureHistoryMenu, useCaptureDetails } from './CaptureActions';
 import { CaptureDialog } from './CaptureDialog';
-import { FrameBadge, FrameLabel, FrameSpinner, HeatmapFrame } from './HeatmapFrame';
+import { FrameBadge, FrameContent, FrameLabel, FrameMenuButton, FrameSpinner } from './HeatmapFrame';
 import { NoCaptureMessage, SetUpHeatmapsMessage } from './HeatmapsEmptyState';
 import { LiveHeatmapView } from './LiveHeatmapView';
 import { pageChangedSinceCapture, snapshotWindowHeight } from './pageChanged';
@@ -35,9 +34,9 @@ type HeatmapPanelProps = {
 
 /**
  * Picks the background for a page and device, in order: the chosen or newest capture, a
- * visitor's replay layout, the live page when it allows framing, else a prompt to capture.
- * Mounted once per page and device, so a new period keeps showing the current data until the
- * new data replaces it.
+ * visitor's replay layout, the live page when it allows framing, else a prompt to capture. A site
+ * without any heatmap clicks gets the setup prompt instead of anything but a capture. Mounted once
+ * per page and device, so a new period keeps showing the current data until new data replaces it.
  */
 export function HeatmapPanel({
   url,
@@ -57,7 +56,7 @@ export function HeatmapPanel({
   );
   const backgroundQuery = trpc.clickHeatmap.background.useQuery(
     { ...input, url, device },
-    { ...options, enabled: siteHasClicks === true },
+    { ...options, enabled: siteHasClicks !== false },
   );
   // Only ever grows, so a background that failed never comes back and the order always ends
   const [unusable, setUnusable] = useState<ReadonlySet<string>>(new Set());
@@ -65,17 +64,23 @@ export function HeatmapPanel({
   const markUnusable = (key: string) =>
     setUnusable((current) => (current.has(key) ? current : new Set(current).add(key)));
 
+  // The first replay layout stays for as long as the panel is open, so a newer visitor's replay
+  // turning up in a refresh doesn't swap the layout; only one that fails is replaced
+  const [replay, setReplay] = useState<HeatmapReplaySnapshot>();
+  const latestReplay = backgroundQuery.data?.kind === 'replay' ? backgroundQuery.data.snapshot : undefined;
+  if (latestReplay && latestReplay !== replay && (!replay || unusable.has(snapshotKey(replay)))) {
+    setReplay(latestReplay);
+  }
+
   const pageCaptures = capturesQuery.data ?? [];
   const captures = pageCaptures.filter((item) => item.device === device);
   const capture = captures.find((item) => item.id === selectedCaptureId) ?? captures[0];
-  const background = backgroundQuery.data;
   // Public views have no captures (the query stays disabled) and no live page
   const capturesLoading = capturesQuery.isPending && !isDemo;
   const useCapture = capture !== undefined && !unusable.has(`capture/${capture.id}`);
-  const useReplay =
-    !useCapture && background?.kind === 'replay' && !unusable.has(snapshotKey(background.snapshot));
+  const useReplay = !useCapture && replay !== undefined && !unusable.has(snapshotKey(replay));
   const wantsLivePage =
-    siteHasClicks === true &&
+    siteHasClicks !== false &&
     !isDemo &&
     !capturesLoading &&
     !backgroundQuery.isPending &&
@@ -87,6 +92,7 @@ export function HeatmapPanel({
   );
 
   const openCapture = () => setCapturing(true);
+  const captureButton = <CaptureButton onClick={openCapture} />;
   // A capture that failed to load stays reachable, to pick another one or delete it
   const history = !useCapture && capture && (
     <CaptureHistoryMenu
@@ -94,38 +100,21 @@ export function HeatmapPanel({
       shownCaptureId={capture.id}
       onSelect={onSelectCapture}
       trigger={
-        <Button variant='ghost' size='sm' className='h-7 cursor-pointer gap-1.5 px-2 text-xs'>
-          <History className='size-3.5' />
-          {t('capture.history', { count: captures.length })}
-        </Button>
+        <FrameMenuButton
+          icon={<History className='size-3.5' />}
+          label={t('capture.history', { count: captures.length })}
+        />
       }
     />
-  );
-  const actions = (
-    <>
-      {history}
-      <CaptureButton onClick={openCapture} />
-    </>
   );
 
   let view: ReactNode;
   const livePage = livePageQuery.data;
-  if (siteHasClicks === false) {
+  if (capturesLoading) {
     view = (
-      <HeatmapFrame actions={actions}>
-        <SetUpHeatmapsMessage />
-      </HeatmapFrame>
-    );
-  } else if (
-    siteHasClicks === undefined ||
-    capturesLoading ||
-    backgroundQuery.isPending ||
-    (wantsLivePage && livePageQuery.isPending)
-  ) {
-    view = (
-      <HeatmapFrame actions={actions}>
+      <FrameContent actions={captureButton}>
         <FrameSpinner />
-      </HeatmapFrame>
+      </FrameContent>
     );
   } else if (useCapture) {
     view = (
@@ -140,15 +129,32 @@ export function HeatmapPanel({
         onUnusable={() => markUnusable(`capture/${capture.id}`)}
       />
     );
-  } else if (useReplay && background?.kind === 'replay') {
-    const key = snapshotKey(background.snapshot);
+  } else if (siteHasClicks === false) {
+    view = (
+      <FrameContent info={history} actions={captureButton}>
+        <SetUpHeatmapsMessage />
+      </FrameContent>
+    );
+  } else if (
+    siteHasClicks === undefined ||
+    backgroundQuery.isPending ||
+    (wantsLivePage && livePageQuery.isPending)
+  ) {
+    view = (
+      <FrameContent info={history} actions={captureButton}>
+        <FrameSpinner />
+      </FrameContent>
+    );
+  } else if (useReplay) {
+    const key = snapshotKey(replay);
     view = (
       <ReplayHeatmap
         key={key}
         url={url}
         device={device}
-        snapshot={background.snapshot}
-        actions={actions}
+        snapshot={replay}
+        history={history}
+        actions={captureButton}
         onUnusable={() => markUnusable(key)}
       />
     );
@@ -159,18 +165,24 @@ export function HeatmapPanel({
         url={url}
         device={device}
         pageUrl={livePage}
-        actions={actions}
+        history={history}
+        actions={captureButton}
         onUnusable={() => markUnusable(`live/${livePage}`)}
       />
     );
   } else {
     view = (
-      <HeatmapFrame
-        info={<FrameLabel icon={<TriangleAlert />} label={t('source.none')} tone='warning' />}
-        actions={actions}
+      <FrameContent
+        info={
+          <>
+            {history}
+            <FrameLabel icon={<TriangleAlert />} label={t('source.none')} tone='warning' />
+          </>
+        }
+        actions={captureButton}
       >
         <NoCaptureMessage onCapture={openCapture} />
-      </HeatmapFrame>
+      </FrameContent>
     );
   }
 
@@ -198,18 +210,24 @@ type LiveHeatmapProps = {
   url: string;
   device: HeatmapDevice;
   pageUrl: string;
+  history: ReactNode;
   actions: ReactNode;
   onUnusable: () => void;
 };
 
-function LiveHeatmap({ url, device, pageUrl, actions, onUnusable }: LiveHeatmapProps) {
+function LiveHeatmap({ url, device, pageUrl, history, actions, onUnusable }: LiveHeatmapProps) {
   const t = useTranslations('components.heatmaps');
   const { input, options } = useBAQueryParams();
   const clicks = trpc.clickHeatmap.clicks.useQuery({ ...input, url, device }, options).data;
 
   return (
-    <HeatmapFrame
-      info={<FrameLabel icon={<Globe />} label={t('source.live')} hint={t('source.liveHint')} />}
+    <FrameContent
+      info={
+        <>
+          {history}
+          <FrameLabel icon={<Globe />} label={t('source.live')} hint={t('source.liveHint')} />
+        </>
+      }
       actions={actions}
     >
       {clicks ? (
@@ -224,7 +242,7 @@ function LiveHeatmap({ url, device, pageUrl, actions, onUnusable }: LiveHeatmapP
       ) : (
         <FrameSpinner />
       )}
-    </HeatmapFrame>
+    </FrameContent>
   );
 }
 
@@ -264,7 +282,7 @@ function SnapshotBody({ url, device, width, snapshotMs, events, info, actions, o
   const anchorsQuery = trpc.clickHeatmap.anchors.useQuery({ ...input, url, device, width }, options);
 
   return (
-    <HeatmapFrame info={info} actions={actions}>
+    <FrameContent info={info} actions={actions}>
       {events && anchorsQuery.data ? (
         <SnapshotHeatmapView
           events={events}
@@ -276,7 +294,7 @@ function SnapshotBody({ url, device, width, snapshotMs, events, info, actions, o
       ) : (
         <FrameSpinner />
       )}
-    </HeatmapFrame>
+    </FrameContent>
   );
 }
 
@@ -326,15 +344,10 @@ function CaptureHeatmap({
             shownCaptureId={capture.id}
             onSelect={onSelectCapture}
             trigger={
-              <Button
-                variant='ghost'
-                size='sm'
-                className='text-muted-foreground hover:text-foreground h-7 min-w-0 shrink cursor-pointer gap-1.5 px-1.5 text-xs font-normal'
-              >
-                <Camera className='size-3.5' />
-                <span className='truncate'>{t('source.capture', { date, name })}</span>
-                <ChevronDown className='size-3.5 opacity-60' />
-              </Button>
+              <FrameMenuButton
+                icon={<Camera className='size-3.5' />}
+                label={t('source.capture', { date, name })}
+              />
             }
           />
           {pageChanged && (
@@ -358,11 +371,12 @@ type ReplayHeatmapProps = {
   url: string;
   device: HeatmapDevice;
   snapshot: HeatmapReplaySnapshot;
+  history: ReactNode;
   actions: ReactNode;
   onUnusable: () => void;
 };
 
-function ReplayHeatmap({ snapshot, url, device, actions, onUnusable }: ReplayHeatmapProps) {
+function ReplayHeatmap({ snapshot, url, device, history, actions, onUnusable }: ReplayHeatmapProps) {
   const t = useTranslations('components.heatmaps');
   const locale = useLocale();
   const dashboardId = useDashboardId();
@@ -387,11 +401,14 @@ function ReplayHeatmap({ snapshot, url, device, actions, onUnusable }: ReplayHea
       snapshotMs={snapshot.snapshotMs}
       events={events}
       info={
-        <FrameLabel
-          icon={<Video />}
-          label={t('source.replay', { date: recordedOn })}
-          hint={t('source.replayHint')}
-        />
+        <>
+          {history}
+          <FrameLabel
+            icon={<Video />}
+            label={t('source.replay', { date: recordedOn })}
+            hint={t('source.replayHint')}
+          />
+        </>
       }
       actions={actions}
       onUnusable={onUnusable}

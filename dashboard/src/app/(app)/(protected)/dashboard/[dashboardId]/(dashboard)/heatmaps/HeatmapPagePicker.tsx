@@ -2,8 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Check, ChevronDown, FileText, TriangleAlert } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Check, FileText, TriangleAlert } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Command,
@@ -15,17 +14,20 @@ import {
 } from '@/components/ui/command';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import type { HeatmapPageRow } from '@/entities/analytics/clickHeatmap.entities';
+import { FrameMenuButton } from './HeatmapFrame';
+import type { HeatmapPageOption } from './heatmapSelection';
 
 const MAX_VISIBLE_PAGES = 50;
 
 type HeatmapPagePickerProps = {
-  pages: HeatmapPageRow[];
+  pages: HeatmapPageOption[];
+  /** Whether the list stops at its limit, so less visited pages are left out */
+  truncated: boolean;
   value: string | undefined;
   onValueChange: (url: string) => void;
 };
 
-export function HeatmapPagePicker({ pages, value, onValueChange }: HeatmapPagePickerProps) {
+export function HeatmapPagePicker({ pages, truncated, value, onValueChange }: HeatmapPagePickerProps) {
   const t = useTranslations('components.heatmaps');
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -48,19 +50,14 @@ export function HeatmapPagePicker({ pages, value, onValueChange }: HeatmapPagePi
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <Button
-          variant='ghost'
-          size='sm'
+        <FrameMenuButton
+          icon={<FileText className='size-3.5' />}
+          label={value ?? t('pagePicker')}
           role='combobox'
           aria-expanded={open}
           aria-label={t('pagePicker')}
           disabled={value === undefined}
-          className='text-muted-foreground hover:text-foreground h-7 min-w-0 shrink cursor-pointer gap-1.5 px-1.5 text-xs font-normal'
-        >
-          <FileText className='size-3.5' />
-          <span className='truncate'>{value ?? t('pagePicker')}</span>
-          <ChevronDown className='size-3.5 opacity-60' />
-        </Button>
+        />
       </PopoverTrigger>
       <PopoverContent align='start' className='w-[min(24rem,calc(100vw-2rem))] p-0'>
         <Command shouldFilter={false}>
@@ -77,14 +74,17 @@ export function HeatmapPagePicker({ pages, value, onValueChange }: HeatmapPagePi
                 >
                   <Check className={cn('h-4 w-4 shrink-0', page.url === value ? 'opacity-100' : 'opacity-0')} />
                   <span className='min-w-0 flex-1 truncate'>{page.url}</span>
-                  {page.devices.length === 0 && <NoDataWarning label={t('pageNoData')} />}
+                  {page.devices?.length === 0 && <NoDataWarning label={t('pageNoData')} />}
                 </CommandItem>
               ))}
             </CommandGroup>
           </CommandList>
           {matches.length > MAX_VISIBLE_PAGES && (
             <p className='text-muted-foreground border-t px-3 py-2 text-xs'>
-              {t('pagesTruncated', { shown: MAX_VISIBLE_PAGES, total: matches.length })}
+              {t(truncated ? 'pagesTruncatedAtLimit' : 'pagesTruncated', {
+                shown: MAX_VISIBLE_PAGES,
+                total: matches.length,
+              })}
             </p>
           )}
         </Command>

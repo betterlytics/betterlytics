@@ -25,6 +25,8 @@ export function useCaptureDetails() {
   const locale = useLocale();
   return (capture: HeatmapCapture) => ({
     date: new Date(capture.createdAt).toLocaleDateString(locale, { dateStyle: 'medium' }),
+    // The history lists captures by time, so several from one day can be told apart
+    dateTime: new Date(capture.createdAt).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' }),
     name: capture.createdByName || t('formerMember'),
   });
 }
@@ -88,7 +90,7 @@ export function CaptureHistoryMenu({ captures, shownCaptureId, onSelect, trigger
         <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
         <DropdownMenuContent align='start' className='w-72'>
           {captures.map((capture) => {
-            const { date, name } = details(capture);
+            const { dateTime, name } = details(capture);
             const shown = capture.id === shownCaptureId;
             return (
               <DropdownMenuItem
@@ -105,7 +107,7 @@ export function CaptureHistoryMenu({ captures, shownCaptureId, onSelect, trigger
               >
                 <Check className={cn('text-foreground mt-0.5', shown ? 'opacity-100' : 'opacity-0')} />
                 <div className='min-w-0 flex-1'>
-                  <p className='truncate'>{date}</p>
+                  <p className='truncate'>{dateTime}</p>
                   <p className='text-muted-foreground truncate text-xs' title={capture.capturedFromUrl}>
                     {t('byFrom', { name, path: capture.capturedFromUrl.replace(/^https?:\/\//, '') })}
                   </p>

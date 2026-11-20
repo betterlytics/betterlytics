@@ -9,15 +9,16 @@ import { useBAQueryParams } from '@/trpc/hooks';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  HEATMAP_DEVICES,
+  HEATMAP_PAGE_LIMIT,
   HeatmapDeviceSchema,
   type HeatmapDevice,
 } from '@/entities/analytics/clickHeatmap.entities';
-import { FrameMessage, FramePickersProvider, FrameSpinner, HeatmapFrame } from './HeatmapFrame';
+import { FrameMessage, FrameSpinner, HeatmapFrame } from './HeatmapFrame';
 import { HeatmapDeviceTabs } from './HeatmapDeviceTabs';
 import { HeatmapPagePicker } from './HeatmapPagePicker';
 import { HeatmapPanel } from './HeatmapPanel';
 import { SetUpHeatmapsMessage } from './HeatmapsEmptyState';
+import { defaultHeatmapDevice, selectHeatmapPage } from './heatmapSelection';
 
 function useHeatmapSelection() {
   const searchParams = useSearchParams();
@@ -46,16 +47,17 @@ export function HeatmapsClient() {
   const selection = useHeatmapSelection();
 
   const hasDataQuery = trpc.clickHeatmap.hasData.useQuery({ dashboardId });
+  // Unknown when the check fails, which only costs the setup prompt
+  const siteHasClicks = hasDataQuery.isError ? true : hasDataQuery.data;
   const pagesQuery = trpc.clickHeatmap.pages.useQuery(input, options);
   const pages = useMemo(() => pagesQuery.data ?? [], [pagesQuery.data]);
-
-  // Defaults to the most visited page with clicks, and to desktop unless only other devices have data
-  const selectedPath = selection.path ?? (pages.find((page) => page.devices.length > 0) ?? pages[0])?.url;
-  const devicesWithData = selectedPath
-    ? (pages.find((page) => page.url === selectedPath)?.devices ?? [])
-    : undefined;
-  const device =
-    selection.device ?? HEATMAP_DEVICES.find((item) => devicesWithData?.includes(item)) ?? HEATMAP_DEVICES[0];
+  const truncated = pages.length >= HEATMAP_PAGE_LIMIT;
+  const {
+    path: selectedPath,
+    devices: devicesWithData,
+    options: pageOptions,
+  } = useMemo(() => selectHeatmapPage(pages, selection.path, truncated), [pages, selection.path, truncated]);
+  const device = selection.device ?? defaultHeatmapDevice(devicesWithData);
 
   // Defaults go into the address once known, so a new period never moves to another page or device
   const { setSelection } = selection;
@@ -64,63 +66,56 @@ export function HeatmapsClient() {
     if (!pinned && selectedPath && !pagesQuery.isPlaceholderData) setSelection({ path: selectedPath, device });
   }, [pinned, selectedPath, device, pagesQuery.isPlaceholderData, setSelection]);
 
-  const pageOptions = useMemo(() => {
-    if (!selectedPath || pages.some((page) => page.url === selectedPath)) return pages;
-    return [{ url: selectedPath, devices: [] }, ...pages];
-  }, [pages, selectedPath]);
-
-  const pickers = {
-    page: pagesQuery.isPending ? (
-      <Skeleton className='mx-1.5 h-4 w-40' />
-    ) : (
-      <HeatmapPagePicker
-        pages={pageOptions}
-        value={selectedPath}
-        onValueChange={(path) => setSelection({ path, device: undefined, capture: undefined })}
-      />
-    ),
-    devices: (
-      <HeatmapDeviceTabs
-        value={device}
-        devicesWithData={devicesWithData}
-        onValueChange={(next) => setSelection({ device: next, capture: undefined })}
-      />
-    ),
-  };
-
   let content;
-  if (pagesQuery.isPending || (!selectedPath && hasDataQuery.isPending)) {
-    content = (
-      <HeatmapFrame>
-        <FrameSpinner />
-      </HeatmapFrame>
-    );
+  if (pagesQuery.isPending || (!selectedPath && siteHasClicks === undefined)) {
+    content = <FrameSpinner />;
   } else if (!selectedPath) {
-    content = (
-      <HeatmapFrame>
-        {hasDataQuery.data === false ? (
-          <SetUpHeatmapsMessage />
-        ) : (
-          <FrameMessage
-            icon={<FileText className='h-5 w-5' />}
-            title={t('empty.noPages')}
-            description={t('empty.widenRange')}
-          />
-        )}
-      </HeatmapFrame>
-    );
+    content =
+      siteHasClicks === false ? (
+        <SetUpHeatmapsMessage />
+      ) : (
+        <FrameMessage
+          icon={<FileText className='h-5 w-5' />}
+          title={t('empty.noPages')}
+          description={t('empty.widenRange')}
+        />
+      );
   } else {
     content = (
       <HeatmapPanel
         key={`${selectedPath}|${device}`}
         url={selectedPath}
         device={device}
-        siteHasClicks={hasDataQuery.data}
+        siteHasClicks={siteHasClicks}
         selectedCaptureId={selection.capture}
         onSelectCapture={(capture) => setSelection({ capture })}
       />
     );
   }
 
-  return <FramePickersProvider value={pickers}>{content}</FramePickersProvider>;
+  return (
+    <HeatmapFrame
+      page={
+        pagesQuery.isPending ? (
+          <Skeleton className='mx-1.5 h-4 w-40' />
+        ) : (
+          <HeatmapPagePicker
+            pages={pageOptions}
+            truncated={truncated}
+            value={selectedPath}
+            onValueChange={(path) => setSelection({ path, device: undefined, capture: undefined })}
+          />
+        )
+      }
+      devices={
+        <HeatmapDeviceTabs
+          value={device}
+          devicesWithData={devicesWithData}
+          onValueChange={(next) => setSelection({ device: next, capture: undefined })}
+        />
+      }
+    >
+      {content}
+    </HeatmapFrame>
+  );
 }

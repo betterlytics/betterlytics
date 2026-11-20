@@ -19,10 +19,10 @@ export const HEATMAP_DEVICE_VIEWPORT_HEIGHTS: Record<HeatmapDevice, number> = {
   mobile: 844,
 };
 
-// The backend's device buckets by viewport width: mobile under 576, tablet up to 991
-export const HEATMAP_DESKTOP_MIN_WIDTH = 992;
-
 export const HEATMAP_MAX_PAGE_HEIGHT = 20000;
+
+// Every page is loaded at once and searched in the browser, like filter values
+export const HEATMAP_PAGE_LIMIT = 5000;
 
 export const HEATMAP_POINT_CELL_PX = 4;
 

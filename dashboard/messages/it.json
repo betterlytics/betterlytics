@@ -3984,6 +3984,7 @@
       "pageSearch": "Cerca pagine",
       "pageSearchEmpty": "Nessuna pagina trovata.",
       "pagesTruncated": "Mostrate {shown, number} di {total, number} pagine. Digita per cercare le altre.",
+      "pagesTruncatedAtLimit": "Mostrate {shown, number} di {total, number}+ pagine. Digita per cercare.",
       "pageNoData": "Nessun dato per questa pagina nel periodo selezionato",
       "deviceNoData": "{device}: nessun dato per questa pagina nel periodo selezionato",
       "devices": {

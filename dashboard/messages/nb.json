@@ -3984,6 +3984,7 @@
       "pageSearch": "Søk etter sider",
       "pageSearchEmpty": "Fant ingen sider.",
       "pagesTruncated": "Viser {shown, number} av {total, number} sider. Skriv for å søke i resten.",
+      "pagesTruncatedAtLimit": "Viser {shown, number} av {total, number}+ sider. Skriv for å søke.",
       "pageNoData": "Ingen data for denne siden i valgt periode",
       "deviceNoData": "{device}: ingen data for denne siden i valgt periode",
       "devices": {

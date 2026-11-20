@@ -3984,6 +3984,7 @@
       "pageSearch": "Search pages",
       "pageSearchEmpty": "No pages found.",
       "pagesTruncated": "Showing {shown, number} of {total, number} pages. Type to search the rest.",
+      "pagesTruncatedAtLimit": "Showing {shown, number} of {total, number}+ pages. Type to search.",
       "pageNoData": "No data for this page in the selected period",
       "deviceNoData": "{device}: no data for this page in the selected period",
       "devices": {

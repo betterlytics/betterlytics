@@ -83,7 +83,7 @@ When a page has no capture or replay layout yet, the Heatmaps page can show your
 ## Troubleshooting
 
 - **No clicks appear:** clicks are sent when you leave the page or switch tabs, so switch away from your site before checking. Then check that `data-heatmaps="true"` is on the script tag that loads `analytics.js`, that `data-heatmap-sample` isn't `0`, and that `heatmap.js` loads in your browser's Network tab. A blocked script shows up as a CSP violation in the Console.
-- **Clicks are hidden on a captured page:** the bar above the heatmap counts clicks whose element isn't on the capture or can't be told apart from a similar one. Give those elements a stable `id`, see [Stable element ids](#stable-element-ids).
+- **Clicks are missing on a captured page:** clicks whose element isn't on the capture, or can't be told apart from a similar one, aren't drawn. Give those elements a stable `id`, see [Stable element ids](#stable-element-ids).
 - **One page shows up as many:** pages with ids or slugs in the path, such as `/product/123`, get a heatmap each. Group them with `data-dynamic-urls`.
 
 ---

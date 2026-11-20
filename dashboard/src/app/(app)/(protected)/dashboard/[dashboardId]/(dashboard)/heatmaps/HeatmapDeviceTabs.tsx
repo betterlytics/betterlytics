@@ -13,8 +13,8 @@ import {
 
 type HeatmapDeviceTabsProps = {
   value: HeatmapDevice;
-  /** The devices the page has data from, or undefined without a page */
-  devicesWithData: HeatmapDevice[] | undefined;
+  /** The devices the page has data from, or null without a page or when that isn't known */
+  devicesWithData: HeatmapDevice[] | null;
   onValueChange: (device: HeatmapDevice) => void;
 };
 
