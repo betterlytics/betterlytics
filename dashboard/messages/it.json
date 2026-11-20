@@ -4002,7 +4002,7 @@
         "noCaptureViewer": "Un editor può catturare questa pagina per mostrarne la heatmap"
       },
       "source": {
-        "capture": "Catturata il {date} da {name}",
+        "capture": "Catturata il {date}",
         "replay": "Catturata il {date} dall'ultimo replay",
         "replayHint": "Il layout di una sessione di un visitatore su questo dispositivo, con testo e immagini nascosti.",
         "live": "Pagina dal vivo",

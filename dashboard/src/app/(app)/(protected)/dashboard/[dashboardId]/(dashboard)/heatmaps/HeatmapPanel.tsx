@@ -328,7 +328,7 @@ function CaptureHeatmap({
     options,
   );
   const pageChanged = pageChangedSinceCapture(capture, snapshotWindowHeight(events), pageHeightQuery.data);
-  const { date, name } = details(capture);
+  const { date } = details(capture);
 
   return (
     <SnapshotBody
@@ -344,10 +344,7 @@ function CaptureHeatmap({
             shownCaptureId={capture.id}
             onSelect={onSelectCapture}
             trigger={
-              <FrameMenuButton
-                icon={<Camera className='size-3.5' />}
-                label={t('source.capture', { date, name })}
-              />
+              <FrameMenuButton icon={<Camera className='size-3.5' />} label={t('source.capture', { date })} />
             }
           />
           {pageChanged && (
