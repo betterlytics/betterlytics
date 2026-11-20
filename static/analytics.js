@@ -65,6 +65,7 @@
       token: captureLink.token,
       hideText: captureLink.hideText,
       page: captureLink.page,
+      normalize: normalize,
       serverUrl: serverUrl,
       documentHeight: getDocumentHeight,
       forget: function () {
@@ -358,10 +359,12 @@
         );
       } catch (e) {}
       if (!token) return null;
+      // Anyone can send a visitor a link like this, so only a page path is shown in the panel
+      var page = params.get("bl-page") || "";
       var link = {
         token: token,
         hideText: params.get("bl-hide-text") === "1",
-        page: params.get("bl-page") || "",
+        page: /^\/\S{0,2047}$/.test(page) ? page : "",
         expires: Date.now() + CAPTURE_LINK_TTL_MS,
       };
       try {

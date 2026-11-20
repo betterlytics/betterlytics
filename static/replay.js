@@ -9362,28 +9362,16 @@ or you can use record.mirror to access the mirror instance during recording.`;
       });
   }
 
-  // Another page may be captured on purpose, such as a staging copy on another path
+  // The page path this page's visits are grouped under, by the page's own data-dynamic-urls.
+  // Another page may be captured on purpose, such as a staging copy on another path.
   function pageWarning() {
-    if (!capture.page || matchesPage(capture.page, window.location.pathname)) return "";
-    return "This page isn't one of the pages the heatmap " + capture.page + " covers. Go to one of those, or capture this page anyway.";
-  }
-
-  // The dashboard's page path match: data-dynamic-urls stores each wildcard as `*`, also for
-  // `**` patterns, so a `*` stands for one or more characters
-  function matchesPage(pattern, path) {
-    var parts = pattern.split("*");
-    if (parts.length === 1) return path === pattern;
-    var first = parts[0];
-    var last = parts[parts.length - 1];
-    if (path.indexOf(first) !== 0) return false;
-    var position = first.length;
-    for (var i = 1; i < parts.length - 1; i++) {
-      var found = path.indexOf(parts[i], position + 1);
-      if (found === -1) return false;
-      position = found + parts[i].length;
+    if (!capture.page || !capture.normalize) return "";
+    try {
+      if (new URL(capture.normalize(window.location.href)).pathname === capture.page) return "";
+    } catch (e) {
+      return "";
     }
-    var end = path.length - last.length;
-    return end > position && path.slice(end) === last;
+    return "This page isn't one of the pages the heatmap " + capture.page + " covers. Go to one of those, or capture this page anyway.";
   }
 
   function startCapture() {

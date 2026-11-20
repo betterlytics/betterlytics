@@ -208,7 +208,8 @@ export async function getHeatmapClickAnchors(
 
 // The host on the dashboard's domain that visitors opened a page on most. Pageviews keep the
 // host, heatmap clicks don't. Any host can be sent in a pageview, so `anyHost` falls back to
-// hosts off the domain only when no host on it has pageviews of the page.
+// hosts off the domain only when no host on it has pageviews of the page. Pageviews from an IP
+// address are stored with the host "unknown".
 export async function getMostVisitedHost(
   siteQuery: BASiteQuery,
   url: string,
@@ -224,6 +225,7 @@ export async function getMostVisitedHost(
     WHERE site_id = {site_id:String}
       AND event_type = 'pageview'
       AND url = {url:String}
+      AND domain NOT IN ('', 'unknown')
       AND ({any_host:UInt8} = 1 OR domain = {dashboard_domain:String} OR endsWith(domain, {dot_domain:String}))
       AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
     GROUP BY domain

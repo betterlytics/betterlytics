@@ -27,7 +27,6 @@ import { HEATMAP_DEVICE_WIDTHS, type HeatmapDevice } from '@/entities/analytics/
 import {
   captureUrl,
   captureWindowFeatures,
-  hasPathWildcard,
   initialCaptureAddress,
   resolveCaptureAddress,
   type CaptureAddressError,
@@ -76,6 +75,7 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
   const suggestedAddress = initialCaptureAddress(pagePath, origin, pageCaptures);
   const loadingAddress = editedAddress === null && suggestedAddress === null && originQuery.isPending;
   const address = editedAddress ?? suggestedAddress ?? (loadingAddress ? '' : pagePath);
+  const target = resolveCaptureAddress(address, origin);
 
   // The capture arrives from the other window; the list is polled until it shows up
   const capturesQuery = trpc.heatmapCaptures.list.useQuery(
@@ -117,7 +117,6 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
   // The window opens inside the click so pop-up blockers allow it; the link fills it in after
   const handleOpen = () => {
     if (loadingAddress || createLink.isPending || waitingSince !== null) return;
-    const target = resolveCaptureAddress(address, origin);
     if ('error' in target) {
       setError(target.error);
       addressRef.current?.focus();
@@ -149,7 +148,8 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
     : originQuery.isError && address.trim().startsWith('/')
       ? t('errors.originFailed')
       : null;
-  const note = alert ?? (hasPathWildcard(address) ? t('wildcardHint') : t('navigateHint'));
+  const pathWildcard = 'error' in target && target.error === 'wildcard';
+  const note = alert ?? (pathWildcard ? t('wildcardHint') : t('navigateHint'));
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>

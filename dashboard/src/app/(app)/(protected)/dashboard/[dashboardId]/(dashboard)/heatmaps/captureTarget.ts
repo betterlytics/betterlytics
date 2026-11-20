@@ -33,12 +33,6 @@ export function resolveCaptureAddress(
   return { url: url.href };
 }
 
-/** Whether the path of an address, as typed, still holds a `*` */
-export function hasPathWildcard(address: string): boolean {
-  const path = address.trim().replace(/^[a-z][a-z\d+.-]*:\/\/[^/?#]*/i, '');
-  return path.split(/[?#]/)[0].includes('*');
-}
-
 /** The address the dialog starts from: the page captured last, else the page path on the suggested origin */
 export function initialCaptureAddress(
   pagePath: string,

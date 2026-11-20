@@ -1,12 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { HeatmapCapture } from '@/entities/analytics/heatmapCaptures.entities';
-import {
-  captureUrl,
-  captureWindowFeatures,
-  hasPathWildcard,
-  initialCaptureAddress,
-  resolveCaptureAddress,
-} from './captureTarget';
+import { captureUrl, captureWindowFeatures, initialCaptureAddress, resolveCaptureAddress } from './captureTarget';
 
 const origin = 'https://www.example.com';
 
@@ -31,6 +25,9 @@ describe('resolveCaptureAddress', () => {
     expect(resolveCaptureAddress('https://www.example.com/search?test=*', origin)).toEqual({
       url: 'https://www.example.com/search?test=*',
     });
+    expect(resolveCaptureAddress('https://www.example.com/page#*', origin)).toEqual({
+      url: 'https://www.example.com/page',
+    });
   });
 
   it.each(['', '   '])('asks for an address when given %j', (address) => {
@@ -43,15 +40,6 @@ describe('resolveCaptureAddress', () => {
       expect(resolveCaptureAddress(address, origin)).toEqual({ error: 'invalidUrl' });
     },
   );
-});
-
-describe('hasPathWildcard', () => {
-  it('looks only at the path', () => {
-    expect(hasPathWildcard('https://www.example.com/profile/*/posts')).toBe(true);
-    expect(hasPathWildcard('/profile/*/posts?tab=new')).toBe(true);
-    expect(hasPathWildcard('https://www.example.com/search?test=*')).toBe(false);
-    expect(hasPathWildcard('https://www.example.com/page#*')).toBe(false);
-  });
 });
 
 describe('initialCaptureAddress', () => {

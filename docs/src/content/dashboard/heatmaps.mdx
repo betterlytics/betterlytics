@@ -57,11 +57,11 @@ Viewers can't capture pages. Ask an owner, admin or editor of the dashboard, or 
 
 ### Choosing the page to open
 
-The **Page** field holds the full address the window opens. It starts with the address captured last, or else the page on the host most visitors used. You can change it to:
+The **Page** field holds the full address the window opens. It starts with the address captured last. Otherwise it starts with the page on the host most visitors used on your dashboard's domain, or on another host when your domain has no visits to the page. You can change it to:
 
 - **A page with a query string**, such as `https://www.example.com/search?q=shoes`.
 - **Another host** with the Betterlytics tracking script, such as a second domain the dashboard tracks, a staging copy, or `http://localhost:3000`.
-- **A page to start from.** You can go to other pages in the window before you capture, for example to add something to the cart and then go to the checkout. The Betterlytics panel stays with you on the same site and warns you when a page isn't one the heatmap covers. You can still capture that page, for example a mock page on another path.
+- **A page to start from.** You can go to other pages in the window before you capture, for example to add something to the cart and then go to the checkout. The Betterlytics panel stays with you on the same host, such as from `www.example.com/cart` to `www.example.com/checkout` but not to `checkout.example.com`, and warns you when a page isn't one the heatmap covers. You can still capture that page, for example a mock page on another path.
 
 ### Pages with wildcards
 
@@ -80,5 +80,5 @@ Every click records the page's height. When the median height of the clicks in t
 - **Nothing happens on the page you're capturing:** the page needs the Betterlytics tracking script, and its Content-Security-Policy must allow `replay.js` and the upload, see [Content-Security-Policy](/integration/heatmaps#content-security-policy).
 - **The capture was refused for the wrong width:** resize the window back to the device's range, reset the zoom, and press the button in the panel again.
 - **The window didn't open:** allow pop-ups for the dashboard in your browser.
-- **The panel is gone after going to another page:** the panel only follows you on the same site, and for 15 minutes. Start a new capture from the dashboard.
+- **The panel is gone after going to another page:** the panel only follows you on the same host, and for 15 minutes. Start a new capture from the dashboard, with the page on the other host as its address.
 - **No live page:** your site doesn't allow framing, the framed page didn't answer in time, or the page is grouped with `data-dynamic-urls`. Capture the page instead.
