@@ -21,9 +21,9 @@ function anchor(selector: string, overrides: Partial<HeatmapClickAnchor> = {}): 
   };
 }
 
-// A match drawn on where it is on the page, unless it moves with a host
-function candidate<Host>(page: ElementBox, located: LocatedElement<Host> = { host: null, ...page }): Candidate<Host> {
-  return { page, locate: vi.fn(() => located) };
+// A match drawn where its clicks were made, unless it is located elsewhere
+function candidate<Host>(area: ElementBox, located: LocatedElement<Host> = { host: null, ...area }): Candidate<Host> {
+  return { area, locate: vi.fn(() => located) };
 }
 
 type FakeElement = {
@@ -206,6 +206,18 @@ describe('placeClicks', () => {
     });
   });
 
+  it('compares a match inside a scrolling part by the whole part, whose scroll the click position includes', () => {
+    // A button 2000 px down a panel that scrolls in a 768 px window, clicked after scrolling the panel
+    const panel = { part: 'panel' };
+    const save = candidate<typeof panel>(
+      { left: 0, top: 60, width: 1024, height: 708 },
+      { host: panel, left: 20, top: 2000, width: 120, height: 40 },
+    );
+    const { layers, unplaced } = placeClicks([anchor('main button.save', { x: 80, y: 320, relY: 320 / 768 })], () => [save], 768);
+    expect(unplaced).toBe(0);
+    expect(layers.get(panel)).toEqual([{ x: 80, y: 2020, count: 1 }]);
+  });
+
   it('keeps a match that moved with the page height, or stayed while the page grew below it', () => {
     // Made 3200 px down a page that is 4000 px tall on this layout and was 6400 px for the visitor
     const stretched = candidate({ left: 20, top: 1990, width: 110, height: 32 });
@@ -260,7 +272,7 @@ describe('findInDocument', () => {
     const field = page.el('TEXTAREA', box, { computed: { overflowY: 'auto' }, scrollHeight: 400 });
     page.el('SPAN', field, { selector: 'span', box: { left: 30, top: 40, width: 10, height: 10 } });
     const [found] = page.find('span');
-    expect(found.page).toEqual({ left: 35, top: 540, width: 10, height: 10 });
+    expect(found.area).toEqual({ left: 35, top: 540, width: 10, height: 10 });
     expect(found.locate()).toEqual({ host: null, left: 35, top: 540, width: 10, height: 10 });
   });
 
@@ -283,7 +295,7 @@ describe('findInDocument', () => {
     expect(page.find('b')[0].locate().host).toBeNull();
   });
 
-  it('finds every visible match with its box on the page, and changes a part only for a located one', () => {
+  it('finds every visible match, compared by the scrolling part it is in, and changes a part only for a located one', () => {
     const page = fakePage({ x: 0, y: 100 });
     const list = page.el('NAV', page.body, {
       computed: { overflowY: 'auto' },
@@ -295,10 +307,34 @@ describe('findInDocument', () => {
     page.el('A', page.body, { selector: 'a', box: { left: 0, top: 700, width: 50, height: 20 } });
     page.el('A', page.body, { selector: 'a', box: { left: 0, top: 0, width: 0, height: 0 } });
     const found = page.find('a');
-    expect(found.map((match) => match.page.top)).toEqual([110, 800]);
+    expect(found.map((match) => match.area.top)).toEqual([100, 800]);
     expect(list.style.setProperty).not.toHaveBeenCalled();
     found[0].locate();
     expect(list.style.setProperty).toHaveBeenCalledWith('position', 'relative', 'important');
+  });
+
+  it('compares by the outermost scrolling part, or by the body when it scrolls in place of the page', () => {
+    const page = fakePage();
+    const panel = page.el('MAIN', page.body, {
+      computed: { overflowY: 'auto' },
+      box: { left: 0, top: 50, width: 800, height: 700 },
+      scrollHeight: 3000,
+      clientHeight: 700,
+    });
+    const list = page.el('UL', panel, {
+      computed: { overflowY: 'auto' },
+      box: { left: 10, top: 900, width: 300, height: 200 },
+      scrollHeight: 800,
+      clientHeight: 200,
+    });
+    page.el('LI', list, { selector: 'li', box: { left: 10, top: 950, width: 300, height: 20 } });
+    expect(page.find('li')[0].area).toEqual({ left: 0, top: 50, width: 800, height: 700 });
+
+    const shell = fakePage();
+    Object.assign(shell.body, { box: { left: 0, top: 0, width: 1000, height: 800 }, scrollHeight: 3000, clientHeight: 800 });
+    shell.body.computed.overflowY = 'auto';
+    shell.el('BUTTON', shell.body, { selector: 'button', box: { left: 20, top: 2400, width: 80, height: 30 } });
+    expect(shell.find('button')[0].area).toEqual({ left: 0, top: 0, width: 1000, height: 800 });
   });
 
   it('finds nothing for missing or invalid selectors, or ones matching too many elements', () => {

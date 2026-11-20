@@ -5,8 +5,12 @@ export type ElementBox = { left: number; top: number; width: number; height: num
 /** An element's box inside the host it moves with, or on the page when the host is null */
 export type LocatedElement<Host> = ElementBox & { host: Host | null };
 
-/** An element a selector matches: its box on the page, and how to measure it where heat is drawn */
-export type Candidate<Host> = { page: ElementBox; locate: () => LocatedElement<Host> };
+/**
+ * An element a selector matches: the box on the page its clicks were made in, and how to locate it
+ * where heat is drawn. The box is the element's own, or that of the scrolling part it sits in,
+ * since a recorded page position includes the visitor's scroll inside that part.
+ */
+export type Candidate<Host> = { area: ElementBox; locate: () => LocatedElement<Host> };
 
 /** Points per host, with the page's points under null */
 export type PlacedClicks<Host> = { layers: Map<Host | null, HeatmapClickPoint[]>; unplaced: number };
@@ -16,7 +20,7 @@ export type PlacedClicks<Host> = { layers: Map<Host | null, HeatmapClickPoint[]>
 const SEPARATION = 3;
 const CLOSE_PX = 50;
 
-// Layouts drift between window widths and visits; an element farther than this share of the page's
+// Layouts drift between window widths and visits; a match farther than this share of the page's
 // height from where its clicks were made is taken to be another element with the same selector
 const MAX_DRIFT = 0.25;
 
@@ -79,9 +83,9 @@ function pick<Host>(candidates: Candidate<Host>[], anchor: HeatmapClickAnchor, p
   // A fixed element's page position includes the visitor's scroll, so it can't be compared
   if (anchor.fixed) return candidates.length === 1 ? candidates[0] : null;
   const [best, next] = candidates
-    .map((candidate) => ({ candidate, distance: distanceTo(candidate.page, anchor, pageHeight) }))
+    .map((candidate) => ({ candidate, distance: distanceTo(candidate.area, anchor, pageHeight) }))
     .sort((a, b) => a.distance - b.distance);
-  if (!best || verticalDistanceTo(best.candidate.page, anchor, pageHeight) > MAX_DRIFT * pageHeight) return null;
+  if (!best || verticalDistanceTo(best.candidate.area, anchor, pageHeight) > MAX_DRIFT * pageHeight) return null;
   if (next && next.distance < SEPARATION * Math.max(best.distance, CLOSE_PX)) return null;
   return best.candidate;
 }
@@ -106,10 +110,11 @@ function gap(position: number, start: number, size: number) {
 const MAX_CANDIDATES = 20;
 
 /**
- * Finds a selector's elements in a rendered page, with their boxes on the page. An element inside
- * a fixed, sticky or scrolling part is located from that part's content corner, so heat drawn
- * inside the part stays on it. A static part is made positioned before the element is located, so
- * a layer inside it is placed against it; only an element that gets clicks is located.
+ * Finds a selector's elements in a rendered page, each with the box on the page its clicks were
+ * made in. An element inside a fixed, sticky or scrolling part is located from that part's content
+ * corner, so heat drawn inside the part stays on it. A static part is made positioned before the
+ * element is located, so a layer inside it is placed against it; only an element that gets clicks
+ * is located.
  */
 export function findInDocument(doc: Document): (selector: string) => Candidate<HTMLElement>[] {
   const view = doc.defaultView;
@@ -125,15 +130,23 @@ export function findInDocument(doc: Document): (selector: string) => Candidate<H
     for (const element of Array.from(matches)) {
       const rect = element.getBoundingClientRect();
       if (rect.width <= 0 || rect.height <= 0) continue;
-      const page = {
-        left: rect.left + (view?.scrollX ?? 0),
-        top: rect.top + (view?.scrollY ?? 0),
-        width: rect.width,
-        height: rect.height,
-      };
-      candidates.push({ page, locate: () => locate(element, view, page) });
+      const box = onPage(rect, view);
+      const scroller = view ? scrollingArea(element, view) : null;
+      candidates.push({
+        area: scroller ? onPage(scroller.getBoundingClientRect(), view) : box,
+        locate: () => locate(element, view, box),
+      });
     }
     return candidates;
+  };
+}
+
+function onPage(rect: ElementBox, view: Window | null): ElementBox {
+  return {
+    left: rect.left + (view?.scrollX ?? 0),
+    top: rect.top + (view?.scrollY ?? 0),
+    width: rect.width,
+    height: rect.height,
   };
 }
 
@@ -189,17 +202,44 @@ function hostOf(element: Element, view: Window): HTMLElement | null {
   let inside: HTMLElement | null = null;
   for (let el: Element | null = element; el && el !== body && el !== documentElement; el = el.parentElement) {
     const style = view.getComputedStyle(el);
-    const canHost =
-      el.namespaceURI === XHTML_NAMESPACE &&
-      !CANNOT_HOST.has(el.tagName) &&
-      style.display !== 'inline' &&
-      style.display !== 'contents';
+    const canHost = canHostHeat(el, style);
     if (style.position === 'fixed' || style.position === 'sticky') return canHost ? (el as HTMLElement) : inside;
     if (!canHost) continue;
-    const scrollsY = SCROLLING_OVERFLOW.has(style.overflowY) && el.scrollHeight > el.clientHeight;
-    const scrollsX = SCROLLING_OVERFLOW.has(style.overflowX) && el.scrollWidth > el.clientWidth;
-    if (scrollsY || scrollsX) return el as HTMLElement;
+    if (scrollsOwnContent(el, style)) return el as HTMLElement;
     inside = el as HTMLElement;
   }
   return null;
+}
+
+/**
+ * The outermost part around an element that scrolls its own content, or the body when it scrolls
+ * in place of the page. A position recorded inside it includes the visitor's scroll there, so only
+ * the part as a whole can be compared with it.
+ */
+function scrollingArea(element: Element, view: Window): Element | null {
+  const { body, documentElement } = element.ownerDocument;
+  const pageScrolls = documentElement.scrollHeight > documentElement.clientHeight;
+  if (body && !pageScrolls && scrollsOwnContent(body, view.getComputedStyle(body))) return body;
+  let area: Element | null = null;
+  for (let el = element.parentElement; el && el !== body && el !== documentElement; el = el.parentElement) {
+    const style = view.getComputedStyle(el);
+    if (canHostHeat(el, style) && scrollsOwnContent(el, style)) area = el;
+  }
+  return area;
+}
+
+function canHostHeat(el: Element, style: CSSStyleDeclaration) {
+  return (
+    el.namespaceURI === XHTML_NAMESPACE &&
+    !CANNOT_HOST.has(el.tagName) &&
+    style.display !== 'inline' &&
+    style.display !== 'contents'
+  );
+}
+
+function scrollsOwnContent(el: Element, style: CSSStyleDeclaration) {
+  return (
+    (SCROLLING_OVERFLOW.has(style.overflowY) && el.scrollHeight > el.clientHeight) ||
+    (SCROLLING_OVERFLOW.has(style.overflowX) && el.scrollWidth > el.clientWidth)
+  );
 }
