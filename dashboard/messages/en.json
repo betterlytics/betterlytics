@@ -4019,19 +4019,18 @@
         "pageChangedHint": "The page's height has changed since this capture. Capture it again for an exact layout.",
         "title": "Capture the {device} layout",
         "howWindow": "Opens the page in a {width} px window. When it looks the way visitors see it, press Capture page in the Betterlytics panel.",
-        "howTab": "Opens the page in a new tab. When it looks the way visitors see it, press Capture page in the Betterlytics panel.",
         "learnMore": "Learn more",
         "pageLabel": "Page",
-        "pagePlaceholder": "/path?query or https://...",
+        "pagePlaceholder": "https://...",
+        "navigateHint": "You can go to other pages in the window before you capture.",
+        "wildcardHint": "Replace * with a real value, or open another page and go to it in the window.",
         "hideText": "Hide text",
         "hideTextHint": "Masks all text, for pages that show your account details.",
         "errors": {
-          "empty": "Enter the page to capture.",
-          "wildcard": "Replace * with part of a real page address.",
-          "mismatch": "That page isn't one of the pages grouped under {path}.",
-          "invalidUrl": "Enter a path starting with / or a full https:// address.",
-          "otherHost": "That address isn't on {domain}.",
-          "originFailed": "Couldn't look up the page's address. Close this and try again."
+          "empty": "Enter the address of the page to open.",
+          "wildcard": "Replace * in the path with a real value.",
+          "invalidUrl": "Enter a full address starting with https:// or http://.",
+          "originFailed": "Couldn't look up the site's address. Enter the page's full address."
         },
         "open": "Open page",
         "cancel": "Cancel",
@@ -4703,8 +4702,6 @@
       "invitationNotFound": "Invitation not found"
     },
     "heatmapCaptures": {
-      "capturePathRequired": "This heatmap page groups several real pages. Enter the real page to capture.",
-      "pageMismatch": "The page to capture is not one of the pages grouped under this heatmap page.",
       "storageNotConfigured": "Heatmap captures need storage: this server is set to store replays in S3, but S3 is not configured. Configure S3 or set REPLAY_STORAGE=clickhouse."
     }
   },

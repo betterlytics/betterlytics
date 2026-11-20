@@ -207,12 +207,13 @@ export async function getHeatmapClickAnchors(
 }
 
 // The host on the dashboard's domain that visitors opened a page on most. Pageviews keep the
-// host, heatmap clicks don't; any host can be sent in a pageview, and capture uploads are only
-// accepted from the domain or its subdomains.
+// host, heatmap clicks don't. Any host can be sent in a pageview, so `anyHost` falls back to
+// hosts off the domain only when no host on it has pageviews of the page.
 export async function getMostVisitedHost(
   siteQuery: BASiteQuery,
   url: string,
   dashboardDomain: string,
+  { anyHost = false }: { anyHost?: boolean } = {},
 ): Promise<string | null> {
   const { siteId, startDateTime, endDateTime } = siteQuery;
   const domain = dashboardDomain.toLowerCase();
@@ -223,10 +224,10 @@ export async function getMostVisitedHost(
     WHERE site_id = {site_id:String}
       AND event_type = 'pageview'
       AND url = {url:String}
-      AND (domain = {dashboard_domain:String} OR endsWith(domain, {dot_domain:String}))
+      AND ({any_host:UInt8} = 1 OR domain = {dashboard_domain:String} OR endsWith(domain, {dot_domain:String}))
       AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
     GROUP BY domain
-    ORDER BY count() DESC
+    ORDER BY (domain = {dashboard_domain:String} OR endsWith(domain, {dot_domain:String})) DESC, count() DESC
     LIMIT 1
   `;
 
@@ -236,6 +237,7 @@ export async function getMostVisitedHost(
         ...query.taggedParams,
         site_id: siteId,
         url,
+        any_host: anyHost ? 1 : 0,
         dashboard_domain: domain,
         dot_domain: `.${domain}`,
         start_date: startDateTime,

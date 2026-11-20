@@ -2,6 +2,10 @@
 //! capture link. The dashboard mints the link; only its SHA-256 hash is stored in Postgres.
 //! The link is used up in the same transaction that stores the capture, so a refused upload
 //! can be retried and two concurrent uploads with one link store at most one capture.
+//!
+//! A link isn't bound to a page or host: the editor may walk to the page from another one, or
+//! capture a staging copy. The token is the only gate, and its holder could upload any
+//! snapshot outside a browser anyway, so an Origin check would only refuse real captures.
 
 use std::sync::Arc;
 
@@ -26,7 +30,6 @@ use crate::metrics::MetricsCollector;
 use crate::postgres::{PostgresError, PostgresPool};
 use crate::session_replay::store::{GunzipError, gunzip_capped};
 use crate::storage::s3::S3Service;
-use crate::url_utils::extract_domain_and_path_from_url;
 
 /// As uploaded (gzip or plain); the route's body limit sits just above this so an oversized
 /// body still reaches the handler's link check and gets the too_large reason.
@@ -34,6 +37,7 @@ pub const MAX_UPLOAD_BYTES: usize = 10 * 1024 * 1024;
 pub const BODY_LIMIT_BYTES: usize = MAX_UPLOAD_BYTES + 1;
 const MAX_UNPACKED_BYTES: u64 = 40 * 1024 * 1024;
 const MAX_TOKEN_CHARS: usize = 128;
+const MAX_PAGE_URL_CHARS: usize = 2048;
 const KEPT_PER_PAGE_AND_DEVICE: i64 = 10;
 /// Outside the replay `site/` prefix, so the documented replay expiry rule never matches
 const S3_PREFIX: &str = "heatmap-captures/";
@@ -74,9 +78,7 @@ pub struct CaptureParams {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Reason {
     LinkInvalid,
-    WrongOrigin,
     WrongViewport,
-    WrongPage,
     TooLarge,
     Invalid,
     StorageUnavailable,
@@ -87,9 +89,7 @@ impl Reason {
     fn as_str(self) -> &'static str {
         match self {
             Self::LinkInvalid => "link_invalid",
-            Self::WrongOrigin => "wrong_origin",
             Self::WrongViewport => "wrong_viewport",
-            Self::WrongPage => "wrong_page",
             Self::TooLarge => "too_large",
             Self::Invalid => "invalid",
             Self::StorageUnavailable => "storage_unavailable",
@@ -100,8 +100,7 @@ impl Reason {
     fn status(self) -> StatusCode {
         match self {
             Self::LinkInvalid => StatusCode::UNAUTHORIZED,
-            Self::WrongOrigin => StatusCode::FORBIDDEN,
-            Self::WrongViewport | Self::WrongPage => StatusCode::UNPROCESSABLE_ENTITY,
+            Self::WrongViewport => StatusCode::UNPROCESSABLE_ENTITY,
             Self::TooLarge => StatusCode::PAYLOAD_TOO_LARGE,
             Self::Invalid => StatusCode::BAD_REQUEST,
             Self::StorageUnavailable => StatusCode::SERVICE_UNAVAILABLE,
@@ -149,11 +148,8 @@ struct Link {
     dashboard_id: String,
     path: String,
     device: String,
-    /// The one real page this link may capture: `path`, or the page picked for a wildcard path
-    capture_path: String,
     created_by_id: String,
     site_id: String,
-    domain: String,
 }
 
 struct Snapshot {
@@ -161,8 +157,8 @@ struct Snapshot {
     raw: Bytes,
     gzip: bool,
     text: String,
-    /// Path of the page the snapshot was taken on, from the rrweb meta event
-    page_path: String,
+    /// Address of the page the snapshot was taken on, from the rrweb meta event
+    page_url: String,
 }
 
 pub async fn upload_capture(
@@ -198,14 +194,6 @@ async fn store_capture(
     let token = bearer_token(headers).ok_or_else(Refusal::link_invalid)?;
     let link = find_link(&ctx.pool, &hash_token(token)).await?.ok_or_else(Refusal::link_invalid)?;
 
-    let origin = headers.get(header::ORIGIN).and_then(|v| v.to_str().ok());
-    if !origin_allowed(&link.domain, origin) {
-        return Err(Refusal::new(
-            Reason::WrongOrigin,
-            format!("This page is not on {} or one of its subdomains, so it can't be captured for this dashboard.", link.domain),
-        ));
-    }
-
     let Query(params) = query.map_err(|_| Refusal::new(Reason::Invalid, "Invalid capture parameters."))?;
     let viewport_width = params.viewport_width.filter(|w| (1..=MAX_VIEWPORT_WIDTH).contains(w));
     let document_height = params.document_height.filter(|h| (1..=MAX_DOCUMENT_HEIGHT).contains(h));
@@ -236,15 +224,6 @@ async fn store_capture(
     })?;
 
     let snapshot = decode(body, gzip).await?;
-    if snapshot.page_path != link.capture_path {
-        return Err(Refusal::new(
-            Reason::WrongPage,
-            format!(
-                "This capture link is for {}, but this page is {}. Open the link on that page and try again.",
-                link.capture_path, snapshot.page_path
-            ),
-        ));
-    }
     let capture_id = uuid::Uuid::new_v4().simple().to_string();
     let storage_key = storage_key(ctx.mode, &link.site_id, &capture_id);
 
@@ -262,13 +241,14 @@ async fn store_capture(
     }
 
     let size_bytes = snapshot.text.len() as i32;
+    let captured_from_url = snapshot.page_url.clone();
     put_snapshot(&store, &link.site_id, &capture_id, &storage_key, snapshot).await?;
 
     let insert = async {
         tx.execute(
             r#"INSERT INTO "HeatmapCapture"
                  ("id", "dashboardId", "path", "device", "viewportWidth", "documentHeight",
-                  "storage", "storageKey", "sizeBytes", "createdById", "capturedFromPath", "createdAt")
+                  "storage", "storageKey", "sizeBytes", "createdById", "capturedFromUrl", "createdAt")
                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, timezone('utc', now()))"#,
             &[
                 &capture_id,
@@ -281,7 +261,7 @@ async fn store_capture(
                 &storage_key,
                 &size_bytes,
                 &link.created_by_id,
-                &link.capture_path,
+                &captured_from_url,
             ],
         )
         .await?;
@@ -317,16 +297,6 @@ fn hash_token(token: &str) -> String {
     hex::encode(Sha256::digest(token.as_bytes()))
 }
 
-/// Same rule as the site's "enforce domain" setting: the dashboard's domain or a subdomain,
-/// applied whether or not the site enforces its domain for events
-fn origin_allowed(domain: &str, origin: Option<&str>) -> bool {
-    let expected = domain.trim().to_ascii_lowercase();
-    let Some(host) = origin.and_then(|o| Url::parse(o).ok()).and_then(|u| u.host_str().map(str::to_ascii_lowercase)) else {
-        return false;
-    };
-    !expected.is_empty() && (host == expected || host.ends_with(&format!(".{}", expected)))
-}
-
 fn check_viewport(device: &str, viewport_width: u32) -> Result<(), Refusal> {
     if device_from_viewport(viewport_width) == device {
         return Ok(());
@@ -346,7 +316,7 @@ async fn find_link(pool: &PostgresPool, token_hash: &str) -> Result<Option<Link>
     let conn = pool.connection().await?;
     let row = conn
         .query_opt(
-            r#"SELECT l."id", l."dashboardId", l."path", l."device", l."capturePath", l."createdById", d."siteId", d."domain"
+            r#"SELECT l."id", l."dashboardId", l."path", l."device", l."createdById", d."siteId"
                FROM "HeatmapCaptureLink" l
                JOIN "Dashboard" d ON d."id" = l."dashboardId"
                WHERE l."tokenHash" = $1
@@ -361,23 +331,21 @@ async fn find_link(pool: &PostgresPool, token_hash: &str) -> Result<Option<Link>
         dashboard_id: r.get(1),
         path: r.get(2),
         device: r.get(3),
-        capture_path: r.get(4),
-        created_by_id: r.get(5),
-        site_id: r.get(6),
-        domain: r.get(7),
+        created_by_id: r.get(4),
+        site_id: r.get(5),
     }))
 }
 
 async fn decode(raw: Bytes, gzip: bool) -> Result<Snapshot, Refusal> {
     let _permit = DECODE_PERMITS.acquire().await.map_err(|_| Refusal::internal())?;
     let bytes = raw.clone();
-    let (text, page_path) = tokio::task::spawn_blocking(move || decode_snapshot(&bytes, gzip))
+    let (text, page_url) = tokio::task::spawn_blocking(move || decode_snapshot(&bytes, gzip))
         .await
         .map_err(|e| {
             error!("Heatmap capture decode task failed: {}", e);
             Refusal::internal()
         })??;
-    Ok(Snapshot { raw, gzip, text, page_path })
+    Ok(Snapshot { raw, gzip, text, page_url })
 }
 
 #[derive(Deserialize)]
@@ -393,7 +361,7 @@ struct RrwebEventData {
     href: Option<String>,
 }
 
-/// Returns the snapshot text and the path of the page it was taken on
+/// Returns the snapshot text and the address of the page it was taken on
 fn decode_snapshot(bytes: &[u8], gzip: bool) -> Result<(String, String), Refusal> {
     let text = if gzip {
         gunzip_capped(bytes, MAX_UNPACKED_BYTES).map_err(|e| match e {
@@ -410,14 +378,22 @@ fn decode_snapshot(bytes: &[u8], gzip: bool) -> Result<(String, String), Refusal
     if !events.iter().any(|e| e.kind == FULL_SNAPSHOT) {
         return Err(Refusal::new(Reason::Invalid, "The capture has no full page snapshot."));
     }
-    let href = events
+    let address = events
         .iter()
         .filter(|e| e.kind == META)
         .find_map(|e| e.data.as_ref()?.href.as_deref())
-        .filter(|href| Url::parse(href).is_ok())
+        .and_then(page_url)
         .ok_or_else(|| Refusal::new(Reason::Invalid, "The capture has no page address."))?;
-    let (_, page_path) = extract_domain_and_path_from_url(href);
-    Ok((text, page_path))
+    Ok((text, address))
+}
+
+/// The address the dashboard shows and opens next time: no credentials or fragment, and the
+/// query string dropped when it would make the address too long
+fn page_url(href: &str) -> Option<String> {
+    let url = Url::parse(href).ok().filter(|u| matches!(u.scheme(), "http" | "https"))?;
+    let base = format!("{}{}", url.origin().ascii_serialization(), url.path());
+    let with_query = url.query().map(|query| format!("{}?{}", base, query));
+    [with_query, Some(base)].into_iter().flatten().find(|u| u.len() <= MAX_PAGE_URL_CHARS)
 }
 
 fn storage_key(mode: ReplayStorage, site_id: &str, capture_id: &str) -> String {
@@ -501,18 +477,6 @@ mod tests {
     const SNAPSHOT: &str = r#"[{"type":4,"data":{"href":"https://example.com/","width":390,"height":844},"timestamp":1},{"type":2,"data":{"node":{"type":0,"childNodes":[]},"initialOffset":{"top":0,"left":0}},"timestamp":2}]"#;
 
     #[test]
-    fn origin_follows_the_enforce_domain_rule() {
-        assert!(origin_allowed("example.com", Some("https://example.com")));
-        assert!(origin_allowed("example.com", Some("https://shop.example.com:8443")));
-        assert!(origin_allowed("Example.com ", Some("https://WWW.EXAMPLE.COM")));
-        assert!(!origin_allowed("example.com", Some("https://notexample.com")));
-        assert!(!origin_allowed("example.com", Some("https://example.com.evil.io")));
-        assert!(!origin_allowed("example.com", Some("null")));
-        assert!(!origin_allowed("example.com", None));
-        assert!(!origin_allowed("", Some("https://example.com")));
-    }
-
-    #[test]
     fn viewport_must_fit_the_link_device() {
         assert!(check_viewport("mobile", 390).is_ok());
         assert!(check_viewport("mobile", 575).is_ok());
@@ -544,15 +508,37 @@ mod tests {
 
     #[test]
     fn decodes_plain_and_gzip_snapshots() {
-        let expected = (SNAPSHOT.to_string(), "/".to_string());
+        let expected = (SNAPSHOT.to_string(), "https://example.com/".to_string());
         assert_eq!(decode_snapshot(SNAPSHOT.as_bytes(), false).unwrap(), expected);
         assert_eq!(decode_snapshot(&gzip(SNAPSHOT.as_bytes()), true).unwrap(), expected);
     }
 
     #[test]
-    fn reads_the_page_path_from_the_meta_event() {
-        let snapshot = SNAPSHOT.replace("https://example.com/", "https://example.com/profile/betterlytics/posts?tab=new#top");
-        assert_eq!(decode_snapshot(snapshot.as_bytes(), false).unwrap().1, "/profile/betterlytics/posts");
+    fn reads_the_page_address_from_the_meta_event() {
+        let snapshot = SNAPSHOT.replace(
+            "https://example.com/",
+            "https://user:secret@Shop.Example.com:443/profile/betterlytics/posts?tab=new#top",
+        );
+        assert_eq!(
+            decode_snapshot(snapshot.as_bytes(), false).unwrap().1,
+            "https://shop.example.com/profile/betterlytics/posts?tab=new"
+        );
+    }
+
+    #[test]
+    fn keeps_pages_on_any_host() {
+        assert_eq!(page_url("http://localhost:3000/cart").as_deref(), Some("http://localhost:3000/cart"));
+        assert_eq!(page_url("https://staging.other.dev/checkout?test=*").as_deref(), Some("https://staging.other.dev/checkout?test=*"));
+        assert_eq!(page_url("file:///home/me/page.html"), None);
+        assert_eq!(page_url("about:blank"), None);
+    }
+
+    #[test]
+    fn drops_a_query_that_makes_the_address_too_long() {
+        let long = format!("https://example.com/search?q={}", "a".repeat(MAX_PAGE_URL_CHARS));
+        assert_eq!(page_url(&long).as_deref(), Some("https://example.com/search"));
+        let long_path = format!("https://example.com/{}", "a".repeat(MAX_PAGE_URL_CHARS));
+        assert_eq!(page_url(&long_path), None);
     }
 
     #[test]

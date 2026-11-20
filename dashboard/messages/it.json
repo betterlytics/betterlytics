@@ -4019,19 +4019,18 @@
         "pageChangedHint": "L'altezza della pagina è cambiata dopo questa cattura. Catturala di nuovo per un layout esatto.",
         "title": "Cattura il layout {device}",
         "howWindow": "Apre la pagina in una finestra di {width} px. Quando appare come la vedono i visitatori, premi Capture page nel pannello Betterlytics.",
-        "howTab": "Apre la pagina in una nuova scheda. Quando appare come la vedono i visitatori, premi Capture page nel pannello Betterlytics.",
         "learnMore": "Scopri di più",
         "pageLabel": "Pagina",
-        "pagePlaceholder": "/percorso?query o https://...",
+        "pagePlaceholder": "https://...",
+        "navigateHint": "Puoi andare su altre pagine nella finestra prima di catturare.",
+        "wildcardHint": "Sostituisci * con un valore reale, oppure apri un'altra pagina e raggiungila nella finestra.",
         "hideText": "Nascondi il testo",
         "hideTextHint": "Nasconde tutto il testo, per le pagine che mostrano i dati del tuo account.",
         "errors": {
-          "empty": "Inserisci la pagina da catturare.",
-          "wildcard": "Sostituisci * con parte dell'indirizzo di una pagina reale.",
-          "mismatch": "Quella pagina non è tra quelle raggruppate sotto {path}.",
-          "invalidUrl": "Inserisci un percorso che inizia con / o un indirizzo https:// completo.",
-          "otherHost": "Quell'indirizzo non è su {domain}.",
-          "originFailed": "Impossibile trovare l'indirizzo della pagina. Chiudi e riprova."
+          "empty": "Inserisci l'indirizzo della pagina da aprire.",
+          "wildcard": "Sostituisci * nel percorso con un valore reale.",
+          "invalidUrl": "Inserisci un indirizzo completo che inizia con https:// o http://.",
+          "originFailed": "Impossibile trovare l'indirizzo del sito. Inserisci l'indirizzo completo della pagina."
         },
         "open": "Apri pagina",
         "cancel": "Annulla",
@@ -4703,8 +4702,6 @@
       "invitationNotFound": "Invito non trovato"
     },
     "heatmapCaptures": {
-      "capturePathRequired": "Questa pagina della heatmap raggruppa più pagine reali. Inserisci la pagina reale da acquisire.",
-      "pageMismatch": "La pagina da acquisire non è tra quelle raggruppate in questa pagina della heatmap.",
       "storageNotConfigured": "Le acquisizioni per le heatmap richiedono uno spazio di archiviazione: questo server è impostato per salvare i replay su S3, ma S3 non è configurato. Configura S3 oppure imposta REPLAY_STORAGE=clickhouse."
     }
   },

@@ -38,12 +38,12 @@ A capture is a snapshot of a page, taken in your own browser at the device's wid
 To capture a page:
 
 1. Open the page and device tab in Heatmaps, then click **Capture page**. The tab needs clicks in the selected period; widen the date range if it shows none.
-2. In the dialog, check the **Page** to open, turn on **Hide text** if you need it, and click **Open page**. Desktop opens the page in a new tab. Tablet and Mobile open a window 768 or 390 px wide.
+2. In the dialog, check the **Page** address to open, turn on **Hide text** if you need it, and click **Open page**. The page opens in a window at the device's width: 1440 px for Desktop, 768 px for Tablet and 390 px for Mobile.
 3. Close cookie banners and set the page up the way visitors see it, then press **Capture page** in the Betterlytics panel on the page.
 
 Keep the window at its size and don't zoom until the capture is done. A capture whose window width falls outside the device's range is refused, and the panel on the page says why.
 
-The page needs the Betterlytics tracking script, but not `data-heatmaps` or Session Replay. A capture link works once, for one page, and expires after 15 minutes. Taking a capture doesn't count as a visit.
+The page needs the Betterlytics tracking script, but not `data-heatmaps` or Session Replay. A capture link works once and expires after 15 minutes. Taking a capture doesn't count as a visit.
 
 ### What a capture keeps
 
@@ -55,17 +55,21 @@ The page needs the Betterlytics tracking script, but not `data-heatmaps` or Sess
 Viewers can't capture pages. Ask an owner, admin or editor of the dashboard, or ask an owner or admin to change your role in the dashboard's member settings.
 </Callout>
 
+### Choosing the page to open
+
+The **Page** field holds the full address the window opens. It starts with the address captured last, or else the page on the host most visitors used. You can change it to:
+
+- **A page with a query string**, such as `https://www.example.com/search?q=shoes`.
+- **Another host** with the Betterlytics tracking script, such as a second domain the dashboard tracks, a staging copy, or `http://localhost:3000`.
+- **A page to start from.** You can go to other pages in the window before you capture, for example to add something to the cart and then go to the checkout. The Betterlytics panel stays with you on the same site and warns you when a page isn't one the heatmap covers. You can still capture that page, for example a mock page on another path.
+
 ### Pages with wildcards
 
-A page grouped with `data-dynamic-urls`, such as `/profile/*/posts`, isn't a single real page. The capture dialog's **Page** field starts with the pattern and the `*` selected, so you can type a real value over it. Next time it starts with the real page captured last. The capture is stored under the pattern, and the history shows which real page it was taken from.
-
-### A different URL
-
-The **Page** field also takes a page that needs a query string or a particular state, such as `/search?q=shoes`, or a full address on another host on your domain. The address still has to be one of the pages the heatmap covers.
+A page grouped with `data-dynamic-urls`, such as `/profile/*/posts`, isn't a single real page. Replace the `*` in the **Page** field with a real value, or open another page and go to a real one in the window. The capture is stored under the pattern.
 
 ## Capture history
 
-Click the capture's date in the bar above the heatmap to list the captures for the page and device, newest first, with when and by whom each was taken. Pick an older one to show it instead of the newest. Owners, admins and editors can delete a capture. Betterlytics keeps the 10 newest captures per page and device.
+Click the capture's date in the bar above the heatmap to list the captures for the page and device, newest first, with when, by whom and from which address each was taken. Pick an older one to show it instead of the newest. Owners, admins and editors can delete a capture. Betterlytics keeps the 10 newest captures per page and device.
 
 ### When a page has changed
 
@@ -76,4 +80,5 @@ Every click records the page's height. When the median height of the clicks in t
 - **Nothing happens on the page you're capturing:** the page needs the Betterlytics tracking script, and its Content-Security-Policy must allow `replay.js` and the upload, see [Content-Security-Policy](/integration/heatmaps#content-security-policy).
 - **The capture was refused for the wrong width:** resize the window back to the device's range, reset the zoom, and press the button in the panel again.
 - **The window didn't open:** allow pop-ups for the dashboard in your browser.
+- **The panel is gone after going to another page:** the panel only follows you on the same site, and for 15 minutes. Start a new capture from the dashboard.
 - **No live page:** your site doesn't allow framing, the framed page didn't answer in time, or the page is grouped with `data-dynamic-urls`. Capture the page instead.

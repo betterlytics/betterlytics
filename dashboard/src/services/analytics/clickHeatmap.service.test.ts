@@ -174,16 +174,23 @@ describe('getHeatmapBackground', () => {
 describe('getCaptureOrigin', () => {
   const dashboard = (domain: string) => ({ domain }) as Awaited<ReturnType<typeof findDashboardById>>;
 
-  it('opens the host most visitors used on the dashboard domain, over https', async () => {
+  it('opens the host most visitors used, over https', async () => {
     vi.mocked(getMostVisitedHost).mockResolvedValue('www.example.com');
     vi.mocked(findDashboardById).mockResolvedValue(dashboard('example.com'));
 
     await expect(getCaptureOrigin(siteQuery, 'dash', '/pricing')).resolves.toEqual({
       origin: 'https://www.example.com',
-      domain: 'example.com',
     });
-    // Pageviews can carry any host, so only hosts on the domain are counted
-    expect(getMostVisitedHost).toHaveBeenCalledWith(siteQuery, '/pricing', 'example.com');
+    expect(getMostVisitedHost).toHaveBeenCalledWith(siteQuery, '/pricing', 'example.com', { anyHost: true });
+  });
+
+  it("opens a host off the dashboard's domain when the page is only visited there", async () => {
+    vi.mocked(getMostVisitedHost).mockResolvedValue('shop.example.de');
+    vi.mocked(findDashboardById).mockResolvedValue(dashboard('example.com'));
+
+    await expect(getCaptureOrigin(siteQuery, 'dash', '/pricing')).resolves.toEqual({
+      origin: 'https://shop.example.de',
+    });
   });
 
   it("falls back to the dashboard's domain, and uses http for local hosts", async () => {
@@ -192,7 +199,6 @@ describe('getCaptureOrigin', () => {
 
     await expect(getCaptureOrigin(siteQuery, 'dash', '/pricing')).resolves.toEqual({
       origin: 'http://shop.localhost',
-      domain: 'shop.localhost',
     });
   });
 
@@ -210,7 +216,6 @@ describe('getCaptureOrigin', () => {
 
       await expect(getCaptureOrigin(siteQuery, 'dash', '/pricing')).resolves.toEqual({
         origin: 'http://run-3.localhost:3020',
-        domain: 'localhost',
       });
     });
 
@@ -220,7 +225,6 @@ describe('getCaptureOrigin', () => {
 
       await expect(getCaptureOrigin(siteQuery, 'dash', '/pricing')).resolves.toEqual({
         origin: 'http://localhost',
-        domain: 'localhost',
       });
     });
 
@@ -230,7 +234,6 @@ describe('getCaptureOrigin', () => {
 
       await expect(getCaptureOrigin(siteQuery, 'dash', '/pricing')).resolves.toEqual({
         origin: 'https://www.example.com',
-        domain: 'example.com',
       });
     });
   });

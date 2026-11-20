@@ -4,64 +4,57 @@ import {
   type HeatmapDevice,
 } from '@/entities/analytics/clickHeatmap.entities';
 import type { HeatmapCapture } from '@/entities/analytics/heatmapCaptures.entities';
-import { matchesPagePath, pathnameOf } from '@/utils/heatmapPagePath';
-import { isUrlOnDomain } from '@/utils/domainValidation';
 
-export type CaptureTarget = { origin: string; capturePath: string };
-export type CaptureTargetError = 'empty' | 'wildcard' | 'mismatch' | 'invalidUrl' | 'otherHost';
-
-type ResolveInput = {
-  pagePath: string;
-  defaultOrigin: string;
-  dashboardDomain: string;
-  address: string;
-};
+export type CaptureAddressError = 'empty' | 'invalidUrl' | 'wildcard';
 
 /**
- * The real page a capture opens: a path on the default origin (query string allowed), or a full
- * address on the dashboard's domain. It has to be one of the pages grouped under the page path.
+ * The address the capture window opens: a full http(s) address on any host, or a path on the
+ * suggested origin. Any page will do as a start, since the editor can go on to other pages in
+ * the window. Only a wildcard left in the path is refused; a `*` in the query string is a value.
  */
-export function resolveCaptureTarget(input: ResolveInput): CaptureTarget | { error: CaptureTargetError } {
-  const { pagePath, defaultOrigin, dashboardDomain } = input;
-  const address = input.address.trim();
-  if (address === '') return { error: 'empty' };
+export function resolveCaptureAddress(
+  address: string,
+  defaultOrigin: string | undefined,
+): { url: string } | { error: CaptureAddressError } {
+  const trimmed = address.trim();
+  if (trimmed === '') return { error: 'empty' };
+  const isPath = trimmed.startsWith('/') && !trimmed.startsWith('//');
+  if (isPath && !defaultOrigin) return { error: 'invalidUrl' };
 
-  let origin = defaultOrigin;
-  let capturePath: string;
-  if (address.startsWith('/') && !address.startsWith('//')) {
-    if (!isUrlOnDomain(defaultOrigin, dashboardDomain)) return { error: 'otherHost' };
-    capturePath = address;
-  } else {
-    let url: URL;
-    try {
-      url = new URL(address);
-    } catch {
-      return { error: 'invalidUrl' };
-    }
-    if (url.protocol !== 'https:' && url.protocol !== 'http:') return { error: 'invalidUrl' };
-    if (!isUrlOnDomain(url.href, dashboardDomain)) return { error: 'otherHost' };
-    origin = url.origin;
-    capturePath = url.pathname + url.search;
+  let url: URL;
+  try {
+    url = isPath ? new URL(trimmed, defaultOrigin) : new URL(trimmed);
+  } catch {
+    return { error: 'invalidUrl' };
   }
-
-  capturePath = capturePath.split('#')[0];
-  if (capturePath.includes('*')) return { error: 'wildcard' };
-  if (!matchesPagePath(pagePath, pathnameOf(capturePath))) return { error: 'mismatch' };
-  return { origin, capturePath };
+  if (url.protocol !== 'https:' && url.protocol !== 'http:') return { error: 'invalidUrl' };
+  if (url.pathname.includes('*')) return { error: 'wildcard' };
+  url.hash = '';
+  return { url: url.href };
 }
 
-/** The page the capture dialog starts from: the real page captured last time, else the page path itself */
-export function initialCaptureAddress(pagePath: string, pageCaptures: HeatmapCapture[]): string {
-  return pageCaptures[0]?.capturedFromPath ?? pagePath;
+/** Whether the path of an address, as typed, still holds a `*` */
+export function hasPathWildcard(address: string): boolean {
+  const path = address.trim().replace(/^[a-z][a-z\d+.-]*:\/\/[^/?#]*/i, '');
+  return path.split(/[?#]/)[0].includes('*');
 }
 
-export function captureUrl(target: CaptureTarget, token: string, hideText: boolean): string {
-  return `${target.origin}${target.capturePath}#bl-capture=${encodeURIComponent(token)}${hideText ? '&bl-hide-text=1' : ''}`;
+/** The address the dialog starts from: the page captured last, else the page path on the suggested origin */
+export function initialCaptureAddress(
+  pagePath: string,
+  origin: string | undefined,
+  pageCaptures: HeatmapCapture[],
+): string | null {
+  return pageCaptures[0]?.capturedFromUrl ?? (origin ? `${origin}${pagePath}` : null);
 }
 
-// Tablet and phone layouts need a window of that width; desktop uses the editor's own window
-export const CAPTURE_WINDOW: Record<HeatmapDevice, { width: number; height: number } | null> = {
-  desktop: null,
-  tablet: { width: HEATMAP_DEVICE_WIDTHS.tablet, height: HEATMAP_DEVICE_VIEWPORT_HEIGHTS.tablet },
-  mobile: { width: HEATMAP_DEVICE_WIDTHS.mobile, height: HEATMAP_DEVICE_VIEWPORT_HEIGHTS.mobile },
-};
+// The page path lets the panel on the page tell the editor when a page isn't one the heatmap covers
+export function captureUrl(url: string, token: string, pagePath: string, hideText: boolean): string {
+  const params = new URLSearchParams({ 'bl-capture': token, 'bl-page': pagePath });
+  if (hideText) params.set('bl-hide-text', '1');
+  return `${url}#${params}`;
+}
+
+export function captureWindowFeatures(device: HeatmapDevice): string {
+  return `popup,width=${HEATMAP_DEVICE_WIDTHS[device]},height=${HEATMAP_DEVICE_VIEWPORT_HEIGHTS[device]}`;
+}

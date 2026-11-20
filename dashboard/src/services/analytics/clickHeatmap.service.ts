@@ -103,13 +103,14 @@ export async function getHeatmapBackground(
 const LOCAL_HOST = /^(localhost|127\.0\.0\.1|\[::1\])$|\.localhost$/;
 
 /**
- * Where a capture opens the page: the host most visitors used, else the dashboard's domain.
- * Pageviews keep no scheme or port, so local hosts get http and everything else https; a
- * different address on the dashboard's domain can be entered in the capture dialog.
+ * Where the capture dialog suggests opening the page: the host most visitors used, preferring
+ * the dashboard's domain, else the domain itself. Pageviews keep no scheme or port, so local
+ * hosts get http and everything else https; the editor can change the address.
  */
 export async function getCaptureOrigin(siteQuery: BASiteQuery, dashboardId: string, url: string) {
-  const { origin, domain } = await getVisitedOrigin(siteQuery, dashboardId, url);
-  return { origin: origin ?? originOf(domain), domain };
+  const dashboard = await findDashboardById(dashboardId);
+  const host = await getMostVisitedHost(siteQuery, url, dashboard.domain, { anyHost: true });
+  return { origin: originOf(host ?? dashboard.domain) };
 }
 
 /** The origin on the dashboard's domain that visitors opened a page on most, or null without any */

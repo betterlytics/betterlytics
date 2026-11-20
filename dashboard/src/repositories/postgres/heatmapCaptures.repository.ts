@@ -15,7 +15,7 @@ import {
 export async function createHeatmapCaptureLink(
   dashboardId: string,
   createdById: string,
-  input: CreateHeatmapCaptureLinkInput & { capturePath: string },
+  input: CreateHeatmapCaptureLinkInput,
   tokenHash: string,
 ): Promise<{ expiresAt: Date }> {
   const now = new Date();
@@ -43,7 +43,6 @@ export async function createHeatmapCaptureLink(
         createdById,
         path: input.path,
         device: input.device,
-        capturePath: input.capturePath,
         expiresAt,
       },
     });
@@ -63,7 +62,7 @@ const captureSelect = {
   createdAt: true,
   createdById: true,
   createdBy: { select: { name: true, email: true } },
-  capturedFromPath: true,
+  capturedFromUrl: true,
 } as const;
 
 export async function findHeatmapCaptures(

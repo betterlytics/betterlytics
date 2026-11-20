@@ -23,14 +23,14 @@ import {
 } from '@/components/ui/dialog';
 import { createHeatmapCaptureLinkAction } from '@/app/actions/analytics/heatmapCaptures.actions';
 import { HEATMAP_CAPTURE_LINK_TTL_MS, type HeatmapCapture } from '@/entities/analytics/heatmapCaptures.entities';
-import type { HeatmapDevice } from '@/entities/analytics/clickHeatmap.entities';
+import { HEATMAP_DEVICE_WIDTHS, type HeatmapDevice } from '@/entities/analytics/clickHeatmap.entities';
 import {
-  CAPTURE_WINDOW,
   captureUrl,
+  captureWindowFeatures,
+  hasPathWildcard,
   initialCaptureAddress,
-  resolveCaptureTarget,
-  type CaptureTarget,
-  type CaptureTargetError,
+  resolveCaptureAddress,
+  type CaptureAddressError,
 } from './captureTarget';
 
 const POLL_MS = 3000;
@@ -53,27 +53,29 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
   const { input, options } = useBAQueryParams();
   const addressRef = useRef<HTMLInputElement>(null);
 
-  const [address, setAddress] = useState(() => initialCaptureAddress(pagePath, pageCaptures));
+  // Null until edited, so the suggested address can still arrive after the dialog opens
+  const [editedAddress, setEditedAddress] = useState<string | null>(null);
   const [hideText, setHideText] = useState(false);
-  const [error, setError] = useState<CaptureTargetError | null>(null);
+  const [error, setError] = useState<CaptureAddressError | null>(null);
   // When the link was made: the history can be stale or hold another editor's newer capture
   const [waitingSince, setWaitingSince] = useState<number | null>(null);
 
-  // A wildcard left in the page is selected, so typing replaces it
   const focusAddress = (event: Event) => {
     const field = addressRef.current;
     if (!field) return;
     event.preventDefault();
     field.focus();
-    const wildcard = field.value.indexOf('*');
-    if (wildcard === -1) field.setSelectionRange(field.value.length, field.value.length);
-    else field.setSelectionRange(wildcard, wildcard + 1);
+    field.setSelectionRange(field.value.length, field.value.length);
   };
 
   const originQuery = trpc.clickHeatmap.captureOrigin.useQuery(
     { ...input, url: pagePath },
     { ...options, placeholderData: undefined },
   );
+  const origin = originQuery.data?.origin;
+  const suggestedAddress = initialCaptureAddress(pagePath, origin, pageCaptures);
+  const loadingAddress = editedAddress === null && suggestedAddress === null && originQuery.isPending;
+  const address = editedAddress ?? suggestedAddress ?? (loadingAddress ? '' : pagePath);
 
   // The capture arrives from the other window; the list is polled until it shows up
   const capturesQuery = trpc.heatmapCaptures.list.useQuery(
@@ -109,20 +111,13 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
   };
 
   const createLink = useMutation({
-    mutationFn: (target: CaptureTarget) =>
-      createHeatmapCaptureLinkAction(dashboardId, { path: pagePath, device, capturePath: target.capturePath }),
+    mutationFn: () => createHeatmapCaptureLinkAction(dashboardId, { path: pagePath, device }),
   });
 
   // The window opens inside the click so pop-up blockers allow it; the link fills it in after
   const handleOpen = () => {
-    const origin = originQuery.data;
-    if (!origin || createLink.isPending || waitingSince !== null) return;
-    const target = resolveCaptureTarget({
-      pagePath,
-      defaultOrigin: origin.origin,
-      dashboardDomain: origin.domain,
-      address,
-    });
+    if (loadingAddress || createLink.isPending || waitingSince !== null) return;
+    const target = resolveCaptureAddress(address, origin);
     if ('error' in target) {
       setError(target.error);
       addressRef.current?.focus();
@@ -130,18 +125,15 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
     }
     setError(null);
 
-    const size = CAPTURE_WINDOW[device];
-    const opened = size
-      ? window.open('', `betterlytics-capture-${device}`, `popup,width=${size.width},height=${size.height}`)
-      : window.open('', '_blank');
+    const opened = window.open('', `betterlytics-capture-${device}`, captureWindowFeatures(device));
     if (!opened) {
       toast.error(t('popupBlocked'));
       return;
     }
     opened.opener = null;
-    createLink.mutate(target, {
+    createLink.mutate(undefined, {
       onSuccess: ({ token, expiresAt }) => {
-        opened.location.href = captureUrl(target, token, hideText);
+        opened.location.href = captureUrl(target.url, token, pagePath, hideText);
         setWaitingSince(new Date(expiresAt).getTime() - HEATMAP_CAPTURE_LINK_TTL_MS);
       },
       onError: (mutationError) => {
@@ -151,13 +143,13 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
     });
   };
 
-  const deviceName = tDevices(device);
-  const size = CAPTURE_WINDOW[device];
   const waiting = waitingSince !== null;
-  const alert = originQuery.isError
-    ? t('errors.originFailed')
-    : error && t(`errors.${error}`, { path: pagePath, domain: originQuery.data?.domain ?? '' });
-  const note = alert || (address.includes('*') ? t('errors.wildcard') : null);
+  const alert = error
+    ? t(`errors.${error}`)
+    : originQuery.isError && address.trim().startsWith('/')
+      ? t('errors.originFailed')
+      : null;
+  const note = alert ?? (hasPathWildcard(address) ? t('wildcardHint') : t('navigateHint'));
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -168,13 +160,13 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
         onEscapeKeyDown={keepOpenWhileWaiting}
       >
         <DialogHeader>
-          <DialogTitle>{t('title', { device: deviceName })}</DialogTitle>
+          <DialogTitle>{t('title', { device: tDevices(device) })}</DialogTitle>
           <DialogDescription>
             {waiting ? (
               t('waitingHint')
             ) : (
               <>
-                {size ? t('howWindow', { width: size.width }) : t('howTab')}{' '}
+                {t('howWindow', { width: HEATMAP_DEVICE_WIDTHS[device] })}{' '}
                 <ExternalLink
                   href={`${DOCS_URL}#capturing-pages`}
                   target='_blank'
@@ -208,29 +200,29 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
               <Input
                 ref={addressRef}
                 id='capture-address'
+                type='url'
                 value={address}
                 placeholder={t('pagePlaceholder')}
                 spellCheck={false}
+                autoComplete='off'
                 aria-invalid={alert ? true : undefined}
-                aria-describedby={note ? 'capture-address-note' : undefined}
+                aria-describedby='capture-address-note'
                 className='font-mono text-sm'
                 onChange={(event) => {
-                  setAddress(event.target.value);
+                  setEditedAddress(event.target.value);
                   setError(null);
                 }}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter') handleOpen();
                 }}
               />
-              {note && (
-                <p
-                  id='capture-address-note'
-                  role={alert ? 'alert' : undefined}
-                  className={alert ? 'text-destructive text-xs' : 'text-muted-foreground text-xs'}
-                >
-                  {note}
-                </p>
-              )}
+              <p
+                id='capture-address-note'
+                role={alert ? 'alert' : undefined}
+                className={alert ? 'text-destructive text-xs' : 'text-muted-foreground text-xs'}
+              >
+                {note}
+              </p>
             </div>
             <SettingToggle
               id='capture-hide-text'
@@ -247,11 +239,7 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
             {waiting ? t('close') : t('cancel')}
           </Button>
           {!waiting && (
-            <Button
-              className='cursor-pointer'
-              onClick={handleOpen}
-              disabled={!originQuery.data || createLink.isPending}
-            >
+            <Button className='cursor-pointer' onClick={handleOpen} disabled={loadingAddress || createLink.isPending}>
               {t('open')}
             </Button>
           )}

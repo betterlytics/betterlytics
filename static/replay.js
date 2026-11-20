@@ -9325,26 +9325,69 @@ or you can use record.mirror to access the mirror instance during recording.`;
   var FONT_FACE = /@font-face\s*{[^}]*}/g;
   var CSS_URL = /url\(\s*(['"]?)([^'")]+)\1\s*\)/g;
   // A link is used up only once a capture is stored, so other refusals can be retried
-  var FINAL_REASONS = ["link_invalid", "wrong_origin", "too_large"];
+  var FINAL_REASONS = ["link_invalid", "too_large"];
   // Typed text lives in these as text, which maskAllInputs doesn't reach; site masks are honored
   var TYPED_TEXT = 'textarea, [contenteditable]:not([contenteditable="false"]), [data-rrweb-mask]';
+  var PATH_CHECK_MS = 500;
+
+  // "preparing" | "ready" | "capturing" | "finished"
+  var phase = "preparing";
+  var preparedPath = null;
+  var panel = createPanel();
+  prepare();
+
+  // In-app navigation keeps this script running, so a page reached that way is prepared too
+  setInterval(function () {
+    if (phase === "ready" && window.location.pathname !== preparedPath) prepare();
+  }, PATH_CHECK_MS);
 
   // The page is scrolled through first, so lazy content loads and anything that opens on
   // scroll can be closed by the editor before capturing
-  var panel = createPanel();
-  panel.show("working", "Loading the whole page...");
-  scrollThrough()
-    .then(waitForImages)
-    .then(function () {
-      panel.show(
-        "ready",
-        capture.hideText
-          ? "Set the page up the way visitors see it, then capture it. Text is hidden and form fields are masked."
-          : "Set the page up the way visitors see it, then capture it. Text and images are kept as you see them; form fields are masked."
-      );
-    });
+  function prepare() {
+    phase = "preparing";
+    preparedPath = window.location.pathname;
+    panel.show("working", "Loading the whole page...");
+    scrollThrough()
+      .then(waitForImages)
+      .then(function () {
+        if (window.location.pathname !== preparedPath) return prepare();
+        phase = "ready";
+        panel.show(
+          "ready",
+          capture.hideText
+            ? "Set the page up the way visitors see it, then capture it. You can go to another page first. Text is hidden and form fields are masked."
+            : "Set the page up the way visitors see it, then capture it. You can go to another page first. Text and images are kept as you see them; form fields are masked.",
+          pageWarning()
+        );
+      });
+  }
+
+  // Another page may be captured on purpose, such as a staging copy on another path
+  function pageWarning() {
+    if (!capture.page || matchesPage(capture.page, window.location.pathname)) return "";
+    return "This page isn't one of the pages the heatmap " + capture.page + " covers. Go to one of those, or capture this page anyway.";
+  }
+
+  // The dashboard's page path match: data-dynamic-urls stores each wildcard as `*`, also for
+  // `**` patterns, so a `*` stands for one or more characters
+  function matchesPage(pattern, path) {
+    var parts = pattern.split("*");
+    if (parts.length === 1) return path === pattern;
+    var first = parts[0];
+    var last = parts[parts.length - 1];
+    if (path.indexOf(first) !== 0) return false;
+    var position = first.length;
+    for (var i = 1; i < parts.length - 1; i++) {
+      var found = path.indexOf(parts[i], position + 1);
+      if (found === -1) return false;
+      position = found + parts[i].length;
+    }
+    var end = path.length - last.length;
+    return end > position && path.slice(end) === last;
+  }
 
   function startCapture() {
+    phase = "capturing";
     panel.show("working", "Capturing...");
     scrollToTop()
       .then(function () {
@@ -9358,17 +9401,23 @@ or you can use record.mirror to access the mirror instance during recording.`;
         if (result.ok) {
           finish("done", "Captured. You can close this window.");
         } else if (FINAL_REASONS.indexOf(result.reason) === -1) {
-          panel.show("failed", result.message);
+          retry(result.message);
         } else {
           finish("final", result.message);
         }
       })
       .catch(function () {
-        panel.show("failed", "The page could not be captured. Try again.");
+        retry("The page could not be captured. Try again.");
       });
   }
 
+  function retry(message) {
+    phase = "ready";
+    panel.show("failed", message);
+  }
+
   function finish(state, message) {
+    phase = "finished";
     if (capture.forget) capture.forget();
     panel.show(state, message);
   }
@@ -9644,14 +9693,15 @@ or you can use record.mirror to access the mirror instance during recording.`;
       "<style>" +
       ".panel{box-sizing:border-box;width:320px;padding:16px;border-radius:12px;background:#111827;color:#f9fafb;" +
       "font:14px/1.45 system-ui,-apple-system,'Segoe UI',sans-serif;box-shadow:0 12px 32px rgba(0,0,0,.35)}" +
-      ".title{font-weight:600;margin:0 0 6px}.message{margin:0 0 12px;color:#d1d5db}" +
+      ".title{font-weight:600;margin:0 0 6px}.message{margin:0 0 12px;color:#d1d5db}.warning{margin:0 0 12px;color:#fcd34d}" +
       "button{font:inherit;font-weight:600;border:0;border-radius:8px;padding:8px 14px;cursor:pointer;background:#6366f1;color:#fff}" +
-      "button[hidden]{display:none}.done .title{color:#86efac}.failed .title,.final .title{color:#fca5a5}" +
+      "button[hidden],.warning[hidden]{display:none}.done .title{color:#86efac}.failed .title,.final .title{color:#fca5a5}" +
       "</style>" +
-      '<div class="panel"><p class="title"></p><p class="message"></p><button type="button"></button></div>';
+      '<div class="panel"><p class="title"></p><p class="message"></p><p class="warning" hidden></p><button type="button"></button></div>';
     var box = root.querySelector(".panel");
     var title = root.querySelector(".title");
     var message = root.querySelector(".message");
+    var warning = root.querySelector(".warning");
     var button = root.querySelector("button");
     var action = null;
     button.addEventListener("click", function () {
@@ -9691,11 +9741,13 @@ or you can use record.mirror to access the mirror instance during recording.`;
     };
 
     return {
-      show: function (state, text) {
+      show: function (state, text, warningText) {
         var s = states[state];
         box.className = "panel " + state;
         title.textContent = s.title;
         message.textContent = text;
+        warning.textContent = warningText || "";
+        warning.hidden = !warningText;
         button.hidden = !s.label;
         button.textContent = s.label || "";
         action = s.action;

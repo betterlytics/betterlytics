@@ -4019,19 +4019,18 @@
         "pageChangedHint": "Sidens højde har ændret sig siden denne optagelse. Optag den igen for et præcist layout.",
         "title": "Optag layoutet til {device}",
         "howWindow": "Åbner siden i et vindue på {width} px. Når den ser ud, som besøgende ser den, så tryk på Capture page i Betterlytics-panelet.",
-        "howTab": "Åbner siden i en ny fane. Når den ser ud, som besøgende ser den, så tryk på Capture page i Betterlytics-panelet.",
         "learnMore": "Læs mere",
         "pageLabel": "Side",
-        "pagePlaceholder": "/sti?forespørgsel eller https://...",
+        "pagePlaceholder": "https://...",
+        "navigateHint": "Du kan gå til andre sider i vinduet, før du optager.",
+        "wildcardHint": "Erstat * med en rigtig værdi, eller åbn en anden side og gå til den i vinduet.",
         "hideText": "Skjul tekst",
         "hideTextHint": "Skjuler al tekst, til sider der viser dine kontooplysninger.",
         "errors": {
-          "empty": "Angiv den side, der skal optages.",
-          "wildcard": "Erstat * med en del af en rigtig sides adresse.",
-          "mismatch": "Den side er ikke en af siderne samlet under {path}.",
-          "invalidUrl": "Angiv en sti, der starter med /, eller en fuld https://-adresse.",
-          "otherHost": "Den adresse ligger ikke på {domain}.",
-          "originFailed": "Sidens adresse kunne ikke slås op. Luk dette og prøv igen."
+          "empty": "Angiv adressen på den side, der skal åbnes.",
+          "wildcard": "Erstat * i stien med en rigtig værdi.",
+          "invalidUrl": "Angiv en fuld adresse, der starter med https:// eller http://.",
+          "originFailed": "Sidens adresse kunne ikke slås op. Angiv sidens fulde adresse."
         },
         "open": "Åbn side",
         "cancel": "Annuller",
@@ -4703,8 +4702,6 @@
       "invitationNotFound": "Invitation ikke fundet"
     },
     "heatmapCaptures": {
-      "capturePathRequired": "Denne heatmap-side samler flere rigtige sider. Angiv den rigtige side, der skal optages.",
-      "pageMismatch": "Siden, der skal optages, er ikke en af de sider, der er samlet under denne heatmap-side.",
       "storageNotConfigured": "Heatmap-optagelser kræver lagerplads: serveren er sat til at gemme replays i S3, men S3 er ikke konfigureret. Konfigurer S3, eller sæt REPLAY_STORAGE=clickhouse."
     }
   },

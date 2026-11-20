@@ -56,12 +56,15 @@
   // A capture link from the dashboard: snapshot this page for heatmaps and track nothing,
   // whatever the replay, heatmap, sampling and consent settings say
   var CAPTURE_STORAGE_KEY = "betterlytics:capture";
+  // As long as the dashboard's capture link lives
+  var CAPTURE_LINK_TTL_MS = 15 * 60 * 1000;
   var captureLink = takeCaptureLink();
   if (captureLink) {
     silenceApi();
     window.__betterlytics_capture__ = {
       token: captureLink.token,
       hideText: captureLink.hideText,
+      page: captureLink.page,
       serverUrl: serverUrl,
       documentHeight: getDocumentHeight,
       forget: function () {
@@ -340,8 +343,8 @@
   }
 
   // The link's token is removed from the address bar right away, so it isn't shared or
-  // bookmarked. It is kept for this tab, so a reload (a consent banner's, say) continues the
-  // capture on the same page instead of tracking a visit.
+  // bookmarked. It is kept for this tab until the link expires, so a reload (a consent
+  // banner's, say) or going on to other pages continues the capture instead of tracking a visit.
   function takeCaptureLink() {
     var hash = window.location.hash;
     if (hash.indexOf("#bl-capture=") === 0) {
@@ -358,7 +361,8 @@
       var link = {
         token: token,
         hideText: params.get("bl-hide-text") === "1",
-        path: window.location.pathname,
+        page: params.get("bl-page") || "",
+        expires: Date.now() + CAPTURE_LINK_TTL_MS,
       };
       try {
         sessionStorage.setItem(CAPTURE_STORAGE_KEY, JSON.stringify(link));
@@ -367,9 +371,10 @@
     }
     try {
       var stored = JSON.parse(sessionStorage.getItem(CAPTURE_STORAGE_KEY));
-      if (stored && stored.token && stored.path === window.location.pathname) {
+      if (stored && stored.token && stored.expires > Date.now()) {
         return stored;
       }
+      if (stored) sessionStorage.removeItem(CAPTURE_STORAGE_KEY);
     } catch (e) {}
     return null;
   }

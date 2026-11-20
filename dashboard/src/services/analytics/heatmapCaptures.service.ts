@@ -17,7 +17,6 @@ import {
   findHeatmapCaptures,
 } from '@/repositories/postgres/heatmapCaptures.repository';
 import { captureSnapshotStoreFor } from '@/repositories/heatmapCaptureSnapshots.repository';
-import { matchesPagePath, pathnameOf } from '@/utils/heatmapPagePath';
 
 export class HeatmapCapturesForbiddenError extends Error {}
 
@@ -33,20 +32,11 @@ function hashCaptureToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
 }
 
-// The token travels in the capture page's URL fragment; only its hash is stored. The link is
-// bound to one real page: the page path itself, or for a data-dynamic-urls wildcard path the
-// real page the editor picked, and the backend refuses a snapshot of any other page.
+// The token travels in the capture page's URL fragment; only its hash is stored. The editor
+// may walk to the page from another one, or capture a staging copy on another host, so the
+// link isn't bound to a page or host.
 export async function createCaptureLink(ctx: AuthContext, input: CreateHeatmapCaptureLinkInput) {
   assertMemberContext(ctx);
-  if (input.path.includes('*') && !input.capturePath) {
-    const t = await getTranslations('validation.heatmapCaptures');
-    throw new UserException(t('capturePathRequired'));
-  }
-  const capturePath = input.capturePath ? pathnameOf(input.capturePath) : input.path;
-  if (!matchesPagePath(input.path, capturePath)) {
-    const t = await getTranslations('validation.heatmapCaptures');
-    throw new UserException(t('pageMismatch'));
-  }
   if (replayStorage === 's3' && (!s3Env.enabled || !s3Env.bucket)) {
     const t = await getTranslations('validation.heatmapCaptures');
     throw new UserException(t('storageNotConfigured'));
@@ -56,7 +46,7 @@ export async function createCaptureLink(ctx: AuthContext, input: CreateHeatmapCa
   const { expiresAt } = await createHeatmapCaptureLink(
     ctx.dashboardId,
     ctx.userId,
-    { path: input.path, device: input.device, capturePath },
+    { path: input.path, device: input.device },
     hashCaptureToken(token),
   );
   return { token, expiresAt };

@@ -981,8 +981,6 @@ model HeatmapCaptureLink {
   path        String
   // mobile | tablet | desktop
   device      String
-  // The one real page this link may capture: `path`, or the page picked for a data-dynamic-urls wildcard path
-  capturePath String
   createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
   createdById String
   createdAt   DateTime  @default(now())
@@ -1005,12 +1003,12 @@ model HeatmapCapture {
   // clickhouse | s3
   storage        String
   storageKey     String
-  sizeBytes        Int
-  createdBy        User?     @relation(fields: [createdById], references: [id], onDelete: SetNull)
-  createdById      String?
-  // The real page the snapshot was taken on; differs from `path` for data-dynamic-urls wildcards
-  capturedFromPath String
-  createdAt        DateTime  @default(now())
+  sizeBytes       Int
+  createdBy       User?     @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById     String?
+  // Address of the page the snapshot was taken on (origin, path and query), on any host
+  capturedFromUrl String
+  createdAt       DateTime  @default(now())
 
   @@index([dashboardId, path, device, createdAt])
 }

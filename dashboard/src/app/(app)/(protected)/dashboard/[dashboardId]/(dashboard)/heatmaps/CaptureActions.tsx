@@ -101,10 +101,8 @@ export function CaptureHistoryMenu({ captures, shownCaptureId, onSelect, trigger
                 <Check className={cn('text-foreground mt-0.5', shown ? 'opacity-100' : 'opacity-0')} />
                 <div className='min-w-0'>
                   <p className='truncate'>{date}</p>
-                  <p className='text-muted-foreground truncate text-xs'>
-                    {capture.capturedFromPath !== capture.path
-                      ? t('byFrom', { name, path: capture.capturedFromPath })
-                      : name}
+                  <p className='text-muted-foreground truncate text-xs' title={capture.capturedFromUrl}>
+                    {t('byFrom', { name, path: capture.capturedFromUrl.replace(/^https?:\/\//, '') })}
                   </p>
                 </div>
               </DropdownMenuItem>

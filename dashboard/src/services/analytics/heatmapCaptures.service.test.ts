@@ -34,30 +34,12 @@ beforeEach(() => {
 });
 
 describe('createCaptureLink', () => {
-  it('binds a plain page path link to that page', async () => {
-    await createCaptureLink(ctx, { path: '/pricing', device: 'desktop' });
+  it.each(['/pricing', '/profile/*/posts'])('stores a link for %s, storing only the token hash', async (path) => {
+    const { token } = await createCaptureLink(ctx, { path, device: 'desktop' });
 
-    expect(createLinkRow).toHaveBeenCalledWith(
-      'dash-1',
-      'user-1',
-      { path: '/pricing', device: 'desktop', capturePath: '/pricing' },
-      expect.any(String),
-    );
-  });
-
-  it('binds a wildcard page path link to the real page picked, without its query string', async () => {
-    await createCaptureLink(ctx, {
-      path: '/profile/*/posts',
-      device: 'desktop',
-      capturePath: '/profile/betterlytics/posts?tab=new',
-    });
-
-    expect(createLinkRow).toHaveBeenCalledWith(
-      'dash-1',
-      'user-1',
-      { path: '/profile/*/posts', device: 'desktop', capturePath: '/profile/betterlytics/posts' },
-      expect.any(String),
-    );
+    expect(token).toMatch(/^bhc_/);
+    expect(createLinkRow).toHaveBeenCalledWith('dash-1', 'user-1', { path, device: 'desktop' }, expect.any(String));
+    expect(createLinkRow.mock.calls[0][3]).not.toBe(token);
   });
 
   it('refuses a public demo view', async () => {
@@ -66,21 +48,6 @@ describe('createCaptureLink', () => {
     await expect(createCaptureLink(demoCtx, { path: '/pricing', device: 'desktop' })).rejects.toThrow(
       HeatmapCapturesForbiddenError,
     );
-    expect(createLinkRow).not.toHaveBeenCalled();
-  });
-
-  it('asks for a real page when the page path has a wildcard', async () => {
-    await expect(createCaptureLink(ctx, { path: '/profile/*/posts', device: 'desktop' })).rejects.toThrow(
-      'capturePathRequired',
-    );
-    expect(createLinkRow).not.toHaveBeenCalled();
-  });
-
-  it.each([
-    ['/profile/*/posts', '/settings'],
-    ['/pricing', '/about'],
-  ])('refuses %s captured from %s', async (path, capturePath) => {
-    await expect(createCaptureLink(ctx, { path, device: 'desktop', capturePath })).rejects.toThrow('pageMismatch');
     expect(createLinkRow).not.toHaveBeenCalled();
   });
 });
