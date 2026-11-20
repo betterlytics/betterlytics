@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { getSessionReplays } from '@/repositories/clickhouse/index.repository';
-import { getReplaySessionMeta, getSessionReplayById } from '@/repositories/clickhouse/sessionReplays.repository';
+import { getReplaySessionMeta } from '@/repositories/clickhouse/sessionReplays.repository';
 import { readerFor, type ReplaySegmentReader } from '@/repositories/replaySegments.repository';
 import { replayStorage } from '@/lib/env';
 import { DEMO_SESSION_REPLAYS } from '@/constants/demoSessionReplays';
@@ -24,16 +24,6 @@ export async function getSessionReplaysForSite(
       .slice(offset, offset + limit);
   }
   return getSessionReplays(siteQuery, limit, offset);
-}
-
-export async function getSessionReplayForSite(
-  authContext: AuthContext,
-  sessionId: string,
-): Promise<SessionReplay | null> {
-  if (authContext.isDemo) {
-    return getDemoSessionReplays(authContext.siteId).find((replay) => replay.session_id === sessionId) ?? null;
-  }
-  return getSessionReplayById(authContext.siteId, sessionId);
 }
 
 function getDemoSessionReplays(siteId: string): SessionReplay[] {
