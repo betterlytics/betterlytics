@@ -4011,7 +4011,7 @@
       "watchReplay": "Watch replay",
       "hiddenClicks": "{count, plural, one {# click hidden} other {# clicks hidden}}",
       "fixedClicksHidden": "{count, plural, one {# click on a fixed or sticky element isn't shown yet.} other {# clicks on fixed or sticky elements aren't shown yet.}}",
-      "fixedClicksUnplaced": "{count, plural, one {# click on a fixed or sticky element isn't on this layout.} other {# clicks on fixed or sticky elements aren't on this layout.}}",
+      "clicksUnplaced": "{count, plural, one {# click isn't shown: its element isn't on this layout, or can't be told apart from a similar one.} other {# clicks aren't shown: their elements aren't on this layout, or can't be told apart from similar ones.}}",
       "capture": {
         "captureButton": "Capture page",
         "recaptureButton": "Capture again",

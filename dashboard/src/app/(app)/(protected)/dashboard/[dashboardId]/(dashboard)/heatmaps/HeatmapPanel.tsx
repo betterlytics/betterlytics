@@ -295,19 +295,19 @@ type SnapshotBodyProps = {
 function SnapshotBody({ url, device, width, snapshotMs, events, info, actions, onUnusable }: SnapshotBodyProps) {
   const t = useTranslations('components.heatmaps');
   const { input, options } = useBAQueryParams();
-  const [unplacedFixed, setUnplacedFixed] = useState(0);
+  const [unplaced, setUnplaced] = useState(0);
   const anchorsQuery = trpc.clickHeatmap.anchors.useQuery(
     { ...input, url, device, width },
     { ...options, placeholderData: undefined },
   );
-  const handlePlaced = useCallback(({ unplacedFixed }: { unplacedFixed: number }) => setUnplacedFixed(unplacedFixed), []);
+  const handlePlaced = useCallback(({ unplaced }: { unplaced: number }) => setUnplaced(unplaced), []);
 
   return (
     <HeatmapFrame
       info={
         <>
           {info}
-          <HiddenClicksBadge count={unplacedFixed} hint={t('fixedClicksUnplaced', { count: unplacedFixed })} />
+          <HiddenClicksBadge count={unplaced} hint={t('clicksUnplaced', { count: unplaced })} />
         </>
       }
       actions={actions}

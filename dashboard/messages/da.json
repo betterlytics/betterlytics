@@ -4011,7 +4011,7 @@
       "watchReplay": "Se session replay",
       "hiddenClicks": "{count, plural, one {# klik skjult} other {# klik skjult}}",
       "fixedClicksHidden": "{count, plural, one {# klik på et fastgjort element vises ikke endnu.} other {# klik på fastgjorte elementer vises ikke endnu.}}",
-      "fixedClicksUnplaced": "{count, plural, one {# klik på et fastgjort element er ikke med i dette layout.} other {# klik på fastgjorte elementer er ikke med i dette layout.}}",
+      "clicksUnplaced": "{count, plural, one {# klik vises ikke: elementet er ikke med i dette layout eller kan ikke skelnes fra et lignende.} other {# klik vises ikke: elementerne er ikke med i dette layout eller kan ikke skelnes fra lignende.}}",
       "capture": {
         "captureButton": "Optag side",
         "recaptureButton": "Optag igen",

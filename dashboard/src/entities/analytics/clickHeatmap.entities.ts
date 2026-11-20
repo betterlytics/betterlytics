@@ -73,14 +73,16 @@ export type HeatmapClicks = {
 // before the new route has rendered, and lazy content arrives just after load
 export const SNAPSHOT_SETTLE_MS = 3000;
 
-// Clicks grouped by element anchor, with the group's average page position for when the
-// background doesn't have the element. Clicks on the page itself have no element to anchor to.
+// Clicks grouped by element anchor, with the group's average page position, also as a share of
+// the page's height (relY), to tell look-alike elements on the background apart. Clicks on the
+// page itself have no element to anchor to and are drawn at that position.
 export const HeatmapClickAnchorSchema = z.object({
   selector: z.string(),
   offsetX: z.coerce.number(),
   offsetY: z.coerce.number(),
   x: z.coerce.number(),
   y: z.coerce.number(),
+  relY: z.coerce.number(),
   fixed: z.coerce.number().transform((value) => value === 1),
   onPage: z.coerce.number().transform((value) => value === 1),
   count: z.coerce.number(),

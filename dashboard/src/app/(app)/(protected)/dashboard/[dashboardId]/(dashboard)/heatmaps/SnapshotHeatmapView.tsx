@@ -12,7 +12,7 @@ import {
 import { useResizeObserver } from '@/hooks/use-resize-observer';
 import { useDebounce } from '@/hooks/useDebounce';
 import { drawHeat, maxCountOf } from './heatCanvas';
-import { locateInDocument, placeClicks } from './placeClicks';
+import { findInDocument, placeClicks } from './placeClicks';
 import { snapshotEvents } from './snapshotEvents';
 
 const FONTS_WAIT_MS = 1500;
@@ -31,15 +31,15 @@ type SnapshotHeatmapViewProps = {
   snapshotMs: number;
   viewportWidth: number;
   anchors: HeatmapClickAnchor[];
-  onPlaced: (result: { unplacedFixed: number }) => void;
+  onPlaced: (result: { unplaced: number }) => void;
   onUnusable: () => void;
 };
 
 /**
  * Draws a page layout from an rrweb full snapshot (scripts blocked by the player's sandbox) and
  * the heat inside its document, so the heat scrolls with the page and with fixed, sticky and
- * scrolling parts of it. Clicks land on their element when it is found, otherwise at their page
- * position.
+ * scrolling parts of it. Clicks land on their element; clicks whose element can't be found on this
+ * layout are counted instead of drawn.
  */
 export function SnapshotHeatmapView({
   events,
@@ -94,9 +94,9 @@ export function SnapshotHeatmapView({
       if (cancelled || !doc?.documentElement) return;
       // The player restores the visitor's scroll; the heatmap opens at the top of the page
       doc.defaultView?.scrollTo(0, 0);
-      const placed = placeClicks(anchors, locateInDocument(doc));
+      const placed = placeClicks(anchors, findInDocument(doc), doc.documentElement.scrollHeight);
       drawHeatLayers(doc, placed.layers);
-      callbacks.current.onPlaced({ unplacedFixed: placed.unplacedFixed });
+      callbacks.current.onPlaced({ unplaced: placed.unplaced });
     })();
 
     return () => {

@@ -4011,7 +4011,7 @@
       "watchReplay": "Guarda il replay",
       "hiddenClicks": "{count, plural, one {# clic nascosto} other {# clic nascosti}}",
       "fixedClicksHidden": "{count, plural, one {# clic su un elemento fisso non è ancora mostrato.} other {# clic su elementi fissi non sono ancora mostrati.}}",
-      "fixedClicksUnplaced": "{count, plural, one {# clic su un elemento fisso non è in questo layout.} other {# clic su elementi fissi non sono in questo layout.}}",
+      "clicksUnplaced": "{count, plural, one {# clic non è mostrato: il suo elemento non è in questo layout o non si distingue da uno simile.} other {# clic non sono mostrati: i loro elementi non sono in questo layout o non si distinguono da altri simili.}}",
       "capture": {
         "captureButton": "Cattura pagina",
         "recaptureButton": "Cattura di nuovo",

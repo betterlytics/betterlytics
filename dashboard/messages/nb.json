@@ -4011,7 +4011,7 @@
       "watchReplay": "Se sesjonsavspilling",
       "hiddenClicks": "{count, plural, one {# klikk skjult} other {# klikk skjult}}",
       "fixedClicksHidden": "{count, plural, one {# klikk på et fast element vises ikke ennå.} other {# klikk på faste elementer vises ikke ennå.}}",
-      "fixedClicksUnplaced": "{count, plural, one {# klikk på et fast element er ikke med i dette oppsettet.} other {# klikk på faste elementer er ikke med i dette oppsettet.}}",
+      "clicksUnplaced": "{count, plural, one {# klikk vises ikke: elementet er ikke med i dette oppsettet eller kan ikke skilles fra et lignende.} other {# klikk vises ikke: elementene er ikke med i dette oppsettet eller kan ikke skilles fra lignende.}}",
       "capture": {
         "captureButton": "Ta opp siden",
         "recaptureButton": "Ta opp på nytt",

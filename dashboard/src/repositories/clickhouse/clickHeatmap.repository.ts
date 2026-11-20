@@ -141,9 +141,9 @@ export async function getHeatmapClickPoints(
 }
 
 // Offsets are rounded to 5% of the element so clicks from different window widths share a
-// row; the group's average page position is where it is drawn without its element. 5% of the
-// whole page is too coarse, so clicks on the page itself (html or body, always a selector of one
-// part) are grouped by page position instead.
+// row; the group's average page position tells look-alike elements on the background apart. 5%
+// of the whole page is too coarse, so clicks on the page itself (html or body, always a selector
+// of one part) are grouped by page position instead.
 export async function getHeatmapClickAnchors(
   siteQuery: BASiteQuery,
   url: string,
@@ -160,6 +160,7 @@ export async function getHeatmapClickAnchors(
       offsetY,
       round(avg(scaledX)) AS x,
       round(avg(page_y)) AS y,
+      round(avg(page_y / greatest(document_height, 1)), 4) AS relY,
       fixed,
       onPage,
       count() AS count
@@ -171,6 +172,7 @@ export async function getHeatmapClickAnchors(
         if(onPage, 0, round(offset_y * 20) / 20) AS offsetY,
         page_x * {width:UInt32} / greatest(viewport_width, 1) AS scaledX,
         page_y,
+        document_height,
         if(onPage, intDiv(toUInt32(round(scaledX)), {cell:UInt32}), 0) AS cellX,
         if(onPage, intDiv(page_y, {cell:UInt32}), 0) AS cellY,
         toUInt8(is_fixed) AS fixed

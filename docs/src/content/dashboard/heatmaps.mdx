@@ -15,6 +15,7 @@ Heatmaps show where visitors click on a page. Pick a page and a device, and the 
 - **Device tabs:** Desktop, Tablet and Mobile each get their own heatmap, since layouts change with the window width. Each tab shows its share of the page's clicks.
 - **Period:** the date range decides which clicks are drawn.
 - **Fixed elements:** clicks on fixed or sticky elements, such as a header that stays on screen, are drawn on that element when a capture or replay layout has it. On the live page and the plain canvas they're left out, and the bar above the heatmap says how many.
+- **Hidden clicks:** on a capture or replay layout, clicks are drawn on the element they were made on. A click isn't drawn when its element isn't on the layout, or when several elements look the same and none is clearly where the click was made. The bar above the heatmap says how many clicks are hidden; giving the elements a [stable id](/integration/heatmaps#stable-element-ids) helps.
 
 Heatmaps aren't available on public dashboards.
 
