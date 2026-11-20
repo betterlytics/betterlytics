@@ -168,9 +168,9 @@ export function FrameBadge({ icon, label, hint }: FrameBadgeProps) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className='flex shrink-0 cursor-default items-center gap-1 rounded-md border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 whitespace-nowrap text-amber-700 dark:text-amber-400 [&_svg]:h-3 [&_svg]:w-3'>
+        <span className='flex min-w-0 cursor-default items-center gap-1 rounded-md border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 whitespace-nowrap text-amber-700 dark:text-amber-400 [&_svg]:h-3 [&_svg]:w-3 [&_svg]:shrink-0'>
           {icon}
-          {label}
+          <span className='truncate'>{label}</span>
         </span>
       </TooltipTrigger>
       <TooltipContent side='bottom' className='max-w-xs'>
