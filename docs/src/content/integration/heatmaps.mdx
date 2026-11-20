@@ -62,7 +62,7 @@ Heatmaps never collect text from the page, input values, keystrokes or screensho
 
 ## Stable element ids
 
-Clicks are tied to the element that was clicked, so they stay on the right button when content above it moves or the layout is shown at another width. The tracker describes each element with the shortest selector that matches only that element, and prefers an `id` attribute when there is one.
+Clicks are tied to the element that was clicked, so they stay on the right button when content above it moves or the layout is shown at another width. The tracker describes each element with a selector that matches only that element, plus one more level of the page around it so a similar element further down doesn't match too, and prefers an `id` attribute when there is one.
 
 Give the elements you care about, such as calls to action, navigation links and form buttons, a plain `id` that stays the same on every page load:
 
@@ -70,7 +70,7 @@ Give the elements you care about, such as calls to action, navigation links and 
 <button id="signup-cta">Start free trial</button>
 ```
 
-Ids generated at runtime, such as React's `useId()` output (`:r1:` or `«r1»`), change between page loads and are skipped. Without an id, the selector falls back to tag names and up to two class names, which can stop matching when classes or the page structure change. A click on an element that no selector of up to 200 characters picks out on its own isn't recorded.
+Ids generated at runtime, such as React's `useId()` output (`:r1:` or `«r1»`), change between page loads, so only the fixed text around the generated part is used, such as the start and end of `radix-«r1»-trigger-pages`. Without a usable id, the selector falls back to tag names and up to two class names, which can stop matching when classes or the page structure change. A click on an element that no selector of up to 500 characters picks out on its own isn't recorded.
 
 ## Content-Security-Policy
 
@@ -83,7 +83,7 @@ When a page has no capture or replay layout yet, the Heatmaps page can show your
 ## Troubleshooting
 
 - **No clicks appear:** clicks are sent when you leave the page or switch tabs, so switch away from your site before checking. Then check that `data-heatmaps="true"` is on the script tag that loads `analytics.js`, that `data-heatmap-sample` isn't `0`, and that `heatmap.js` loads in your browser's Network tab. A blocked script shows up as a CSP violation in the Console.
-- **Clicks are off on a captured page:** give the clicked element a stable `id`, see [Stable element ids](#stable-element-ids).
+- **Clicks are hidden on a captured page:** the bar above the heatmap counts clicks whose element isn't on the capture or can't be told apart from a similar one. Give those elements a stable `id`, see [Stable element ids](#stable-element-ids).
 - **One page shows up as many:** pages with ids or slugs in the path, such as `/product/123`, get a heatmap each. Group them with `data-dynamic-urls`.
 
 ---

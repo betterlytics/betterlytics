@@ -25,13 +25,15 @@
   var MAX_BATCH_CLICKS = 200;
   var MAX_BATCH_BYTES = 56 * 1024;
   var MAX_CLICKS_PER_PAGE_LOAD = 300;
-  var MAX_SELECTOR_CHARS = 200;
+  var MAX_SELECTOR_CHARS = 500;
   var MAX_PAGE_WIDTH = 16384;
   var MAX_PAGE_HEIGHT = 1000000;
 
   // React useId output (":r1:", "«r1»", "_r_1_") changes between page loads, also inside
   // library ids such as Radix's "radix-_r_v_-trigger-exit"
   var GENERATED_ID = /[:«»]|_r_[0-9a-z]+_/i;
+  // The generated part alone, so the fixed text around it ("radix-", "-trigger-exit") is kept
+  var GENERATED_PART = /:[0-9a-z_]*:|«[0-9a-z_]*»|_r_[0-9a-z]+_/gi;
 
   var encoder = new TextEncoder();
   var collecting = config.sampled === true;
@@ -83,24 +85,51 @@
       .join("");
   }
 
-  // Walks up until the selector matches only the target, or gives up at the length cap
+  // An id that stays the same between page loads. Of a generated id only the fixed text around
+  // the generated part is used, such as the start and end of "radix-«r1»-trigger-pages".
+  function idPart(el) {
+    var id = el.getAttribute("id");
+    if (!id) return "";
+    var tag = CSS.escape(el.tagName.toLowerCase());
+    if (!GENERATED_ID.test(id)) return tag + "#" + CSS.escape(id);
+    var pieces = id.split(GENERATED_PART);
+    var prefix = pieces[0];
+    var suffix = pieces[pieces.length - 1];
+    if (pieces.length < 2 || !/[a-z]/i.test(suffix)) return "";
+    return (
+      tag +
+      (prefix ? '[id^="' + CSS.escape(prefix) + '"]' : "") +
+      '[id$="' + CSS.escape(suffix) + '"]'
+    );
+  }
+
+  function partFor(el, withClasses) {
+    var base = CSS.escape(el.tagName.toLowerCase()) + (withClasses ? classesOf(el) : "");
+    return base + positionIfShared(el, base);
+  }
+
+  // Walks up until the selector matches only the target, then takes in the next ancestor too, so
+  // a look-alike that renders later (the same kind of card further down) doesn't match as well.
+  // Gives up at the length cap. The page itself (html, body) keeps a selector of one part.
   function chainFor(target, withClasses) {
     var parts = [];
     for (var el = target; el && el.nodeType === 1; el = el.parentElement) {
-      var tag = CSS.escape(el.tagName.toLowerCase());
-      var id = el.getAttribute("id");
-      if (id && !GENERATED_ID.test(id)) {
-        var withId = [tag + "#" + CSS.escape(id)].concat(parts).join(" > ");
+      var anchor = idPart(el);
+      if (anchor) {
+        var withId = [anchor].concat(parts).join(" > ");
         if (withId.length <= MAX_SELECTOR_CHARS && matchesOnce(withId)) {
           return withId;
         }
       }
-      var base = tag + (withClasses ? classesOf(el) : "");
-      var part = base + positionIfShared(el, base);
-      var selector = [part].concat(parts).join(" > ");
+      parts.unshift(partFor(el, withClasses));
+      var selector = parts.join(" > ");
       if (selector.length > MAX_SELECTOR_CHARS) return "";
-      if (matchesOnce(selector)) return selector;
-      parts.unshift(part);
+      if (matchesOnce(selector)) {
+        var parent = el.parentElement;
+        if (!parent || parent === document.documentElement) return selector;
+        var longer = (idPart(parent) || partFor(parent, withClasses)) + " > " + selector;
+        return longer.length <= MAX_SELECTOR_CHARS ? longer : selector;
+      }
     }
     return "";
   }

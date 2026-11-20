@@ -34,7 +34,7 @@ use crate::visitor;
 
 pub const MAX_BATCH_BYTES: usize = 64 * 1024;
 const MAX_CLICKS_PER_BATCH: usize = 200;
-const MAX_SELECTOR_CHARS: usize = 200;
+const MAX_SELECTOR_CHARS: usize = 500;
 const MAX_SITE_ID_CHARS: usize = 100;
 const MAX_URL_CHARS: usize = 2048;
 const MAX_SCREEN_RESOLUTION_CHARS: usize = 32;
