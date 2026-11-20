@@ -3,7 +3,7 @@
 import { useState, type ReactNode } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useLocale, useTranslations } from 'next-intl';
-import { Camera, Check, Trash2 } from 'lucide-react';
+import { Check, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { trpc } from '@/trpc/client';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
@@ -43,8 +43,7 @@ export function CaptureButton({ onClick, label }: CaptureButtonProps) {
   if (!hasPermission('canCaptureHeatmaps')) return null;
 
   return (
-    <Button size='sm' variant='ghost' className='h-7 cursor-pointer gap-1.5 px-2 text-xs' onClick={onClick}>
-      <Camera className='size-3.5' />
+    <Button size='sm' variant='ghost' className='h-7 cursor-pointer px-2 text-xs' onClick={onClick}>
       {label ?? t('captureButton')}
     </Button>
   );
@@ -88,7 +87,7 @@ export function CaptureHistoryMenu({ captures, shownCaptureId, onSelect, trigger
     <>
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
-        <DropdownMenuContent align='start' className='w-72'>
+        <DropdownMenuContent align='end' className='w-72'>
           {captures.map((capture) => {
             const { dateTime, name } = details(capture);
             const shown = capture.id === shownCaptureId;

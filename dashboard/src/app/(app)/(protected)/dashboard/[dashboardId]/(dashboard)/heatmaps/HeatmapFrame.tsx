@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useMemo, useState, type ComponentProps, type ReactNode } from 'react';
+import { createContext, useContext, useState, type ComponentProps, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,9 +14,7 @@ const DOT_GRID = {
   backgroundSize: '24px 24px',
 };
 
-type FrameSlots = { info: HTMLElement | null; actions: HTMLElement | null };
-
-const FrameSlotsContext = createContext<FrameSlots>({ info: null, actions: null });
+const FrameSlotContext = createContext<HTMLElement | null>(null);
 
 type HeatmapFrameProps = {
   page: ReactNode;
@@ -30,27 +28,22 @@ type HeatmapFrameProps = {
  * focus and open menus; FrameContent fills in the rest of the bar.
  */
 export function HeatmapFrame({ page, devices, children }: HeatmapFrameProps) {
-  const [info, setInfo] = useState<HTMLElement | null>(null);
-  const [actions, setActions] = useState<HTMLElement | null>(null);
-  const slots = useMemo(() => ({ info, actions }), [info, actions]);
+  const [slot, setSlot] = useState<HTMLElement | null>(null);
 
   return (
     <div className='bg-card flex h-[calc(100svh-10rem)] min-h-[28rem] flex-col overflow-hidden rounded-lg border shadow-sm'>
       <div className='bg-muted/60 border-border/60 flex min-h-11 shrink-0 flex-wrap items-center gap-x-2 gap-y-1 border-b px-2 py-1.5 text-xs'>
-        <div className='flex max-w-full min-w-0 items-center gap-1'>
+        <div className='flex max-w-full min-w-0 items-center gap-2'>
           {page}
-          <div ref={setInfo} className='contents' />
-        </div>
-        <div className='ml-auto flex shrink-0 items-center gap-1.5'>
           {devices}
-          <div ref={setActions} className='contents' />
         </div>
+        <div ref={setSlot} className='ml-auto flex max-w-full min-w-0 items-center gap-1' />
       </div>
       <div
         className='text-muted-foreground relative min-h-0 flex-1 bg-black/[0.03] dark:bg-black/30'
         style={DOT_GRID}
       >
-        <FrameSlotsContext.Provider value={slots}>{children}</FrameSlotsContext.Provider>
+        <FrameSlotContext.Provider value={slot}>{children}</FrameSlotContext.Provider>
       </div>
     </div>
   );
@@ -62,13 +55,19 @@ type FrameContentProps = {
   children: ReactNode;
 };
 
-/** What the frame shows, with what it is after the page picker and its actions after the device picker */
+/** What the frame shows, with what it is and its actions at the end of the bar */
 export function FrameContent({ info, actions, children }: FrameContentProps) {
-  const slots = useContext(FrameSlotsContext);
+  const slot = useContext(FrameSlotContext);
   return (
     <>
-      {slots.info && info && createPortal(info, slots.info)}
-      {slots.actions && actions && createPortal(actions, slots.actions)}
+      {slot &&
+        createPortal(
+          <>
+            {info}
+            {actions}
+          </>,
+          slot,
+        )}
       {children}
     </>
   );
