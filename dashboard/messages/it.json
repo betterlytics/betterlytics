@@ -4012,7 +4012,7 @@
       "capture": {
         "captureButton": "Cattura pagina",
         "recaptureButton": "Cattura di nuovo",
-        "pageChanged": "La pagina potrebbe essere cambiata",
+        "pageChanged": "Pagina cambiata",
         "pageChangedHint": "L'altezza della pagina è cambiata dopo questa cattura. Catturala di nuovo per un layout esatto.",
         "title": "Cattura il layout {device}",
         "learnMore": "Scopri di più",
