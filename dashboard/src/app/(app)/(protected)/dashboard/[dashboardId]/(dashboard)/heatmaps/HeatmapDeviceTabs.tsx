@@ -26,7 +26,7 @@ export function HeatmapDeviceTabs({ value, devicesWithData, onValueChange }: Hea
       <TabsList className='h-7 gap-0.5 bg-transparent p-0'>
         {HEATMAP_DEVICES.map((device) => {
           const name = t(`devices.${device}`);
-          const label =
+          const noData =
             devicesWithData && !devicesWithData.includes(device) ? t('deviceNoData', { device: name }) : null;
           return (
             // Hoverable content keeps a wide no-data tooltip open while the pointer moves on to the next tab
@@ -35,18 +35,23 @@ export function HeatmapDeviceTabs({ value, devicesWithData, onValueChange }: Hea
                 {/* The tooltip sets its own data-state on the trigger, so the selected tab is styled by aria-selected */}
                 <TabsTrigger
                   value={device}
-                  aria-label={label ?? name}
-                  className='text-muted-foreground hover:text-foreground aria-selected:bg-card aria-selected:text-foreground aria-selected:ring-border dark:aria-selected:bg-accent dark:aria-selected:text-foreground relative size-7 flex-none cursor-pointer rounded-md border-0 p-0 aria-selected:shadow-sm aria-selected:ring-1'
+                  aria-label={noData ?? name}
+                  className='text-muted-foreground hover:text-foreground aria-selected:bg-card aria-selected:text-foreground aria-selected:ring-border dark:aria-selected:bg-accent dark:aria-selected:text-foreground h-7 min-w-7 flex-none cursor-pointer rounded-md border-0 px-0 text-xs aria-selected:shadow-sm aria-selected:ring-1 @5xl:px-2.5'
                 >
-                  <DeviceIcon type={device} className='size-3.5' />
-                  {label && (
-                    <TriangleAlert className='absolute top-0.5 right-0.5 size-2.5 fill-amber-500 text-amber-50 dark:text-amber-950' />
-                  )}
+                  <span className='relative flex'>
+                    <DeviceIcon type={device} className='size-3.5' />
+                    {noData && (
+                      <TriangleAlert className='absolute -top-1 -right-1 size-2.5 fill-amber-500 text-amber-50 dark:text-amber-950' />
+                    )}
+                  </span>
+                  <span className='hidden @5xl:inline'>{name}</span>
                 </TabsTrigger>
               </TooltipTrigger>
-              <TooltipContent side='bottom' className='max-w-xs'>
-                {label ?? name}
-              </TooltipContent>
+              {noData && (
+                <TooltipContent side='bottom' className='max-w-xs'>
+                  {noData}
+                </TooltipContent>
+              )}
             </Tooltip>
           );
         })}

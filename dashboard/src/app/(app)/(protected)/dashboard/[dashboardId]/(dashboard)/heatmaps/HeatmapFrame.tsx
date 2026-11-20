@@ -31,13 +31,14 @@ export function HeatmapFrame({ page, devices, children }: HeatmapFrameProps) {
   const [slot, setSlot] = useState<HTMLElement | null>(null);
 
   return (
-    <div className='bg-card flex h-[calc(100svh-10rem)] min-h-[28rem] flex-col overflow-hidden rounded-lg border shadow-sm'>
-      <div className='bg-muted/60 border-border/60 flex min-h-11 shrink-0 flex-wrap items-center gap-x-2 gap-y-1 border-b px-2 py-1.5 text-xs'>
-        <div className='flex max-w-full min-w-0 items-center gap-2'>
-          {page}
+    <div className='bg-card @container flex h-[calc(100svh-10rem)] min-h-[28rem] flex-col overflow-hidden rounded-lg border shadow-sm'>
+      <div className='bg-muted/60 border-border/60 flex min-h-11 shrink-0 flex-wrap items-center gap-x-2 gap-y-1 border-b px-2 py-1.5 text-xs @5xl:grid @5xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]'>
+        {/* Keeps the page picker and device tabs together on a narrow bar; a wide bar centers the tabs */}
+        <div className='flex max-w-full min-w-0 items-center gap-2 @5xl:contents'>
+          <div className='flex min-w-0 items-center'>{page}</div>
           {devices}
         </div>
-        <div ref={setSlot} className='ml-auto flex max-w-full min-w-0 items-center gap-1' />
+        <div ref={setSlot} className='ml-auto flex max-w-full min-w-0 items-center justify-end gap-1 @5xl:ml-0' />
       </div>
       <div
         className='text-muted-foreground relative min-h-0 flex-1 bg-black/[0.03] dark:bg-black/30'
