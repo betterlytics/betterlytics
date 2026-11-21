@@ -61,6 +61,10 @@ export function getAllowedGranularities(startDate: Date, endDate: Date): Granula
   return ['day', 'hour'];
 }
 
+export function getFinestGranularity(granularities: GranularityRangeValues[]): GranularityRangeValues {
+  return GRANULARITY_RANGE_VALUES.find((g) => granularities.includes(g)) ?? 'day';
+}
+
 export function getVisibleGranularities(startDate: Date, endDate: Date): GranularityRangeValues[] {
   const durationMs = endDate.getTime() - startDate.getTime();
   const oneDayMs = 24 * 60 * 60 * 1000;
