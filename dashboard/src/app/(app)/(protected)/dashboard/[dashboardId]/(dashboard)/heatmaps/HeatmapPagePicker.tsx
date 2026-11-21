@@ -13,6 +13,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { ScrollArea } from '@/components/ui-extended/scroll-area';
 import { useInView } from '@/hooks/useInView';
 import { cn } from '@/lib/utils';
 import { FrameMenuButton } from './HeatmapFrame';
@@ -31,8 +32,8 @@ export function HeatmapPagePicker({ pages, value, onValueChange }: HeatmapPagePi
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [visibleCount, setVisibleCount] = useState(PAGE_BATCH);
-  const [list, setList] = useState<HTMLDivElement | null>(null);
-  const { ref: endRef, inView: endInView } = useInView<HTMLDivElement>({ root: list, rootMargin: '200px' });
+  const [viewport, setViewport] = useState<HTMLDivElement | null>(null);
+  const { ref: endRef, inView: endInView } = useInView<HTMLDivElement>({ root: viewport, rootMargin: '200px' });
 
   const matches = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -76,24 +77,26 @@ export function HeatmapPagePicker({ pages, value, onValueChange }: HeatmapPagePi
       <PopoverContent align='start' className='w-[min(24rem,calc(100vw-2rem))] p-0'>
         <Command shouldFilter={false}>
           <CommandInput placeholder={t('pageSearch')} value={search} onValueChange={handleSearchChange} />
-          <CommandList ref={setList}>
-            <CommandEmpty>{t('pageSearchEmpty')}</CommandEmpty>
-            <CommandGroup>
-              {matches.slice(0, visibleCount).map((page) => (
-                <CommandItem
-                  key={page.url}
-                  value={page.url}
-                  onSelect={() => select(page.url)}
-                  className='cursor-pointer'
-                >
-                  <Check className={cn('h-4 w-4 shrink-0', page.url === value ? 'opacity-100' : 'opacity-0')} />
-                  <span className='min-w-0 flex-1 truncate'>{page.url}</span>
-                  {page.devices?.length === 0 && <NoDataWarning label={t('pageNoData')} />}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-            {hasMore && <div ref={endRef} aria-hidden className='h-px' />}
-          </CommandList>
+          <ScrollArea viewportRef={setViewport} viewportClassName='max-h-[300px] [&>div]:!block'>
+            <CommandList className='max-h-none overflow-visible'>
+              <CommandEmpty>{t('pageSearchEmpty')}</CommandEmpty>
+              <CommandGroup>
+                {matches.slice(0, visibleCount).map((page) => (
+                  <CommandItem
+                    key={page.url}
+                    value={page.url}
+                    onSelect={() => select(page.url)}
+                    className='cursor-pointer'
+                  >
+                    <Check className={cn('h-4 w-4 shrink-0', page.url === value ? 'opacity-100' : 'opacity-0')} />
+                    <span className='min-w-0 flex-1 truncate'>{page.url}</span>
+                    {page.devices?.length === 0 && <NoDataWarning label={t('pageNoData')} />}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+              {hasMore && <div ref={endRef} aria-hidden className='h-px' />}
+            </CommandList>
+          </ScrollArea>
         </Command>
       </PopoverContent>
     </Popover>
