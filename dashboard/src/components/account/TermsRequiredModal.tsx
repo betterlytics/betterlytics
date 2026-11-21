@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 import { useTranslations } from 'next-intl';
 import { acceptTermsAction } from '@/app/actions/account/legal.action';
 import { authClient } from '@/lib/auth-client';
@@ -74,9 +75,9 @@ export function TermsRequiredModal({ isOpen }: TermsRequiredModalProps) {
         </DialogHeader>
 
         {error && (
-          <div className='bg-destructive/10 border-destructive/20 text-destructive rounded-md border px-4 py-2 text-sm'>
-            {error}
-          </div>
+          <Alert variant='destructive'>
+            <AlertTitle>{error}</AlertTitle>
+          </Alert>
         )}
 
         <div className='mt-4 flex w-full items-center justify-between gap-3'>

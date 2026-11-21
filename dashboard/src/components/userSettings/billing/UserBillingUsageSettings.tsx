@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Info } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { UsageRow, type UsageSegment } from '@/components/billing/UsageRow';
@@ -151,10 +151,9 @@ export default function UserBillingUsageSettings({ usage }: { usage: UsageData }
   );
 
   const note = (
-    <div className='bg-muted/40 text-muted-foreground mt-2 flex items-start gap-2 rounded-lg px-3 py-2.5 text-xs'>
-      <Info className='mt-px size-3.5 shrink-0' aria-hidden='true' />
-      <span>{tb('nonBillableNote')}</span>
-    </div>
+    <Alert variant='neutral' className='mt-2'>
+      <AlertDescription>{tb('nonBillableNote')}</AlertDescription>
+    </Alert>
   );
 
   const showMoreButton = tailSiteEntries.length > 0 && (

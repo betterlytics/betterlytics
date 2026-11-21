@@ -16,6 +16,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   createPasswordResetLinkAction,
@@ -191,21 +192,23 @@ function ResetPasswordDialog({ user, label, emailsEnabled, open, onOpenChange }:
         </DialogHeader>
 
         {link && (
-          <div className='space-y-2 rounded-lg border border-blue-500/30 bg-blue-500/5 p-3'>
-            <div className='flex items-center gap-2'>
-              <Input readOnly value={link.url} className='font-mono text-xs' aria-label='Password reset link' />
-              <CopyButton
-                text={link.url}
-                ariaLabel='Copy reset link'
-                copiedLabel='Link copied'
-                className='hover:bg-accent shrink-0 cursor-pointer rounded-md p-2'
-                iconClassName='h-4 w-4'
-              />
-            </div>
-            <p className='text-muted-foreground text-xs'>
-              Share it with {label} privately. Expires {formatDate(link.expiresAt, true)}.
-            </p>
-          </div>
+          <Alert variant='info' icon={null}>
+            <AlertDescription className='space-y-2'>
+              <div className='flex items-center gap-2'>
+                <Input readOnly value={link.url} className='font-mono text-xs' aria-label='Password reset link' />
+                <CopyButton
+                  text={link.url}
+                  ariaLabel='Copy reset link'
+                  copiedLabel='Link copied'
+                  className='hover:bg-accent shrink-0 cursor-pointer rounded-md p-2'
+                  iconClassName='h-4 w-4'
+                />
+              </div>
+              <p className='text-muted-foreground text-xs'>
+                Share it with {label} privately. Expires {formatDate(link.expiresAt, true)}.
+              </p>
+            </AlertDescription>
+          </Alert>
         )}
 
         <DialogFooter className='gap-2 sm:justify-between'>

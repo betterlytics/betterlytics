@@ -10,6 +10,7 @@ import type { CampaignListRowSummary } from '@/entities/analytics/campaign.entit
 import UTMBreakdownTabbedTable from './UTMBreakdownTabbedTable';
 import UTMBreakdownTabbedChart from './UTMBreakdownTabbedChart';
 import { Spinner } from '@/components/ui/spinner';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 import type { inferRouterOutputs } from '@trpc/server';
 import type { AppRouter } from '@/trpc/routers/_app';
 import { trpc } from '@/trpc/client';
@@ -328,9 +329,9 @@ function CampaignExpandedRow({ isExpanded, campaignName, summary }: CampaignExpa
       ) : null}
 
       {status === 'error' ? (
-        <div className='bg-destructive/10 border-destructive/30 rounded-md border px-4 py-3'>
-          <p className='text-destructive text-sm'>{t('error')}</p>
-        </div>
+        <Alert variant='destructive'>
+          <AlertTitle>{t('error')}</AlertTitle>
+        </Alert>
       ) : null}
 
       {status === 'success' && data ? (
