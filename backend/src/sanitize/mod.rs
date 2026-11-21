@@ -1,18 +1,17 @@
+use once_cell::sync::Lazy;
+use regex::Regex;
 use serde_json::Value;
 use tracing::warn;
 
 use crate::analytics::RawTrackingEvent;
+
+static UNICODE_OTHER: Lazy<Regex> = Lazy::new(|| Regex::new(r"\p{C}").unwrap());
 
 #[derive(Debug, Clone)]
 pub struct SanitizeConfig {
     pub max_global_properties_keys: usize,
     pub max_global_property_key_length: usize,
     pub max_global_property_value_length: usize,
-    /// Custom event property keys have to survive the dashboard's filter pattern
-    /// (1-64 characters, no control characters) to be usable at all, so the same
-    /// length bound applies here. The key count cap and the value length do not:
-    /// a custom event's payload is the data itself, and
-    /// `max_custom_properties_size` already bounds the whole string upstream.
     pub max_custom_property_key_length: usize,
 }
 
@@ -131,62 +130,33 @@ fn contains_control_characters(input: &str) -> bool {
     input.chars().any(|c| c.is_control())
 }
 
-/// Drop the custom event property keys the dashboard could never filter on, and the
-/// values `global_properties` already drops, so the stored payload and the filterable
-/// one agree on what a property is.
-///
-/// A key has to match the dashboard's filter pattern to become a column - 1 to 64
-/// characters, no control characters - so a key outside it is stored but unreachable:
-/// `betterlytics.event('yessir', { 'ran\tdom': 'b' })` was accepted at ingest and
-/// invisible in every filter afterwards. A key that fails the pattern is dropped here
-/// rather than kept and hidden later.
-///
-/// Values: `null`, arrays and objects go the way they go for `global_properties`.
-/// Strings are NOT truncated and no key count cap is applied, deliberately - a custom
-/// event's payload is the data, and its size is already bounded by
-/// `max_custom_properties_size` in validation.
+/// Drops the custom event property keys the dashboard's `PROPERTY_KEY_PATTERN`
+/// (`/^[^\p{C}]{1,64}$/u`) rejects, since they could never be filtered on. Values are
+/// stored as sent.
 fn sanitize_custom_properties_of(event: &mut RawTrackingEvent, cfg: &SanitizeConfig) {
     if event.properties.is_empty() {
         return;
     }
 
-    // Anything that is not a JSON object is left alone for validation to report: it
-    // rejects invalid JSON with a reason, and sanitizing here would hide it.
+    // Invalid JSON is left for validation to reject with a reason; other non-object JSON is
+    // stored as sent.
     let Ok(Value::Object(obj)) = serde_json::from_str::<Value>(&event.properties) else {
         return;
     };
 
-    let mut sanitized = serde_json::Map::new();
-    let mut was_sanitized = false;
-
-    for (key, val) in obj.into_iter() {
-        if key.is_empty()
-            || key.len() > cfg.max_custom_property_key_length
-            || contains_control_characters(&key)
-        {
-            was_sanitized = true;
-            continue;
-        }
-
-        match val {
-            Value::String(_) | Value::Number(_) | Value::Bool(_) => {
-                sanitized.insert(key, val);
-            }
-            _ => {
-                was_sanitized = true;
-            }
-        }
-    }
-
-    if !was_sanitized {
+    if obj.keys().all(|key| is_filterable_custom_key(key, cfg)) {
         return;
     }
 
-    event.properties = if sanitized.is_empty() {
-        // As with `global_properties`, nothing usable left means "no properties".
+    let kept: serde_json::Map<String, Value> = obj
+        .into_iter()
+        .filter(|(key, _)| is_filterable_custom_key(key, cfg))
+        .collect();
+
+    event.properties = if kept.is_empty() {
         String::new()
     } else {
-        Value::Object(sanitized).to_string()
+        Value::Object(kept).to_string()
     };
 
     warn!(
@@ -195,6 +165,11 @@ fn sanitize_custom_properties_of(event: &mut RawTrackingEvent, cfg: &SanitizeCon
         event_name = %event.event_name,
         "Event accepted with custom properties sanitization"
     );
+}
+
+fn is_filterable_custom_key(key: &str, cfg: &SanitizeConfig) -> bool {
+    let length = key.chars().count();
+    (1..=cfg.max_custom_property_key_length).contains(&length) && !UNICODE_OTHER.is_match(key)
 }
 
 fn contains_dangerous_control_characters(input: &str) -> bool {
@@ -428,10 +403,35 @@ mod tests {
     }
 
     #[test]
-    fn custom_values_follow_global_properties_null_and_non_scalar_rules() {
-        let out = sanitized_properties(r#"{"a": null, "b": [1], "c": {"d": 1}, "e": 1, "f": true, "g": "s"}"#);
+    fn custom_key_length_counts_characters_not_bytes() {
+        let at_limit = "æ".repeat(64);
+        let over_limit = "æ".repeat(65);
+        let out = sanitized_properties(&format!(r#"{{"{over_limit}": 1, "{at_limit}": 2}}"#));
 
-        assert_eq!(out, r#"{"e":1,"f":true,"g":"s"}"#);
+        assert_eq!(out, format!(r#"{{"{at_limit}":2}}"#));
+    }
+
+    #[test]
+    fn custom_keys_with_invisible_characters_dropped() {
+        let out = sanitized_properties(
+            "{\"a\u{200B}b\": 1, \"a\u{200D}b\": 2, \"\u{FEFF}a\": 3, \"a\u{AD}b\": 4, \"\u{E000}\": 5, \"\u{378}\": 6, \"🎉\": 7}",
+        );
+
+        assert_eq!(out, r#"{"🎉":7}"#);
+    }
+
+    #[test]
+    fn custom_values_of_every_type_are_kept() {
+        let input = r#"{"a":null,"b":[1],"c":{"d":1},"e":1,"f":true,"g":"s","h":""}"#;
+
+        assert_eq!(sanitized_properties(input), input);
+    }
+
+    #[test]
+    fn dropping_a_custom_key_keeps_the_other_values_as_sent() {
+        let out = sanitized_properties(r#"{"ran\tdom": "b", "a": null, "b": [1, "x"], "c": {"d": {"e": 1}}}"#);
+
+        assert_eq!(out, r#"{"a":null,"b":[1,"x"],"c":{"d":{"e":1}}}"#);
     }
 
     #[test]
@@ -457,14 +457,13 @@ mod tests {
 
     #[test]
     fn all_custom_keys_sanitized_leaves_no_properties() {
-        let out = sanitized_properties(r#"{"ran\tdom": "b", "c": null}"#);
+        let out = sanitized_properties(r#"{"ran\tdom": "b", "": null}"#);
 
         assert_eq!(out, "");
     }
 
     #[test]
-    fn invalid_custom_json_is_left_to_validation() {
-        // Validation rejects it with a reason; sanitizing here would hide that.
+    fn non_object_custom_json_is_left_untouched() {
         assert_eq!(sanitized_properties("{not json"), "{not json");
         assert_eq!(sanitized_properties("[1, 2]"), "[1, 2]");
     }
