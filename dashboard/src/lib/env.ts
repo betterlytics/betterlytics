@@ -72,6 +72,8 @@ const appEnvSchema = z.object({
     (value) => (value === '' ? undefined : value),
     z.string().url().optional().default('https://telemetry.betterlytics.io/v1/ping'),
   ),
+  // Raw string: only "false" turns the update check off in resolveUpdateCheckPolicy, so a typo never fails boot
+  UPDATE_CHECK_ENABLED: z.string().optional(),
   IS_DEVELOPMENT: zStringBoolean,
   // The selfhost compose sets true
   ALLOW_PRIVATE_TARGETS: zStringBoolean,
