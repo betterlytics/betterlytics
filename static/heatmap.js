@@ -29,9 +29,10 @@
   var MAX_PAGE_WIDTH = 16384;
   var MAX_PAGE_HEIGHT = 1000000;
   // Batches only resolve to a session the backend still holds, which ends after 30 idle minutes.
-  // Each batch's lookup counts as activity, so sending pending clicks this often keeps a page that
-  // stays open alive.
+  // Each batch's lookup counts as activity, so pending clicks are sent within a few minutes, and
+  // sooner when the last pageview or batch is close to that limit.
   var MAX_PENDING_MS = 5 * 60 * 1000;
+  var SESSION_SAFE_MS = 25 * 60 * 1000;
 
   // React useId output (":r1:", "«r1»", "_r_1_") changes between page loads, also inside
   // library ids such as Radix's "radix-_r_v_-trigger-exit"
@@ -46,6 +47,7 @@
   var clicksTaken = 0;
   var batch = null;
   var pendingTimer = null;
+  var lastActivity = Date.now();
 
   // Same page path as pageviews; the query string and hash are dropped when stored anyway
   function currentPage() {
@@ -155,6 +157,20 @@
     return false;
   }
 
+  // The width CSS breakpoints see, scrollbar included, which the device is bucketed by. On phones
+  // pinch zoom moves innerWidth away from the layout both ways, so a wider innerWidth only counts
+  // when a media query confirms it.
+  function windowWidthFor(layoutWidth) {
+    var inner = window.innerWidth || 0;
+    if (inner <= layoutWidth) return layoutWidth;
+    try {
+      if (!window.matchMedia("(min-width: " + (inner - 1) + "px)").matches) return layoutWidth;
+    } catch (e) {
+      return layoutWidth;
+    }
+    return Math.min(MAX_PAGE_WIDTH, inner);
+  }
+
   function fraction(offset, size) {
     if (!(size > 0)) return 0.5;
     return Math.round(Math.min(1, Math.max(0, offset / size)) * 10000) / 10000;
@@ -167,6 +183,7 @@
     batch = null;
     if (!b || b.clicks.length === 0) return;
     var now = Date.now();
+    lastActivity = now;
     fetch(endpoint, {
       method: "POST",
       keepalive: true,
@@ -206,9 +223,7 @@
     var root = document.documentElement;
     var viewportWidth = root.clientWidth || window.innerWidth || 0;
     if (viewportWidth < 1 || viewportWidth > MAX_PAGE_WIDTH) return;
-    // The device follows CSS breakpoints, which count the scrollbar. Pinch zoom can shrink
-    // innerWidth below the layout width, which the layout doesn't follow.
-    var windowWidth = Math.min(MAX_PAGE_WIDTH, Math.max(viewportWidth, window.innerWidth || 0));
+    var windowWidth = windowWidthFor(viewportWidth);
 
     // Measured from the document's top left corner. On RTL pages horizontal overflow
     // extends left of the root box, so it is added back.
@@ -257,7 +272,8 @@
         clicks: [],
         bytes: 0,
       };
-      pendingTimer = setTimeout(flush, MAX_PENDING_MS);
+      var untilExpiry = lastActivity + SESSION_SAFE_MS - Date.now();
+      pendingTimer = setTimeout(flush, Math.max(0, Math.min(MAX_PENDING_MS, untilExpiry)));
     }
     batch.documentWidth = Math.min(
       MAX_PAGE_WIDTH,
@@ -288,6 +304,7 @@
     // Called by analytics.js on every client-side page view
     pageview: function (sampled, resolution) {
       flush();
+      lastActivity = Date.now();
       collecting = sampled === true;
       screenResolution = resolution;
     },

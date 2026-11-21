@@ -297,6 +297,7 @@ function SnapshotBody({ url, device, width, snapshotMs, events, info, actions, o
         <SnapshotHeatmapView
           events={events}
           snapshotMs={snapshotMs}
+          device={device}
           viewportWidth={width}
           anchors={anchorsQuery.data}
           onUnusable={onUnusable}

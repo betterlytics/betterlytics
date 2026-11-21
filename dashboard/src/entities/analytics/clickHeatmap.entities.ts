@@ -12,6 +12,13 @@ export const HEATMAP_DEVICE_WIDTHS: Record<HeatmapDevice, number> = {
   mobile: 390,
 };
 
+// Window widths with the scrollbar that each device covers, as the backend buckets them
+export const HEATMAP_DEVICE_WINDOW_RANGES: Record<HeatmapDevice, { min: number; max: number }> = {
+  desktop: { min: 992, max: Infinity },
+  tablet: { min: 576, max: 991 },
+  mobile: { min: 1, max: 575 },
+};
+
 // A typical window height per device, for pages shown the way visitors saw them
 export const HEATMAP_DEVICE_VIEWPORT_HEIGHTS: Record<HeatmapDevice, number> = {
   desktop: 900,

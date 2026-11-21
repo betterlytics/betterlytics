@@ -36,8 +36,8 @@ export function resolveCaptureAddress(
 
 /**
  * The address the dialog starts from: the page captured last on the dashboard's domain, else the
- * page path on the suggested origin. Any link holder can upload a snapshot of any host, so an
- * address off the domain is never offered to the next editor along with a fresh link.
+ * page path on the suggested origin. Any link holder can upload a snapshot of any host, so a
+ * stored address off the domain is never offered to the next editor along with a fresh link.
  */
 export function initialCaptureAddress(
   pagePath: string,

@@ -340,9 +340,18 @@
     return document.documentElement.clientWidth || window.innerWidth;
   }
 
-  // With the scrollbar, like CSS breakpoints; the link's device is checked against this
+  // The width CSS breakpoints see, scrollbar included, which the link's device is checked against.
+  // On phones pinch zoom moves innerWidth away from the layout both ways, so a wider innerWidth
+  // only counts when a media query confirms it.
   function windowWidth() {
-    return Math.max(viewportWidth() || 0, window.innerWidth || 0);
+    var layout = viewportWidth();
+    var inner = window.innerWidth || 0;
+    if (inner <= layout) return layout;
+    try {
+      return window.matchMedia("(min-width: " + (inner - 1) + "px)").matches ? inner : layout;
+    } catch (e) {
+      return layout;
+    }
   }
 
   function gzip(text) {

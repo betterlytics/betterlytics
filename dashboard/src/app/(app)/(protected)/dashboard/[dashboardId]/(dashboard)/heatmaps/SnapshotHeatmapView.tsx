@@ -5,9 +5,11 @@ import rrwebPlayer from 'rrweb-player';
 import 'rrweb-player/dist/style.css';
 import type { eventWithTime } from '@rrweb/types';
 import {
+  HEATMAP_DEVICE_WINDOW_RANGES,
   HEATMAP_MAX_PAGE_HEIGHT,
   type HeatmapClickAnchor,
   type HeatmapClickPoint,
+  type HeatmapDevice,
 } from '@/entities/analytics/clickHeatmap.entities';
 import { useResizeObserver } from '@/hooks/use-resize-observer';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -30,6 +32,7 @@ const RESERVE_SCROLLBAR = 'html { scrollbar-gutter: stable !important; }';
 type SnapshotHeatmapViewProps = {
   events: eventWithTime[];
   snapshotMs: number;
+  device: HeatmapDevice;
   viewportWidth: number;
   anchors: HeatmapClickAnchor[];
   onUnusable: () => void;
@@ -44,6 +47,7 @@ type SnapshotHeatmapViewProps = {
 export function SnapshotHeatmapView({
   events,
   snapshotMs,
+  device,
   viewportWidth,
   anchors,
   onUnusable,
@@ -90,7 +94,9 @@ export function SnapshotHeatmapView({
     void (async () => {
       await settled(replayer.iframe.contentDocument);
       if (cancelled) return;
-      await fitLayoutWidth(replayer.iframe, viewportWidth, () => player.triggerResize());
+      await fitLayoutWidth(replayer.iframe, viewportWidth, HEATMAP_DEVICE_WINDOW_RANGES[device], () =>
+        player.triggerResize(),
+      );
       const doc = replayer.iframe.contentDocument;
       if (cancelled || !doc?.documentElement) return;
       // The player restores the visitor's scroll; the heatmap opens at the top of the page
@@ -107,7 +113,7 @@ export function SnapshotHeatmapView({
       (player as unknown as { $destroy?: () => void }).$destroy?.();
       frame.innerHTML = '';
     };
-  }, [events, snapshotMs, viewportWidth, size]);
+  }, [events, snapshotMs, device, viewportWidth, size]);
 
   useEffect(() => {
     if (!layout?.documentElement) return;
@@ -141,12 +147,21 @@ function nextLayout() {
 
 // The frame is sized to the recorded window with its scrollbar, which the visitor's browser may
 // have drawn narrower or not at all. Adding the viewer's own scrollbar on top lays the page out
-// at the width the clicks were recorded at.
-async function fitLayoutWidth(iframe: HTMLIFrameElement, layoutWidth: number, rescale: () => void) {
+// at the width the clicks were recorded at. Scrollbars differ between the two browsers, so the
+// width is kept inside the device's range, where CSS breakpoints pick the device's layout.
+async function fitLayoutWidth(
+  iframe: HTMLIFrameElement,
+  layoutWidth: number,
+  windowRange: { min: number; max: number },
+  rescale: () => void,
+) {
   const view = iframe.contentWindow;
   const root = iframe.contentDocument?.documentElement;
   if (!view || !root) return;
-  const width = layoutWidth + view.innerWidth - root.clientWidth;
+  const width = Math.min(
+    windowRange.max,
+    Math.max(windowRange.min, layoutWidth + view.innerWidth - root.clientWidth),
+  );
   if (width === view.innerWidth) return;
   iframe.setAttribute('width', String(width));
   rescale();

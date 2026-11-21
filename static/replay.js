@@ -8561,7 +8561,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
           found.push({
             u: e.data.href,
             w: e.data.clientWidth || e.data.width,
-            ww: Math.max(e.data.clientWidth || 0, e.data.width || 0),
+            ww: e.data.windowWidth,
             h: e.data.height,
             t: e.timestamp,
           });
@@ -9076,9 +9076,19 @@ or you can use record.mirror to access the mirror instance during recording.`;
 
       if (e.type === 4 && e.data && typeof e.data.href === "string") {
         e.data.href = normalizePageUrl(e.data.href);
-        // Heatmaps lay a snapshot out at clientWidth and pick its device by the meta width, which
-        // includes the scrollbar like CSS breakpoints do
+        // Heatmaps lay a snapshot out at clientWidth and pick its device by the width CSS
+        // breakpoints see, scrollbar included. On phones pinch zoom moves the meta width
+        // (innerWidth) away from the layout both ways, so a wider one only counts when a media
+        // query confirms it.
         e.data.clientWidth = document.documentElement.clientWidth || e.data.width;
+        e.data.windowWidth = e.data.clientWidth;
+        if (e.data.width > e.data.clientWidth) {
+          try {
+            if (window.matchMedia("(min-width: " + (e.data.width - 1) + "px)").matches) {
+              e.data.windowWidth = e.data.width;
+            }
+          } catch (err) {}
+        }
       }
 
       state.lastActivity = Math.max(state.lastActivity, e.timestamp);
