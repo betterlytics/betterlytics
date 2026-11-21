@@ -227,7 +227,8 @@ type LiveHeatmapProps = {
 function LiveHeatmap({ url, device, pageUrl, history, actions, onUnusable }: LiveHeatmapProps) {
   const t = useTranslations('components.heatmaps');
   const { input, options } = useBAQueryParams();
-  const clicks = trpc.clickHeatmap.clicks.useQuery({ ...input, url, device }, options).data;
+  const clicksQuery = trpc.clickHeatmap.clicks.useQuery({ ...input, url, device }, options);
+  const clicks = clicksQuery.data;
 
   return (
     <FrameContent
@@ -249,7 +250,7 @@ function LiveHeatmap({ url, device, pageUrl, history, actions, onUnusable }: Liv
           onUnusable={onUnusable}
         />
       ) : (
-        <FrameSpinner />
+        <FrameSpinner failed={clicksQuery.isError} />
       )}
     </FrameContent>
   );
@@ -301,7 +302,7 @@ function SnapshotBody({ url, device, width, snapshotMs, events, info, actions, o
           onUnusable={onUnusable}
         />
       ) : (
-        <FrameSpinner />
+        <FrameSpinner failed={anchorsQuery.isError} />
       )}
     </FrameContent>
   );
