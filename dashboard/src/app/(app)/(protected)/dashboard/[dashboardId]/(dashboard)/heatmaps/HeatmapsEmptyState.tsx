@@ -46,7 +46,6 @@ export function NoCaptureMessage({ onCapture }: { onCapture: () => void }) {
     >
       {canCapture && (
         <Button size='sm' className='cursor-pointer' onClick={onCapture}>
-          <Camera className='h-4 w-4' />
           {t('capture.captureButton')}
         </Button>
       )}
