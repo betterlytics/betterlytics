@@ -414,7 +414,7 @@ mod tests {
     #[test]
     fn custom_keys_with_invisible_characters_dropped() {
         let out = sanitized_properties(
-            r#"{"a​b": 1, "a‍b": 2, "﻿a": 3, "a­b": 4, "": 5, "͸": 6, "🎉": 7}"#,
+            "{\"a\u{200B}b\": 1, \"a\u{200D}b\": 2, \"\u{FEFF}a\": 3, \"a\u{AD}b\": 4, \"\u{E000}\": 5, \"\u{378}\": 6, \"🎉\": 7}",
         );
 
         assert_eq!(out, r#"{"🎉":7}"#);
