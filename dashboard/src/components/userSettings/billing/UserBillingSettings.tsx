@@ -128,7 +128,7 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
             description={t('payment.description')}
             action={
               <Button variant='outline' size='sm' onClick={handleOpenPortal} className='cursor-pointer'>
-                <ExternalLinkIcon className='mr-2 h-4 w-4' />
+                <ExternalLinkIcon />
                 {t('payment.openPortal')}
               </Button>
             }

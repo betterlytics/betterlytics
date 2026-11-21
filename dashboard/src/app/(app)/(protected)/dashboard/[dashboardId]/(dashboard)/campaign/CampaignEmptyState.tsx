@@ -141,7 +141,7 @@ export function CampaignEmptyState() {
               target='_blank'
               rel='noopener noreferrer'
             >
-              <ExternalLinkIcon className='mr-2 h-4 w-4' />
+              <ExternalLinkIcon />
               {t('docsLinkLabel')}
             </ExternalLink>
           </Button>

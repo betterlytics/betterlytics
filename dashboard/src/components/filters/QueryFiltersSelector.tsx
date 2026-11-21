@@ -85,14 +85,14 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
         'border-input dark:bg-input/30 dark:hover:bg-input/50 hover:bg-accent min-w-[200px] cursor-pointer justify-between border bg-transparent shadow-xs transition-[color,box-shadow]'
       }
     >
-      <div className='flex items-center gap-2'>
+      <div className='flex flex-1 items-center gap-2'>
         <FilterIcon className='h-4 w-4' />
         <span>{t('selector.triggerLabel')}</span>
         {activeFilterCount > 0 && (
           <Badge className='h-4.5 min-w-4.5 rounded-full px-1 text-[11px] tabular-nums'>{activeFilterCount}</Badge>
         )}
       </div>
-      <ChevronDownIcon className={'ml-2 h-4 w-4 shrink-0 opacity-50'} />
+      <ChevronDownIcon className='shrink-0 opacity-50' />
     </Button>
   );
 

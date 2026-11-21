@@ -118,7 +118,7 @@ export function MembersTable({ dashboardId, members, currentUserId, currentUserR
       onClick={() => handleSort(field)}
     >
       {children}
-      <ArrowUpDown className='ml-1 size-3' />
+      <ArrowUpDown className='size-3' />
     </Button>
   );
 

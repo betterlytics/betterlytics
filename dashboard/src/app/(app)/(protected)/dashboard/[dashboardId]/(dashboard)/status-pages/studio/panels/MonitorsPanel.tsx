@@ -75,7 +75,7 @@ export function MonitorsPanel({ form, onCreateMonitor }: MonitorsPanelProps) {
           title={atMonitorLimit ? tMonitorForm('upgradeToCreate') : undefined}
           onClick={onCreateMonitor}
         >
-          <Plus className='mr-1 h-4 w-4' />
+          <Plus />
           {t('wizard.createMonitor')}
         </Button>
       </div>

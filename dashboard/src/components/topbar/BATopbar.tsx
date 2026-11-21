@@ -132,18 +132,18 @@ export default function BATopbar() {
                       {isBillingEnabled && <UpgradePlanEntry />}
                       <DropdownMenuItem asChild className='cursor-pointer'>
                         <NextLink href='/dashboards'>
-                          <LayoutDashboard className='mr-2 h-4 w-4' />
+                          <LayoutDashboard />
                           <span>{t('dashboards')}</span>
                         </NextLink>
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={handleSettingsClick} className='cursor-pointer'>
-                        <Settings className='mr-2 h-4 w-4' />
+                        <Settings />
                         <span>{t('settings')}</span>
                       </DropdownMenuItem>
                       {showInstanceAdmin && (
                         <DropdownMenuItem asChild className='cursor-pointer'>
                           <NextLink href='/admin'>
-                            <ShieldCheck className='mr-2 h-4 w-4' />
+                            <ShieldCheck />
                             <span>{t('admin')}</span>
                           </NextLink>
                         </DropdownMenuItem>
@@ -153,19 +153,19 @@ export default function BATopbar() {
 
                       {isBugReportsEnabled && (
                         <DropdownMenuItem className='cursor-pointer' onClick={() => setShowBugReportDialog(true)}>
-                          <Bug className='mr-2 h-4 w-4' />
+                          <Bug />
                           <span>{t('reportBug')}</span>
                         </DropdownMenuItem>
                       )}
 
                       <DropdownMenuItem asChild className='cursor-pointer'>
                         <ExternalLink href='https://betterlytics.io/docs' title={t('documentationTitle')}>
-                          <ExternalLinkIcon className='mr-2 h-4 w-4' />
+                          <ExternalLinkIcon />
                           <span>{t('documentation')}</span>
                         </ExternalLink>
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={handleSignOut} className='cursor-pointer'>
-                        <LogOut className='mr-2 h-4 w-4' />
+                        <LogOut />
                         <span>{t('logout')}</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -204,7 +204,7 @@ function UpgradePlanEntry() {
           'font-medium text-blue-600 focus:bg-blue-500/10 focus:text-blue-600 dark:text-blue-400 dark:focus:text-blue-400',
       )}
     >
-      <Icon className={cn('mr-2 h-4 w-4', !isPaid && 'text-blue-600 dark:text-blue-400')} />
+      <Icon className={cn(!isPaid && 'text-blue-600 dark:text-blue-400')} />
       <span>{t('upgradePlan')}</span>
     </DropdownMenuItem>
   );

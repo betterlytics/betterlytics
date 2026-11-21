@@ -113,14 +113,14 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
 
       {showManagementButtons && billingData.isExistingPaidSubscriber && (
         <div className='flex flex-wrap justify-end gap-2'>
-          <Button onClick={handleManageSubscription} size='sm' className='flex items-center gap-2'>
-            <ExternalLink className='mr-2 h-4 w-4' />
+          <Button onClick={handleManageSubscription} size='sm'>
+            <ExternalLink />
             {isCanceled ? t('reactivate') : isPastDue ? t('updatePayment') : t('manage')}
           </Button>
 
           {canCancel && (
             <CancelSubscriptionDialog planId={subscription.planId} isActive={canCancel}>
-              <Button variant='outline' size='sm' className='flex items-center gap-2'>
+              <Button variant='outline' size='sm'>
                 <AlertTriangle className='h-4 w-4' />
                 {t('cancel')}
               </Button>
