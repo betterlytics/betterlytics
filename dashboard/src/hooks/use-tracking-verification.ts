@@ -1,12 +1,15 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { useDashboardId } from './use-dashboard-id';
 import { verifyTrackingInstallation } from '@/app/actions/index.actions';
+import type { TrackingStatus } from '@/entities/dashboard/verification.entities';
 import { toast } from 'sonner';
 
 export function useTrackingVerificationWithId(dashboardId: string | undefined) {
-  const [isVerified, setIsVerified] = useState<boolean | null>(null);
+  const t = useTranslations('components.integration');
+  const [status, setStatus] = useState<TrackingStatus | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
 
   const verifySilently = useCallback(async () => {
@@ -14,18 +17,18 @@ export function useTrackingVerificationWithId(dashboardId: string | undefined) {
 
     try {
       const result = await verifyTrackingInstallation(dashboardId);
-      setIsVerified(result);
-      return result;
+      setStatus(result);
+      return result.isReceiving;
     } catch {
       return false;
     }
   }, [dashboardId]);
 
   useEffect(() => {
-    if (dashboardId && isVerified === null) {
+    if (dashboardId && status === null) {
       verifySilently();
     }
-  }, [dashboardId, isVerified, verifySilently]);
+  }, [dashboardId, status, verifySilently]);
 
   const verify = useCallback(async () => {
     if (!dashboardId) {
@@ -37,26 +40,30 @@ export function useTrackingVerificationWithId(dashboardId: string | undefined) {
 
     try {
       const result = await verifyTrackingInstallation(dashboardId);
-      setIsVerified(result);
+      setStatus(result);
 
-      if (result) {
+      if (result.isReceiving) {
         toast.success('Tracking verified successfully!');
+      } else if (result.lastEventAt) {
+        toast.info(t('noRecentEvents'));
       } else {
         toast.info('No data received yet - visit your website to generate some events');
       }
 
-      return result;
+      return result.isReceiving;
     } catch {
       toast.error('Failed to verify tracking status');
       return false;
     } finally {
       setIsVerifying(false);
     }
-  }, [dashboardId]);
+  }, [dashboardId, t]);
 
   return {
-    isVerified: isVerified === true,
-    isLoading: isVerified === null,
+    isVerified: status?.isReceiving === true,
+    hasReceivedData: status?.lastEventAt != null,
+    lastEventAt: status?.lastEventAt ?? null,
+    isLoading: status === null,
     isVerifying,
     verifySilently,
     verify,

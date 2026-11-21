@@ -31,3 +31,20 @@ export async function findSentRecipientKeys(recipientKeys: string[], campaignKey
   });
   return new Set(rows.map((r) => r.recipientKey));
 }
+
+/** When each recipient was sent an email whose campaign key starts with the prefix, for campaigns keyed per episode. */
+export async function findSentTimesByCampaignPrefix(
+  recipientKeys: string[],
+  campaignKeyPrefix: string,
+): Promise<Map<string, Date[]>> {
+  if (recipientKeys.length === 0) return new Map();
+  const rows = await prisma.sentEmail.findMany({
+    where: { recipientKey: { in: recipientKeys }, campaignKey: { startsWith: campaignKeyPrefix } },
+    select: { recipientKey: true, sentAt: true },
+  });
+  const byRecipient = new Map<string, Date[]>();
+  for (const row of rows) {
+    byRecipient.set(row.recipientKey, [...(byRecipient.get(row.recipientKey) ?? []), row.sentAt]);
+  }
+  return byRecipient;
+}

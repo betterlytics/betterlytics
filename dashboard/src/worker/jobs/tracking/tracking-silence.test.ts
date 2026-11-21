@@ -1,0 +1,258 @@
+import { describe, expect, it } from 'vitest';
+import {
+  classifyTrackingSilence,
+  earliestNeededDay,
+  findSilenceCandidates,
+  hasBaseline,
+  isNewEpisode,
+  isOutage,
+  isSilent,
+  type DailyEventTotals,
+} from '@/worker/jobs/tracking/tracking-silence';
+
+const NOW = new Date('2026-07-26T12:00:00Z');
+
+function days(entries: Record<string, number>): DailyEventTotals {
+  return new Map(Object.entries(entries));
+}
+
+const STEADY_UNTIL_JUL_24 = days({
+  '2026-07-19': 30,
+  '2026-07-20': 30,
+  '2026-07-21': 30,
+  '2026-07-22': 30,
+  '2026-07-23': 30,
+  '2026-07-24': 12,
+});
+
+const ACTIVE_TODAY = days({
+  '2026-07-21': 50,
+  '2026-07-22': 50,
+  '2026-07-23': 50,
+  '2026-07-24': 50,
+  '2026-07-25': 50,
+  '2026-07-26': 5,
+});
+
+describe('hasBaseline', () => {
+  it('needs events on each of the 5 full days before the last event, averaging at least 20', () => {
+    expect(hasBaseline(STEADY_UNTIL_JUL_24, '2026-07-24')).toBe(true);
+    expect(
+      hasBaseline(
+        days({ '2026-07-19': 20, '2026-07-20': 20, '2026-07-21': 20, '2026-07-22': 20, '2026-07-23': 20 }),
+        '2026-07-24',
+      ),
+    ).toBe(true);
+  });
+
+  it('rejects a window with a missed day, even with high volume', () => {
+    expect(
+      hasBaseline(
+        days({ '2026-07-19': 500, '2026-07-20': 500, '2026-07-22': 500, '2026-07-23': 500 }),
+        '2026-07-24',
+      ),
+    ).toBe(false);
+  });
+
+  it('rejects a low-traffic site averaging under 20 a day', () => {
+    expect(
+      hasBaseline(
+        days({ '2026-07-19': 19, '2026-07-20': 19, '2026-07-21': 19, '2026-07-22': 19, '2026-07-23': 20 }),
+        '2026-07-24',
+      ),
+    ).toBe(false);
+  });
+
+  it('ignores the last-event day itself', () => {
+    expect(
+      hasBaseline(
+        days({ '2026-07-20': 30, '2026-07-21': 30, '2026-07-22': 30, '2026-07-23': 30, '2026-07-24': 900 }),
+        '2026-07-24',
+      ),
+    ).toBe(false);
+  });
+});
+
+describe('isSilent', () => {
+  it('turns silent once 48 hours pass with no events', () => {
+    expect(isSilent(new Date('2026-07-24T12:00:01Z'), NOW)).toBe(false);
+    expect(isSilent(new Date('2026-07-24T12:00:00Z'), NOW)).toBe(true);
+  });
+});
+
+describe('isOutage', () => {
+  it('trips only when more than 20% of baseline sites are silent', () => {
+    expect(isOutage(1, 5)).toBe(false);
+    expect(isOutage(2, 9)).toBe(true);
+    expect(isOutage(0, 0)).toBe(false);
+  });
+});
+
+describe('findSilenceCandidates', () => {
+  it('picks sites with nothing today whose last active day is inside the lookback', () => {
+    const dailyBySite = new Map([
+      ['silent', STEADY_UNTIL_JUL_24],
+      ['active', ACTIVE_TODAY],
+      ['long-gone', days({ '2026-07-10': 100, '2026-07-21': 100 })],
+    ]);
+    expect(findSilenceCandidates(dailyBySite, NOW)).toEqual(['silent']);
+  });
+
+  it('fetches enough history for the oldest baseline window', () => {
+    expect(earliestNeededDay(NOW)).toBe('2026-07-17');
+  });
+});
+
+describe('classifyTrackingSilence', () => {
+  it('flags a baseline site silent for 48 hours and counts active baseline sites', () => {
+    const dailyBySite = new Map([
+      ['silent', STEADY_UNTIL_JUL_24],
+      ['a', ACTIVE_TODAY],
+      ['b', ACTIVE_TODAY],
+      ['c', ACTIVE_TODAY],
+      ['d', ACTIVE_TODAY],
+    ]);
+    const lastEventAt = new Date('2026-07-24T10:00:00Z');
+    const result = classifyTrackingSilence(dailyBySite, new Map([['silent', lastEventAt]]), NOW);
+    expect(result).toEqual({ baselineSiteCount: 5, silent: [{ siteId: 'silent', lastEventAt }], isOutage: false });
+  });
+
+  it('does not flag a candidate whose last event is under 48 hours old', () => {
+    const result = classifyTrackingSilence(
+      new Map([['quiet-night', STEADY_UNTIL_JUL_24]]),
+      new Map([['quiet-night', new Date('2026-07-24T12:00:01Z')]]),
+      NOW,
+    );
+    expect(result).toEqual({ baselineSiteCount: 1, silent: [], isOutage: false });
+  });
+
+  it('never flags sites without a baseline (low-traffic or seasonal)', () => {
+    const seasonal = days({
+      '2026-07-19': 300,
+      '2026-07-21': 300,
+      '2026-07-22': 300,
+      '2026-07-23': 300,
+      '2026-07-24': 300,
+    });
+    const lowTraffic = days({
+      '2026-07-19': 3,
+      '2026-07-20': 3,
+      '2026-07-21': 3,
+      '2026-07-22': 3,
+      '2026-07-23': 3,
+      '2026-07-24': 3,
+    });
+    const result = classifyTrackingSilence(
+      new Map([
+        ['seasonal', seasonal],
+        ['low', lowTraffic],
+      ]),
+      new Map([
+        ['seasonal', new Date('2026-07-24T10:00:00Z')],
+        ['low', new Date('2026-07-24T10:00:00Z')],
+      ]),
+      NOW,
+    );
+    expect(result).toEqual({ baselineSiteCount: 0, silent: [], isOutage: false });
+  });
+
+  it('needs the baseline rebuilt after tracking resumes: a stray event after a silence never triggers', () => {
+    const daily = days({
+      '2026-07-19': 30,
+      '2026-07-20': 30,
+      '2026-07-21': 30,
+      '2026-07-22': 30,
+      '2026-07-23': 30,
+      '2026-07-25': 1,
+    });
+    const result = classifyTrackingSilence(
+      new Map([['resumed', daily]]),
+      new Map([['resumed', new Date('2026-07-25T08:00:00Z')]]),
+      new Date('2026-07-26T09:00:00Z'),
+    );
+    expect(result.silent).toEqual([]);
+  });
+
+  it('ignores silences older than 96 hours', () => {
+    const lastEventAt = new Date('2026-07-24T10:00:00Z');
+    const dailyBySite = new Map([['old', STEADY_UNTIL_JUL_24]]);
+    const lastEventAtByCandidate = new Map([['old', lastEventAt]]);
+
+    const justInside = new Date('2026-07-28T09:59:59Z');
+    expect(findSilenceCandidates(dailyBySite, justInside)).toEqual(['old']);
+    expect(classifyTrackingSilence(dailyBySite, lastEventAtByCandidate, justInside).silent).toEqual([
+      { siteId: 'old', lastEventAt },
+    ]);
+
+    expect(classifyTrackingSilence(dailyBySite, lastEventAtByCandidate, new Date('2026-07-28T10:00:00Z'))).toEqual(
+      {
+        baselineSiteCount: 0,
+        silent: [],
+        isOutage: false,
+      },
+    );
+  });
+
+  it('reports an outage when more than 20% of baseline sites go silent in the same check', () => {
+    const lastEventAt = new Date('2026-07-24T10:00:00Z');
+    const dailyBySite = new Map([
+      ['s1', STEADY_UNTIL_JUL_24],
+      ['s2', STEADY_UNTIL_JUL_24],
+      ['a', ACTIVE_TODAY],
+      ['b', ACTIVE_TODAY],
+      ['c', ACTIVE_TODAY],
+    ]);
+    const result = classifyTrackingSilence(
+      dailyBySite,
+      new Map([
+        ['s1', lastEventAt],
+        ['s2', lastEventAt],
+      ]),
+      NOW,
+    );
+    expect(result.baselineSiteCount).toBe(5);
+    expect(result.silent).toHaveLength(2);
+    expect(result.isOutage).toBe(true);
+  });
+});
+
+describe('isNewEpisode', () => {
+  const firstSilence = new Date('2026-07-24T15:00:00Z');
+  const firstSentAt = new Date('2026-07-26T15:00:00Z');
+
+  it('rejects the episode that was already emailed', () => {
+    expect(isNewEpisode(firstSilence, [firstSentAt])).toBe(false);
+  });
+
+  it('rejects a new silence after a partial-day resume, even though no UTC day in the window was empty', () => {
+    // Quiet from Jul 24 15:00, emailed Jul 26 15:00, resumed Jul 26 18:00, quiet again from Jul 31 09:00
+    const daily = days({
+      '2026-07-24': 20,
+      '2026-07-26': 10,
+      '2026-07-27': 30,
+      '2026-07-28': 30,
+      '2026-07-29': 30,
+      '2026-07-30': 30,
+      '2026-07-31': 15,
+    });
+    const secondSilence = new Date('2026-07-31T09:00:00Z');
+    expect(hasBaseline(daily, '2026-07-31')).toBe(true);
+    expect(isNewEpisode(secondSilence, [firstSentAt])).toBe(false);
+  });
+
+  it('allows a new email once five full days after the day the previous email was sent have events', () => {
+    expect(isNewEpisode(new Date('2026-07-31T09:00:00Z'), [firstSentAt])).toBe(false);
+    expect(isNewEpisode(new Date('2026-08-01T09:00:00Z'), [firstSentAt])).toBe(true);
+  });
+
+  it('counts from the send day when the silence was detected late', () => {
+    // Last event Nov 11 00:03, emailed 90 hours later on Nov 14, resumed late Nov 14
+    const sentAt = new Date('2026-11-14T18:03:00Z');
+    expect(isNewEpisode(new Date('2026-11-19T09:00:00Z'), [sentAt])).toBe(false);
+    expect(isNewEpisode(new Date('2026-11-20T09:00:00Z'), [sentAt])).toBe(true);
+  });
+
+  it('allows the first episode for a dashboard', () => {
+    expect(isNewEpisode(firstSilence, [])).toBe(true);
+  });
+});
