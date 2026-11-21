@@ -56,9 +56,22 @@
     typeof __BL_CAPTURE_HASH__ === "string" ? __BL_CAPTURE_HASH__ : "dev";
 
   // A capture link from the dashboard, or the Heatmaps page framing the live page: capture.js
-  // takes over and nothing is tracked, whatever the replay, heatmap, sampling and consent settings say
+  // takes over and nothing is tracked, whatever the replay, heatmap, sampling and consent settings say.
+  // The site's own calls keep working while nothing is sent.
   if (isCaptureMode()) {
+    var noop = function () {};
+    window.betterlytics = {
+      event: noop,
+      setGlobalProperties: noop,
+      clearGlobalProperties: noop,
+      getGlobalProperties: function () {
+        return {};
+      },
+      setReplayConsent: noop,
+    };
+    // The page can change its address before capture.js arrives
     window.__betterlytics_capture__ = {
+      hash: window.location.hash,
       serverUrl: serverUrl,
       scriptsBaseUrl: scriptsBaseUrl,
       normalize: normalize,
