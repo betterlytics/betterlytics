@@ -2,6 +2,8 @@ use chrono::{DateTime, Utc};
 use moka::sync::Cache;
 use once_cell::sync::Lazy;
 use rand::Rng;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 
 /// How long a session stays alive without activity
@@ -11,6 +13,8 @@ pub const SESSION_EXPIRY: Duration = Duration::from_secs(30 * 60);
 struct SessionEntry {
     session_id: u64,
     created_at: DateTime<Utc>,
+    /// Set once any pageview lands in the session; shared so marking it needs no re-insert
+    has_pageview: Arc<AtomicBool>,
 }
 
 /// A session recovered from database, used to pre-populate the cache on boot.
@@ -19,6 +23,7 @@ pub struct WarmSession {
     pub visitor_fingerprint: u64,
     pub session_id: u64,
     pub created_at: DateTime<Utc>,
+    pub has_pageview: bool,
 }
 
 /// In-memory `{site}-{fingerprint}` -> session map, expiring after `SESSION_EXPIRY` of inactivity.
@@ -33,36 +38,59 @@ impl SessionCache {
         }
     }
 
-    /// Return the visitor's existing session, or assign a new one. On a miss, the lazily-computed
+    /// Return the visitor's existing session without assigning one. On a miss, the lazily-computed
     /// `previous_fingerprint` is tried so a visitor keeps their session across a midnight salt rotation.
+    fn get(
+        &self,
+        site_id: &str,
+        visitor_fingerprint: u64,
+        previous_fingerprint: impl FnOnce() -> Option<u64>,
+    ) -> Option<SessionEntry> {
+        if let Some(entry) = self.entries.get(&format!("{}-{}", site_id, visitor_fingerprint)) {
+            return Some(entry);
+        }
+
+        let prev_fp = previous_fingerprint().filter(|&fp| fp != visitor_fingerprint)?;
+        self.entries.get(&format!("{}-{}", site_id, prev_fp))
+    }
+
+    /// Return the visitor's existing session (see `get`), or assign a new one.
     fn get_or_create(
         &self,
         site_id: &str,
         visitor_fingerprint: u64,
         previous_fingerprint: impl FnOnce() -> Option<u64>,
         event_timestamp: DateTime<Utc>,
+        is_pageview: bool,
     ) -> (u64, DateTime<Utc>) {
-        let cache_key = format!("{}-{}", site_id, visitor_fingerprint);
-
-        if let Some(entry) = self.entries.get(&cache_key) {
-            return (entry.session_id, entry.created_at);
+        let entry = self
+            .get(site_id, visitor_fingerprint, previous_fingerprint)
+            .unwrap_or_else(|| {
+                let entry = SessionEntry {
+                    session_id: rand::thread_rng().r#gen(),
+                    created_at: event_timestamp,
+                    has_pageview: Arc::new(AtomicBool::new(false)),
+                };
+                self.entries
+                    .insert(format!("{}-{}", site_id, visitor_fingerprint), entry.clone());
+                entry
+            });
+        if is_pageview {
+            entry.has_pageview.store(true, Ordering::Relaxed);
         }
-
-        if let Some(prev_fp) = previous_fingerprint() {
-            if prev_fp != visitor_fingerprint {
-                let previous_key = format!("{}-{}", site_id, prev_fp);
-                if let Some(entry) = self.entries.get(&previous_key) {
-                    return (entry.session_id, entry.created_at);
-                }
-            }
-        }
-
-        let entry = SessionEntry {
-            session_id: rand::thread_rng().r#gen(),
-            created_at: event_timestamp,
-        };
-        self.entries.insert(cache_key, entry.clone());
         (entry.session_id, entry.created_at)
+    }
+
+    /// Like `get`, but only for a session that has had a pageview.
+    fn get_pageview_session(
+        &self,
+        site_id: &str,
+        visitor_fingerprint: u64,
+        previous_fingerprint: impl FnOnce() -> Option<u64>,
+    ) -> Option<(u64, DateTime<Utc>)> {
+        self.get(site_id, visitor_fingerprint, previous_fingerprint)
+            .filter(|entry| entry.has_pageview.load(Ordering::Relaxed))
+            .map(|entry| (entry.session_id, entry.created_at))
     }
 
     /// Pre-populate with recovered sessions; returns the number inserted.
@@ -74,6 +102,7 @@ impl SessionCache {
                 SessionEntry {
                     session_id: s.session_id,
                     created_at: s.created_at,
+                    has_pageview: Arc::new(AtomicBool::new(s.has_pageview)),
                 },
             );
             count += 1;
@@ -84,19 +113,32 @@ impl SessionCache {
 
 static SESSION_CACHE: Lazy<SessionCache> = Lazy::new(SessionCache::new);
 
-/// Resolve (or create) the session id for an event.
+/// Resolve (or create) the session id for an event. `is_pageview` marks the session as
+/// pageview-backed.
 pub fn get_or_create_session_id(
     site_id: &str,
     visitor_fingerprint: u64,
     previous_fingerprint: impl FnOnce() -> Option<u64>,
     event_timestamp: DateTime<Utc>,
+    is_pageview: bool,
 ) -> (u64, DateTime<Utc>) {
     SESSION_CACHE.get_or_create(
         site_id,
         visitor_fingerprint,
         previous_fingerprint,
         event_timestamp,
+        is_pageview,
     )
+}
+
+/// Look up the visitor's existing session id without ever starting one; `None` unless the
+/// session has had a pageview.
+pub fn find_pageview_session_id(
+    site_id: &str,
+    visitor_fingerprint: u64,
+    previous_fingerprint: impl FnOnce() -> Option<u64>,
+) -> Option<(u64, DateTime<Utc>)> {
+    SESSION_CACHE.get_pageview_session(site_id, visitor_fingerprint, previous_fingerprint)
 }
 
 /// Pre-populate the cache with recovered sessions so they survive a restart; returns the number
@@ -110,12 +152,13 @@ pub fn warm(sessions: impl IntoIterator<Item = WarmSession>) -> usize {
 mod tests {
     use super::*;
 
-    fn warm_session(fingerprint: u64, session_id: u64, created_at: DateTime<Utc>) -> WarmSession {
+    fn warm_session(fingerprint: u64, session_id: u64, created_at: DateTime<Utc>, has_pageview: bool) -> WarmSession {
         WarmSession {
             site_id: "site".to_string(),
             visitor_fingerprint: fingerprint,
             session_id,
             created_at,
+            has_pageview,
         }
     }
 
@@ -124,9 +167,9 @@ mod tests {
         let cache = SessionCache::new();
         let created_at = Utc::now();
 
-        assert_eq!(cache.warm([warm_session(1, 42, created_at)]), 1);
+        assert_eq!(cache.warm([warm_session(1, 42, created_at, true)]), 1);
 
-        let (session_id, session_start) = cache.get_or_create("site", 1, || None, Utc::now());
+        let (session_id, session_start) = cache.get_or_create("site", 1, || None, Utc::now(), false);
         assert_eq!(session_id, 42);
         assert_eq!(session_start, created_at);
     }
@@ -135,18 +178,62 @@ mod tests {
     fn previous_fingerprint_bridges_a_rotation() {
         let cache = SessionCache::new();
 
-        let (session_a, _) = cache.get_or_create("site", 100, || None, Utc::now());
+        let (session_a, _) = cache.get_or_create("site", 100, || None, Utc::now(), true);
         // Current fp is now B (salt rotated), previous is A -> same session.
-        let (session_b, _) = cache.get_or_create("site", 200, || Some(100), Utc::now());
+        let (session_b, _) = cache.get_or_create("site", 200, || Some(100), Utc::now(), true);
 
         assert_eq!(session_a, session_b);
     }
 
     #[test]
+    fn pageview_lookup_never_creates_a_session() {
+        let cache = SessionCache::new();
+        assert_eq!(cache.get_pageview_session("site", 1, || None), None);
+        assert_eq!(cache.get_pageview_session("site", 1, || None), None);
+
+        let (created, created_at) = cache.get_or_create("site", 1, || None, Utc::now(), true);
+        assert_eq!(cache.get_pageview_session("site", 1, || None), Some((created, created_at)));
+        assert_eq!(cache.get_pageview_session("other-site", 1, || None), None);
+    }
+
+    #[test]
+    fn pageview_lookup_ignores_sessions_without_a_pageview() {
+        let cache = SessionCache::new();
+        let (session, _) = cache.get_or_create("site", 1, || None, Utc::now(), false);
+        assert_eq!(cache.get_pageview_session("site", 1, || None), None);
+
+        // A later pageview in the same session makes it eligible
+        let (same, _) = cache.get_or_create("site", 1, || None, Utc::now(), true);
+        assert_eq!(same, session);
+        assert_eq!(cache.get_pageview_session("site", 1, || None).map(|(id, _)| id), Some(session));
+
+        // And a later non-pageview event does not clear it
+        cache.get_or_create("site", 1, || None, Utc::now(), false);
+        assert_eq!(cache.get_pageview_session("site", 1, || None).map(|(id, _)| id), Some(session));
+    }
+
+    #[test]
+    fn pageview_lookup_follows_the_warmed_flag() {
+        let cache = SessionCache::new();
+        let created_at = Utc::now();
+        cache.warm([warm_session(1, 42, created_at, true), warm_session(2, 43, created_at, false)]);
+        assert_eq!(cache.get_pageview_session("site", 1, || None), Some((42, created_at)));
+        assert_eq!(cache.get_pageview_session("site", 2, || None), None);
+    }
+
+    #[test]
+    fn pageview_lookup_bridges_a_rotation() {
+        let cache = SessionCache::new();
+        let (session, _) = cache.get_or_create("site", 100, || None, Utc::now(), true);
+        assert_eq!(cache.get_pageview_session("site", 200, || Some(100)).map(|(id, _)| id), Some(session));
+        assert_eq!(cache.get_pageview_session("site", 200, || Some(300)), None);
+    }
+
+    #[test]
     fn distinct_visitors_get_distinct_sessions() {
         let cache = SessionCache::new();
-        let (a, _) = cache.get_or_create("site", 1, || None, Utc::now());
-        let (b, _) = cache.get_or_create("site", 2, || None, Utc::now());
+        let (a, _) = cache.get_or_create("site", 1, || None, Utc::now(), true);
+        let (b, _) = cache.get_or_create("site", 2, || None, Utc::now(), true);
         assert_ne!(a, b);
     }
 }

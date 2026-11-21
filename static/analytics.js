@@ -49,6 +49,46 @@
   var replayScriptHash =
     typeof __BL_REPLAY_HASH__ === "string" ? __BL_REPLAY_HASH__ : "dev";
   var replayScriptUrl = `${scriptsBaseUrl}/replay.js?v=${replayScriptHash}`;
+  var heatmapScriptHash =
+    typeof __BL_HEATMAP_HASH__ === "string" ? __BL_HEATMAP_HASH__ : "dev";
+  var heatmapScriptUrl = `${scriptsBaseUrl}/heatmap.js?v=${heatmapScriptHash}`;
+
+  // A capture link from the dashboard: snapshot this page for heatmaps and track nothing,
+  // whatever the replay, heatmap, sampling and consent settings say
+  var CAPTURE_STORAGE_KEY = "betterlytics:capture";
+  // As long as the dashboard's capture link lives
+  var CAPTURE_LINK_TTL_MS = 15 * 60 * 1000;
+  var captureLink = takeCaptureLink();
+  if (captureLink) {
+    silenceApi();
+    window.__betterlytics_capture__ = {
+      token: captureLink.token,
+      hideText: captureLink.hideText,
+      page: captureLink.page,
+      normalize: normalize,
+      serverUrl: serverUrl,
+      documentHeight: getDocumentHeight,
+      forget: function () {
+        try {
+          sessionStorage.removeItem(CAPTURE_STORAGE_KEY);
+        } catch (e) {}
+      },
+    };
+    loadScript(replayScriptUrl).catch(function () {
+      console.warn(
+        "Betterlytics: the heatmap capture could not start because replay.js did not load (blocked by the page's Content-Security-Policy or an extension?)",
+      );
+    });
+    return;
+  }
+
+  // The Heatmaps page frames the live page with #bl-preview: track nothing, and tell the
+  // dashboard how tall the page is and which page the frame ended up on
+  if (window.location.hash === "#bl-preview" && window.parent !== window) {
+    silenceApi();
+    startPreview();
+    return;
+  }
 
   // "off" | "domain" | "full" (defaults to "domain")
   var outboundLinks = script.getAttribute("data-outbound-links") ?? "domain";
@@ -71,6 +111,19 @@
 
   if (isNaN(replaySamplePct) || replaySamplePct < 0 || replaySamplePct > 100) {
     replaySamplePct = 0;
+  }
+
+  var enableHeatmaps = script.getAttribute("data-heatmaps") === "true";
+  var heatmapSamplePct = parseInt(
+    script.getAttribute("data-heatmap-sample") || "100",
+    10,
+  );
+  if (
+    isNaN(heatmapSamplePct) ||
+    heatmapSamplePct < 0 ||
+    heatmapSamplePct > 100
+  ) {
+    heatmapSamplePct = 0;
   }
 
   var initialGlobalProperties = null;
@@ -226,6 +279,107 @@
 
   for (var i = 0; i < queuedEvents.length; i++) {
     window.betterlytics.event.apply(this, queuedEvents[i]);
+  }
+
+  // The site's own calls keep working while nothing is sent
+  function silenceApi() {
+    var noop = function () {};
+    window.betterlytics = {
+      event: noop,
+      setGlobalProperties: noop,
+      clearGlobalProperties: noop,
+      getGlobalProperties: function () {
+        return {};
+      },
+      setReplayConsent: noop,
+    };
+  }
+
+  // Messages go only to the dashboard, the origin this script is served from, since the page's
+  // height and path can tell another site something about the visitor
+  function startPreview() {
+    var dashboardOrigin;
+    try {
+      dashboardOrigin = new URL(scriptsBaseUrl).origin;
+    } catch (e) {
+      return;
+    }
+    // The heat is drawn at the frame's full width, the width visitors' clicks were recorded at,
+    // so the page's own scrollbar must not take any of it. The dashboard scrolls the frame.
+    document.documentElement.style.setProperty("scrollbar-width", "none", "important");
+    function report() {
+      window.parent.postMessage(
+        {
+          type: "betterlytics:preview",
+          height: getDocumentHeight(),
+          path: window.location.pathname,
+        },
+        dashboardOrigin,
+      );
+    }
+    // The frame keeps a visitor's window height and is scrolled along with the heatmap
+    window.addEventListener("message", function (event) {
+      if (event.source !== window.parent || event.origin !== dashboardOrigin) {
+        return;
+      }
+      var data = event.data;
+      if (
+        !data ||
+        data.type !== "betterlytics:preview-scroll" ||
+        typeof data.y !== "number"
+      ) {
+        return;
+      }
+      window.scrollTo({ top: data.y, behavior: "instant" });
+      // Scrolling can load more of the page
+      report();
+    });
+    report();
+    // Late content keeps changing the height for a while after load
+    var reports = 0;
+    var timer = setInterval(function () {
+      report();
+      if (++reports >= 20) clearInterval(timer);
+    }, 500);
+  }
+
+  // The link's token is removed from the address bar right away, so it isn't shared or
+  // bookmarked. It is kept for this tab until the link expires, so a reload (a consent
+  // banner's, say) or going on to other pages continues the capture instead of tracking a visit.
+  function takeCaptureLink() {
+    var hash = window.location.hash;
+    if (hash.indexOf("#bl-capture=") === 0) {
+      var params = new URLSearchParams(hash.slice(1));
+      var token = params.get("bl-capture");
+      try {
+        history.replaceState(
+          history.state,
+          "",
+          window.location.pathname + window.location.search,
+        );
+      } catch (e) {}
+      if (!token) return null;
+      // Anyone can send a visitor a link like this, so only a page path is shown in the panel
+      var page = params.get("bl-page") || "";
+      var link = {
+        token: token,
+        hideText: params.get("bl-hide-text") === "1",
+        page: /^\/\S{0,2047}$/.test(page) ? page : "",
+        expires: Date.now() + CAPTURE_LINK_TTL_MS,
+      };
+      try {
+        sessionStorage.setItem(CAPTURE_STORAGE_KEY, JSON.stringify(link));
+      } catch (e) {}
+      return link;
+    }
+    try {
+      var stored = JSON.parse(sessionStorage.getItem(CAPTURE_STORAGE_KEY));
+      if (stored && stored.token && stored.expires > Date.now()) {
+        return stored;
+      }
+      if (stored) sessionStorage.removeItem(CAPTURE_STORAGE_KEY);
+    } catch (e) {}
+    return null;
   }
 
   function loadScript(src) {
@@ -401,6 +555,35 @@
   // Send initial page view
   sendEvent("pageview");
 
+  // Sampled per page view; heatmap.js is only downloaded once a page view is sampled
+  var heatmapPageview = function () {};
+  if (enableHeatmaps && !automation) {
+    var heatmapConfig = {
+      siteId: siteId,
+      serverUrl: serverUrl,
+      normalize: normalize,
+      documentHeight: getDocumentHeight,
+      sampled: false,
+    };
+    window.__betterlytics_heatmap_config__ = heatmapConfig;
+    var heatmapRequested = false;
+    heatmapPageview = function () {
+      var sampled = Math.random() * 100 < heatmapSamplePct;
+      var screenResolution = window.screen.width + "x" + window.screen.height;
+      if (window.__betterlytics_heatmap__) {
+        window.__betterlytics_heatmap__.pageview(sampled, screenResolution);
+        return;
+      }
+      heatmapConfig.sampled = sampled;
+      heatmapConfig.screenResolution = screenResolution;
+      if (sampled && !heatmapRequested) {
+        heatmapRequested = true;
+        loadScript(heatmapScriptUrl).catch(function () {});
+      }
+    };
+    heatmapPageview();
+  }
+
   // Detect SPA navigation
   if (window.history.pushState) {
     var originalPushState = history.pushState;
@@ -412,6 +595,7 @@
         resetEngagement();
         monitorContentHeight();
         sendEvent("pageview");
+        heatmapPageview();
       }
     };
 
@@ -422,6 +606,7 @@
         resetEngagement();
         monitorContentHeight();
         sendEvent("pageview");
+        heatmapPageview();
       }
     });
   }

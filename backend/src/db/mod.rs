@@ -13,14 +13,16 @@ use crate::metrics::MetricsCollector;
 use crate::processing::{BotEvent, ProcessedEvent};
 
 mod models;
-pub use models::{ActiveSessionRow, BotEventRow, EventRow, ReferrerSourceCategoryRow, SessionReplayMetaRow, SessionReplayRow, SessionReplaySegmentRow, TelemetryPingRow};
+pub use models::{ActiveSessionRow, BotEventRow, EventRow, HeatmapCaptureRow, HeatmapClickRow, ReferrerSourceCategoryRow, SessionReplayMetaRow, SessionReplayRow, SessionReplaySegmentRow, SessionReplaySnapshotRow, TelemetryPingRow};
 
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
 const BOT_CHANNEL_CAPACITY: usize = 10_000;
+const HEATMAP_CHANNEL_CAPACITY: usize = 100_000;
 const INSERTER_TIMEOUT_SECS: u64 = 5;
 /// Cap on awaiting the insert acknowledgement, so a black-hole connection
 /// surfaces as a retryable timeout instead of hanging the flush.
 const INSERTER_END_TIMEOUT_SECS: u64 = 10;
+const HEATMAP_CAPTURE_TIMEOUT_SECS: u64 = 30;
 const INSERTER_PERIOD_SECS: u64 = 10;
 /// Flush when the batch reaches this many rows. Sized so even validation's
 /// worst-case event (~30 KB of properties + error payload) keeps a batch
@@ -37,14 +39,28 @@ pub struct Database {
 
 pub type SharedDatabase = Arc<Database>;
 
+pub struct IngestChannels {
+    pub events: Sender<ProcessedEvent>,
+    pub bot_events: Sender<BotEvent>,
+    pub heatmap_clicks: Sender<HeatmapClickRow>,
+}
+
+/// The inserter tasks only return once their ingest channel closes
+pub struct InserterHandles {
+    pub events: JoinHandle<()>,
+    pub bot_events: JoinHandle<()>,
+    pub heatmap_clicks: JoinHandle<()>,
+}
+
 impl Database {
-    /// Creates the database handle plus the event and bot-event ingest channels
+    /// Creates the database handle plus the event, bot-event and heatmap-click ingest channels
     pub async fn new(
         clickhouse: Arc<ClickHouseClient>,
         metrics: Option<Arc<MetricsCollector>>,
-    ) -> Result<(Self, Sender<ProcessedEvent>, Sender<BotEvent>, JoinHandle<()>, JoinHandle<()>)> {
+    ) -> Result<(Self, IngestChannels, InserterHandles)> {
         let (event_tx, event_rx) = mpsc::channel(EVENT_CHANNEL_CAPACITY);
         let (bot_event_tx, bot_event_rx) = mpsc::channel(BOT_CHANNEL_CAPACITY);
+        let (heatmap_click_tx, heatmap_click_rx) = mpsc::channel(HEATMAP_CHANNEL_CAPACITY);
 
         let client = clickhouse.inner().clone();
         let inserter_handle = tokio::spawn(run_inserter(
@@ -55,14 +71,33 @@ impl Database {
             metrics.clone(),
         ));
         let bot_inserter_handle = tokio::spawn(run_inserter(
-            client,
+            client.clone(),
             "analytics.bot_events",
             bot_event_rx,
             |event: BotEvent| Some(BotEventRow::from_bot(event)),
+            metrics.clone(),
+        ));
+        let heatmap_inserter_handle = tokio::spawn(run_inserter(
+            client,
+            "analytics.heatmap_clicks",
+            heatmap_click_rx,
+            Some,
             metrics,
         ));
 
-        Ok((Self { clickhouse }, event_tx, bot_event_tx, inserter_handle, bot_inserter_handle))
+        Ok((
+            Self { clickhouse },
+            IngestChannels {
+                events: event_tx,
+                bot_events: bot_event_tx,
+                heatmap_clicks: heatmap_click_tx,
+            },
+            InserterHandles {
+                events: inserter_handle,
+                bot_events: bot_inserter_handle,
+                heatmap_clicks: heatmap_inserter_handle,
+            },
+        ))
     }
 
     /// Fetch the current session of every visitor active within `window`, from `analytics.sessions`
@@ -161,13 +196,22 @@ impl Database {
     where
         R: clickhouse::Row + serde::Serialize,
     {
+        self.insert_rows(table, std::slice::from_ref(row)).await
+    }
+
+    async fn insert_rows<R>(&self, table: &str, rows: &[R]) -> Result<()>
+    where
+        R: clickhouse::Row + serde::Serialize,
+    {
         let mut inserter = self.async_insert_client()
             .inserter(table)?
             .with_timeouts(
                 Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)),
                 Some(Duration::from_secs(INSERTER_END_TIMEOUT_SECS)),
             );
-        inserter.write(row)?;
+        for row in rows {
+            inserter.write(row)?;
+        }
         inserter.end().await?;
         Ok(())
     }
@@ -209,6 +253,32 @@ impl Database {
 
     pub async fn insert_replay_segment(&self, row: SessionReplaySegmentRow) -> Result<()> {
         self.insert_one("analytics.session_replay_segments", &row).await
+    }
+
+    pub async fn insert_replay_snapshots(&self, rows: &[SessionReplaySnapshotRow]) -> Result<()> {
+        self.insert_rows("analytics.session_replay_snapshots", rows).await
+    }
+
+    /// A plain insert: async_insert would buffer a snapshot of up to 40 MB in the server's queue
+    pub async fn insert_heatmap_capture(&self, row: HeatmapCaptureRow) -> Result<()> {
+        let mut insert = self.clickhouse.inner().insert::<HeatmapCaptureRow>("analytics.heatmap_captures")?;
+        insert.write(&row).await?;
+        tokio::time::timeout(Duration::from_secs(HEATMAP_CAPTURE_TIMEOUT_SECS), insert.end())
+            .await
+            .map_err(|_| anyhow::anyhow!("heatmap capture insert timed out"))??;
+        Ok(())
+    }
+
+    pub async fn delete_heatmap_captures(&self, site_id: &str, capture_ids: &[String]) -> Result<()> {
+        let delete = self.clickhouse.inner()
+            .query("DELETE FROM analytics.heatmap_captures WHERE site_id = ? AND has(?, capture_id)")
+            .bind(site_id)
+            .bind(capture_ids)
+            .execute();
+        tokio::time::timeout(Duration::from_secs(HEATMAP_CAPTURE_TIMEOUT_SECS), delete)
+            .await
+            .map_err(|_| anyhow::anyhow!("heatmap capture delete timed out"))??;
+        Ok(())
     }
 
     pub async fn insert_telemetry_ping(&self, row: TelemetryPingRow) -> Result<()> {
@@ -404,12 +474,23 @@ fn server_exception_code(response: &str) -> Option<u32> {
 /// sessions, not total history; `argMax(.., session_end)` picks each visitor's current session.
 fn active_sessions_query(window: Duration) -> String {
     let window_secs = window.as_secs();
+    // Sessions are merged before picking each visitor's latest, so a pageview stored in
+    // an older, unmerged part of an active session still counts.
     format!(
-        "SELECT site_id, toUInt64(visitor_id) AS visitor_id, \
+        "SELECT site_id, visitor_id, \
                 argMax(session_id, session_end) AS session_id, \
-                argMax(session_created_at, session_end) AS session_created_at \
-         FROM analytics.sessions \
-         WHERE session_end > now() - toIntervalSecond({window_secs}) \
+                argMax(session_created_at, session_end) AS session_created_at, \
+                toBool(argMax(pageviews, session_end) > 0) AS has_pageview \
+         FROM ( \
+             SELECT site_id, session_created_at, session_id, toUInt64(any(visitor_id)) AS visitor_id, \
+                    max(session_end) AS session_end, sum(pageview_count) AS pageviews \
+             FROM analytics.sessions \
+             WHERE (site_id, session_created_at, session_id) IN ( \
+                 SELECT site_id, session_created_at, session_id FROM analytics.sessions \
+                 WHERE session_end > now() - toIntervalSecond({window_secs}) \
+             ) \
+             GROUP BY site_id, session_created_at, session_id \
+         ) \
          GROUP BY site_id, visitor_id"
     )
 }
