@@ -48,6 +48,13 @@ export function buildSelfHostedBillingData(): UserBillingData {
         end: periodEnd,
       },
     },
+    replayUsage: {
+      current: 0,
+      limit: 999_999_999,
+      remaining: 999_999_999,
+      isOverLimit: false,
+      usagePercentage: 0,
+    },
   };
 }
 
@@ -100,8 +107,20 @@ export const UsageDataSchema = z.object({
   }),
 });
 
+export const ReplayUsageDataSchema = UsageDataSchema.pick({
+  current: true,
+  limit: true,
+  remaining: true,
+  isOverLimit: true,
+  usagePercentage: true,
+});
+
 export const EventCountResultSchema = z.object({
   total: z.number(),
+});
+
+export const RecordedSessionCountResultSchema = z.object({
+  total: z.coerce.number(),
 });
 
 export const DailySiteUsageSchema = z
@@ -210,6 +229,7 @@ export const UserBillingDataSchema = z.object({
     cancelAtPeriodEnd: z.boolean(),
   }),
   usage: UsageDataSchema,
+  replayUsage: ReplayUsageDataSchema,
   isExistingPaidSubscriber: z.boolean(),
 });
 
@@ -217,6 +237,7 @@ export type Currency = z.infer<typeof CurrencySchema>;
 export type Subscription = z.infer<typeof SubscriptionSchema>;
 export type UpsertSubscriptionData = z.infer<typeof UpsertSubscriptionSchema>;
 export type UsageData = z.infer<typeof UsageDataSchema>;
+export type ReplayUsageData = z.infer<typeof ReplayUsageDataSchema>;
 export type EventCountResult = z.infer<typeof EventCountResultSchema>;
 export type DailySiteUsage = z.infer<typeof DailySiteUsageSchema>;
 export type BillableEventType = (typeof BILLABLE_EVENT_TYPES)[number];
