@@ -19,6 +19,10 @@ type FilterBandProps = {
   action?: ReactNode;
 };
 
+// Each surface fades its own colour: an inherited variable would restyle every pill per frame
+const BAND_SURFACE =
+  'transition-colors duration-200 ease-out motion-reduce:transition-none [[data-slot=active-filters-band]:hover:not(:has(button:not([data-band-toggle]):hover))_&]:bg-(--band-hover)';
+
 /*
  * Pills always wrap at one width, so none moves on toggle: collapsed is the same list clipped to row one.
  * The space left on that row shows a faded peek, an inert copy of the next pill.
@@ -68,8 +72,18 @@ export function FilterBand({
         peekLeft === null && expanded && 'opacity-0',
       )}
     >
-      <span className='w-6 bg-linear-to-r from-transparent to-(--band-bg) sm:w-8' />
-      <span className='flex items-center bg-(--band-bg) px-1.25 text-xs font-medium whitespace-nowrap tabular-nums max-sm:hidden'>
+      <span
+        className={cn(
+          'bg-primary w-6 [mask-image:linear-gradient(to_right,transparent,black)] sm:w-8',
+          BAND_SURFACE,
+        )}
+      />
+      <span
+        className={cn(
+          'bg-primary flex items-center px-1.25 text-xs font-medium whitespace-nowrap tabular-nums max-sm:hidden',
+          BAND_SURFACE,
+        )}
+      >
         {t('pillMoreValues', { count: hidden })}
       </span>
     </span>
@@ -85,9 +99,9 @@ export function FilterBand({
       tabIndex={-1}
       onClick={handleBandClick}
       className={cn(
-        'text-primary-foreground flex min-w-0 items-start rounded-lg bg-(--band-bg) p-1 shadow-md transition-[opacity,translate,--band-bg] duration-200 ease-out outline-none [--band-bg:var(--primary)] motion-reduce:transition-none starting:-translate-y-1 starting:opacity-0',
-        toggleable &&
-          'cursor-pointer hover:not-has-[button:not([data-band-toggle]):hover]:[--band-bg:color-mix(in_oklab,var(--primary)_85%,var(--primary-foreground))]',
+        'bg-primary text-primary-foreground flex min-w-0 items-start rounded-lg p-1 shadow-md transition-[opacity,translate,background-color] duration-200 ease-out outline-none motion-reduce:transition-none starting:-translate-y-1 starting:opacity-0',
+        '[--band-hover:color-mix(in_oklab,var(--primary)_85%,var(--primary-foreground))]',
+        toggleable && 'cursor-pointer hover:not-has-[button:not([data-band-toggle]):hover]:bg-(--band-hover)',
       )}
     >
       <FilterBandButton

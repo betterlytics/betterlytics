@@ -243,9 +243,3 @@
   }
 }
 
-/* Typed, so the filter band's colour can transition */
-@property --band-bg {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: transparent;
-}
