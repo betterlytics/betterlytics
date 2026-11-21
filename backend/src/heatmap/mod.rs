@@ -64,7 +64,11 @@ struct ClickBatch {
     /// Same value the pageview sent, so the batch resolves to the pageview's session
     #[serde(default)]
     screen_resolution: String,
+    /// Layout width without the scrollbar, which click positions are measured against
     viewport_width: u32,
+    /// Window width with the scrollbar, which the device is bucketed by
+    #[serde(default)]
+    window_width: Option<u32>,
     /// Wider than the viewport on horizontally scrolled pages, where page_x runs past it
     #[serde(default)]
     document_width: Option<u32>,
@@ -232,7 +236,7 @@ async fn store_clicks(
         return Ok(());
     };
 
-    let device = device_from_viewport(batch.viewport_width);
+    let device = device_from_viewport(bucket_width(batch.viewport_width, batch.window_width));
     let page_width = batch.page_width();
     let mut rows = Vec::with_capacity(batch.clicks.len());
     for click in &batch.clicks {
@@ -366,6 +370,15 @@ fn reserve_session_clicks(session_id: u64, wanted: usize) -> usize {
         (granted > 0).then_some(stored + granted)
     });
     granted as usize
+}
+
+/// The width devices are bucketed by. CSS breakpoints count the scrollbar, so it is the window
+/// width when the script sent one (never below the layout width), else the layout width that
+/// older scripts send.
+pub(crate) fn bucket_width(viewport_width: u32, window_width: Option<u32>) -> u32 {
+    window_width
+        .filter(|w| (viewport_width..=MAX_VIEWPORT_WIDTH).contains(w))
+        .unwrap_or(viewport_width)
 }
 
 /// The `device.rs` buckets with laptop and desktop merged, applied to the viewport,
@@ -507,6 +520,7 @@ mod tests {
             url: "https://example.com/pricing".to_string(),
             screen_resolution: "1920x1080".to_string(),
             viewport_width,
+            window_width: None,
             document_width: None,
             document_height,
             clicks: Vec::new(),
@@ -532,6 +546,14 @@ mod tests {
         assert_eq!(device_from_viewport(991), "tablet");
         assert_eq!(device_from_viewport(992), "desktop");
         assert_eq!(device_from_viewport(2560), "desktop");
+    }
+
+    #[test]
+    fn devices_bucket_on_the_window_width_when_sent() {
+        assert_eq!(device_from_viewport(bucket_width(983, Some(1000))), "desktop");
+        assert_eq!(device_from_viewport(bucket_width(983, None)), "tablet");
+        assert_eq!(bucket_width(983, Some(900)), 983);
+        assert_eq!(bucket_width(983, Some(MAX_VIEWPORT_WIDTH + 1)), 983);
     }
 
     #[test]
@@ -651,6 +673,24 @@ mod tests {
             assert_eq!((row.session_id, row.visitor_id), (pageview.session_id, pageview.visitor_fingerprint));
             assert_eq!((row.url.as_str(), row.device.as_str()), ("/pricing", "desktop"));
         }
+    }
+
+    #[tokio::test]
+    async fn the_device_follows_the_window_width_and_positions_the_layout_width() {
+        let mut h = Harness::new().await;
+        let ip = "81.4.104.10";
+        h.event(ip, "pageview").await;
+        let body = |extra: &str| {
+            String::from_utf8(batch_body(1))
+                .unwrap()
+                .replace(r#""viewport_width":1280"#, &format!(r#""viewport_width":983{extra}"#))
+        };
+
+        assert_eq!(h.send(ip, UA, CH_UA, body(r#","window_width":1000"#).as_bytes()).await, Ok(()));
+        assert_eq!(h.send(ip, UA, CH_UA, body("").as_bytes()).await, Ok(()));
+        let rows = h.stored();
+        let stored: Vec<_> = rows.iter().map(|r| (r.device.as_str(), r.viewport_width)).collect();
+        assert_eq!(stored, [("desktop", 983), ("tablet", 983)]);
     }
 
     #[tokio::test]

@@ -23,7 +23,7 @@ use tokio::sync::Semaphore;
 use tracing::{error, warn};
 use url::Url;
 
-use super::{MAX_DOCUMENT_HEIGHT, MAX_VIEWPORT_WIDTH, device_from_viewport};
+use super::{MAX_DOCUMENT_HEIGHT, MAX_VIEWPORT_WIDTH, bucket_width, device_from_viewport};
 use crate::config::ReplayStorage;
 use crate::db::{HeatmapCaptureRow, SharedDatabase};
 use crate::metrics::MetricsCollector;
@@ -71,6 +71,7 @@ impl CaptureCtx {
 #[derive(Deserialize)]
 pub struct CaptureParams {
     viewport_width: Option<u32>,
+    window_width: Option<u32>,
     document_height: Option<u32>,
     encoding: Option<String>,
 }
@@ -200,7 +201,7 @@ async fn store_capture(
     let (Some(viewport_width), Some(document_height)) = (viewport_width, document_height) else {
         return Err(Refusal::new(Reason::Invalid, "Invalid viewport width or page height."));
     };
-    check_viewport(&link.device, viewport_width)?;
+    check_viewport(&link.device, bucket_width(viewport_width, params.window_width))?;
 
     let body = match body {
         Ok(body) => body,

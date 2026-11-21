@@ -28,6 +28,10 @@
   var MAX_SELECTOR_CHARS = 500;
   var MAX_PAGE_WIDTH = 16384;
   var MAX_PAGE_HEIGHT = 1000000;
+  // Batches only resolve to a session the backend still holds, which ends after 30 idle minutes.
+  // Each batch's lookup counts as activity, so sending pending clicks this often keeps a page that
+  // stays open alive.
+  var MAX_PENDING_MS = 5 * 60 * 1000;
 
   // React useId output (":r1:", "«r1»", "_r_1_") changes between page loads, also inside
   // library ids such as Radix's "radix-_r_v_-trigger-exit"
@@ -41,6 +45,7 @@
   var screenResolution = config.screenResolution;
   var clicksTaken = 0;
   var batch = null;
+  var pendingTimer = null;
 
   // Same page path as pageviews; the query string and hash are dropped when stored anyway
   function currentPage() {
@@ -156,6 +161,8 @@
   }
 
   function flush() {
+    clearTimeout(pendingTimer);
+    pendingTimer = null;
     var b = batch;
     batch = null;
     if (!b || b.clicks.length === 0) return;
@@ -170,6 +177,7 @@
         url: b.url,
         screen_resolution: b.screenResolution,
         viewport_width: b.viewportWidth,
+        window_width: b.windowWidth,
         document_width: b.documentWidth,
         document_height: b.documentHeight,
         clicks: b.clicks.map(function (c) {
@@ -198,6 +206,9 @@
     var root = document.documentElement;
     var viewportWidth = root.clientWidth || window.innerWidth || 0;
     if (viewportWidth < 1 || viewportWidth > MAX_PAGE_WIDTH) return;
+    // The device follows CSS breakpoints, which count the scrollbar. Pinch zoom can shrink
+    // innerWidth below the layout width, which the layout doesn't follow.
+    var windowWidth = Math.min(MAX_PAGE_WIDTH, Math.max(viewportWidth, window.innerWidth || 0));
 
     // Measured from the document's top left corner. On RTL pages horizontal overflow
     // extends left of the root box, so it is added back.
@@ -226,7 +237,12 @@
     };
 
     var page = currentPage();
-    if (batch && (batch.url !== page || batch.viewportWidth !== viewportWidth)) {
+    if (
+      batch &&
+      (batch.url !== page ||
+        batch.viewportWidth !== viewportWidth ||
+        batch.windowWidth !== windowWidth)
+    ) {
       flush();
     }
     if (!batch) {
@@ -235,11 +251,13 @@
         screenResolution:
           screenResolution || window.screen.width + "x" + window.screen.height,
         viewportWidth: viewportWidth,
+        windowWidth: windowWidth,
         documentWidth: 1,
         documentHeight: 1,
         clicks: [],
         bytes: 0,
       };
+      pendingTimer = setTimeout(flush, MAX_PENDING_MS);
     }
     batch.documentWidth = Math.min(
       MAX_PAGE_WIDTH,

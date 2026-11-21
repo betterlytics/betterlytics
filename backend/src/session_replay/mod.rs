@@ -22,7 +22,7 @@ use crate::analytics::{VisitorAttrs, detect_device_type_from_resolution};
 use chrono::{DateTime, NaiveDate, Utc};
 
 use crate::db::{SessionReplayMetaRow, SharedDatabase, SessionReplayRow, SessionReplaySnapshotRow};
-use crate::heatmap::{device_from_viewport, MAX_VIEWPORT_WIDTH};
+use crate::heatmap::{bucket_width, device_from_viewport, MAX_VIEWPORT_WIDTH};
 use crate::processing::EventProcessor;
 use crate::metrics::MetricsCollector;
 use crate::validation::{validate_site_policies, EventValidator};
@@ -127,7 +127,7 @@ pub struct UploadSegmentParams {
     pub chunk_id: Option<String>,
     pub format: Option<String>,
     /// JSON array of the full snapshots in this segment: `[{"u": page URL, "w": viewport
-    /// width without scrollbar, "h": viewport height, "t": client ms}]`
+    /// width without scrollbar, "ww": window width with it, "h": viewport height, "t": client ms}]`
     pub snapshots: Option<String>,
 }
 
@@ -135,6 +135,8 @@ pub struct UploadSegmentParams {
 struct SnapshotParam {
     u: String,
     w: u32,
+    #[serde(default)]
+    ww: Option<u32>,
     h: u32,
     t: i64,
 }
@@ -167,7 +169,7 @@ fn snapshot_rows(
             site_id: site_id.to_string(),
             session_id,
             url: extract_domain_and_path_from_url(&s.u).1,
-            device: device_from_viewport(s.w).to_string(),
+            device: device_from_viewport(bucket_width(s.w, s.ww)).to_string(),
             viewport_width: s.w as u16,
             viewport_height: s.h as u16,
             filename: filename.to_string(),
@@ -720,6 +722,12 @@ mod tests {
         assert_eq!(rows[0].snapshot_ms, T + 5_000);
         // 15 s before the chunk's last event, which arrived at received_at
         assert_eq!(rows[0].timestamp.timestamp_millis(), T + 60_000 - 15_000);
+    }
+
+    #[test]
+    fn snapshot_devices_follow_the_window_width_with_its_scrollbar() {
+        let rows = snapshots(r#"[{"u":"https://example.com/pricing","w":983,"ww":1000,"h":900,"t":1755600005000}]"#);
+        assert_eq!((rows[0].device.as_str(), rows[0].viewport_width), ("desktop", 983));
     }
 
     #[test]

@@ -340,6 +340,11 @@
     return document.documentElement.clientWidth || window.innerWidth;
   }
 
+  // With the scrollbar, like CSS breakpoints; the link's device is checked against this
+  function windowWidth() {
+    return Math.max(viewportWidth() || 0, window.innerWidth || 0);
+  }
+
   function gzip(text) {
     var bytes = new TextEncoder().encode(text);
     if (typeof CompressionStream === "undefined") {
@@ -365,6 +370,8 @@
       var query =
         "viewport_width=" +
         viewportWidth() +
+        "&window_width=" +
+        windowWidth() +
         "&document_height=" +
         config.documentHeight() +
         (encoded.gzip ? "&encoding=gzip" : "");

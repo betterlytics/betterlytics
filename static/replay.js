@@ -8561,6 +8561,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
           found.push({
             u: e.data.href,
             w: e.data.clientWidth || e.data.width,
+            ww: Math.max(e.data.clientWidth || 0, e.data.width || 0),
             h: e.data.height,
             t: e.timestamp,
           });
@@ -9075,7 +9076,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
 
       if (e.type === 4 && e.data && typeof e.data.href === "string") {
         e.data.href = normalizePageUrl(e.data.href);
-        // Meta width includes the scrollbar; heatmap clicks bucket devices by clientWidth
+        // Heatmaps lay a snapshot out at clientWidth and pick its device by the meta width, which
+        // includes the scrollbar like CSS breakpoints do
         e.data.clientWidth = document.documentElement.clientWidth || e.data.width;
       }
 
