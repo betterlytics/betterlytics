@@ -13,7 +13,7 @@ import {
   HeatmapDeviceSchema,
   type HeatmapDevice,
 } from '@/entities/analytics/clickHeatmap.entities';
-import { FrameMessage, FrameSpinner, HeatmapFrame } from './HeatmapFrame';
+import { FrameMessage, FrameSpinner, FrameView, HeatmapFrame } from './HeatmapFrame';
 import { HeatmapDeviceTabs } from './HeatmapDeviceTabs';
 import { HeatmapPagePicker } from './HeatmapPagePicker';
 import { HeatmapPanel } from './HeatmapPanel';
@@ -67,9 +67,12 @@ export function HeatmapsClient() {
   }, [pinned, selectedPath, device, pagesQuery.isPlaceholderData, setSelection]);
 
   let content;
+  let contentKey: string;
   if (pagesQuery.isPending || (!selectedPath && siteHasClicks === undefined)) {
+    contentKey = 'loading';
     content = <FrameSpinner />;
   } else if (!selectedPath) {
+    contentKey = siteHasClicks === false ? 'setup' : 'noPages';
     content =
       siteHasClicks === false ? (
         <SetUpHeatmapsMessage />
@@ -81,6 +84,7 @@ export function HeatmapsClient() {
         />
       );
   } else {
+    contentKey = `page/${selectedPath}|${device}`;
     content = (
       <HeatmapPanel
         key={`${selectedPath}|${device}`}
@@ -114,7 +118,9 @@ export function HeatmapsClient() {
         />
       }
     >
-      {content}
+      <FrameView viewKey={contentKey} holdable={contentKey === 'noPages'}>
+        {content}
+      </FrameView>
     </HeatmapFrame>
   );
 }

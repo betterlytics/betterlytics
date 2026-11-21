@@ -12,6 +12,7 @@ import {
 import { useResizeObserver } from '@/hooks/use-resize-observer';
 import { useDebounce } from '@/hooks/useDebounce';
 import { drawHeat, maxCountOf } from './heatCanvas';
+import { useFrameLoading } from './HeatmapFrame';
 import { findInDocument, placeClicks } from './placeClicks';
 import { snapshotEvents } from './snapshotEvents';
 
@@ -53,6 +54,7 @@ export function SnapshotHeatmapView({
   const [layout, setLayout] = useState<Document | null>(null);
   const callbacks = useRef({ onUnusable });
   callbacks.current = { onUnusable };
+  useFrameLoading(layout === null);
 
   useEffect(() => {
     const frame = frameRef.current;

@@ -7,6 +7,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
 import { matchesPagePath } from '@/utils/heatmapPagePath';
 import { drawHeat } from './heatCanvas';
+import { useFrameLoading } from './HeatmapFrame';
 
 // The framed tracker answers right after load; without an answer the page isn't usable here
 const PREVIEW_TIMEOUT_MS = 6000;
@@ -35,6 +36,7 @@ export function LiveHeatmapView({ pageUrl, pagePath, width, viewportHeight, poin
   const [pageHeight, setPageHeight] = useState<number | null>(null);
   const callbacks = useRef({ onUnusable });
   callbacks.current = { onUnusable };
+  useFrameLoading(pageHeight === null);
 
   useEffect(() => {
     let answered = false;

@@ -17,7 +17,7 @@ import {
 import type { HeatmapCapture } from '@/entities/analytics/heatmapCaptures.entities';
 import { CaptureButton, CaptureHistoryMenu, useCaptureDetails } from './CaptureActions';
 import { CaptureDialog, useCaptureOrigin } from './CaptureDialog';
-import { FrameBadge, FrameContent, FrameLabel, FrameMenuButton, FrameSpinner } from './HeatmapFrame';
+import { FrameBadge, FrameContent, FrameLabel, FrameMenuButton, FrameSpinner, FrameView } from './HeatmapFrame';
 import { NoCaptureMessage, SetUpHeatmapsMessage } from './HeatmapsEmptyState';
 import { LiveHeatmapView } from './LiveHeatmapView';
 import { pageChangedSinceCapture, snapshotWindowHeight } from './pageChanged';
@@ -110,14 +110,17 @@ export function HeatmapPanel({
   );
 
   let view: ReactNode;
+  let viewKey: string;
   const livePage = livePageQuery.data;
   if (capturesLoading) {
+    viewKey = 'loading';
     view = (
       <FrameContent actions={captureButton}>
         <FrameSpinner />
       </FrameContent>
     );
   } else if (useCapture) {
+    viewKey = `capture/${capture.id}`;
     view = (
       <CaptureHeatmap
         key={capture.id}
@@ -131,6 +134,7 @@ export function HeatmapPanel({
       />
     );
   } else if (siteHasClicks === false) {
+    viewKey = 'setup';
     view = (
       <FrameContent info={history} actions={captureButton}>
         <SetUpHeatmapsMessage />
@@ -141,6 +145,7 @@ export function HeatmapPanel({
     backgroundQuery.isPending ||
     (wantsLivePage && livePageQuery.isPending)
   ) {
+    viewKey = 'loading';
     view = (
       <FrameContent info={history} actions={captureButton}>
         <FrameSpinner />
@@ -148,6 +153,7 @@ export function HeatmapPanel({
     );
   } else if (useReplay) {
     const key = snapshotKey(replay);
+    viewKey = key;
     view = (
       <ReplayHeatmap
         key={key}
@@ -160,6 +166,7 @@ export function HeatmapPanel({
       />
     );
   } else if (livePage && !unusable.has(`live/${livePage}`)) {
+    viewKey = `live/${livePage}`;
     view = (
       <LiveHeatmap
         key={livePage}
@@ -172,6 +179,7 @@ export function HeatmapPanel({
       />
     );
   } else {
+    viewKey = 'none';
     view = (
       <FrameContent
         info={
@@ -189,7 +197,9 @@ export function HeatmapPanel({
 
   return (
     <>
-      {view}
+      <FrameView viewKey={viewKey} holdable={viewKey === 'none'}>
+        {view}
+      </FrameView>
       {capturing && (
         <CaptureDialog
           pagePath={url}

@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, type ComponentProps, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,35 @@ const DOT_GRID = {
 };
 
 const FrameSlotContext = createContext<HTMLElement | null>(null);
+
+type LoadingRegistry = { add: () => () => void; check: () => void; onIdle: (() => void) | null };
+
+const FrameLoadingContext = createContext<LoadingRegistry | null>(null);
+// A view loading out of sight keeps its bar items to itself until it is shown
+const FrameHiddenContext = createContext(false);
+
+function createLoadingRegistry(): LoadingRegistry {
+  let loading = 0;
+  const registry: LoadingRegistry = {
+    add: () => {
+      loading++;
+      return () => {
+        loading--;
+        registry.check();
+      };
+    },
+    // After the commit, so one loading part handing over to the next doesn't count as done
+    check: () => queueMicrotask(() => loading === 0 && registry.onIdle?.()),
+    onIdle: null,
+  };
+  return registry;
+}
+
+/** Keeps a view that is loading out of sight from being shown while `loading` */
+export function useFrameLoading(loading: boolean) {
+  const registry = useContext(FrameLoadingContext);
+  useEffect(() => (loading && registry ? registry.add() : undefined), [loading, registry]);
+}
 
 type HeatmapFrameProps = {
   page: ReactNode;
@@ -59,9 +88,11 @@ type FrameContentProps = {
 /** What the frame shows, with what it is and its actions at the end of the bar */
 export function FrameContent({ info, actions, children }: FrameContentProps) {
   const slot = useContext(FrameSlotContext);
+  const hidden = useContext(FrameHiddenContext);
   return (
     <>
       {slot &&
+        !hidden &&
         createPortal(
           <>
             {info}
@@ -70,6 +101,57 @@ export function FrameContent({ info, actions, children }: FrameContentProps) {
           slot,
         )}
       {children}
+    </>
+  );
+}
+
+type FrameViewProps = {
+  /** Which view this is; a view with another key replaces it */
+  viewKey: string;
+  /** For an empty state, which stays on screen while the view replacing it loads */
+  holdable?: boolean;
+  children: ReactNode;
+};
+
+/**
+ * One view in the frame. When new data, such as a new period's, replaces an empty state with
+ * something to draw, the new view loads out of sight and the empty state stays until it is ready,
+ * so the frame changes once and shows no spinner.
+ */
+export function FrameView({ viewKey, holdable = false, children }: FrameViewProps) {
+  const parentRegistry = useContext(FrameLoadingContext);
+  const parentHidden = useContext(FrameHiddenContext);
+  const [registry] = useState(createLoadingRegistry);
+  const [shown, setShown] = useState({ key: viewKey, holdable });
+  const shownView = useRef<ReactNode>(children);
+
+  if (shown.key !== viewKey && !shown.holdable) setShown({ key: viewKey, holdable });
+  const loadingBehind = shown.key !== viewKey && shown.holdable;
+  if (!loadingBehind) shownView.current = children;
+
+  useEffect(() => {
+    registry.onIdle = loadingBehind ? () => setShown({ key: viewKey, holdable }) : null;
+    if (loadingBehind) registry.check();
+  }, [registry, loadingBehind, viewKey, holdable]);
+
+  return (
+    <>
+      {loadingBehind && (
+        <div key={`shown:${shown.key}`} className='h-full'>
+          {shownView.current}
+        </div>
+      )}
+      <FrameHiddenContext.Provider value={parentHidden || loadingBehind}>
+        <FrameLoadingContext.Provider value={loadingBehind ? registry : parentRegistry}>
+          <div
+            key={viewKey}
+            inert={loadingBehind}
+            className={loadingBehind ? 'invisible absolute inset-0' : 'h-full'}
+          >
+            {children}
+          </div>
+        </FrameLoadingContext.Provider>
+      </FrameHiddenContext.Provider>
     </>
   );
 }
@@ -96,6 +178,7 @@ export function FrameMenuButton({ icon, label, className, ...props }: FrameMenuB
 }
 
 export function FrameSpinner() {
+  useFrameLoading(true);
   return (
     <div className='flex h-full items-center justify-center'>
       <Spinner size='sm' />
