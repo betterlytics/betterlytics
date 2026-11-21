@@ -2,6 +2,8 @@ import { useCallback, useLayoutEffect, useState, type RefObject } from 'react';
 import { flushSync } from 'react-dom';
 
 const PEEK_MIN_WIDTH = 32;
+// Under the fade beside the label a sliver is enough
+const LABELLED_PEEK_MIN_WIDTH = 12;
 
 type FilterBandOverflowOptions = {
   rowRef: RefObject<HTMLElement | null>;
@@ -37,10 +39,12 @@ export function useFilterBandOverflow({
     const top = items[0].offsetTop;
     const wrapped = items.findIndex((item) => item.offsetTop > top);
     const cover = coverRef.current;
-    const labelled = (cover?.lastElementChild?.getBoundingClientRect().width ?? 0) > 0;
+    const labelWidth = cover?.lastElementChild?.getBoundingClientRect().width ?? 0;
+    const labelled = labelWidth > 0;
     const last = items[wrapped - 1];
     const left = last ? last.offsetLeft + last.offsetWidth + gap : 0;
-    const peeks = wrapped > 0 && row.clientWidth - left >= Math.max(PEEK_MIN_WIDTH, cover?.offsetWidth ?? 0);
+    const peeks =
+      wrapped > 0 && row.clientWidth - left - labelWidth >= (labelled ? LABELLED_PEEK_MIN_WIDTH : PEEK_MIN_WIDTH);
     const first = wrapped > 1 && labelled && !peeks ? wrapped - 1 : wrapped;
     items.forEach((item, index) => {
       item.toggleAttribute('inert', !open && first >= 0 && index >= first);
