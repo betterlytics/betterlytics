@@ -138,8 +138,8 @@ fn sanitize_custom_properties_of(event: &mut RawTrackingEvent, cfg: &SanitizeCon
         return;
     }
 
-    // Anything that is not a JSON object is left alone for validation to report: it
-    // rejects invalid JSON with a reason, and sanitizing here would hide it.
+    // Invalid JSON is left for validation to reject with a reason; other non-object JSON is
+    // stored as sent.
     let Ok(Value::Object(obj)) = serde_json::from_str::<Value>(&event.properties) else {
         return;
     };
@@ -463,8 +463,7 @@ mod tests {
     }
 
     #[test]
-    fn invalid_custom_json_is_left_to_validation() {
-        // Validation rejects it with a reason; sanitizing here would hide that.
+    fn non_object_custom_json_is_left_untouched() {
         assert_eq!(sanitized_properties("{not json"), "{not json");
         assert_eq!(sanitized_properties("[1, 2]"), "[1, 2]");
     }

@@ -103,7 +103,7 @@ You can use this pattern to track any kind of user interaction: button clicks, f
 ### Property Guidelines
 
 - **Use descriptive property names** (e.g. `source`, `category`, `price`)
-- **Keep property names to 64 characters or fewer** - a property whose name is empty, longer than that, or contains control or invisible characters (such as a zero-width space) is dropped when the event arrives
+- **Keep property names to 64 characters or fewer** - a property whose name is empty, longer than that, or contains a Unicode control, format, private-use or unassigned character (such as a zero-width space, or the joiner inside combined emoji like 👩‍💻) is dropped when the event arrives
 - **Keep values simple** - strings, numbers, booleans work best
 - **Avoid deeply nested objects** - flat structures are easier to query
 - **Never include personally identifiable information (PII)**
