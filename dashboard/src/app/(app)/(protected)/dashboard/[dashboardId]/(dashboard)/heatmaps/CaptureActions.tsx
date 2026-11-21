@@ -3,7 +3,7 @@
 import { useState, type ReactNode } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useLocale, useTranslations } from 'next-intl';
-import { Check, Trash2 } from 'lucide-react';
+import { Camera, Check, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { trpc } from '@/trpc/client';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
@@ -21,13 +21,11 @@ import { deleteHeatmapCaptureAction } from '@/app/actions/analytics/heatmapCaptu
 import type { HeatmapCapture } from '@/entities/analytics/heatmapCaptures.entities';
 
 export function useCaptureDetails() {
-  const t = useTranslations('components.heatmaps.capture');
   const locale = useLocale();
   return (capture: HeatmapCapture) => ({
     date: new Date(capture.createdAt).toLocaleDateString(locale, { dateStyle: 'medium' }),
     // The history lists captures by time, so several from one day can be told apart
     dateTime: new Date(capture.createdAt).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' }),
-    name: capture.createdByName || t('formerMember'),
   });
 }
 
@@ -43,7 +41,8 @@ export function CaptureButton({ onClick, label }: CaptureButtonProps) {
   if (!hasPermission('canCaptureHeatmaps')) return null;
 
   return (
-    <Button size='sm' variant='ghost' className='h-7 cursor-pointer px-2 text-xs' onClick={onClick}>
+    <Button size='sm' variant='ghost' className='h-7 cursor-pointer gap-1.5 px-2 text-xs' onClick={onClick}>
+      <Camera className='size-3.5' />
       {label ?? t('captureButton')}
     </Button>
   );
@@ -89,7 +88,7 @@ export function CaptureHistoryMenu({ captures, shownCaptureId, onSelect, trigger
         <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
         <DropdownMenuContent align='end' className='w-72'>
           {captures.map((capture) => {
-            const { dateTime, name } = details(capture);
+            const { dateTime } = details(capture);
             const shown = capture.id === shownCaptureId;
             return (
               <DropdownMenuItem
@@ -108,7 +107,7 @@ export function CaptureHistoryMenu({ captures, shownCaptureId, onSelect, trigger
                 <div className='min-w-0 flex-1'>
                   <p className='truncate'>{dateTime}</p>
                   <p className='text-muted-foreground truncate text-xs' title={capture.capturedFromUrl}>
-                    {t('byFrom', { name, path: capture.capturedFromUrl.replace(/^https?:\/\//, '') })}
+                    {capture.capturedFromUrl.replace(/^https?:\/\//, '')}
                   </p>
                 </div>
                 {canDelete && (

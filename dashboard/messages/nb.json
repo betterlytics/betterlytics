@@ -3983,10 +3983,8 @@
       "pagePicker": "Side",
       "pageSearch": "Søk etter sider",
       "pageSearchEmpty": "Fant ingen sider.",
-      "pagesTruncated": "Viser {shown, number} av {total, number} sider. Skriv for å søke i resten.",
-      "pagesTruncatedAtLimit": "Viser {shown, number} av {total, number}+ sider. Skriv for å søke.",
       "pageNoData": "Ingen data for denne siden i valgt periode",
-      "deviceNoData": "{device}: ingen data for denne siden i valgt periode",
+      "deviceNoData": "Denne siden har ingen data fra besøkende på {device, select, desktop {desktop} tablet {nettbrett} other {mobil}} i valgt periode",
       "devices": {
         "desktop": "Desktop",
         "tablet": "Nettbrett",
@@ -4004,7 +4002,6 @@
       "source": {
         "capture": "Tatt opp {date}",
         "replay": "Tatt opp {date} fra den siste sesjonsavspillingen",
-        "replayHint": "Oppsettet fra en besøkendes sesjon på denne enheten, med tekst og bilder skjult.",
         "live": "Live side",
         "liveHint": "Siden din slik den er nå, som kan avvike fra da klikkene skjedde. Klikk vises der de skjedde på siden.",
         "none": "Ingen opptak av denne siden"
@@ -4035,8 +4032,6 @@
         "captured": "Opptak lagret",
         "popupBlocked": "Nettleseren blokkerte opptaksvinduet. Tillat popup-vinduer for dette nettstedet og prøv igjen.",
         "linkFailed": "Opptaket kunne ikke startes. Prøv igjen.",
-        "formerMember": "et tidligere medlem",
-        "byFrom": "{name}, fra {path}",
         "history": "{count, plural, one {# opptak} other {# opptak}}",
         "deleteCapture": "Slett opptak",
         "deleteTitle": "Slette dette opptaket?",

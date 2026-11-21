@@ -26,8 +26,7 @@ export function HeatmapDeviceTabs({ value, devicesWithData, onValueChange }: Hea
       <TabsList className='h-7 gap-0.5 bg-transparent p-0'>
         {HEATMAP_DEVICES.map((device) => {
           const name = t(`devices.${device}`);
-          const noData =
-            devicesWithData && !devicesWithData.includes(device) ? t('deviceNoData', { device: name }) : null;
+          const noData = devicesWithData && !devicesWithData.includes(device) ? t('deviceNoData', { device }) : null;
           return (
             // Hoverable content keeps a wide no-data tooltip open while the pointer moves on to the next tab
             <Tooltip key={device} disableHoverableContent>

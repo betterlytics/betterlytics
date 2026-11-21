@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Check, FileText, TriangleAlert } from 'lucide-react';
+import { Check, TriangleAlert } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Command,
@@ -13,33 +13,48 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useInView } from '@/hooks/useInView';
 import { cn } from '@/lib/utils';
 import { FrameMenuButton } from './HeatmapFrame';
 import type { HeatmapPageOption } from './heatmapSelection';
 
-const MAX_VISIBLE_PAGES = 50;
+const PAGE_BATCH = 50;
 
 type HeatmapPagePickerProps = {
   pages: HeatmapPageOption[];
-  /** Whether the list stops at its limit, so less visited pages are left out */
-  truncated: boolean;
   value: string | undefined;
   onValueChange: (url: string) => void;
 };
 
-export function HeatmapPagePicker({ pages, truncated, value, onValueChange }: HeatmapPagePickerProps) {
+export function HeatmapPagePicker({ pages, value, onValueChange }: HeatmapPagePickerProps) {
   const t = useTranslations('components.heatmaps');
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [visibleCount, setVisibleCount] = useState(PAGE_BATCH);
+  const [list, setList] = useState<HTMLDivElement | null>(null);
+  const { ref: endRef, inView: endInView } = useInView<HTMLDivElement>({ root: list, rootMargin: '200px' });
 
   const matches = useMemo(() => {
     const query = search.trim().toLowerCase();
     return query ? pages.filter((page) => page.url.toLowerCase().includes(query)) : pages;
   }, [pages, search]);
+  const hasMore = matches.length > visibleCount;
+
+  useEffect(() => {
+    if (endInView && hasMore) setVisibleCount((count) => count + PAGE_BATCH);
+  }, [endInView, hasMore]);
 
   const handleOpenChange = (next: boolean) => {
     setOpen(next);
-    if (!next) setSearch('');
+    if (!next) {
+      setSearch('');
+      setVisibleCount(PAGE_BATCH);
+    }
+  };
+
+  const handleSearchChange = (next: string) => {
+    setSearch(next);
+    setVisibleCount(PAGE_BATCH);
   };
 
   const select = (url: string) => {
@@ -51,7 +66,6 @@ export function HeatmapPagePicker({ pages, truncated, value, onValueChange }: He
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <FrameMenuButton
-          icon={<FileText className='size-3.5' />}
           label={value ?? t('pagePicker')}
           role='combobox'
           aria-expanded={open}
@@ -61,11 +75,11 @@ export function HeatmapPagePicker({ pages, truncated, value, onValueChange }: He
       </PopoverTrigger>
       <PopoverContent align='start' className='w-[min(24rem,calc(100vw-2rem))] p-0'>
         <Command shouldFilter={false}>
-          <CommandInput placeholder={t('pageSearch')} value={search} onValueChange={setSearch} />
-          <CommandList>
+          <CommandInput placeholder={t('pageSearch')} value={search} onValueChange={handleSearchChange} />
+          <CommandList ref={setList}>
             <CommandEmpty>{t('pageSearchEmpty')}</CommandEmpty>
             <CommandGroup>
-              {matches.slice(0, MAX_VISIBLE_PAGES).map((page) => (
+              {matches.slice(0, visibleCount).map((page) => (
                 <CommandItem
                   key={page.url}
                   value={page.url}
@@ -78,15 +92,8 @@ export function HeatmapPagePicker({ pages, truncated, value, onValueChange }: He
                 </CommandItem>
               ))}
             </CommandGroup>
+            {hasMore && <div ref={endRef} aria-hidden className='h-px' />}
           </CommandList>
-          {matches.length > MAX_VISIBLE_PAGES && (
-            <p className='text-muted-foreground border-t px-3 py-2 text-xs'>
-              {t(truncated ? 'pagesTruncatedAtLimit' : 'pagesTruncated', {
-                shown: MAX_VISIBLE_PAGES,
-                total: matches.length,
-              })}
-            </p>
-          )}
         </Command>
       </PopoverContent>
     </Popover>

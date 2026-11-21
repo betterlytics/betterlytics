@@ -4,7 +4,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import type { eventWithTime } from '@rrweb/types';
-import { Camera, Globe, History, TriangleAlert, Video } from 'lucide-react';
+import { Globe, History, TriangleAlert, Video } from 'lucide-react';
 import { trpc } from '@/trpc/client';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
@@ -16,7 +16,7 @@ import {
 } from '@/entities/analytics/clickHeatmap.entities';
 import type { HeatmapCapture } from '@/entities/analytics/heatmapCaptures.entities';
 import { CaptureButton, CaptureHistoryMenu, useCaptureDetails } from './CaptureActions';
-import { CaptureDialog } from './CaptureDialog';
+import { CaptureDialog, useCaptureOrigin } from './CaptureDialog';
 import { FrameBadge, FrameContent, FrameLabel, FrameMenuButton, FrameSpinner } from './HeatmapFrame';
 import { NoCaptureMessage, SetUpHeatmapsMessage } from './HeatmapsEmptyState';
 import { LiveHeatmapView } from './LiveHeatmapView';
@@ -47,8 +47,9 @@ export function HeatmapPanel({
 }: HeatmapPanelProps) {
   const t = useTranslations('components.heatmaps');
   const dashboardId = useDashboardId();
-  const { isDemo } = useDashboardAuth();
+  const { isDemo, hasPermission } = useDashboardAuth();
   const { input, options } = useBAQueryParams();
+  useCaptureOrigin(url, hasPermission('canCaptureHeatmaps') && !isDemo);
   const capturesQuery = trpc.heatmapCaptures.list.useQuery(
     { dashboardId, path: url },
     // A capture finished in its own window shows up once the editor is back here
@@ -343,9 +344,7 @@ function CaptureHeatmap({
             captures={captures}
             shownCaptureId={capture.id}
             onSelect={onSelectCapture}
-            trigger={
-              <FrameMenuButton icon={<Camera className='size-3.5' />} label={t('source.capture', { date })} />
-            }
+            trigger={<FrameMenuButton label={t('source.capture', { date })} />}
           />
           {pageChanged && (
             <FrameBadge
@@ -400,11 +399,7 @@ function ReplayHeatmap({ snapshot, url, device, history, actions, onUnusable }: 
       info={
         <>
           {history}
-          <FrameLabel
-            icon={<Video />}
-            label={t('source.replay', { date: recordedOn })}
-            hint={t('source.replayHint')}
-          />
+          <FrameLabel icon={<Video />} label={t('source.replay', { date: recordedOn })} />
         </>
       }
       actions={actions}

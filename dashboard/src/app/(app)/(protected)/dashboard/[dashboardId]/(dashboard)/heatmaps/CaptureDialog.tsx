@@ -35,6 +35,12 @@ import {
 const POLL_MS = 3000;
 const DOCS_URL = 'https://betterlytics.io/docs/dashboard/heatmaps';
 
+/** The origin the dialog suggests; the panel loads it ahead, so the dialog opens with the address filled in */
+export function useCaptureOrigin(pagePath: string, enabled = true) {
+  const { input, options } = useBAQueryParams();
+  return trpc.clickHeatmap.captureOrigin.useQuery({ ...input, url: pagePath }, { ...options, enabled });
+}
+
 type CaptureDialogProps = {
   onClose: () => void;
   pagePath: string;
@@ -49,7 +55,6 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
   const t = useTranslations('components.heatmaps.capture');
   const tDevices = useTranslations('components.heatmaps.devices');
   const dashboardId = useDashboardId();
-  const { input, options } = useBAQueryParams();
   const addressRef = useRef<HTMLInputElement>(null);
 
   // Null until edited, so the suggested address can still arrive after the dialog opens
@@ -67,10 +72,7 @@ export function CaptureDialog({ onClose, pagePath, device, pageCaptures, onCaptu
     field.setSelectionRange(field.value.length, field.value.length);
   };
 
-  const originQuery = trpc.clickHeatmap.captureOrigin.useQuery(
-    { ...input, url: pagePath },
-    { ...options, placeholderData: undefined },
-  );
+  const originQuery = useCaptureOrigin(pagePath);
   const origin = originQuery.data?.origin;
   const suggestedAddress = initialCaptureAddress(pagePath, origin, pageCaptures);
   const loadingAddress = editedAddress === null && suggestedAddress === null && originQuery.isPending;

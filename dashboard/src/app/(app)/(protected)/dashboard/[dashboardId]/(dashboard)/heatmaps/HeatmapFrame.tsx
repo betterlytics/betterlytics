@@ -74,7 +74,7 @@ export function FrameContent({ info, actions, children }: FrameContentProps) {
   );
 }
 
-type FrameMenuButtonProps = ComponentProps<typeof Button> & { icon: ReactNode; label: string };
+type FrameMenuButtonProps = ComponentProps<typeof Button> & { icon?: ReactNode; label: string };
 
 /** The bar's dropdown triggers, the page picker and the capture history */
 export function FrameMenuButton({ icon, label, className, ...props }: FrameMenuButtonProps) {

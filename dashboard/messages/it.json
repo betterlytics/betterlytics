@@ -3983,10 +3983,8 @@
       "pagePicker": "Pagina",
       "pageSearch": "Cerca pagine",
       "pageSearchEmpty": "Nessuna pagina trovata.",
-      "pagesTruncated": "Mostrate {shown, number} di {total, number} pagine. Digita per cercare le altre.",
-      "pagesTruncatedAtLimit": "Mostrate {shown, number} di {total, number}+ pagine. Digita per cercare.",
       "pageNoData": "Nessun dato per questa pagina nel periodo selezionato",
-      "deviceNoData": "{device}: nessun dato per questa pagina nel periodo selezionato",
+      "deviceNoData": "Questa pagina non ha dati dei visitatori da {device, select, desktop {desktop} tablet {tablet} other {mobile}} nel periodo selezionato",
       "devices": {
         "desktop": "Desktop",
         "tablet": "Tablet",
@@ -4004,7 +4002,6 @@
       "source": {
         "capture": "Catturata il {date}",
         "replay": "Catturata il {date} dall'ultimo replay",
-        "replayHint": "Il layout di una sessione di un visitatore su questo dispositivo, con testo e immagini nascosti.",
         "live": "Pagina dal vivo",
         "liveHint": "La tua pagina com'è adesso, che può essere diversa da quando sono avvenuti i clic. I clic sono mostrati nella loro posizione sulla pagina.",
         "none": "Nessuna cattura di questa pagina"
@@ -4035,8 +4032,6 @@
         "captured": "Cattura salvata",
         "popupBlocked": "Il browser ha bloccato la finestra di cattura. Consenti i pop-up per questo sito e riprova.",
         "linkFailed": "Impossibile avviare la cattura. Riprova.",
-        "formerMember": "un ex membro",
-        "byFrom": "{name}, da {path}",
         "history": "{count, plural, one {# cattura} other {# catture}}",
         "deleteCapture": "Elimina cattura",
         "deleteTitle": "Eliminare questa cattura?",

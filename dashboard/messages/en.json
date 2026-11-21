@@ -3983,10 +3983,8 @@
       "pagePicker": "Page",
       "pageSearch": "Search pages",
       "pageSearchEmpty": "No pages found.",
-      "pagesTruncated": "Showing {shown, number} of {total, number} pages. Type to search the rest.",
-      "pagesTruncatedAtLimit": "Showing {shown, number} of {total, number}+ pages. Type to search.",
       "pageNoData": "No data for this page in the selected period",
-      "deviceNoData": "{device}: no data for this page in the selected period",
+      "deviceNoData": "This page has no data from {device, select, desktop {desktop} tablet {tablet} other {mobile}} visitors in the selected period",
       "devices": {
         "desktop": "Desktop",
         "tablet": "Tablet",
@@ -4004,7 +4002,6 @@
       "source": {
         "capture": "Captured {date}",
         "replay": "Captured {date} from the latest replay",
-        "replayHint": "The layout from a visitor's session on this device, with text and images hidden.",
         "live": "Live page",
         "liveHint": "Your page as it is now, which may differ from when the clicks happened. Clicks are shown at their position on the page.",
         "none": "No capture for this page"
@@ -4035,8 +4032,6 @@
         "captured": "Capture saved",
         "popupBlocked": "Your browser blocked the capture window. Allow pop-ups for this site and try again.",
         "linkFailed": "The capture could not be started. Try again.",
-        "formerMember": "a former member",
-        "byFrom": "{name}, from {path}",
         "history": "{count, plural, one {# capture} other {# captures}}",
         "deleteCapture": "Delete capture",
         "deleteTitle": "Delete this capture?",

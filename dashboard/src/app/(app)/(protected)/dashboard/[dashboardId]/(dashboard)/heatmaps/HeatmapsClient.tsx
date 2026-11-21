@@ -101,7 +101,6 @@ export function HeatmapsClient() {
         ) : (
           <HeatmapPagePicker
             pages={pageOptions}
-            truncated={truncated}
             value={selectedPath}
             onValueChange={(path) => setSelection({ path, device: undefined, capture: undefined })}
           />
