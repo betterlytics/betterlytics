@@ -18,7 +18,7 @@ import { useSavedFiltersLimitReached } from '@/hooks/use-saved-filters';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { type QueryFilterPart, type QueryFiltersEditorTarget } from '@/contexts/QueryFiltersEditorProvider';
+import { type QueryFilterPart, type QueryFiltersEditorFocus } from '@/contexts/QueryFiltersEditorProvider';
 
 const FILTER_PART_CONTROL_SELECTORS: Record<QueryFilterPart, string> = {
   column: '[data-slot="dropdown-menu-trigger"]',
@@ -36,7 +36,7 @@ type QueryFiltersSelectorContentProps = {
   onCancel: () => void;
   onLoadSavedFilter?: (filters: QueryFilter[]) => void;
   propertyKeys?: PropertyKeysBySource;
-  focusTarget?: QueryFiltersEditorTarget | null;
+  focusTarget?: QueryFiltersEditorFocus | null;
 };
 
 export function QueryFiltersSelectorContent({
@@ -59,19 +59,29 @@ export function QueryFiltersSelectorContent({
 
   const filtersListRef = useRef<HTMLDivElement>(null);
 
-  const handleAddFilter = useCallback(() => {
-    addEmptyQueryFilter();
+  const focusLastRow = useCallback(() => {
     requestAnimationFrame(() => {
       const rows = filtersListRef.current?.children;
       const newRow = rows?.[rows.length - 1];
       const trigger = newRow?.querySelector<HTMLButtonElement>('[data-slot="dropdown-menu-trigger"]');
       trigger?.focus({ focusVisible: true } as FocusOptions);
     });
-  }, [addEmptyQueryFilter]);
+  }, []);
+
+  const handleAddFilter = useCallback(() => {
+    addEmptyQueryFilter();
+    focusLastRow();
+  }, [addEmptyQueryFilter, focusLastRow]);
 
   useEffect(() => {
     if (!focusTarget) return;
     const frame = requestAnimationFrame(() => {
+      if ('newFilter' in focusTarget) {
+        // An empty row left over from an earlier open is reused
+        if (queryFilters.at(-1)?.values.length === 0) focusLastRow();
+        else handleAddFilter();
+        return;
+      }
       const list = filtersListRef.current;
       const index = queryFilters.findIndex((filter) => filter.id === focusTarget.filterId);
       const row = list?.children[index];
