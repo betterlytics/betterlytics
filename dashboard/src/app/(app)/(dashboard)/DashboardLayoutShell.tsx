@@ -43,7 +43,7 @@ export default async function DashboardLayoutShell({
         <BASidebarProvider>
           <BASidebar dashboardId={dashboardId} isDemo={isDemo} />
           <BAMobileSidebarTrigger />
-          <main className='bg-background w-full overflow-x-hidden'>
+          <main className='bg-background w-full min-w-0 overflow-x-clip'>
             <ScrollReset />
             {children}
           </main>
