@@ -78,7 +78,7 @@ Every click records the page's height. When the median height of the clicks in t
 
 ## Troubleshooting
 
-- **Nothing happens on the page you're capturing:** the page needs the Betterlytics tracking script, and its Content-Security-Policy must allow `replay.js` and the upload, see [Content-Security-Policy](/integration/heatmaps#content-security-policy).
+- **Nothing happens on the page you're capturing:** the page needs the Betterlytics tracking script, and its Content-Security-Policy must allow `capture.js`, `replay.js` and the upload, see [Content-Security-Policy](/integration/heatmaps#content-security-policy).
 - **The capture was refused for the wrong width:** resize the window back to the device's range, reset the zoom, and press the button in the panel again.
 - **The window didn't open:** allow pop-ups for the dashboard in your browser.
 - **The panel is gone after going to another page:** the panel only follows you on the same host, and for 15 minutes. Start a new capture from the dashboard, with the page on the other host as its address.

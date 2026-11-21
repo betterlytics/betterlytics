@@ -74,11 +74,11 @@ Ids generated at runtime, such as React's `useId()` output (`:r1:` or `«r1»`),
 
 ## Content-Security-Policy
 
-`heatmap.js` loads from the same origin as `analytics.js` (or from `data-scripts-base-url`), and clicks are sent to your event server, the origin of `data-server-url`. Capturing a page from the dashboard loads `replay.js` the same way and uploads the capture to the event server. If your site sets a Content-Security-Policy, allow those origins in `script-src` and `connect-src`: `https://betterlytics.io` for the hosted service, or your instance's origin when [self-hosting](/installation/self-hosting#content-security-policy).
+`heatmap.js` loads from the same origin as `analytics.js` (or from `data-scripts-base-url`), and clicks are sent to your event server, the origin of `data-server-url`. Capturing a page from the dashboard loads `capture.js` and `replay.js` the same way and uploads the capture to the event server. If your site sets a Content-Security-Policy, allow those origins in `script-src` and `connect-src`: `https://betterlytics.io` for the hosted service, or your instance's origin when [self-hosting](/installation/self-hosting#content-security-policy).
 
 ### Showing your live page
 
-When a page has no capture or replay layout yet, the Heatmaps page can show your live page in a frame behind the clicks. That only works when your site lets the dashboard frame it: either a CSP `frame-ancestors` directive that includes `https://betterlytics.io` (or your instance's origin), or no `frame-ancestors` and no `X-Frame-Options` of `DENY` or `SAMEORIGIN`. Pages grouped with `data-dynamic-urls` never get a live page, since the pattern isn't one real page. Otherwise the dashboard asks for a capture instead. The framed page runs `analytics.js` in a preview mode that records nothing.
+When a page has no capture or replay layout yet, the Heatmaps page can show your live page in a frame behind the clicks. That only works when your site lets the dashboard frame it: either a CSP `frame-ancestors` directive that includes `https://betterlytics.io` (or your instance's origin), or no `frame-ancestors` and no `X-Frame-Options` of `DENY` or `SAMEORIGIN`. Pages grouped with `data-dynamic-urls` never get a live page, since the pattern isn't one real page. Otherwise the dashboard asks for a capture instead. The framed page records nothing: `analytics.js` loads `capture.js` in a preview mode instead.
 
 ## Troubleshooting
 
