@@ -15,6 +15,8 @@ import { authClient } from '@/lib/auth-client';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { baEvent } from '@/lib/ba-event';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
+import { useBARouter } from '@/hooks/use-ba-router';
+import { ONBOARDING_ALREADY_COMPLETE } from '@/constants/onboarding';
 
 type WebsiteSetupProps = {
   onNext: Dispatch<void>;
@@ -30,6 +32,7 @@ export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
   const [agree, setAgree] = useState(false);
   const { data: session, refetch } = authClient.useSession();
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
+  const baRouter = useBARouter();
 
   const effectiveShowTos = isFeatureFlagEnabled('isCloud') && !session?.user?.termsAcceptedAt;
 
@@ -64,6 +67,13 @@ export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
         });
 
         if (!result.success) {
+          if (result.error.code === ONBOARDING_ALREADY_COMPLETE) {
+            try {
+              await refetch();
+            } catch {}
+            baRouter.push('/dashboards');
+            return;
+          }
           setError(result.error.message);
           return;
         }
@@ -78,7 +88,7 @@ export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
         onNext();
       });
     },
-    [domain, agree, effectiveShowTos, locale, refetch, t, tValidation, setDashboard, onNext],
+    [domain, agree, effectiveShowTos, locale, refetch, t, tValidation, setDashboard, onNext, baRouter],
   );
 
   return (

@@ -165,15 +165,14 @@ export async function findUserMemberships(userId: string): Promise<DashboardMemb
   );
 }
 
+function ownedDashboardsWhere(userId: string): Prisma.UserDashboardWhereInput {
+  return { userId, role: 'owner', deletedAt: null, dashboard: { deletedAt: null } };
+}
+
 export async function findOwnedDashboards(userId: string): Promise<Dashboard[]> {
   try {
     const prismaUserDashboards = await prisma.userDashboard.findMany({
-      where: {
-        userId,
-        role: 'owner',
-        deletedAt: null,
-        dashboard: { deletedAt: null },
-      },
+      where: ownedDashboardsWhere(userId),
       include: {
         dashboard: true,
       },
@@ -207,37 +206,68 @@ export async function findMemberDashboardsCount(userId: string): Promise<number>
   }
 }
 
-export async function createDashboard(data: DashboardWriteData): Promise<Dashboard> {
-  try {
-    const validatedData = DashboardWriteSchema.parse(data);
-
-    const prismaDashboard = await prisma.dashboard.create({
-      data: {
-        domain: validatedData.domain,
-        siteId: validatedData.siteId,
-        userAccess: {
-          create: {
-            userId: validatedData.userId,
-            role: 'owner',
-          },
-        },
-        settings: {
-          create: {
-            ...DEFAULT_DASHBOARD_SETTINGS,
-          },
-        },
-        config: {
-          create: {
-            ...DEFAULT_SITE_CONFIG_VALUES,
-          },
+async function createDashboardWith(tx: Prisma.TransactionClient, data: DashboardWriteData): Promise<Dashboard> {
+  const prismaDashboard = await tx.dashboard.create({
+    data: {
+      domain: data.domain,
+      siteId: data.siteId,
+      userAccess: {
+        create: {
+          userId: data.userId,
+          role: 'owner',
         },
       },
-    });
+      settings: {
+        create: {
+          ...DEFAULT_DASHBOARD_SETTINGS,
+        },
+      },
+      config: {
+        create: {
+          ...DEFAULT_SITE_CONFIG_VALUES,
+        },
+      },
+    },
+  });
 
-    return DashboardSchema.parse(prismaDashboard);
+  return DashboardSchema.parse(prismaDashboard);
+}
+
+export async function createDashboard(data: DashboardWriteData): Promise<Dashboard> {
+  try {
+    return await createDashboardWith(prisma, DashboardWriteSchema.parse(data));
   } catch (error) {
     console.error('Error creating dashboard:', error);
     throw new Error('Failed to create dashboard.');
+  }
+}
+
+/**
+ * Marks onboarding complete and creates the user's first dashboard in one transaction. The claim only matches
+ * while onboarding is open, so a concurrent call waits on the user row and then claims nothing.
+ * `assertWithinLimit` gets the owned dashboard count and throws to refuse; any throw rolls the claim back.
+ * Returns null when onboarding was already complete.
+ */
+export async function createDashboardCompletingOnboarding(
+  data: DashboardWriteData,
+  assertWithinLimit: (ownedCount: number) => Promise<void>,
+): Promise<Dashboard | null> {
+  const validatedData = DashboardWriteSchema.parse(data);
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const claimed = await tx.user.updateMany({
+        where: { id: validatedData.userId, onboardingCompletedAt: null },
+        data: { onboardingCompletedAt: new Date() },
+      });
+      if (claimed.count === 0) return null;
+
+      await assertWithinLimit(await tx.userDashboard.count({ where: ownedDashboardsWhere(validatedData.userId) }));
+
+      return createDashboardWith(tx, validatedData);
+    });
+  } catch (error) {
+    console.error(`Error completing onboarding for user ${validatedData.userId}:`, error);
+    throw error;
   }
 }
 

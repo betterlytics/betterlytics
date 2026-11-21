@@ -4587,6 +4587,7 @@
   },
   "validation": {
     "termsOfServiceRequired": "Devi accettare i termini di servizio per continuare.",
+    "onboardingAlreadyComplete": "La configurazione iniziale è già stata completata.",
     "urlMustBeOnDomain": "L'URL deve essere su {domain} o un sottodominio",
     "monitorAlreadyExists": "Esiste già un monitor per questo URL",
     "statusPageSlugTaken": "Questo slug URL è già in uso",
