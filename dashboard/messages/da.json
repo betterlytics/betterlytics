@@ -3803,6 +3803,7 @@
       "toastFiltersUpdated": "Filtre opdateret",
       "toastFilterAdded": "Tilføjet",
       "toastFilterRemoved": "Fjernet",
+      "toastFiltersRemoved": "{count, plural, one {# filter fjernet} other {# filtre fjernet}}",
       "removeFilter": "Fjern filter",
       "pillMoreValues": "{count, plural, one {+# mere} other {+# flere}}",
       "notAvailableOnPage": "Ikke tilgængelig på denne side",

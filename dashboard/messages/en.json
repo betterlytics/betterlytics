@@ -3803,6 +3803,7 @@
       "toastFiltersUpdated": "Filters updated",
       "toastFilterAdded": "Added",
       "toastFilterRemoved": "Removed",
+      "toastFiltersRemoved": "{count, plural, one {Removed # filter} other {Removed # filters}}",
       "removeFilter": "Remove filter",
       "pillMoreValues": "+{count, number} more",
       "notAvailableOnPage": "Not available on this page",

@@ -42,7 +42,7 @@ export function ActiveQueryFilters({ variant = 'row' }: ActiveQueryFiltersProps)
   const clearAll = (event: MouseEvent<HTMLElement>) => {
     focusFiltersTrigger(event.currentTarget);
     setQueryFilters([]);
-    notifyFiltersUpdated(queryFilters, []);
+    notifyFiltersUpdated(queryFilters, [], { summarised: true });
   };
 
   const pills = queryFilters.map((filter) => (
