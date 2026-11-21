@@ -49,7 +49,7 @@ export function HeatmapPanel({
   const dashboardId = useDashboardId();
   const { isDemo, hasPermission } = useDashboardAuth();
   const { input, options } = useBAQueryParams();
-  useCaptureOrigin(url, hasPermission('canCaptureHeatmaps') && !isDemo);
+  const originQuery = useCaptureOrigin(url, hasPermission('canCaptureHeatmaps'));
   const capturesQuery = trpc.heatmapCaptures.list.useQuery(
     { dashboardId, path: url },
     // A capture finished in its own window shows up once the editor is back here
@@ -123,7 +123,6 @@ export function HeatmapPanel({
     viewKey = `capture/${capture.id}`;
     view = (
       <CaptureHeatmap
-        key={capture.id}
         url={url}
         device={device}
         capture={capture}
@@ -156,7 +155,6 @@ export function HeatmapPanel({
     viewKey = key;
     view = (
       <ReplayHeatmap
-        key={key}
         url={url}
         device={device}
         snapshot={replay}
@@ -169,7 +167,6 @@ export function HeatmapPanel({
     viewKey = `live/${livePage}`;
     view = (
       <LiveHeatmap
-        key={livePage}
         url={url}
         device={device}
         pageUrl={livePage}
@@ -197,7 +194,7 @@ export function HeatmapPanel({
 
   return (
     <>
-      <FrameView viewKey={viewKey} holdable={viewKey === 'none'}>
+      <FrameView viewKey={viewKey} holdable={viewKey === 'none'} loadBehind={!useCapture}>
         {view}
       </FrameView>
       {capturing && (
@@ -205,6 +202,7 @@ export function HeatmapPanel({
           pagePath={url}
           device={device}
           pageCaptures={pageCaptures}
+          originQuery={originQuery}
           onClose={() => setCapturing(false)}
           onCaptured={onSelectCapture}
         />

@@ -87,7 +87,6 @@ export function HeatmapsClient() {
     contentKey = `page/${selectedPath}|${device}`;
     content = (
       <HeatmapPanel
-        key={`${selectedPath}|${device}`}
         url={selectedPath}
         device={device}
         siteHasClicks={siteHasClicks}

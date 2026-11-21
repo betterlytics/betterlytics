@@ -38,7 +38,6 @@ export const HeatmapCaptureSchema = z.object({
   sizeBytes: z.number().int(),
   createdAt: z.date(),
   createdById: z.string().nullable(),
-  createdByName: z.string().nullable(),
   capturedFromUrl: z.string(),
 });
 export type HeatmapCapture = z.infer<typeof HeatmapCaptureSchema>;

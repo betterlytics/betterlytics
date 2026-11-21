@@ -19,8 +19,9 @@ const FrameSlotContext = createContext<HTMLElement | null>(null);
 type LoadingRegistry = { add: () => () => void; check: () => void; onIdle: (() => void) | null };
 
 const FrameLoadingContext = createContext<LoadingRegistry | null>(null);
-// A view loading out of sight keeps its bar items to itself until it is shown
-const FrameHiddenContext = createContext(false);
+// A view kept on screen while the next one loads leaves the bar to the next one, so the bar is
+// laid out before the next view measures the canvas
+const FrameHeldContext = createContext(false);
 
 function createLoadingRegistry(): LoadingRegistry {
   let loading = 0;
@@ -39,7 +40,7 @@ function createLoadingRegistry(): LoadingRegistry {
   return registry;
 }
 
-/** Keeps a view that is loading out of sight from being shown while `loading` */
+/** Called by every part of a frame view that shows a loading state, so the view isn't revealed while `loading` */
 export function useFrameLoading(loading: boolean) {
   const registry = useContext(FrameLoadingContext);
   useEffect(() => (loading && registry ? registry.add() : undefined), [loading, registry]);
@@ -88,11 +89,11 @@ type FrameContentProps = {
 /** What the frame shows, with what it is and its actions at the end of the bar */
 export function FrameContent({ info, actions, children }: FrameContentProps) {
   const slot = useContext(FrameSlotContext);
-  const hidden = useContext(FrameHiddenContext);
+  const held = useContext(FrameHeldContext);
   return (
     <>
       {slot &&
-        !hidden &&
+        !held &&
         createPortal(
           <>
             {info}
@@ -108,51 +109,63 @@ export function FrameContent({ info, actions, children }: FrameContentProps) {
 type FrameViewProps = {
   /** Which view this is; a view with another key replaces it */
   viewKey: string;
-  /** For an empty state, which stays on screen while the view replacing it loads */
+  /** For an empty state, which stays on screen while a view replacing it loads */
   holdable?: boolean;
+  /** Whether this view may load behind a held empty state; off for views the editor asked for */
+  loadBehind?: boolean;
   children: ReactNode;
 };
 
 /**
  * One view in the frame. When new data, such as a new period's, replaces an empty state with
- * something to draw, the new view loads out of sight and the empty state stays until it is ready,
- * so the frame changes once and shows no spinner.
+ * something to draw, the new view loads out of sight behind the empty state and replaces it once
+ * nothing in it is loading, so the canvas changes once and shows no spinner.
  */
-export function FrameView({ viewKey, holdable = false, children }: FrameViewProps) {
+export function FrameView({ viewKey, holdable = false, loadBehind = true, children }: FrameViewProps) {
   const parentRegistry = useContext(FrameLoadingContext);
-  const parentHidden = useContext(FrameHiddenContext);
+  const parentHeld = useContext(FrameHeldContext);
   const [registry] = useState(createLoadingRegistry);
   const [shown, setShown] = useState({ key: viewKey, holdable });
   const shownView = useRef<ReactNode>(children);
 
-  if (shown.key !== viewKey && !shown.holdable) setShown({ key: viewKey, holdable });
-  const loadingBehind = shown.key !== viewKey && shown.holdable;
-  if (!loadingBehind) shownView.current = children;
+  const holding = shown.key !== viewKey && shown.holdable && loadBehind;
+  if (shown.key !== viewKey && !holding) setShown({ key: viewKey, holdable });
+  if (!holding) shownView.current = children;
 
   useEffect(() => {
-    registry.onIdle = loadingBehind ? () => setShown({ key: viewKey, holdable }) : null;
-    if (loadingBehind) registry.check();
-  }, [registry, loadingBehind, viewKey, holdable]);
+    registry.onIdle = holding ? () => setShown({ key: viewKey, holdable }) : null;
+    if (holding) registry.check();
+  }, [registry, holding, viewKey, holdable]);
 
+  // Keyed siblings, so the held view keeps its state and the revealed view isn't moved
+  return [
+    <FrameSlot key={shown.key} held={parentHeld || holding} registry={parentRegistry}>
+      {holding ? shownView.current : children}
+    </FrameSlot>,
+    holding && (
+      <FrameSlot key={viewKey} held={parentHeld} registry={registry} behind>
+        {children}
+      </FrameSlot>
+    ),
+  ];
+}
+
+type FrameSlotProps = {
+  held: boolean;
+  registry: LoadingRegistry | null;
+  behind?: boolean;
+  children: ReactNode;
+};
+
+function FrameSlot({ held, registry, behind = false, children }: FrameSlotProps) {
   return (
-    <>
-      {loadingBehind && (
-        <div key={`shown:${shown.key}`} className='h-full'>
-          {shownView.current}
+    <FrameHeldContext.Provider value={held}>
+      <FrameLoadingContext.Provider value={registry}>
+        <div inert={behind} className={behind ? 'invisible absolute inset-0' : 'h-full'}>
+          {children}
         </div>
-      )}
-      <FrameHiddenContext.Provider value={parentHidden || loadingBehind}>
-        <FrameLoadingContext.Provider value={loadingBehind ? registry : parentRegistry}>
-          <div
-            key={viewKey}
-            inert={loadingBehind}
-            className={loadingBehind ? 'invisible absolute inset-0' : 'h-full'}
-          >
-            {children}
-          </div>
-        </FrameLoadingContext.Provider>
-      </FrameHiddenContext.Provider>
-    </>
+      </FrameLoadingContext.Provider>
+    </FrameHeldContext.Provider>
   );
 }
 

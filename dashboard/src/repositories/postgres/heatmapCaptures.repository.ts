@@ -61,7 +61,6 @@ const captureSelect = {
   sizeBytes: true,
   createdAt: true,
   createdById: true,
-  createdBy: { select: { name: true, email: true } },
   capturedFromUrl: true,
 } as const;
 
@@ -75,10 +74,7 @@ export async function findHeatmapCaptures(
     select: captureSelect,
   });
 
-  // Email/password sign-ups have no name; members already see each other's emails in the members list
-  return rows.map(({ createdBy, ...row }) =>
-    HeatmapCaptureSchema.parse({ ...row, createdByName: createdBy ? createdBy.name || createdBy.email : null }),
-  );
+  return rows.map((row) => HeatmapCaptureSchema.parse(row));
 }
 
 export async function findHeatmapCaptureLocation(
