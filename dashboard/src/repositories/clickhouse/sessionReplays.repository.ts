@@ -1,7 +1,7 @@
 'use server';
 
 import { clickhouse } from '@/lib/clickhouse';
-import { safeSql } from '@/lib/safe-sql';
+import { safeSql, type SQLTaggedExpression } from '@/lib/safe-sql';
 import { parseClickHouseDate } from '@/utils/dateHelpers';
 import { SessionReplay, SessionReplayArraySchema } from '@/entities/analytics/sessionReplays.entities';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
@@ -73,15 +73,53 @@ export async function getSessionReplays(
 ): Promise<SessionReplay[]> {
   const { siteId, startDateTime, endDateTime } = siteQuery;
 
-  const query = safeSql`
-    WITH page AS (
-      SELECT *
-      FROM analytics.session_replays FINAL
-      WHERE site_id = {site_id:String}
-        AND started_at BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-      ORDER BY started_at DESC, session_id DESC
-      LIMIT {limit:UInt32} OFFSET {offset:UInt32}
-    )
+  const query = selectReplaysWithSessionDetails(safeSql`
+    SELECT *
+    FROM analytics.session_replays FINAL
+    WHERE site_id = {site_id:String}
+      AND started_at BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+    ORDER BY started_at DESC, session_id DESC
+    LIMIT {limit:UInt32} OFFSET {offset:UInt32}
+  `);
+
+  const result = await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        site_id: siteId,
+        start_date: startDateTime,
+        end_date: endDateTime,
+        limit,
+        offset,
+      },
+    })
+    .toPromise();
+
+  return SessionReplayArraySchema.parse(result);
+}
+
+export async function getSessionReplayById(siteId: string, sessionId: string): Promise<SessionReplay | null> {
+  const query = selectReplaysWithSessionDetails(safeSql`
+    SELECT *
+    FROM analytics.session_replays FINAL
+    WHERE site_id = {site_id:String}
+      AND session_id = {session_id:UInt64}
+    LIMIT 1
+  `);
+
+  const result = await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, site_id: siteId, session_id: sessionId },
+    })
+    .toPromise();
+
+  return SessionReplayArraySchema.parse(result)[0] ?? null;
+}
+
+// Joins the replay rows selected by `page` with the device, browser and country of their session
+function selectReplaysWithSessionDetails(page: SQLTaggedExpression): SQLTaggedExpression {
+  return safeSql`
+    WITH page AS (${page})
     SELECT
       r.site_id AS site_id,
       toString(r.session_id) as session_id,
@@ -115,19 +153,4 @@ export async function getSessionReplays(
     ) AS e USING (site_id, session_id)
     ORDER BY r.started_at DESC, r.session_id DESC
   `;
-
-  const result = await clickhouse
-    .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        site_id: siteId,
-        start_date: startDateTime,
-        end_date: endDateTime,
-        limit,
-        offset,
-      },
-    })
-    .toPromise();
-
-  return SessionReplayArraySchema.parse(result);
 }

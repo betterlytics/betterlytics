@@ -4051,7 +4051,9 @@
           "description": "Prøv at udvide din tidsperiode eller juster filtrene."
         },
         "sessionErrorsTooltip": "Denne session opfangede {count} klientsidefejl",
-        "sessionRageClicksTooltip": "{count, plural, one {Denne session har {count} raseriklik} other {Denne session har {count} raseriklik}}"
+        "sessionRageClicksTooltip": "{count, plural, one {Denne session har {count} raseriklik} other {Denne session har {count} raseriklik}}",
+        "linked": "Linket",
+        "linkedSession": "Linket session"
       },
       "playerTopbar": {
         "startLabel": "Start:",
@@ -4082,7 +4084,11 @@
       "player": {
         "skipInactive": "Spring inaktivitet over",
         "playbackSpeedAria": "Afspilningshastighed",
-        "recordingDisabled": "Optagelse er deaktiveret på denne side"
+        "recordingDisabled": "Optagelse er deaktiveret på denne side",
+        "notFound": {
+          "title": "Optagelsen er ikke længere tilgængelig",
+          "description": "Denne sessionsoptagelse findes ikke eller er udløbet. Optagelser gemmes i 2 måneder."
+        }
       }
     },
     "integration": {

@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
-import Link from 'next/link';
 import { ExternalLink, Play, MousePointerClick, AlertTriangle, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -10,7 +9,7 @@ import { useTheme } from 'next-themes';
 import { trpc } from '@/trpc/client';
 import type { GroupedSessionTrailEvent } from '@/entities/analytics/errors.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
-import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
+import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useLocale, useTranslations } from 'next-intl';
 import type { SupportedLanguages } from '@/constants/i18n';
@@ -41,7 +40,6 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
   const [hasReplay, setHasReplay] = useState(false);
   const [isPending, startTransition] = useTransition();
   const { resolvedTheme } = useTheme();
-  const { resolveHref } = useDashboardNavigation();
   const { timeZone } = useTimeRangeContext();
   const locale = useLocale() as SupportedLanguages;
   const theme = resolvedTheme === 'dark' ? 'dark' : 'light';
@@ -95,13 +93,13 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
           </p>
         </div>
         {hasReplay && (
-          <Link
-            href={resolveHref(`/replay?sessionId=${sessionId}`)}
+          <FilterPreservingLink
+            href={`/replay?sessionId=${sessionId}`}
             className='bg-primary text-primary-foreground hover:bg-primary/90 flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors'
           >
             <Play className='full-current h-3.5 w-3.5' />
             {t('watchReplay')}
-          </Link>
+          </FilterPreservingLink>
         )}
       </div>
       <div className='relative'>

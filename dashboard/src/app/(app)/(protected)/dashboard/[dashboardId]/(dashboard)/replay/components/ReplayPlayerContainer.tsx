@@ -8,14 +8,23 @@ import type { UsePlayerStateReturn } from '../hooks/usePlayerState';
 import { useReplayPlayer } from '../hooks/useReplayPlayer';
 import { ReplayTopbar } from './ReplayTopbar';
 import PausePlayIndicatorOverlay, { PausePlayIndicatorOverlayHandle } from './PausePlayIndicatorOverlay';
+import { VideoOff } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 type ReplayPlayerContainerProps = {
   playerState: UsePlayerStateReturn;
   session?: SessionReplay | null;
   error?: string | null;
+  isSessionNotFound?: boolean;
 };
 
-export function ReplayPlayerContainer({ playerState, session, error }: ReplayPlayerContainerProps) {
+export function ReplayPlayerContainer({
+  playerState,
+  session,
+  error,
+  isSessionNotFound,
+}: ReplayPlayerContainerProps) {
+  const t = useTranslations('components.sessionReplay.player.notFound');
   const { isPlaying, speed, currentTime, setSkipInactivity, playPause, seekToRatio, setSpeed } = useReplayPlayer(
     playerState,
     session?.session_id,
@@ -74,6 +83,18 @@ export function ReplayPlayerContainer({ playerState, session, error }: ReplayPla
       <div className='rr-block relative flex flex-1 flex-col overflow-hidden select-none' onClick={onPlayerClick}>
         <ReplayPlayer ref={playerState.playerRef} playerState={playerState} isPlaying={isPlaying} />
         <PausePlayIndicatorOverlay ref={overlayRef} />
+        {isSessionNotFound && (
+          <div
+            className='bg-background absolute inset-0 flex items-center justify-center p-6'
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className='flex max-w-sm flex-col items-center text-center'>
+              <VideoOff className='text-muted-foreground/70 mb-3 h-8 w-8' aria-hidden='true' />
+              <p className='text-sm font-medium'>{t('title')}</p>
+              <p className='text-muted-foreground mt-1 text-xs'>{t('description')}</p>
+            </div>
+          </div>
+        )}
       </div>
       <ReplayControls
         isPlaying={isPlaying}

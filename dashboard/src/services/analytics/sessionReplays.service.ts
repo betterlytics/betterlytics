@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { getSessionReplays } from '@/repositories/clickhouse/index.repository';
-import { getReplaySessionMeta } from '@/repositories/clickhouse/sessionReplays.repository';
+import { getReplaySessionMeta, getSessionReplayById } from '@/repositories/clickhouse/sessionReplays.repository';
 import { readerFor, type ReplaySegmentReader } from '@/repositories/replaySegments.repository';
 import { replayStorage } from '@/lib/env';
 import { DEMO_SESSION_REPLAYS } from '@/constants/demoSessionReplays';
@@ -11,6 +11,7 @@ import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { demoNow, demoReplayWindow } from '@/utils/demoData';
 
 const STREAM_PREFETCH_AHEAD = 4;
+const MAX_UINT64 = BigInt('18446744073709551615');
 
 export async function getSessionReplaysForSite(
   authContext: AuthContext,
@@ -24,6 +25,22 @@ export async function getSessionReplaysForSite(
       .slice(offset, offset + limit);
   }
   return getSessionReplays(siteQuery, limit, offset);
+}
+
+export async function getSessionReplayForSite(
+  authContext: AuthContext,
+  sessionId: string,
+): Promise<SessionReplay | null> {
+  // A malformed id can't exist, so it's not found rather than a query error
+  if (!isUInt64(sessionId)) return null;
+  if (authContext.isDemo) {
+    return getDemoSessionReplays(authContext.siteId).find((replay) => replay.session_id === sessionId) ?? null;
+  }
+  return getSessionReplayById(authContext.siteId, sessionId);
+}
+
+function isUInt64(value: string): boolean {
+  return /^\d{1,20}$/.test(value) && BigInt(value) <= MAX_UINT64;
 }
 
 function getDemoSessionReplays(siteId: string): SessionReplay[] {
