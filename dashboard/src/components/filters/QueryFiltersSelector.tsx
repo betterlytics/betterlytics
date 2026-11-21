@@ -20,9 +20,7 @@ import { QueryFiltersSelectorContent } from '@/components/filters/QueryFiltersSe
 import { useQueryFiltersEditor } from '@/contexts/QueryFiltersEditorProvider';
 
 const initOrDefault = (filters: QueryFilter[]): QueryFilter[] =>
-  filters.length > 0
-    ? filters
-    : [{ id: generateTempId(), column: 'url', operator: '=', values: [] }];
+  filters.length > 0 ? filters : [{ id: generateTempId(), column: 'url', operator: '=', values: [] }];
 
 type QueryFiltersSelectorProps = Omit<ComponentProps<typeof Popover>, 'open' | 'onOpenChange'>;
 
@@ -76,13 +74,41 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
     [setQueryFilters, setIsPopoverOpen],
   );
 
+  const interactedOutsideRef = useRef(false);
+
   // A pill moves focus to its own filter row, so the default first-control focus is skipped.
   const handleOpenAutoFocus = useCallback(
     (e: Event) => {
+      interactedOutsideRef.current = false;
       if (target) e.preventDefault();
     },
     [target],
   );
+
+  // An interaction elsewhere closed the editor, so focus stays where the user put it, as Radix does by default.
+  const handleInteractOutside = useCallback((e: Event) => {
+    if (!e.defaultPrevented) interactedOutsideRef.current = true;
+  }, []);
+
+  // Closing hands focus back to the pill section that opened the editor, while that pill still exists.
+  const handleCloseAutoFocus = useCallback(
+    (e: Event) => {
+      if (!target || interactedOutsideRef.current) return;
+      const section = document.querySelector<HTMLElement>(
+        `[data-filter-pill="${CSS.escape(target.filterId)}"] [data-pill-part="${target.part}"]`,
+      );
+      if (!section) return;
+      e.preventDefault();
+      section.focus();
+    },
+    [target],
+  );
+
+  // A click on another pill section retargets the open editor instead of closing and reopening it.
+  const handlePointerDownOutside = useCallback((e: CustomEvent<{ originalEvent: Event }>) => {
+    const origin = e.detail.originalEvent.target;
+    if (origin instanceof Element && origin.closest('[data-pill-part]')) e.preventDefault();
+  }, []);
 
   const activeFilterCount = useAllowedQueryFilters(nonEmptyFilters).length;
 
@@ -114,6 +140,8 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
           className='bg-popover max-h-[85vh] w-[calc(100vw-2rem)] max-w-[640px] overflow-y-auto px-2 py-3'
           onAnimationEnd={handleContentAnimationEnd}
           onOpenAutoFocus={handleOpenAutoFocus}
+          onCloseAutoFocus={handleCloseAutoFocus}
+          onInteractOutside={handleInteractOutside}
         >
           <DialogHeader>
             <DialogTitle>{t('selector.title')}</DialogTitle>
@@ -142,6 +170,9 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
         align='start'
         onAnimationEnd={handleContentAnimationEnd}
         onOpenAutoFocus={handleOpenAutoFocus}
+        onCloseAutoFocus={handleCloseAutoFocus}
+        onPointerDownOutside={handlePointerDownOutside}
+        onInteractOutside={handleInteractOutside}
       >
         <QueryFiltersSelectorContent
           initialFilters={contextQueryFilters}
