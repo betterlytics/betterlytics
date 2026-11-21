@@ -12,6 +12,8 @@ import { clickhouse } from '@/lib/clickhouse';
 import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { BASessionQuery } from '@/lib/ba-session-query';
+import { SessionMetricSql } from '@/lib/session-metrics-sql';
 
 /**
  * Get the distribution of referrers by source type using unique sessions
@@ -95,64 +97,43 @@ export async function getReferrerTrafficTrendBySource(
 }
 
 /**
- * Get detailed referrer data for the table display
- * Including visits, bounce rate, and visit duration by referrer source
+ * Get detailed referrer data for the table display: visits, bounce rate and visit duration per
+ * referrer, from the sessions table so each row matches the Overview filtered to that referrer.
  */
 export async function getReferrerTableData(siteQuery: BASiteQuery, limit: number = 100): Promise<any[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
-  const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+
+  const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
+    [
+      'session_start',
+      'session_end',
+      'pageview_count',
+      'referrer_source_effective',
+      'referrer_source_name',
+      'referrer_url',
+    ],
+    queryFilters,
+    siteId,
+    startDateTime,
+    endDateTime,
+  );
 
   const query = safeSql`
-    WITH session_data AS (
-      SELECT
-        session_id,
-        referrer_source_effective as source_type,
-        referrer_source_name as source_name,
-        referrer_url as source_url,
-        count() as page_count,
-        if(count() > 1,
-          dateDiff('second', min(timestamp), max(timestamp)),
-          0
-        ) as duration_seconds,
-        any(_sample_factor) as _sample_factor
-      FROM analytics.events ${sample}
-      WHERE site_id = {site_id:String}
-        AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-        AND referrer_source_effective != 'internal'
-        AND ${SQL.AND(filters)}
-      GROUP BY session_id, source_type, source_name, source_url
-    )
     SELECT
-      source_type,
-      source_name,
-      source_url,
-      count() * any(_sample_factor) as visits,
-      if(count() > 0,
-        round((count() - countIf(page_count > 1)) / count() * 100, 1),
-        0
-      ) as bounce_rate,
-      if(countIf(page_count > 1) > 0,
-        avgIf(duration_seconds, page_count > 1),
-        0
-      ) as avg_visit_duration
-    FROM session_data
+      referrer_source_effective AS source_type,
+      referrer_source_name AS source_name,
+      referrer_url AS source_url,
+      ${SessionMetricSql.sessions} AS visits,
+      round(${SessionMetricSql.bounceRate}, 1) AS bounce_rate,
+      round(${SessionMetricSql.avgVisitDuration}) AS avg_visit_duration
+    FROM ${sessionSubQuery}
+    WHERE referrer_source_effective != 'internal'
     GROUP BY source_type, source_name, source_url
     ORDER BY visits DESC
-    LIMIT {limit:UInt32}
+    LIMIT ${SQL.UInt32({ limit })}
   `;
 
-  const result = (await clickhouse
-    .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        site_id: siteId,
-        start: startDateTime,
-        end: endDateTime,
-        limit,
-      },
-    })
-    .toPromise()) as any[];
+  const result = (await clickhouse.query(query.taggedSql, { params: query.taggedParams }).toPromise()) as any[];
 
   return result;
 }

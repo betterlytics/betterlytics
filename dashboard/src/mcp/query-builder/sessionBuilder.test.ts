@@ -30,7 +30,7 @@ describe('buildSessionsQuery', () => {
       'round(if(count() > 0, 100 * (count() - countIf(pageview_count > 1)) / count(), 0), 1) AS bounce_rate',
     );
     expect(result.taggedSql).toContain(
-      "round(if(countIf(pageview_count > 1) > 0, sum(dateDiff('second', session_start, session_end)) / countIf(pageview_count > 1), 0)) AS avg_visit_duration",
+      "round(if(count() > 0, sum(dateDiff('second', session_start, session_end)) / count(), 0)) AS avg_visit_duration",
     );
     expect(result.taggedSql).toContain(
       'round(if(count() > 0, sum(pageview_count) / count(), 0), 1) AS pages_per_session',

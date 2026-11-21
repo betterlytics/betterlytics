@@ -7,6 +7,7 @@ import {
 import { BAQuery } from '@/lib/ba-query';
 import { BASessionQuery } from '@/lib/ba-session-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
+import { SessionMetricSql } from '@/lib/session-metrics-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 function parseHeatmapRows(rows: any[]): WeeklyHeatmapRow[] {
@@ -38,10 +39,10 @@ async function getSessionAggregateHeatmap(
 
   const valueExpr =
     metric === 'bounce_rate'
-      ? safeSql`if(count() > 0, round((count() - countIf(pageview_count > 1)) / count() * 100, 1), 0)`
+      ? safeSql`round(${SessionMetricSql.bounceRate}, 1)`
       : metric === 'pages_per_session'
-        ? safeSql`if(count() > 0, round(avg(pageview_count), 1), 0)`
-        : safeSql`if(countIf(pageview_count > 1) > 0, round(avgIf(dateDiff('second', session_start, session_end), pageview_count > 1), 0), 0)`;
+        ? safeSql`round(${SessionMetricSql.pagesPerSession}, 1)`
+        : safeSql`round(${SessionMetricSql.avgVisitDuration})`;
 
   const query = safeSql`
     SELECT

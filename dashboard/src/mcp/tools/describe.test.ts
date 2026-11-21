@@ -172,6 +172,9 @@ describe('getSchemaDescription', () => {
     }
     expect(querySessions.metrics.find((m) => m.key === 'bounce_rate')?.unit).toContain('percent');
     expect(querySessions.metrics.find((m) => m.key === 'avg_visit_duration')?.unit).toContain('seconds');
+    expect(querySessions.metrics.find((m) => m.key === 'avg_visit_duration')?.description).toContain(
+      'bounces included',
+    );
     expect(querySessions.dimensions.map((d) => d.key)).toEqual([...SESSION_DIMENSION_KEYS]);
     expect(querySessions.filterColumns.extraColumns.map((c) => c.key)).toEqual(['entry_page', 'exit_page']);
   });
