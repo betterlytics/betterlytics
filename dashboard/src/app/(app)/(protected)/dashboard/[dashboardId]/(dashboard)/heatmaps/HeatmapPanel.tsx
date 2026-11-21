@@ -4,7 +4,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import type { eventWithTime } from '@rrweb/types';
-import { Globe, History, TriangleAlert, Video } from 'lucide-react';
+import { Globe, History, TriangleAlert } from 'lucide-react';
 import { trpc } from '@/trpc/client';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
@@ -408,7 +408,7 @@ function ReplayHeatmap({ snapshot, url, device, history, actions, onUnusable }: 
       info={
         <>
           {history}
-          <FrameLabel icon={<Video />} label={t('source.replay', { date: recordedOn })} />
+          <FrameLabel label={t('source.replay', { date: recordedOn })} />
         </>
       }
       actions={actions}

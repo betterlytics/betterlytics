@@ -225,7 +225,7 @@ export function FrameMessage({ icon, title, description, children }: FrameMessag
 }
 
 type FrameLabelProps = {
-  icon: ReactNode;
+  icon?: ReactNode;
   label: string;
   hint?: string;
   tone?: 'muted' | 'warning';
@@ -240,7 +240,7 @@ export function FrameLabel({ icon, label, hint, tone = 'muted' }: FrameLabelProp
         hint && 'cursor-default',
       )}
     >
-      <span className='shrink-0 [&_svg]:h-3.5 [&_svg]:w-3.5'>{icon}</span>
+      {icon && <span className='shrink-0 [&_svg]:h-3.5 [&_svg]:w-3.5'>{icon}</span>}
       <span className='truncate'>{label}</span>
     </span>
   );
