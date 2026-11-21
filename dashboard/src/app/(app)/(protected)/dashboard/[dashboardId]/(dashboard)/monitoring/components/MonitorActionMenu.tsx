@@ -97,19 +97,19 @@ export function MonitorActionMenu({ monitor, dashboardId, vertical = false }: Mo
               >
                 {monitor.isEnabled ? (
                   <>
-                    <PauseCircle className='mr-2 h-4 w-4' />
+                    <PauseCircle />
                     {statusMutation.isPending ? tMonitorActions('pausing') : tMonitorActions('pause')}
                   </>
                 ) : (
                   <>
-                    <PlayCircle className='mr-2 h-4 w-4' />
+                    <PlayCircle />
                     {statusMutation.isPending ? tMonitorActions('resuming') : tMonitorActions('resume')}
                   </>
                 )}
               </DropdownMenuItem>
 
               <DropdownMenuItem onClick={openRenameDialog} className='cursor-pointer'>
-                <Pencil className='mr-2 h-4 w-4' />
+                <Pencil />
                 {tMisc('rename')}
               </DropdownMenuItem>
 
@@ -118,7 +118,7 @@ export function MonitorActionMenu({ monitor, dashboardId, vertical = false }: Mo
                 monitor={monitor}
                 trigger={
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()} className='cursor-pointer'>
-                    <Settings className='mr-2 h-4 w-4' />
+                    <Settings />
                     {t('settings')}
                   </DropdownMenuItem>
                 }
@@ -131,7 +131,7 @@ export function MonitorActionMenu({ monitor, dashboardId, vertical = false }: Mo
                 variant='destructive'
                 className='cursor-pointer'
               >
-                <Trash2 className='mr-2 h-4 w-4' />
+                <Trash2 />
                 {tMisc('delete')}
               </DropdownMenuItem>
             </DropdownMenuContent>

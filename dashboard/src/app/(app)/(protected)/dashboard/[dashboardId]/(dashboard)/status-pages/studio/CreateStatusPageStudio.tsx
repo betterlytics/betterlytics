@@ -114,7 +114,7 @@ function StudioForm({
         onClick={() => commitMutation.mutate(false)}
         className='cursor-pointer'
       >
-        {submittingDraft && <Spinner size='sm' className='mr-1.5 border-current' />}
+        {submittingDraft && <Spinner size='sm' className='border-current' />}
         {t('wizard.saveDraft')}
       </Button>
       <PermissionGate permission='canPublishStatusPages'>
@@ -138,7 +138,7 @@ function StudioForm({
               onClick={() => commitMutation.mutate(true)}
               className='cursor-pointer'
             >
-              {submittingPublish && <Spinner size='sm' className='mr-1.5 border-current' />}
+              {submittingPublish && <Spinner size='sm' className='border-current' />}
               {t('publish')}
             </Button>
           )

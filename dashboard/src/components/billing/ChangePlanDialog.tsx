@@ -141,7 +141,7 @@ export function ChangePlanDialog({
                 disabled={planChange.isPending || previewQuery.isLoading || previewQuery.isError || !targetPlan}
                 className='cursor-pointer'
               >
-                {planChange.isPending && <Spinner size='sm' className='mr-2 border-current' />}
+                {planChange.isPending && <Spinner size='sm' className='border-current' />}
                 {t('confirm')}
               </Button>
             </div>
@@ -212,13 +212,13 @@ function FailureBody({ failure, isAuthRequired, isCardDeclined, isBusy, onRetryA
         </Button>
         {isAuthRequired && (
           <Button onClick={onRetryAuth} disabled={isBusy} className='cursor-pointer'>
-            {isBusy && <Spinner size='sm' className='mr-2 border-current' />}
+            {isBusy && <Spinner size='sm' className='border-current' />}
             {t('tryAgain')}
           </Button>
         )}
         {isCardDeclined && (
           <Button onClick={handleOpenPortal} disabled={openingPortal} className='cursor-pointer'>
-            {openingPortal && <Spinner size='sm' className='mr-2 border-current' />}
+            {openingPortal && <Spinner size='sm' className='border-current' />}
             {t('updatePaymentMethod')}
           </Button>
         )}

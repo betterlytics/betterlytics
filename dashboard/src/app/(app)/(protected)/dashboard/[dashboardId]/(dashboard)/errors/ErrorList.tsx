@@ -406,19 +406,19 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId, loading
                   <DropdownMenuContent align='end'>
                     {currentStatus !== 'resolved' && (
                       <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'resolved')}>
-                        <CheckCircle className='mr-2 h-4 w-4 text-emerald-600' />
+                        <CheckCircle className='text-emerald-600' />
                         {t('statusActions.markResolved')}
                       </DropdownMenuItem>
                     )}
                     {currentStatus !== 'ignored' && (
                       <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'ignored')}>
-                        <EyeOff className='mr-2 h-4 w-4' />
+                        <EyeOff />
                         {t('statusActions.ignore')}
                       </DropdownMenuItem>
                     )}
                     {currentStatus !== 'unresolved' && (
                       <DropdownMenuItem className='cursor-pointer' onClick={() => setStatus(fp, 'unresolved')}>
-                        <RotateCcw className='mr-2 h-4 w-4' />
+                        <RotateCcw />
                         {t('statusActions.markUnresolved')}
                       </DropdownMenuItem>
                     )}

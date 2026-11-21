@@ -61,7 +61,7 @@ export function SubscriptionStatusBanner({ planStatus, periodEnd, onAction }: Su
           onClick={onAction}
           className='w-full shrink-0 cursor-pointer sm:w-auto'
         >
-          <ExternalLink className='mr-2 h-4 w-4' />
+          <ExternalLink />
           {t(cfg.actionKey)}
         </Button>
       )}

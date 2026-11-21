@@ -104,7 +104,7 @@ function StudioBody({
                 onClick={onSave}
                 className='cursor-pointer'
               >
-                {saving && <Spinner size='sm' className='mr-1.5 border-current' />}
+                {saving && <Spinner size='sm' className='border-current' />}
                 {t('save')}
               </Button>
             )}
