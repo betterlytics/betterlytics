@@ -130,9 +130,7 @@ export async function findAllUserDashboards(userId: string): Promise<DashboardWi
           },
         },
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: [{ joinedAt: 'desc' }, { dashboardId: 'desc' }],
     });
 
     return prismaUserDashboards.map((userDashboard) =>
@@ -152,7 +150,7 @@ export async function findUserMemberships(userId: string): Promise<DashboardMemb
   const rows = await prisma.userDashboard.findMany({
     where: { userId, deletedAt: null, dashboard: { deletedAt: null } },
     select: { role: true, dashboard: { select: { id: true, siteId: true, domain: true } } },
-    orderBy: { createdAt: 'desc' },
+    orderBy: [{ joinedAt: 'desc' }, { dashboardId: 'desc' }],
   });
 
   return rows.map((row) =>
@@ -177,9 +175,7 @@ export async function findOwnedDashboards(userId: string): Promise<Dashboard[]> 
       include: {
         dashboard: true,
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: [{ joinedAt: 'desc' }, { dashboardId: 'desc' }],
     });
 
     return prismaUserDashboards.map((userDashboard) => DashboardSchema.parse(userDashboard.dashboard));
@@ -470,7 +466,7 @@ export async function findDashboardMembers(dashboardId: string): Promise<Dashboa
           },
         },
       },
-      orderBy: [{ role: 'asc' }, { createdAt: 'asc' }],
+      orderBy: [{ role: 'asc' }, { joinedAt: 'asc' }, { userId: 'asc' }],
     });
 
     return members.map((m) => DashboardMemberSchema.parse(m));
@@ -511,29 +507,51 @@ export async function addDashboardMember(
   }
 }
 
+/**
+ * Ends the member's live row and opens one with the new role at the same moment, so the rows keep the
+ * role history. The joined date and default flag carry over; if any step fails the old row stays live.
+ */
 export async function updateMemberRole(
   dashboardId: string,
   userId: string,
   role: DashboardRole,
+  changedById: string,
 ): Promise<DashboardMember> {
   try {
-    const liveMember = await prisma.userDashboard.findFirstOrThrow({
-      where: { userId, dashboardId, deletedAt: null },
-      select: { id: true },
-    });
-    const member = await prisma.userDashboard.update({
-      where: { id: liveMember.id },
-      data: { role },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            image: true,
+    const member = await prisma.$transaction(async (tx) => {
+      const liveMember = await tx.userDashboard.findFirstOrThrow({
+        where: { userId, dashboardId, deletedAt: null },
+        select: { id: true, joinedAt: true, isDefault: true },
+      });
+      const changedAt = new Date();
+
+      // Ended first, so the partial unique index on live memberships allows the new row. The deletedAt
+      // guard makes a removal that commits in between win instead of being overwritten.
+      const { count } = await tx.userDashboard.updateMany({
+        where: { id: liveMember.id, deletedAt: null },
+        data: { deletedAt: changedAt, deletedById: changedById },
+      });
+      if (count !== 1) throw new Error('Membership ended during the role change');
+      return tx.userDashboard.create({
+        data: {
+          userId,
+          dashboardId,
+          role,
+          isDefault: liveMember.isDefault,
+          joinedAt: liveMember.joinedAt,
+          createdAt: changedAt,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+            },
           },
         },
-      },
+      });
     });
 
     return DashboardMemberSchema.parse(member);

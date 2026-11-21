@@ -46,7 +46,7 @@ export const DashboardMemberSchema = z.object({
   userId: z.string(),
   dashboardId: z.string(),
   role: z.nativeEnum(DashboardRole),
-  createdAt: z.date(),
+  joinedAt: z.date(),
   user: z.object({
     id: z.string(),
     name: z.string().nullable(),
