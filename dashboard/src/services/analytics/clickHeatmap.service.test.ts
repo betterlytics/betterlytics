@@ -130,6 +130,7 @@ describe('getCaptureOrigin', () => {
 
     await expect(getCaptureOrigin(siteQuery, 'dash', '/pricing')).resolves.toEqual({
       origin: 'https://www.example.com',
+      domain: 'example.com',
     });
     expect(getMostVisitedHost).toHaveBeenCalledWith(siteQuery, '/pricing', 'example.com', { anyHost: true });
   });
@@ -140,6 +141,7 @@ describe('getCaptureOrigin', () => {
 
     await expect(getCaptureOrigin(siteQuery, 'dash', '/pricing')).resolves.toEqual({
       origin: 'https://shop.example.de',
+      domain: 'example.com',
     });
   });
 
@@ -149,6 +151,7 @@ describe('getCaptureOrigin', () => {
 
     await expect(getCaptureOrigin(siteQuery, 'dash', '/pricing')).resolves.toEqual({
       origin: 'http://shop.localhost',
+      domain: 'shop.localhost',
     });
   });
 
@@ -166,6 +169,7 @@ describe('getCaptureOrigin', () => {
 
       await expect(getCaptureOrigin(siteQuery, 'dash', '/pricing')).resolves.toEqual({
         origin: 'http://run-3.localhost:3020',
+        domain: 'localhost',
       });
     });
 
@@ -175,6 +179,7 @@ describe('getCaptureOrigin', () => {
 
       await expect(getCaptureOrigin(siteQuery, 'dash', '/pricing')).resolves.toEqual({
         origin: 'http://localhost',
+        domain: 'localhost',
       });
     });
 
@@ -184,6 +189,7 @@ describe('getCaptureOrigin', () => {
 
       await expect(getCaptureOrigin(siteQuery, 'dash', '/pricing')).resolves.toEqual({
         origin: 'https://www.example.com',
+        domain: 'example.com',
       });
     });
   });

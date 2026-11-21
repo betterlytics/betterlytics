@@ -4,6 +4,7 @@ import {
   type HeatmapDevice,
 } from '@/entities/analytics/clickHeatmap.entities';
 import type { HeatmapCapture } from '@/entities/analytics/heatmapCaptures.entities';
+import { isUrlOnDomain } from '@/utils/domainValidation';
 
 export type CaptureAddressError = 'empty' | 'invalidUrl' | 'wildcard';
 
@@ -33,13 +34,19 @@ export function resolveCaptureAddress(
   return { url: url.href };
 }
 
-/** The address the dialog starts from: the page captured last, else the page path on the suggested origin */
+/**
+ * The address the dialog starts from: the page captured last on the dashboard's domain, else the
+ * page path on the suggested origin. Any link holder can upload a snapshot of any host, so an
+ * address off the domain is never offered to the next editor along with a fresh link.
+ */
 export function initialCaptureAddress(
   pagePath: string,
-  origin: string | undefined,
+  site: { origin: string; domain: string } | null | undefined,
   pageCaptures: HeatmapCapture[],
 ): string | null {
-  return pageCaptures[0]?.capturedFromUrl ?? (origin ? `${origin}${pagePath}` : null);
+  if (!site) return null;
+  const onDomain = pageCaptures.find((capture) => isUrlOnDomain(capture.capturedFromUrl, site.domain));
+  return onDomain?.capturedFromUrl ?? `${site.origin}${pagePath}`;
 }
 
 // The page path lets the panel on the page tell the editor when a page isn't one the heatmap covers

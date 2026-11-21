@@ -86,7 +86,7 @@ const LOCAL_HOST = /^(localhost|127\.0\.0\.1|\[::1\])$|\.localhost$/;
 export async function getCaptureOrigin(siteQuery: BASiteQuery, dashboardId: string, url: string) {
   const dashboard = await findDashboardById(dashboardId);
   const host = await getMostVisitedHost(siteQuery, url, dashboard.domain, { anyHost: true });
-  return { origin: originOf(host ?? dashboard.domain) };
+  return { origin: originOf(host ?? dashboard.domain), domain: dashboard.domain };
 }
 
 /** The origin on the dashboard's domain that visitors opened a page on most, or null without any */

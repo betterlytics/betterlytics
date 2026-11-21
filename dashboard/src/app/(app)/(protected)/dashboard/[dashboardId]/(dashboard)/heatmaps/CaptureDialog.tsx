@@ -84,7 +84,7 @@ export function CaptureDialog({
   };
 
   const origin = originQuery.data?.origin;
-  const suggestedAddress = initialCaptureAddress(pagePath, origin, pageCaptures);
+  const suggestedAddress = initialCaptureAddress(pagePath, originQuery.data, pageCaptures);
   const loadingAddress = editedAddress === null && suggestedAddress === null && originQuery.isPending;
   const address = editedAddress ?? suggestedAddress ?? (loadingAddress ? '' : pagePath);
   const target = resolveCaptureAddress(address, origin);

@@ -45,15 +45,31 @@ describe('resolveCaptureAddress', () => {
 describe('initialCaptureAddress', () => {
   const capture = (capturedFromUrl: string) => ({ capturedFromUrl }) as HeatmapCapture;
 
-  it('starts from the page captured last, else the page path on the suggested origin', () => {
+  const site = { origin, domain: 'example.com' };
+
+  it("starts from the page captured last on the dashboard's domain, else the page path on the suggested origin", () => {
     expect(
-      initialCaptureAddress('/profile/*/posts', origin, [
-        capture('https://staging.example.net/profile/b/posts'),
+      initialCaptureAddress('/profile/*/posts', site, [
+        capture('https://shop.example.com/profile/b/posts'),
         capture('https://www.example.com/profile/a/posts'),
       ]),
-    ).toBe('https://staging.example.net/profile/b/posts');
-    expect(initialCaptureAddress('/profile/*/posts', origin, [])).toBe('https://www.example.com/profile/*/posts');
+    ).toBe('https://shop.example.com/profile/b/posts');
+    expect(initialCaptureAddress('/profile/*/posts', site, [])).toBe('https://www.example.com/profile/*/posts');
     expect(initialCaptureAddress('/profile/*/posts', undefined, [])).toBeNull();
+    expect(initialCaptureAddress('/profile/*/posts', null, [])).toBeNull();
+  });
+
+  it('skips captures of pages off the domain, which any link holder could have uploaded', () => {
+    expect(
+      initialCaptureAddress('/profile/*/posts', site, [
+        capture('https://evil.test/profile/b/posts'),
+        capture('https://example.com.evil.test/profile/b/posts'),
+        capture('https://www.example.com/profile/a/posts'),
+      ]),
+    ).toBe('https://www.example.com/profile/a/posts');
+    expect(initialCaptureAddress('/pricing', site, [capture('http://localhost:3000/pricing')])).toBe(
+      'https://www.example.com/pricing',
+    );
   });
 });
 
