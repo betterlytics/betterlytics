@@ -74,7 +74,7 @@ betterlytics.event("newsletter-signup", {
 
 **The first argument** to the function ("button-click" or "newsletter-signup") is the name of your custom event that will be used to identify the event in your dashboard.
 
-**The second (optional) argument** is an object of event properties that provide extra content about the interaction.
+**The second (optional) argument** is an object of event properties that provide extra content about the interaction. It must be a plain object: anything else, such as a string, array or date, is ignored with a console error and the event is sent without properties.
 
 ## Event Properties
 
