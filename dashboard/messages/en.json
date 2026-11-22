@@ -4008,9 +4008,6 @@
       },
       "capture": {
         "captureButton": "Capture page",
-        "recaptureButton": "Capture again",
-        "pageChanged": "Page changed",
-        "pageChangedHint": "The page's height has changed since this capture. Capture it again for an exact layout.",
         "title": "Capture the {device} layout",
         "learnMore": "Learn more",
         "pageLabel": "Page",

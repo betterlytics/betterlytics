@@ -4008,9 +4008,6 @@
       },
       "capture": {
         "captureButton": "Optag side",
-        "recaptureButton": "Optag igen",
-        "pageChanged": "Siden er ændret",
-        "pageChangedHint": "Sidens højde har ændret sig siden denne optagelse. Optag den igen for et præcist layout.",
         "title": "Optag layoutet til {device}",
         "learnMore": "Læs mere",
         "pageLabel": "Side",

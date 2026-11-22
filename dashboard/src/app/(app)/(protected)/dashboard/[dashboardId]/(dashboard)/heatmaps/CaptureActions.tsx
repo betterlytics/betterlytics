@@ -31,11 +31,10 @@ export function useCaptureDetails() {
 
 type CaptureButtonProps = {
   onClick: () => void;
-  label?: string;
 };
 
 /** Shown to editors and above */
-export function CaptureButton({ onClick, label }: CaptureButtonProps) {
+export function CaptureButton({ onClick }: CaptureButtonProps) {
   const t = useTranslations('components.heatmaps.capture');
   const { hasPermission } = useDashboardAuth();
   if (!hasPermission('canCaptureHeatmaps')) return null;
@@ -43,7 +42,7 @@ export function CaptureButton({ onClick, label }: CaptureButtonProps) {
   return (
     <Button size='sm' variant='ghost' className='h-7 cursor-pointer gap-1.5 px-2 text-xs' onClick={onClick}>
       <Camera className='size-3.5' />
-      {label ?? t('captureButton')}
+      {t('captureButton')}
     </Button>
   );
 }

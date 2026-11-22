@@ -4008,9 +4008,6 @@
       },
       "capture": {
         "captureButton": "Ta opp siden",
-        "recaptureButton": "Ta opp på nytt",
-        "pageChanged": "Siden er endret",
-        "pageChangedHint": "Høyden på siden har endret seg siden dette opptaket. Ta den opp på nytt for et nøyaktig oppsett.",
         "title": "Ta opp oppsettet for {device}",
         "learnMore": "Lær mer",
         "pageLabel": "Side",

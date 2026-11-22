@@ -17,10 +17,9 @@ import {
 import type { HeatmapCapture } from '@/entities/analytics/heatmapCaptures.entities';
 import { CaptureButton, CaptureHistoryMenu, useCaptureDetails } from './CaptureActions';
 import { CaptureDialog, useCaptureOrigin } from './CaptureDialog';
-import { FrameBadge, FrameContent, FrameLabel, FrameMenuButton, FrameSpinner, FrameView } from './HeatmapFrame';
+import { FrameContent, FrameLabel, FrameMenuButton, FrameSpinner, FrameView } from './HeatmapFrame';
 import { NoCaptureMessage, SetUpHeatmapsMessage } from './HeatmapsEmptyState';
 import { LiveHeatmapView } from './LiveHeatmapView';
-import { pageChangedSinceCapture, snapshotWindowHeight } from './pageChanged';
 import { SnapshotHeatmapView } from './SnapshotHeatmapView';
 
 type HeatmapPanelProps = {
@@ -330,15 +329,9 @@ function CaptureHeatmap({
 }: CaptureHeatmapProps) {
   const t = useTranslations('components.heatmaps');
   const dashboardId = useDashboardId();
-  const { input, options } = useBAQueryParams();
   const details = useCaptureDetails();
   const href = `/api/heatmap/captures/${encodeURIComponent(capture.id)}?${new URLSearchParams({ dashboardId })}`;
   const events = useSnapshotEvents(['heatmap-capture', dashboardId, capture.id], href, onUnusable);
-  const pageHeightQuery = trpc.clickHeatmap.pageHeightSince.useQuery(
-    { ...input, url, device, width: capture.viewportWidth, capturedAt: capture.createdAt },
-    options,
-  );
-  const pageChanged = pageChangedSinceCapture(capture, snapshotWindowHeight(events), pageHeightQuery.data);
   const { date } = details(capture);
 
   return (
@@ -349,25 +342,14 @@ function CaptureHeatmap({
       snapshotMs={NaN}
       events={events}
       info={
-        <>
-          <CaptureHistoryMenu
-            captures={captures}
-            shownCaptureId={capture.id}
-            onSelect={onSelectCapture}
-            trigger={<FrameMenuButton label={t('source.capture', { date })} />}
-          />
-          {pageChanged && (
-            <FrameBadge
-              icon={<TriangleAlert />}
-              label={t('capture.pageChanged')}
-              hint={t('capture.pageChangedHint')}
-            />
-          )}
-        </>
+        <CaptureHistoryMenu
+          captures={captures}
+          shownCaptureId={capture.id}
+          onSelect={onSelectCapture}
+          trigger={<FrameMenuButton label={t('source.capture', { date })} />}
+        />
       }
-      actions={
-        <CaptureButton onClick={onCapture} label={pageChanged ? t('capture.recaptureButton') : undefined} />
-      }
+      actions={<CaptureButton onClick={onCapture} />}
       onUnusable={onUnusable}
     />
   );
