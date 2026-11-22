@@ -577,9 +577,12 @@ mod tests {
         let mut h = Harness::new().await;
         assert_eq!(h.send_clicks("81.4.101.10", 2).await, Ok(()));
         let rows = h.stored();
-        assert_eq!(rows.len(), 2);
+        let selectors: Vec<_> = rows.iter().map(|r| r.selector.as_str()).collect();
+        assert_eq!(selectors, ["#c0", "#c1"]);
         for row in &rows {
             assert_eq!((row.url.as_str(), row.device.as_str()), ("/pricing", "desktop"));
+            assert_eq!((row.page_x, row.page_y), (10, 20));
+            assert_eq!((row.viewport_width, row.document_height), (1280, 3000));
         }
     }
 

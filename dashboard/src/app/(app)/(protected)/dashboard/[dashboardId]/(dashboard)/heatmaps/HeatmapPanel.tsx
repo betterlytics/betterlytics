@@ -127,7 +127,7 @@ export function HeatmapPanel({
         capture={capture}
         captures={captures}
         onSelectCapture={onSelectCapture}
-        onCapture={openCapture}
+        actions={captureButton}
         onUnusable={() => markUnusable(`capture/${capture.id}`)}
       />
     );
@@ -314,7 +314,7 @@ type CaptureHeatmapProps = {
   capture: HeatmapCapture;
   captures: HeatmapCapture[];
   onSelectCapture: (captureId: string) => void;
-  onCapture: () => void;
+  actions: ReactNode;
   onUnusable: () => void;
 };
 
@@ -324,7 +324,7 @@ function CaptureHeatmap({
   capture,
   captures,
   onSelectCapture,
-  onCapture,
+  actions,
   onUnusable,
 }: CaptureHeatmapProps) {
   const t = useTranslations('components.heatmaps');
@@ -349,7 +349,7 @@ function CaptureHeatmap({
           trigger={<FrameMenuButton label={t('source.capture', { date })} />}
         />
       }
-      actions={<CaptureButton onClick={onCapture} />}
+      actions={actions}
       onUnusable={onUnusable}
     />
   );
