@@ -60,18 +60,26 @@ export function QueryFiltersSelectorContent({
   const filtersListRef = useRef<HTMLDivElement>(null);
 
   const focusLastRow = useCallback(() => {
-    requestAnimationFrame(() => {
-      const rows = filtersListRef.current?.children;
-      const newRow = rows?.[rows.length - 1];
-      const trigger = newRow?.querySelector<HTMLButtonElement>('[data-slot="dropdown-menu-trigger"]');
-      trigger?.focus({ focusVisible: true } as FocusOptions);
-    });
+    const rows = filtersListRef.current?.children;
+    const trigger = rows?.[rows.length - 1]?.querySelector<HTMLButtonElement>(
+      '[data-slot="dropdown-menu-trigger"]',
+    );
+    trigger?.focus({ focusVisible: true } as FocusOptions);
   }, []);
 
+  const focusesAddedRow = useRef(false);
+
   const handleAddFilter = useCallback(() => {
+    focusesAddedRow.current = true;
     addEmptyQueryFilter();
+  }, [addEmptyQueryFilter]);
+
+  // Waits for the new row to be in the DOM, which a frame alone does not guarantee
+  useEffect(() => {
+    if (!focusesAddedRow.current) return;
+    focusesAddedRow.current = false;
     focusLastRow();
-  }, [addEmptyQueryFilter, focusLastRow]);
+  }, [queryFilters.length, focusLastRow]);
 
   useEffect(() => {
     if (!focusTarget) return;
