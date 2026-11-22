@@ -37,7 +37,7 @@
   var FONT_FACE = /@font-face\s*{[^}]*}/g;
   var CSS_URL = /url\(\s*(['"]?)([^'")]+)\1\s*\)/g;
   // A link is used up only once a capture is stored, so other refusals can be retried
-  var FINAL_REASONS = ["link_invalid", "too_large"];
+  var FINAL_REASONS = ["link_invalid", "wrong_site", "too_large"];
   // Typed text lives in these as text, which maskAllInputs doesn't reach; site masks are honored
   var TYPED_TEXT = 'textarea, [contenteditable]:not([contenteditable="false"]), [data-rrweb-mask]';
   var PATH_CHECK_MS = 500;
@@ -377,7 +377,9 @@
   function upload(events) {
     return gzip(JSON.stringify(events)).then(function (encoded) {
       var query =
-        "viewport_width=" +
+        "site_id=" +
+        encodeURIComponent(config.siteId) +
+        "&viewport_width=" +
         viewportWidth() +
         "&window_width=" +
         windowWidth() +

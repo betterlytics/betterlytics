@@ -37,7 +37,7 @@ describe('createCaptureLink', () => {
   it.each(['/pricing', '/profile/*/posts'])('stores a link for %s, storing only the token hash', async (path) => {
     const { token } = await createCaptureLink(ctx, { path, device: 'desktop' });
 
-    expect(token).toMatch(/^bhc_/);
+    expect(token).toMatch(/^bhc_site-1\.[\w-]{43}$/);
     expect(createLinkRow).toHaveBeenCalledWith('dash-1', 'user-1', { path, device: 'desktop' }, expect.any(String));
     expect(createLinkRow.mock.calls[0][3]).not.toBe(token);
   });

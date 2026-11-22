@@ -44,7 +44,7 @@ To capture a page:
 
 Keep the window at its size and don't zoom until the capture is done. A capture whose window width falls outside the device's range is refused, and the panel on the page says why.
 
-The page needs the Betterlytics tracking script, but not `data-heatmaps` or Session Replay. A capture link works once and expires after 15 minutes. Taking a capture doesn't count as a visit.
+The page needs this dashboard's tracking script, the one with its `data-site-id`, but not `data-heatmaps` or Session Replay. A capture link works once and expires after 15 minutes. Pages tracked by another dashboard ignore it. Taking a capture doesn't count as a visit.
 
 ### What a capture keeps
 
@@ -61,7 +61,7 @@ Viewers can't capture pages. Ask an owner, admin or editor of the dashboard, or 
 The **Page** field holds the full address the window opens. It starts with the address captured last on your dashboard's domain. Otherwise it starts with the page on the host most visitors used on your dashboard's domain, or on another host when your domain has no visits to the page. You can change it to:
 
 - **A page with a query string**, such as `https://www.example.com/search?q=shoes`.
-- **Another host** with the Betterlytics tracking script, such as a second domain the dashboard tracks, a staging copy, or `http://localhost:3000`.
+- **Another host** with this dashboard's tracking script, such as a second domain the dashboard tracks, a staging copy, or `http://localhost:3000`.
 - **A page to start from.** You can go to other pages in the window before you capture, for example to add something to the cart and then go to the checkout. The Betterlytics panel stays with you on the same host, such as from `www.example.com/cart` to `www.example.com/checkout` but not to `checkout.example.com`, and warns you when a page isn't one the heatmap covers. You can still capture that page, for example a mock page on another path.
 
 ### Pages with wildcards
@@ -74,7 +74,7 @@ Click the capture's date in the bar above the heatmap to list the captures for t
 
 ## Troubleshooting
 
-- **Nothing happens on the page you're capturing:** the page needs the Betterlytics tracking script, and its Content-Security-Policy must allow `capture.js`, `replay.js` and the upload, see [Content-Security-Policy](/integration/heatmaps#content-security-policy).
+- **Nothing happens on the page you're capturing:** the page needs this dashboard's tracking script, with the same `data-site-id` as the dashboard, and its Content-Security-Policy must allow `capture.js`, `replay.js` and the upload, see [Content-Security-Policy](/integration/heatmaps#content-security-policy).
 - **The capture was refused for the wrong width:** resize the window back to the device's range, reset the zoom, and press the button in the panel again.
 - **The window didn't open:** allow pop-ups for the dashboard in your browser.
 - **The panel is gone after going to another page:** the panel only follows you on the same host, and for 15 minutes. Start a new capture from the dashboard, with the page on the other host as its address.

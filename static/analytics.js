@@ -72,6 +72,7 @@
     // The page can change its address before capture.js arrives
     window.__betterlytics_capture__ = {
       hash: window.location.hash,
+      siteId: siteId,
       serverUrl: serverUrl,
       scriptsBaseUrl: scriptsBaseUrl,
       normalize: normalize,
@@ -275,15 +276,30 @@
   }
 
   // capture.js keeps a capture link for this tab until it expires, so a reload (a consent
-  // banner's, say) or going on to other pages continues the capture instead of tracking a visit
+  // banner's, say) or going on to other pages continues the capture instead of tracking a visit.
+  // A link is only taken up outside frames, on pages tracked for the dashboard that made it, so
+  // nobody can have a visitor capture another site's page into their own dashboard.
   function isCaptureMode() {
-    if (/^#bl-(capture=|preview$)/.test(window.location.hash)) return true;
-    try {
-      return (
-        JSON.parse(sessionStorage.getItem("betterlytics:capture")).expires >
-        Date.now()
+    var hash = window.location.hash;
+    if (hash === "#bl-preview") return true;
+    if (window.top !== window) return false;
+    if (hash.indexOf("#bl-capture=") === 0) {
+      return isOwnCaptureToken(
+        new URLSearchParams(hash.slice(1)).get("bl-capture"),
       );
-    } catch (e) {}
+    }
+    try {
+      var stored = JSON.parse(sessionStorage.getItem("betterlytics:capture"));
+      return stored.expires > Date.now() && isOwnCaptureToken(stored.token);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // A token is "bhc_<site id>.<secret>"; its stored hash covers the site id, so it can't be swapped
+  function isOwnCaptureToken(token) {
+    var dot = typeof token === "string" ? token.lastIndexOf(".") : -1;
+    return !!siteId && dot > 0 && token.slice(0, dot) === "bhc_" + siteId;
   }
 
   function loadScript(src) {

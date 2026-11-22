@@ -32,9 +32,9 @@ function hashCaptureToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
 }
 
-// The token travels in the capture page's URL fragment; only its hash is stored. The editor
-// may walk to the page from another one, or capture a staging copy on another host, so the
-// link isn't bound to a page or host.
+// The token travels in the capture page's URL fragment; only its hash is stored. It names the
+// dashboard's site, so only pages running this dashboard's tracking script take it up, on any
+// host: the editor may walk to the page from another one, or capture a staging copy.
 export async function createCaptureLink(ctx: AuthContext, input: CreateHeatmapCaptureLinkInput) {
   assertMemberContext(ctx);
   if (replayStorage === 's3' && (!s3Env.enabled || !s3Env.bucket)) {
@@ -42,7 +42,7 @@ export async function createCaptureLink(ctx: AuthContext, input: CreateHeatmapCa
     throw new UserException(t('storageNotConfigured'));
   }
 
-  const token = `bhc_${randomBytes(32).toString('base64url')}`;
+  const token = `bhc_${ctx.siteId}.${randomBytes(32).toString('base64url')}`;
   const { expiresAt } = await createHeatmapCaptureLink(
     ctx.dashboardId,
     ctx.userId,
