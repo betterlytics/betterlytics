@@ -30,6 +30,7 @@ export function useFilterBandOverflow({
 }: FilterBandOverflowOptions) {
   const [hidden, setHidden] = useState(0);
   const [peekLeft, setPeekLeft] = useState<number | null>(null);
+  const [fades, setFades] = useState(true);
 
   const measure = useCallback(() => {
     const row = rowRef.current;
@@ -46,6 +47,9 @@ export function useFilterBandOverflow({
     const peeks =
       wrapped > 0 && row.clientWidth - left - labelWidth >= (labelled ? LABELLED_PEEK_MIN_WIDTH : PEEK_MIN_WIDTH);
     const first = wrapped > 1 && labelled && !peeks ? wrapped - 1 : wrapped;
+    // Without a label or a peek, only a pill cut off by the row end has anything to fade
+    const cut = last !== undefined && last.offsetLeft + last.offsetWidth > row.clientWidth - 1;
+    setFades(peeks || labelled || cut);
     items.forEach((item, index) => {
       item.toggleAttribute('inert', !open && first >= 0 && index >= first);
       // Keeps the band's title off live controls
@@ -73,5 +77,5 @@ export function useFilterBandOverflow({
     return () => observer.disconnect();
   }, [rowRef, measure, pillsKey]);
 
-  return { hidden, peekLeft };
+  return { hidden, peekLeft, fades };
 }

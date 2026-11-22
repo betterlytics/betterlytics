@@ -21,7 +21,7 @@ type FilterBandProps = {
 
 // Each surface fades its own colour: an inherited variable would restyle every pill per frame
 const BAND_SURFACE =
-  'transition-colors duration-200 ease-out motion-reduce:transition-none [[data-slot=active-filters-band]:hover:not(:has(button:not([data-band-toggle]):hover))_&]:bg-(--band-hover)';
+  'transition-colors duration-200 ease-out motion-reduce:transition-none [@media(hover:hover)]:[[data-slot=active-filters-band]:hover:not(:has(button:not([data-band-toggle]):hover))_&]:bg-(--band-hover)';
 
 /*
  * Pills always wrap at one width, so none moves on toggle: collapsed is the same list clipped to row one.
@@ -42,7 +42,7 @@ export function FilterBand({
   const coverRef = useRef<HTMLSpanElement>(null);
   const count = pills.length;
   const { expanded, open, toggle, reset } = useFilterBandDisclosure(bandRef);
-  const { hidden, peekLeft } = useFilterBandOverflow({
+  const { hidden, peekLeft, fades } = useFilterBandOverflow({
     rowRef,
     coverRef,
     pillsKey,
@@ -67,6 +67,7 @@ export function FilterBand({
       aria-hidden
       className={cn(
         'pointer-events-none absolute top-0 right-0 flex h-8.5',
+        !fades && 'invisible',
         // Within the peek it dims with the peek instead
         peekLeft === null && 'transition-opacity duration-200 motion-reduce:transition-none',
         peekLeft === null && expanded && 'opacity-0',
