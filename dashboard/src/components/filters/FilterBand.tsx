@@ -38,7 +38,6 @@ export function FilterBand({
   action,
 }: FilterBandProps) {
   const t = useTranslations('components.filters');
-  const locale = useLocale();
   const bandRef = useRef<HTMLDivElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);
   const coverRef = useRef<HTMLSpanElement>(null);
@@ -53,23 +52,6 @@ export function FilterBand({
     onFits: reset,
   });
   const toggleable = hidden > 0;
-
-  const badgeRef = useRef<HTMLSpanElement>(null);
-  const shownCount = useRef(count);
-  useEffect(() => {
-    if (shownCount.current === count) return;
-    shownCount.current = count;
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    badgeRef.current?.animate(
-      {
-        boxShadow: [
-          '0 0 0 0 color-mix(in oklab, var(--primary-foreground) 75%, transparent)',
-          '0 0 0 9px color-mix(in oklab, var(--primary-foreground) 0%, transparent)',
-        ],
-      },
-      { duration: 600, easing: 'ease-out' },
-    );
-  }, [count]);
 
   // Anywhere but a live control toggles the band
   const handleBandClick = (event: MouseEvent<HTMLElement>) => {
@@ -124,32 +106,7 @@ export function FilterBand({
         toggleable && 'cursor-pointer hover:not-has-[button:not([data-band-toggle]):hover]:bg-(--band-hover)',
       )}
     >
-      <FilterBandButton
-        data-band-editor=''
-        className='relative mr-1'
-        title={t('editFilters')}
-        aria-label={t('editFilters')}
-        aria-haspopup='dialog'
-        aria-expanded={editorOpen}
-        onClick={onToggleEditor}
-        icon={
-          <>
-            <FilterIcon />
-            <span
-              ref={badgeRef}
-              aria-hidden
-              className='bg-primary-foreground text-primary absolute right-1 bottom-1 grid h-3 min-w-3 place-items-center rounded-full px-0.5 text-[10px] leading-none font-semibold tabular-nums select-none'
-            >
-              <NumberFlow
-                value={count}
-                locales={locale}
-                willChange
-                className='-my-(--number-flow-mask-height) [--number-flow-mask-height:0.25em]'
-              />
-            </span>
-          </>
-        }
-      />
+      <BandEditorButton count={count} open={editorOpen} onToggle={onToggleEditor} />
       <div
         ref={rowRef}
         className={cn(
@@ -204,5 +161,63 @@ export function FilterBand({
         {toggleable && open && clearAllButton}
       </div>
     </div>
+  );
+}
+
+type BandEditorButtonProps = {
+  count: number;
+  open: boolean;
+  onToggle: () => void;
+};
+
+// Opens the filter editor and carries the filter count, which rolls and pings when it changes
+function BandEditorButton({ count, open, onToggle }: BandEditorButtonProps) {
+  const t = useTranslations('components.filters');
+  const locale = useLocale();
+  const badgeRef = useRef<HTMLSpanElement>(null);
+  const shownCount = useRef(count);
+
+  useEffect(() => {
+    if (shownCount.current === count) return;
+    shownCount.current = count;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    badgeRef.current?.animate(
+      {
+        boxShadow: [
+          '0 0 0 0 color-mix(in oklab, var(--primary-foreground) 75%, transparent)',
+          '0 0 0 9px color-mix(in oklab, var(--primary-foreground) 0%, transparent)',
+        ],
+      },
+      { duration: 600, easing: 'ease-out' },
+    );
+  }, [count]);
+
+  return (
+    <FilterBandButton
+      data-band-editor=''
+      className='relative mr-1'
+      title={t('editFilters')}
+      aria-label={t('editFilters')}
+      aria-haspopup='dialog'
+      aria-expanded={open}
+      onClick={onToggle}
+      icon={
+        <>
+          <FilterIcon />
+          <span
+            ref={badgeRef}
+            aria-hidden
+            className='bg-primary-foreground text-primary absolute right-1 bottom-1 grid h-3 min-w-3 place-items-center rounded-full px-0.5 text-[10px] leading-none font-semibold tabular-nums select-none'
+          >
+            <NumberFlow
+              value={count}
+              locales={locale}
+              willChange
+              className='-my-(--number-flow-mask-height) [--number-flow-mask-height:0.25em]'
+            />
+          </span>
+        </>
+      }
+    />
   );
 }
