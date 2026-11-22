@@ -20,7 +20,7 @@ export function ActiveQueryFilters({ variant = 'row' }: ActiveQueryFiltersProps)
   const { queryFilters, removeQueryFilter, setQueryFilters } = useQueryFiltersContext();
   const t = useTranslations('components.filters');
   const notifyFiltersUpdated = useNotifyFiltersUpdated();
-  const { openEditor, isOpen: editorOpen, setIsOpen: setEditorOpen } = useQueryFiltersEditor();
+  const { openEditor, isOpen: editorOpen, setIsOpen: setEditorOpen, draftFull } = useQueryFiltersEditor();
   const { isDemo } = useDashboardAuth();
   const band = variant === 'band';
 
@@ -58,9 +58,6 @@ export function ActiveQueryFilters({ variant = 'row' }: ActiveQueryFiltersProps)
     />
   ));
 
-  // Matches the editor's own Add filter button
-  const canAddFilter = !isDemo && queryFilters.length < MAX_FILTER_ROWS;
-
   if (!band) {
     return <div className='flex flex-wrap gap-1 sm:justify-end'>{pills}</div>;
   }
@@ -74,11 +71,16 @@ export function ActiveQueryFilters({ variant = 'row' }: ActiveQueryFiltersProps)
       editorOpen={editorOpen}
       onToggleEditor={() => setEditorOpen(!editorOpen)}
       action={
-        canAddFilter && (
+        !isDemo && (
           <FilterBandButton
             data-band-editor=''
             icon={<PlusIcon />}
-            tooltip={t('selector.addFilter')}
+            aria-label={t('selector.addFilter')}
+            // Disabled like the editor's own Add filter button, on the draft it would add to
+            disabled={draftFull}
+            tooltip={
+              draftFull ? t('selector.maxFiltersReached', { max: MAX_FILTER_ROWS }) : t('selector.addFilter')
+            }
             onClick={() => openEditor({ newFilter: true })}
           />
         )

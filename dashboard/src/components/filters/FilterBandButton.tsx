@@ -28,9 +28,18 @@ export function FilterBandButton({ icon, tooltip, className, ...props }: FilterB
 
   if (!tooltip) return button;
 
+  // A disabled button fires no pointer events, so a wrapper carries the tooltip
+  const trigger = props.disabled ? (
+    <span data-band-control='' className='flex shrink-0 cursor-not-allowed'>
+      {button}
+    </span>
+  ) : (
+    button
+  );
+
   return (
     <Tooltip>
-      <TooltipTrigger asChild>{button}</TooltipTrigger>
+      <TooltipTrigger asChild>{trigger}</TooltipTrigger>
       <TooltipContent>{tooltip}</TooltipContent>
     </Tooltip>
   );

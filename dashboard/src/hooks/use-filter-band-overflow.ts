@@ -51,7 +51,11 @@ export function useFilterBandOverflow({
     const cut = last !== undefined && last.offsetLeft + last.offsetWidth > row.clientWidth - 1;
     setFades(peeks || labelled || cut);
     items.forEach((item, index) => {
-      item.toggleAttribute('inert', !open && first >= 0 && index >= first);
+      const covered = !open && first >= 0 && index >= first;
+      // Focus on a pill about to go inert moves to the chevron instead of being dropped
+      if (covered && item.contains(document.activeElement))
+        row.parentElement?.querySelector<HTMLElement>('[data-band-toggle]')?.focus({ preventScroll: true });
+      item.toggleAttribute('inert', covered);
       // Keeps the band's title off live controls
       item
         .querySelectorAll('[data-pill-part]:not([title]), [data-pill-remove]:not([title])')

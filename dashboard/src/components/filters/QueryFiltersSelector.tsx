@@ -20,7 +20,7 @@ import { useQueryFilters } from '@/hooks/use-query-filters';
 import { filterEmptyQueryFilters } from '@/utils/queryFilters';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
-import { type QueryFilter } from '@/entities/analytics/filter.entities';
+import { MAX_FILTER_ROWS, type QueryFilter } from '@/entities/analytics/filter.entities';
 import { generateTempId } from '@/utils/temporaryId';
 import { baEvent } from '@/lib/ba-event';
 import { usePropertyKeys } from '@/hooks/use-property-keys';
@@ -37,7 +37,7 @@ type QueryFiltersSelectorProps = Omit<ComponentProps<typeof Popover>, 'open' | '
 };
 
 export default function QueryFiltersSelector({ anchor, ...props }: QueryFiltersSelectorProps) {
-  const { isOpen: isPopoverOpen, setIsOpen: setIsPopoverOpen, target } = useQueryFiltersEditor();
+  const { isOpen: isPopoverOpen, setIsOpen: setIsPopoverOpen, target, setDraftFull } = useQueryFiltersEditor();
   const [isSavedFiltersOpen, setIsSavedFiltersOpen] = useState(false);
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
@@ -50,6 +50,9 @@ export default function QueryFiltersSelector({ anchor, ...props }: QueryFiltersS
   useEffect(() => {
     filters.setQueryFilters(initOrDefault(contextQueryFilters));
   }, [contextQueryFilters]);
+
+  const draftFull = filters.queryFilters.length >= MAX_FILTER_ROWS;
+  useEffect(() => setDraftFull(draftFull), [draftFull, setDraftFull]);
 
   const applyFilters = useCallback(
     (filters: QueryFilter[]) => {
@@ -88,11 +91,13 @@ export default function QueryFiltersSelector({ anchor, ...props }: QueryFiltersS
 
   const interactedOutsideRef = useRef(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const openerRef = useRef<Element | null>(null);
 
   // A pill moves focus to its own filter row, so the default first-control focus is skipped.
   const handleOpenAutoFocus = useCallback(
     (e: Event) => {
       interactedOutsideRef.current = false;
+      openerRef.current = document.activeElement;
       if (target) e.preventDefault();
     },
     [target],
@@ -103,7 +108,7 @@ export default function QueryFiltersSelector({ anchor, ...props }: QueryFiltersS
     if (!e.defaultPrevented) interactedOutsideRef.current = true;
   }, []);
 
-  // Closing returns focus to the pill section that opened the editor, else the band, else the trigger
+  // Closing returns focus to the pill section that opened the editor, else the control that did, else the band
   const handleCloseAutoFocus = useCallback(
     (e: Event) => {
       if (interactedOutsideRef.current) return;
@@ -114,7 +119,10 @@ export default function QueryFiltersSelector({ anchor, ...props }: QueryFiltersS
               `[data-filter-pill="${CSS.escape(target.filterId)}"] [data-pill-part="${target.part}"]`,
             )
           : null;
-      const next = section ?? band ?? triggerRef.current;
+      const opener = openerRef.current instanceof HTMLElement ? openerRef.current : null;
+      const reachable = (element: HTMLElement | null) =>
+        element?.isConnected && !element.closest('[inert]') && !element.matches(':disabled') ? element : null;
+      const next = reachable(section) ?? reachable(opener) ?? band ?? triggerRef.current;
       if (!next) return;
       e.preventDefault();
       next.focus({ preventScroll: true });

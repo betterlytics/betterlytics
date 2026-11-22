@@ -59,7 +59,9 @@ export function useFilterBandDisclosure(bandRef: RefObject<HTMLElement | null>) 
       if (event.key !== 'Escape' || inEditor(event.target)) return;
       const focused = document.activeElement;
       const top = band?.querySelector<HTMLElement>('[data-filter-pill]')?.offsetTop;
-      const staysInView = focused?.closest<HTMLElement>('[data-filter-pill]')?.offsetTop === top;
+      const staysInView =
+        focused?.closest('[data-band-editor], [data-band-control]') != null ||
+        focused?.closest<HTMLElement>('[data-filter-pill]')?.offsetTop === top;
       // Focus on a control that is about to leave moves to the chevron
       if (band?.contains(focused) && !staysInView)
         band.querySelector<HTMLElement>('[data-band-toggle]')?.focus({ preventScroll: true });

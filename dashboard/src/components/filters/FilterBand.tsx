@@ -22,7 +22,7 @@ type FilterBandProps = {
 
 // Each surface fades its own colour: an inherited variable would restyle every pill per frame
 const BAND_SURFACE =
-  'transition-colors duration-200 ease-out motion-reduce:transition-none [@media(hover:hover)]:[[data-slot=active-filters-band]:hover:not(:has(button:not([data-band-toggle]):hover))_&]:bg-(--band-hover)';
+  'transition-colors duration-200 ease-out motion-reduce:transition-none [@media(hover:hover)]:[[data-slot=active-filters-band]:hover:not(:has(:is(button:not([data-band-toggle]),[data-band-control]):hover))_&]:bg-(--band-hover)';
 
 /*
  * Pills always wrap at one width, so none moves on toggle: collapsed is the same list clipped to row one.
@@ -56,7 +56,7 @@ export function FilterBand({
   // Anywhere but a live control toggles the band
   const handleBandClick = (event: MouseEvent<HTMLElement>) => {
     if (!toggleable) return;
-    if (event.target instanceof Element && event.target.closest('button')) return;
+    if (event.target instanceof Element && event.target.closest('button, [data-band-control]')) return;
     toggle();
   };
 
@@ -103,7 +103,8 @@ export function FilterBand({
       className={cn(
         'bg-primary text-primary-foreground flex min-w-0 items-start rounded-lg p-1 shadow-md transition-[opacity,translate,background-color] duration-200 ease-out outline-none motion-reduce:transition-none starting:-translate-y-1 starting:opacity-0',
         '[--band-hover:color-mix(in_oklab,var(--primary)_85%,var(--primary-foreground))]',
-        toggleable && 'cursor-pointer hover:not-has-[button:not([data-band-toggle]):hover]:bg-(--band-hover)',
+        toggleable &&
+          'cursor-pointer hover:not-has-[:is(button:not([data-band-toggle]),[data-band-control]):hover]:bg-(--band-hover)',
       )}
     >
       <BandEditorButton count={count} open={editorOpen} onToggle={onToggleEditor} />
@@ -197,7 +198,7 @@ function BandEditorButton({ count, open, onToggle }: BandEditorButtonProps) {
       data-band-editor=''
       className='relative mr-1'
       title={t('editFilters')}
-      aria-label={t('editFilters')}
+      aria-label={t('editFiltersCount', { count })}
       aria-haspopup='dialog'
       aria-expanded={open}
       onClick={onToggle}

@@ -19,7 +19,7 @@ export default async function Page({ params }: PageProps) {
     <div className='w-full space-y-4 p-4'>
       {!isFeatureEnabled('enableSessionReplay') && <FeatureNotEnabledBanner feature='sessionReplay' />}
       <DashboardHeader title={t('sessionReplay')}>
-        <DashboardFilters showComparison={false} />
+        <DashboardFilters showComparison={false} pinnable={false} />
       </DashboardHeader>
       <ReplayClient dashboardId={dashboardId} />
     </div>

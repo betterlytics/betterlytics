@@ -14,7 +14,7 @@ export default function GeographyPage() {
           data-map-overlay='top'
           className='border-border bg-card pointer-events-auto min-w-0 rounded-md border p-2 shadow-md dark:bg-(--card-interactive)'
         >
-          <DashboardFilters />
+          <DashboardFilters pinnable={false} />
         </div>
       </div>
     </div>

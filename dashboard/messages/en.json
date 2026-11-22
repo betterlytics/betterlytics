@@ -3810,6 +3810,7 @@
       "activeFilters": "Active filters",
       "toggleFilters": "Toggle filters",
       "editFilters": "Edit filters",
+      "editFiltersCount": "Edit filters ({count} active)",
       "clearAll": "Clear all"
     },
     "funnels": {

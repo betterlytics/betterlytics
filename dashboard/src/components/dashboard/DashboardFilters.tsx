@@ -13,18 +13,21 @@ interface DashboardFiltersProps {
   showComparison?: boolean;
   children?: ReactNode;
   showQueryFilters?: boolean;
+  // Whether the filters follow the page as a band once they scroll out of view
+  pinnable?: boolean;
 }
 
 export default function DashboardFilters({
   children,
   showComparison = true,
   showQueryFilters = true,
+  pinnable = true,
 }: DashboardFiltersProps) {
   const isMobile = useIsMobile();
   const { queryFilters } = useQueryFiltersContext();
   const pillsRef = useRef<HTMLDivElement>(null);
   const hasPills = showQueryFilters && queryFilters.length > 0;
-  const showBand = useScrolledBehindTopbar(pillsRef, hasPills);
+  const showBand = useScrolledBehindTopbar(pillsRef, hasPills && pinnable);
   const [band, setBand] = useState<HTMLElement | null>(null);
 
   return (
@@ -41,7 +44,7 @@ export default function DashboardFilters({
             <ActiveQueryFilters />
           </div>
         )}
-        {isMobile && <div className='grid grid-cols-2 gap-2'>{children}</div>}
+        {isMobile && children && <div className='grid grid-cols-2 gap-2'>{children}</div>}
         {hasPills && showBand && (
           <div className='pointer-events-none fixed top-(--topbar-height) right-(--removed-body-scroll-bar-size,0px) left-(--sidebar-offset) z-40 container mx-auto w-auto px-2 pt-2 sm:px-10 md:transition-[left] md:duration-200 md:ease-linear'>
             <div ref={setBand} className='pointer-events-auto'>

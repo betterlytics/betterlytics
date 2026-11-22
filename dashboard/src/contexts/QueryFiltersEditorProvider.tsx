@@ -20,6 +20,9 @@ type QueryFiltersEditorState = {
 
 type QueryFiltersEditorContextValue = QueryFiltersEditorState & {
   setIsOpen: Dispatch<boolean>;
+  // Whether the editor's draft has reached the filter cap
+  draftFull: boolean;
+  setDraftFull: Dispatch<boolean>;
   openEditor: Dispatch<QueryFiltersEditorFocus>;
 };
 
@@ -28,6 +31,8 @@ const QueryFiltersEditorContext = createContext<QueryFiltersEditorContextValue |
 export function QueryFiltersEditorProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<QueryFiltersEditorState>({ isOpen: false, target: null });
 
+  const [draftFull, setDraftFull] = useState(false);
+
   // The target outlives the close so focus can return to the pill section that opened the editor.
   const setIsOpen = useCallback(
     (open: boolean) => setState((current) => ({ isOpen: open, target: open ? null : current.target })),
@@ -35,7 +40,10 @@ export function QueryFiltersEditorProvider({ children }: { children: ReactNode }
   );
   const openEditor = useCallback((target: QueryFiltersEditorFocus) => setState({ isOpen: true, target }), []);
 
-  const value = useMemo(() => ({ ...state, setIsOpen, openEditor }), [state, setIsOpen, openEditor]);
+  const value = useMemo(
+    () => ({ ...state, setIsOpen, openEditor, draftFull, setDraftFull }),
+    [state, setIsOpen, openEditor, draftFull],
+  );
 
   return <QueryFiltersEditorContext.Provider value={value}>{children}</QueryFiltersEditorContext.Provider>;
 }

@@ -3810,6 +3810,7 @@
       "activeFilters": "Aktive filtre",
       "toggleFilters": "Vis/skjul filtre",
       "editFilters": "Rediger filtre",
+      "editFiltersCount": "Rediger filtre ({count, plural, one {# aktivt} other {# aktive}})",
       "clearAll": "Fjern alle"
     },
     "funnels": {
