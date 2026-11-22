@@ -58,6 +58,9 @@ const prismaMock = vi.hoisted(() => {
     mcpToken: {
       updateMany: vi.fn(),
     },
+    heatmapCaptureLink: {
+      deleteMany: vi.fn(),
+    },
     adminAuditLog: {
       updateMany: vi.fn(),
     },
@@ -403,7 +406,7 @@ describe('deleteUserAccount', () => {
 });
 
 describe('setUserDisabledUnlessBlocked', () => {
-  it('disables the user, ends their sessions and voids their reset links', async () => {
+  it('disables the user, ends their sessions and voids their reset and capture links', async () => {
     prismaMock.user.findUnique.mockResolvedValue({ role: null, deletedAt: null, disabledAt: null });
     mockCounts(1, 2);
 
@@ -416,6 +419,7 @@ describe('setUserDisabledUnlessBlocked', () => {
     expect(prismaMock.verification.deleteMany).toHaveBeenCalledWith({
       where: { value: 'user-1', identifier: { startsWith: 'reset-password:' } },
     });
+    expect(prismaMock.heatmapCaptureLink.deleteMany).toHaveBeenCalledWith({ where: { createdById: 'user-1' } });
   });
 
   it('refuses to disable the last enabled admin', async () => {

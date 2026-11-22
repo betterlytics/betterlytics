@@ -296,6 +296,7 @@ export async function setUserDisabledUnlessBlocked(
       await tx.user.update({ where: { id: userId }, data: { disabledAt: new Date() } });
       await tx.session.deleteMany({ where: { userId } });
       await tx.verification.deleteMany({ where: { value: userId, identifier: { startsWith: 'reset-password:' } } });
+      await tx.heatmapCaptureLink.deleteMany({ where: { createdById: userId } });
       return null;
     });
   } catch (error) {

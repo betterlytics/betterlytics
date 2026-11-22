@@ -38,6 +38,7 @@ use crate::storage::s3::S3Service;
 pub const MAX_UPLOAD_BYTES: usize = 10 * 1024 * 1024;
 pub const BODY_LIMIT_BYTES: usize = MAX_UPLOAD_BYTES + 1;
 const MAX_UNPACKED_BYTES: u64 = 40 * 1024 * 1024;
+/// Fits "bhc_", a site id at the ingestion limit of 100 characters, a dot and the secret
 const MAX_TOKEN_CHARS: usize = 256;
 const MAX_PAGE_URL_CHARS: usize = 2048;
 const KEPT_PER_PAGE_AND_DEVICE: i64 = 10;
@@ -533,8 +534,7 @@ mod tests {
         assert_eq!(bearer_token(&headers), Some("abc"));
         headers.insert(header::AUTHORIZATION, "Basic abc".parse().unwrap());
         assert_eq!(bearer_token(&headers), None);
-        // A site id starts with the domain's first label, which can be 63 characters
-        let long_site_token = format!("bhc_{}-mbx3k2a1.{}", "a".repeat(63), "b".repeat(43));
+        let long_site_token = format!("bhc_{}.{}", "a".repeat(100), "b".repeat(43));
         headers.insert(header::AUTHORIZATION, format!("Bearer {}", long_site_token).parse().unwrap());
         assert_eq!(bearer_token(&headers), Some(long_site_token.as_str()));
         headers.insert(header::AUTHORIZATION, format!("Bearer {}", "a".repeat(MAX_TOKEN_CHARS + 1)).parse().unwrap());

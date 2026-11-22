@@ -282,12 +282,21 @@
   function isCaptureMode() {
     var hash = window.location.hash;
     if (hash === "#bl-preview") return true;
-    if (window.top !== window) return false;
+    var framed = window.top !== window;
     if (hash.indexOf("#bl-capture=") === 0) {
-      return isOwnCaptureToken(
-        new URLSearchParams(hash.slice(1)).get("bl-capture"),
-      );
+      var token = new URLSearchParams(hash.slice(1)).get("bl-capture");
+      if (!framed && isOwnCaptureToken(token)) return true;
+      // A link this page doesn't take up still holds a live token, so it isn't left in the address
+      try {
+        history.replaceState(
+          history.state,
+          "",
+          window.location.pathname + window.location.search,
+        );
+      } catch (e) {}
+      return false;
     }
+    if (framed) return false;
     try {
       var stored = JSON.parse(sessionStorage.getItem("betterlytics:capture"));
       return stored.expires > Date.now() && isOwnCaptureToken(stored.token);
