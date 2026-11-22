@@ -22,7 +22,7 @@ Heatmaps are off by default. Add `data-heatmaps="true"` to your analytics script
 ></script>
 ```
 
-Clicks are sent when a visitor leaves the page or switches tabs, and then show up on the Heatmaps page.
+Clicks are sent within a minute, or sooner when a visitor leaves the page or switches tabs, and then show up on the Heatmaps page.
 
 <Callout type="info">
 Self-hosting? Load `analytics.js` from your instance and send events to it. [Tracking Scripts](/installation/self-hosting#tracking-scripts) in the Self-Hosting guide shows the two changes.
@@ -44,7 +44,7 @@ The [`@betterlytics/tracker`](https://www.npmjs.com/package/@betterlytics/tracke
 ## How clicks are recorded
 
 - Sampling is decided per page view. Only a sampled page view downloads the small `heatmap.js` script.
-- Clicks are sent in batches when the visitor leaves the page or switches tabs, to the server your events go to (the origin of `data-server-url`).
+- Clicks are sent in batches within a minute of the first click, or sooner when the visitor leaves the page or switches tabs, to the server your events go to (the origin of `data-server-url`).
 - A page view records at most 300 clicks. Automated browsers are skipped.
 - Each click is stored with the page path (without query string or hash) and the device, but not with the visitor or session. The device comes from the window width: Mobile under 576 px, Tablet from 576 to 991 px, Desktop from 992 px.
 - Clicks are kept as long as your other analytics data.
@@ -82,7 +82,7 @@ When a page has no capture or replay layout yet, the Heatmaps page can show your
 
 ## Troubleshooting
 
-- **No clicks appear:** clicks are sent when you leave the page or switch tabs, so switch away from your site before checking. Then check that `data-heatmaps="true"` is on the script tag that loads `analytics.js`, that `data-heatmap-sample` isn't `0`, and that `heatmap.js` loads in your browser's Network tab. A blocked script shows up as a CSP violation in the Console.
+- **No clicks appear:** clicks are sent within a minute, or when you leave the page or switch tabs, so wait a minute or switch away from your site before checking. Then check that `data-heatmaps="true"` is on the script tag that loads `analytics.js`, that `data-heatmap-sample` isn't `0`, and that `heatmap.js` loads in your browser's Network tab. A blocked script shows up as a CSP violation in the Console.
 - **Clicks are missing on a captured page:** clicks whose element isn't on the capture, or can't be told apart from a similar one, aren't drawn. Give those elements a stable `id`, see [Stable element ids](#stable-element-ids).
 - **One page shows up as many:** pages with ids or slugs in the path, such as `/product/123`, get a heatmap each. Group them with `data-dynamic-urls`.
 
