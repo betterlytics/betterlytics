@@ -1,6 +1,7 @@
 'use client';
-import { useRef, type MouseEvent, type MouseEventHandler, type ReactNode } from 'react';
-import { useTranslations } from 'next-intl';
+import { useEffect, useRef, type MouseEvent, type MouseEventHandler, type ReactNode } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
+import NumberFlow from '@number-flow/react';
 import { ChevronDown, FilterIcon, Trash2 } from 'lucide-react';
 import { FilterBandButton } from '@/components/filters/FilterBandButton';
 import { useFilterBandDisclosure } from '@/hooks/use-filter-band-disclosure';
@@ -37,6 +38,7 @@ export function FilterBand({
   action,
 }: FilterBandProps) {
   const t = useTranslations('components.filters');
+  const locale = useLocale();
   const bandRef = useRef<HTMLDivElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);
   const coverRef = useRef<HTMLSpanElement>(null);
@@ -51,6 +53,23 @@ export function FilterBand({
     onFits: reset,
   });
   const toggleable = hidden > 0;
+
+  const badgeRef = useRef<HTMLSpanElement>(null);
+  const shownCount = useRef(count);
+  useEffect(() => {
+    if (shownCount.current === count) return;
+    shownCount.current = count;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    badgeRef.current?.animate(
+      {
+        boxShadow: [
+          '0 0 0 0 color-mix(in oklab, var(--primary-foreground) 75%, transparent)',
+          '0 0 0 9px color-mix(in oklab, var(--primary-foreground) 0%, transparent)',
+        ],
+      },
+      { duration: 600, easing: 'ease-out' },
+    );
+  }, [count]);
 
   // Anywhere but a live control toggles the band
   const handleBandClick = (event: MouseEvent<HTMLElement>) => {
@@ -117,10 +136,16 @@ export function FilterBand({
           <>
             <FilterIcon />
             <span
+              ref={badgeRef}
               aria-hidden
               className='bg-primary-foreground text-primary absolute right-1 bottom-1 grid h-3 min-w-3 place-items-center rounded-full px-0.5 text-[10px] leading-none font-semibold tabular-nums select-none'
             >
-              {count}
+              <NumberFlow
+                value={count}
+                locales={locale}
+                willChange
+                className='-my-(--number-flow-mask-height) [--number-flow-mask-height:0.25em]'
+              />
             </span>
           </>
         }
