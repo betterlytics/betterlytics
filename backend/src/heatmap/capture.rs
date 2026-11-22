@@ -4,8 +4,10 @@
 //! can be retried and two concurrent uploads with one link store at most one capture.
 //!
 //! A link isn't bound to a page or host: the editor may walk to the page from another one, or
-//! capture a staging copy. The token is the only gate, and its holder could upload any
-//! snapshot outside a browser anyway, so an Origin check would only refuse real captures.
+//! capture a staging copy. It is bound to its dashboard's site: the tracker on the page sends
+//! its own site id, so nobody can have a visitor of another site upload that site's page into
+//! their dashboard. The link's holder could still upload a made-up snapshot outside a browser,
+//! but only into the dashboard the link belongs to.
 
 use std::sync::Arc;
 
@@ -36,7 +38,7 @@ use crate::storage::s3::S3Service;
 pub const MAX_UPLOAD_BYTES: usize = 10 * 1024 * 1024;
 pub const BODY_LIMIT_BYTES: usize = MAX_UPLOAD_BYTES + 1;
 const MAX_UNPACKED_BYTES: u64 = 40 * 1024 * 1024;
-const MAX_TOKEN_CHARS: usize = 128;
+const MAX_TOKEN_CHARS: usize = 256;
 const MAX_PAGE_URL_CHARS: usize = 2048;
 const KEPT_PER_PAGE_AND_DEVICE: i64 = 10;
 /// Outside the replay `site/` prefix, so the documented replay expiry rule never matches
@@ -70,6 +72,7 @@ impl CaptureCtx {
 
 #[derive(Deserialize)]
 pub struct CaptureParams {
+    site_id: Option<String>,
     viewport_width: Option<u32>,
     window_width: Option<u32>,
     document_height: Option<u32>,
@@ -79,6 +82,7 @@ pub struct CaptureParams {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Reason {
     LinkInvalid,
+    WrongSite,
     WrongViewport,
     TooLarge,
     Invalid,
@@ -90,6 +94,7 @@ impl Reason {
     fn as_str(self) -> &'static str {
         match self {
             Self::LinkInvalid => "link_invalid",
+            Self::WrongSite => "wrong_site",
             Self::WrongViewport => "wrong_viewport",
             Self::TooLarge => "too_large",
             Self::Invalid => "invalid",
@@ -101,6 +106,7 @@ impl Reason {
     fn status(self) -> StatusCode {
         match self {
             Self::LinkInvalid => StatusCode::UNAUTHORIZED,
+            Self::WrongSite => StatusCode::FORBIDDEN,
             Self::WrongViewport => StatusCode::UNPROCESSABLE_ENTITY,
             Self::TooLarge => StatusCode::PAYLOAD_TOO_LARGE,
             Self::Invalid => StatusCode::BAD_REQUEST,
@@ -196,6 +202,7 @@ async fn store_capture(
     let link = find_link(&ctx.pool, &hash_token(token)).await?.ok_or_else(Refusal::link_invalid)?;
 
     let Query(params) = query.map_err(|_| Refusal::new(Reason::Invalid, "Invalid capture parameters."))?;
+    check_site(&link.site_id, params.site_id.as_deref())?;
     let viewport_width = params.viewport_width.filter(|w| (1..=MAX_VIEWPORT_WIDTH).contains(w));
     let document_height = params.document_height.filter(|h| (1..=MAX_DOCUMENT_HEIGHT).contains(h));
     let (Some(viewport_width), Some(document_height)) = (viewport_width, document_height) else {
@@ -298,6 +305,17 @@ fn hash_token(token: &str) -> String {
     hex::encode(Sha256::digest(token.as_bytes()))
 }
 
+/// `page_site_id` is what the tracker on the captured page was set up with
+fn check_site(link_site_id: &str, page_site_id: Option<&str>) -> Result<(), Refusal> {
+    if page_site_id == Some(link_site_id) {
+        return Ok(());
+    }
+    Err(Refusal::new(
+        Reason::WrongSite,
+        "This page isn't tracked by the dashboard this capture link is for. Start a new capture from the dashboard that tracks this page.",
+    ))
+}
+
 fn check_viewport(device: &str, viewport_width: u32) -> Result<(), Refusal> {
     if device_from_viewport(viewport_width) == device {
         return Ok(());
@@ -313,6 +331,8 @@ fn check_viewport(device: &str, viewport_width: u32) -> Result<(), Refusal> {
     ))
 }
 
+/// The link's creator must still be allowed to capture: the roles mirror `canCaptureHeatmaps`
+/// in dashboard/src/lib/permissions.ts
 async fn find_link(pool: &PostgresPool, token_hash: &str) -> Result<Option<Link>, Refusal> {
     let conn = pool.connection().await?;
     let row = conn
@@ -323,7 +343,14 @@ async fn find_link(pool: &PostgresPool, token_hash: &str) -> Result<Option<Link>
                WHERE l."tokenHash" = $1
                  AND l."usedAt" IS NULL
                  AND l."expiresAt" > timezone('utc', now())
-                 AND d."deletedAt" IS NULL"#,
+                 AND d."deletedAt" IS NULL
+                 AND EXISTS (
+                   SELECT 1 FROM "UserDashboard" m
+                   WHERE m."dashboardId" = l."dashboardId"
+                     AND m."userId" = l."createdById"
+                     AND m."deletedAt" IS NULL
+                     AND m."role" IN ('owner', 'admin', 'editor')
+                 )"#,
             &[&token_hash],
         )
         .await?;
@@ -490,6 +517,15 @@ mod tests {
     }
 
     #[test]
+    fn link_only_stores_captures_from_its_own_site() {
+        assert!(check_site("shop-mbx3k2a1", Some("shop-mbx3k2a1")).is_ok());
+        assert_eq!(check_site("shop-mbx3k2a1", Some("other-mbx3k2a1")).unwrap_err().reason, Reason::WrongSite);
+        assert_eq!(check_site("shop-mbx3k2a1", Some("")).unwrap_err().reason, Reason::WrongSite);
+        assert_eq!(check_site("shop-mbx3k2a1", None).unwrap_err().reason, Reason::WrongSite);
+        assert_eq!(Reason::WrongSite.status(), StatusCode::FORBIDDEN);
+    }
+
+    #[test]
     fn bearer_token_is_required_and_bounded() {
         let mut headers = HeaderMap::new();
         assert_eq!(bearer_token(&headers), None);
@@ -497,6 +533,10 @@ mod tests {
         assert_eq!(bearer_token(&headers), Some("abc"));
         headers.insert(header::AUTHORIZATION, "Basic abc".parse().unwrap());
         assert_eq!(bearer_token(&headers), None);
+        // A site id starts with the domain's first label, which can be 63 characters
+        let long_site_token = format!("bhc_{}-mbx3k2a1.{}", "a".repeat(63), "b".repeat(43));
+        headers.insert(header::AUTHORIZATION, format!("Bearer {}", long_site_token).parse().unwrap());
+        assert_eq!(bearer_token(&headers), Some(long_site_token.as_str()));
         headers.insert(header::AUTHORIZATION, format!("Bearer {}", "a".repeat(MAX_TOKEN_CHARS + 1)).parse().unwrap());
         assert_eq!(bearer_token(&headers), None);
     }
