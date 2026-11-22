@@ -267,7 +267,8 @@ export async function deleteUserAccount(
 
 /**
  * Disabling removes access, so with `guard` it is refused for the last enabled admin or user. Disabling also
- * ends every session and voids pending reset links; re-enabling restores access without touching anything else.
+ * ends every session and voids pending reset and heatmap capture links; re-enabling restores access without touching
+ * anything else.
  */
 export async function setUserDisabledUnlessBlocked(
   userId: string,

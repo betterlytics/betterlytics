@@ -55,6 +55,9 @@
   var captureScriptHash =
     typeof __BL_CAPTURE_HASH__ === "string" ? __BL_CAPTURE_HASH__ : "dev";
 
+  // Read before isCaptureMode() takes a capture link out of the address
+  var pageHash = window.location.hash;
+
   // A capture link from the dashboard, or the Heatmaps page framing the live page: capture.js
   // takes over and nothing is tracked, whatever the replay, heatmap, sampling and consent settings say.
   // The site's own calls keep working while nothing is sent.
@@ -69,9 +72,8 @@
       },
       setReplayConsent: noop,
     };
-    // The page can change its address before capture.js arrives
     window.__betterlytics_capture__ = {
-      hash: window.location.hash,
+      hash: pageHash,
       siteId: siteId,
       serverUrl: serverUrl,
       scriptsBaseUrl: scriptsBaseUrl,
@@ -280,13 +282,10 @@
   // A link is only taken up outside frames, on pages tracked for the dashboard that made it, so
   // nobody can have a visitor capture another site's page into their own dashboard.
   function isCaptureMode() {
-    var hash = window.location.hash;
-    if (hash === "#bl-preview") return true;
+    if (pageHash === "#bl-preview") return true;
     var framed = window.top !== window;
-    if (hash.indexOf("#bl-capture=") === 0) {
-      var token = new URLSearchParams(hash.slice(1)).get("bl-capture");
-      if (!framed && isOwnCaptureToken(token)) return true;
-      // A link this page doesn't take up still holds a live token, so it isn't left in the address
+    if (pageHash.indexOf("#bl-capture=") === 0) {
+      // The link holds a live token, so it leaves the address right away, taken up or not
       try {
         history.replaceState(
           history.state,
@@ -294,7 +293,8 @@
           window.location.pathname + window.location.search,
         );
       } catch (e) {}
-      return false;
+      var token = new URLSearchParams(pageHash.slice(1)).get("bl-capture");
+      return !framed && isOwnCaptureToken(token);
     }
     if (framed) return false;
     try {

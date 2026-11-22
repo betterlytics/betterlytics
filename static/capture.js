@@ -13,7 +13,7 @@
     return;
   }
 
-  // isCaptureMode() in analytics.js reads this key and the link's expires too
+  // isCaptureMode() in analytics.js reads this key too, for the link's token and expires
   var CAPTURE_STORAGE_KEY = "betterlytics:capture";
   // As long as the dashboard's capture link lives
   var CAPTURE_LINK_TTL_MS = 15 * 60 * 1000;
@@ -501,20 +501,14 @@
     };
   }
 
-  // The link's token is removed from the address bar as soon as this script runs, so it isn't
-  // shared or bookmarked, unless the page has already changed the address. It is kept for this
-  // tab until the link expires, so a reload (a consent banner's, say) or going on to other pages
-  // continues the capture instead of tracking a visit.
+  // analytics.js has already taken the link out of the address bar, so it isn't shared or
+  // bookmarked. It is kept for this tab until the link expires, so a reload (a consent banner's,
+  // say) or going on to other pages continues the capture instead of tracking a visit.
   function takeCaptureLink() {
     var hash = config.hash;
     if (hash.indexOf("#bl-capture=") === 0) {
       var params = new URLSearchParams(hash.slice(1));
       var token = params.get("bl-capture");
-      if (window.location.hash === hash) {
-        try {
-          history.replaceState(history.state, "", window.location.pathname + window.location.search);
-        } catch (e) {}
-      }
       if (!token) return null;
       // Anyone can send a visitor a link like this, so only a page path is shown in the panel
       var page = params.get("bl-page") || "";
