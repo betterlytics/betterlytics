@@ -5,7 +5,7 @@ packages:
 
 overrides:
   qs@<6.16.0: '>=6.16.0'
-  '@react-email/ui>next': '>=16.2.11 <17'
+  '@react-email/ui>next': '>=16.4.6 <17'
   postcss@<8.5.10: '>=8.5.10'
   nextra>zod: 4.3.2
   nextra-theme-docs>zod: 4.3.2
@@ -18,17 +18,7 @@ auditConfig:
     # html/text (services/email/transport.ts), never message-level `raw`.
     # Fixed in nodemailer 9 (major); revisit on the next major bump.
     - GHSA-p6gq-j5cr-w38f
-    # sharp <0.35 libvips CVEs: pulled in by next's own `^0.34` optional dep
-    # (image optimizer) and the react-email preview. No remotePatterns are
-    # configured, so the optimizer only touches local/validated images.
-    # Unfixable until next widens its sharp range.
-    - GHSA-f88m-g3jw-g9cj
     # deepmerge-ts <8 stack exhaustion on recursive object graphs: pinned
     # exactly by @prisma/config (Prisma CLI), which only merges our own
     # prisma.config.ts, so no untrusted input. Fixed by the Prisma 7 upgrade.
     - GHSA-ggr8-5vv4-36mx
-    # image-size ICNS/JXL/HEIF infinite-loop DoS: no patched release exists.
-    # Mitigated at our only call site (lib/statusPageImage.ts) by disabling
-    # every parser except png/jpg/webp, so those handlers never run.
-    - GHSA-w3rx-r6r6-pgpr
-    - GHSA-5p2g-fcmc-qvqq
