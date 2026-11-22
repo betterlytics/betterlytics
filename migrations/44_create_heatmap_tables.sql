@@ -1,10 +1,7 @@
--- One row per heatmap click. No TTL: like events, clicks are deleted by the
--- per-dashboard retention purge. Visitor attributes such as country and
--- browser are not copied here; heatmap queries join the session on session_id.
+-- One row per heatmap click, not tied to a visitor or session. No TTL: like
+-- events, clicks are deleted by the per-dashboard retention purge.
 CREATE TABLE IF NOT EXISTS analytics.heatmap_clicks (
     site_id LowCardinality(String),
-    session_id UInt64,
-    visitor_id UInt64,
     url String,
     device LowCardinality(String),
     viewport_width UInt16,

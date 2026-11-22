@@ -45,8 +45,8 @@ The [`@betterlytics/tracker`](https://www.npmjs.com/package/@betterlytics/tracke
 
 - Sampling is decided per page view. Only a sampled page view downloads the small `heatmap.js` script.
 - Clicks are sent in batches when the visitor leaves the page or switches tabs, to the server your events go to (the origin of `data-server-url`).
-- A page view records at most 300 clicks, and at most 300 are stored per session. Automated browsers are skipped.
-- Each click is stored with the page path (without query string or hash), the device and the visitor's session, like a pageview. The device comes from the window width: Mobile under 576 px, Tablet from 576 to 991 px, Desktop from 992 px.
+- A page view records at most 300 clicks. Automated browsers are skipped.
+- Each click is stored with the page path (without query string or hash) and the device, but not with the visitor or session. The device comes from the window width: Mobile under 576 px, Tablet from 576 to 991 px, Desktop from 992 px.
 - Clicks are kept as long as your other analytics data.
 
 ## What is collected
@@ -58,7 +58,7 @@ For each click, the tracker sends:
 - whether the element is fixed or sticky, such as a header that stays on screen
 - the page address and screen size, as with a pageview, and when each click happened
 
-Heatmaps never collect text from the page, input values, keystrokes or screenshots. They have no consent switch of their own: clicks belong to the same session as the page view and carry no page content.
+Heatmaps never collect text from the page, input values, keystrokes or screenshots. They have no consent switch of their own: clicks aren't linked to a visitor or session and carry no page content.
 
 ## Stable element ids
 

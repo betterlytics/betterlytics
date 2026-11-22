@@ -59,14 +59,6 @@ pub async fn init(pool: Arc<PostgresPool>) -> Result<()> {
     Ok(())
 }
 
-/// A fixed salt for today, for tests that fingerprint visitors without Postgres
-#[cfg(test)]
-pub fn init_for_tests() {
-    STATE.get_or_init(|| {
-        ArcSwap::from_pointee(SaltState { date: Utc::now().date_naive(), current: [7; 16], previous: None })
-    });
-}
-
 /// Return today's `current` salt and the `previous` salt.
 ///
 /// Lock-free read on the hot path. When the UTC day has rolled over, the cached salts (still

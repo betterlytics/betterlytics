@@ -21,18 +21,13 @@
     return;
   }
 
-  // The backend refuses batches over 200 clicks or 64 KiB and stores at most 300 clicks per session
+  // The backend refuses batches over 200 clicks or 64 KiB
   var MAX_BATCH_CLICKS = 200;
   var MAX_BATCH_BYTES = 56 * 1024;
   var MAX_CLICKS_PER_PAGE_LOAD = 300;
   var MAX_SELECTOR_CHARS = 500;
   var MAX_PAGE_WIDTH = 16384;
   var MAX_PAGE_HEIGHT = 1000000;
-  // Batches only resolve to a session the backend still holds, which ends after 30 idle minutes.
-  // Each batch's lookup counts as activity, so pending clicks are sent within a few minutes, and
-  // sooner when the last pageview or batch is close to that limit.
-  var MAX_PENDING_MS = 5 * 60 * 1000;
-  var SESSION_SAFE_MS = 25 * 60 * 1000;
 
   // React useId output (":r1:", "«r1»", "_r_1_") changes between page loads, also inside
   // library ids such as Radix's "radix-_r_v_-trigger-exit"
@@ -42,12 +37,8 @@
 
   var encoder = new TextEncoder();
   var collecting = config.sampled === true;
-  // The pageview's value, so batches resolve to its session even after a phone rotates
-  var screenResolution = config.screenResolution;
   var clicksTaken = 0;
   var batch = null;
-  var pendingTimer = null;
-  var lastActivity = Date.now();
 
   // Same page path as pageviews; the query string and hash are dropped when stored anyway
   function currentPage() {
@@ -177,13 +168,10 @@
   }
 
   function flush() {
-    clearTimeout(pendingTimer);
-    pendingTimer = null;
     var b = batch;
     batch = null;
     if (!b || b.clicks.length === 0) return;
     var now = Date.now();
-    lastActivity = now;
     fetch(endpoint, {
       method: "POST",
       keepalive: true,
@@ -263,8 +251,7 @@
     if (!batch) {
       batch = {
         url: page,
-        screenResolution:
-          screenResolution || window.screen.width + "x" + window.screen.height,
+        screenResolution: window.screen.width + "x" + window.screen.height,
         viewportWidth: viewportWidth,
         windowWidth: windowWidth,
         documentWidth: 1,
@@ -272,8 +259,6 @@
         clicks: [],
         bytes: 0,
       };
-      var untilExpiry = lastActivity + SESSION_SAFE_MS - Date.now();
-      pendingTimer = setTimeout(flush, Math.max(0, Math.min(MAX_PENDING_MS, untilExpiry)));
     }
     batch.documentWidth = Math.min(
       MAX_PAGE_WIDTH,
@@ -302,11 +287,9 @@
 
   window.__betterlytics_heatmap__ = {
     // Called by analytics.js on every client-side page view
-    pageview: function (sampled, resolution) {
+    pageview: function (sampled) {
       flush();
-      lastActivity = Date.now();
       collecting = sampled === true;
-      screenResolution = resolution;
     },
   };
 

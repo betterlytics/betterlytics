@@ -49,13 +49,6 @@ export const HeatmapClickPointSchema = z.object({
 
 export type HeatmapClickPoint = z.infer<typeof HeatmapClickPointSchema>;
 
-export const HeatmapSessionHeightsRowSchema = z.object({
-  documentHeight: z.coerce.number(),
-  sessions: z.coerce.number(),
-});
-
-export type HeatmapSessionHeightsRow = z.infer<typeof HeatmapSessionHeightsRowSchema>;
-
 export type HeatmapClicks = {
   width: number;
   points: HeatmapClickPoint[];

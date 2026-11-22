@@ -101,8 +101,6 @@ impl BotEventRow {
 #[derive(clickhouse::Row, Serialize, Debug, Clone, PartialEq)]
 pub struct HeatmapClickRow {
     pub site_id: String,
-    pub session_id: u64,
-    pub visitor_id: u64,
     pub url: String,
     pub device: String,
     pub viewport_width: u16,
@@ -126,7 +124,6 @@ pub struct ActiveSessionRow {
     pub session_id: u64,
     #[serde(with = "clickhouse::serde::chrono::datetime")]
     pub session_created_at: DateTime<Utc>,
-    pub has_pageview: bool,
 }
 
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]

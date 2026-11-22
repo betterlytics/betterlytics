@@ -4,7 +4,7 @@
 pub mod capture;
 
 use std::sync::Arc;
-use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use axum::{
     extract::{State, rejection::BytesRejection},
@@ -12,25 +12,19 @@ use axum::{
 };
 use bytes::Bytes;
 use chrono::{DateTime, Utc};
-use moka::sync::Cache;
-use once_cell::sync::Lazy;
 use serde::Deserialize;
 use tokio::sync::mpsc::{Sender, error::TrySendError};
-use tracing::{debug, warn};
+use tracing::warn;
 use url::Url;
 
-use crate::analytics::{VisitorAttrs, detect_device_type_from_resolution_with_fallback};
 use crate::bot_detection;
 use crate::client_request::ClientRequest;
 use crate::db::HeatmapClickRow;
 use crate::metrics::MetricsCollector;
 use crate::processing::EventProcessor;
-use crate::session::SESSION_EXPIRY;
 use crate::site_config::SiteConfigCache;
-use crate::ua_parser;
-use crate::url_utils::{extract_domain_and_path_from_url, extract_root_domain};
+use crate::url_utils::extract_domain_and_path_from_url;
 use crate::validation::validate_site_policies;
-use crate::visitor;
 
 pub const MAX_BATCH_BYTES: usize = 64 * 1024;
 const MAX_CLICKS_PER_BATCH: usize = 200;
@@ -41,14 +35,6 @@ const MAX_SCREEN_RESOLUTION_CHARS: usize = 32;
 pub(crate) const MAX_VIEWPORT_WIDTH: u32 = 16_384;
 pub(crate) const MAX_DOCUMENT_HEIGHT: u32 = 1_000_000;
 const MAX_CLICK_AGE_MS: f64 = 24.0 * 60.0 * 60.0 * 1000.0;
-/// A heatmap is an aggregate, so one session's clicks past this add little, and without it a
-/// script could store unbilled rows for as long as it keeps one pageview's session alive
-const MAX_CLICKS_PER_SESSION: u32 = 300;
-
-/// Stored clicks per session id, forgotten after the session's last heatmap batch plus the
-/// session expiry
-static SESSION_CLICKS: Lazy<Cache<u64, Arc<AtomicU32>>> =
-    Lazy::new(|| Cache::builder().time_to_idle(SESSION_EXPIRY).max_capacity(1_000_000).build());
 
 pub struct HeatmapCtx {
     pub processor: Arc<EventProcessor>,
@@ -61,7 +47,6 @@ pub struct HeatmapCtx {
 struct ClickBatch {
     site_id: String,
     url: String,
-    /// Same value the pageview sent, so the batch resolves to the pageview's session
     #[serde(default)]
     screen_resolution: String,
     /// Layout width without the scrollbar, which click positions are measured against
@@ -215,27 +200,7 @@ async fn store_clicks(
     }
     bot_detection::velocity::record_heatmap(&batch.site_id, &client.ip, batch.clicks.len());
 
-    // Same identity inputs as a pageview, so the fingerprint matches the pageview's
-    let parsed = ua_parser::parse_user_agent(&client.user_agent);
-    let device_type = detect_device_type_from_resolution_with_fallback(&batch.screen_resolution);
-    let (domain, path) = extract_domain_and_path_from_url(&batch.url);
-    let root_domain = domain.as_deref().and_then(extract_root_domain);
-    let attrs = VisitorAttrs {
-        ip: &client.ip,
-        device_type: Some(&device_type),
-        browser: Some(parsed.browser.as_str()),
-        browser_version: parsed.browser_version.as_deref(),
-        os: Some(parsed.os.as_str()),
-        root_domain: root_domain.as_deref(),
-    };
-    let Some(identity) = visitor::identify_existing(&batch.site_id, &attrs) else {
-        debug!(site_id = %batch.site_id, "dropping heatmap batch without an existing session");
-        if let Some(m) = &ctx.metrics {
-            m.increment_heatmap_clicks_dropped("no_session", batch.clicks.len() as u64);
-        }
-        return Ok(());
-    };
-
+    let (_, path) = extract_domain_and_path_from_url(&batch.url);
     let device = device_from_viewport(bucket_width(batch.viewport_width, batch.window_width));
     let page_width = batch.page_width();
     let mut rows = Vec::with_capacity(batch.clicks.len());
@@ -248,8 +213,6 @@ async fn store_clicks(
         }
         rows.push(HeatmapClickRow {
             site_id: batch.site_id.clone(),
-            session_id: identity.session_id,
-            visitor_id: identity.fingerprint,
             url: path.clone(),
             device: device.to_string(),
             viewport_width: batch.viewport_width as u16,
@@ -262,14 +225,6 @@ async fn store_clicks(
             is_fixed: click.fixed,
             timestamp: click_timestamp(received_at, click.ms_ago),
         });
-    }
-
-    let allowed = reserve_session_clicks(identity.session_id, rows.len());
-    if allowed < rows.len() {
-        if let Some(m) = &ctx.metrics {
-            m.increment_heatmap_clicks_dropped("session_cap", (rows.len() - allowed) as u64);
-        }
-        rows.truncate(allowed);
     }
 
     enqueue(ctx, rows);
@@ -361,17 +316,6 @@ fn validate_click(click: &RawClick, page_width: u32, document_height: u32) -> Re
     Ok(())
 }
 
-fn reserve_session_clicks(session_id: u64, wanted: usize) -> usize {
-    let wanted = u32::try_from(wanted).unwrap_or(u32::MAX);
-    let used = SESSION_CLICKS.get_with(session_id, || Arc::new(AtomicU32::new(0)));
-    let mut granted = 0;
-    let _ = used.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |stored| {
-        granted = MAX_CLICKS_PER_SESSION.saturating_sub(stored).min(wanted);
-        (granted > 0).then_some(stored + granted)
-    });
-    granted as usize
-}
-
 /// The width devices are bucketed by. CSS breakpoints count the scrollbar, so it is the window
 /// width when the script sent one (never below the layout width), else the layout width that
 /// older scripts send.
@@ -403,7 +347,6 @@ fn has_control_chars(input: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::analytics::{AnalyticsEvent, RawTrackingEvent};
     use crate::geoip::GeoIpService;
     use crate::postgres::PostgresError;
     use crate::processing::{BotEvent, ProcessedEvent};
@@ -437,39 +380,22 @@ mod tests {
 
     struct Harness {
         ctx: HeatmapCtx,
-        events: mpsc::Receiver<ProcessedEvent>,
         clicks: mpsc::Receiver<HeatmapClickRow>,
+        _events: mpsc::Receiver<ProcessedEvent>,
         _bots: mpsc::Receiver<BotEvent>,
     }
 
     impl Harness {
         async fn new() -> Self {
-            ua_parser::initialize(
-                &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("assets/user_agent_headers/regexes.yaml"),
-            );
-            crate::salt::init_for_tests();
             let (event_tx, events) = mpsc::channel(16);
             let (bot_tx, bots) = mpsc::channel(16);
-            let (click_tx, clicks) = mpsc::channel(1024);
+            let (click_tx, clicks) = mpsc::channel(4096);
             let processor = EventProcessor::new(GeoIpService::disabled(), None, event_tx, bot_tx, None, false, false);
             let site_cfg_cache = SiteConfigCache::initialize(Arc::new(OneSite), RefreshConfig::default(), None)
                 .await
                 .unwrap();
             let ctx = HeatmapCtx { processor: Arc::new(processor), metrics: None, site_cfg_cache, click_tx };
-            Self { ctx, events, clicks, _bots: bots }
-        }
-
-        /// Sends an event through the same processing as `/event` and returns it
-        async fn event(&mut self, ip: &str, event_name: &str) -> ProcessedEvent {
-            let raw: RawTrackingEvent = serde_json::from_value(json!({
-                "site_id": SITE, "event_name": event_name, "is_custom_event": event_name != "pageview",
-                "properties": "{}", "url": "https://example.com/pricing", "referrer": null,
-                "user_agent": UA, "screen_resolution": "1920x1080",
-            }))
-            .unwrap();
-            let event = AnalyticsEvent::new(raw, ip.to_string(), UA.to_string(), CH_UA.to_string(), false);
-            self.ctx.processor.process_event(event).await.unwrap();
-            self.events.try_recv().expect("event was accepted")
+            Self { ctx, clicks, _events: events, _bots: bots }
         }
 
         async fn send(&self, ip: &str, user_agent: &str, sec_ch_ua: &str, body: &[u8]) -> Result<(), StatusCode> {
@@ -525,17 +451,6 @@ mod tests {
             document_height,
             clicks: Vec::new(),
         }
-    }
-
-    #[test]
-    fn a_session_stores_at_most_its_click_cap() {
-        let session = 0x5e55_1011_cafe_0001;
-        assert_eq!(reserve_session_clicks(session, 200), 200);
-        assert_eq!(reserve_session_clicks(session, 200), 100);
-        assert_eq!(reserve_session_clicks(session, 1), 0);
-        assert_eq!(reserve_session_clicks(session + 1, 5), 5);
-        assert_eq!(reserve_session_clicks(session + 2, 0), 0);
-        assert_eq!(reserve_session_clicks(session + 2, 300), 300);
     }
 
     #[test]
@@ -658,19 +573,12 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn clicks_are_stored_only_after_an_accepted_pageview() {
+    async fn clicks_are_stored_without_a_pageview() {
         let mut h = Harness::new().await;
-        let ip = "81.4.101.10";
-        h.event(ip, "signup").await;
-        assert_eq!(h.send_clicks(ip, 2).await, Ok(()));
-        assert!(h.stored().is_empty());
-
-        let pageview = h.event(ip, "pageview").await;
-        assert_eq!(h.send_clicks(ip, 2).await, Ok(()));
+        assert_eq!(h.send_clicks("81.4.101.10", 2).await, Ok(()));
         let rows = h.stored();
         assert_eq!(rows.len(), 2);
         for row in &rows {
-            assert_eq!((row.session_id, row.visitor_id), (pageview.session_id, pageview.visitor_fingerprint));
             assert_eq!((row.url.as_str(), row.device.as_str()), ("/pricing", "desktop"));
         }
     }
@@ -679,7 +587,6 @@ mod tests {
     async fn the_device_follows_the_window_width_and_positions_the_layout_width() {
         let mut h = Harness::new().await;
         let ip = "81.4.104.10";
-        h.event(ip, "pageview").await;
         let body = |extra: &str| {
             String::from_utf8(batch_body(1))
                 .unwrap()
@@ -697,7 +604,6 @@ mod tests {
     async fn oversized_malformed_foreign_and_bot_batches_are_refused() {
         let mut h = Harness::new().await;
         let ip = "81.4.102.10";
-        h.event(ip, "pageview").await;
         assert_eq!(h.send_clicks(ip, MAX_CLICKS_PER_BATCH + 1).await, Err(StatusCode::PAYLOAD_TOO_LARGE));
         assert_eq!(h.send(ip, UA, CH_UA, b"not json").await, Err(StatusCode::BAD_REQUEST));
 
@@ -712,18 +618,16 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn a_network_past_its_click_limit_is_refused_and_a_session_keeps_its_cap() {
+    async fn a_network_past_its_click_limit_is_refused() {
         let mut h = Harness::new().await;
         let ip = "81.4.103.10";
-        h.event(ip, "pageview").await;
         for _ in 0..10 {
             assert_eq!(h.send_clicks(ip, 200).await, Ok(()));
         }
         assert_eq!(h.send_clicks(ip, 1).await, Err(StatusCode::TOO_MANY_REQUESTS));
-        assert_eq!(h.stored().len(), MAX_CLICKS_PER_SESSION as usize);
+        assert_eq!(h.stored().len(), 2_000);
 
-        let other = "81.4.104.10";
-        h.event(other, "pageview").await;
+        let other = "81.4.105.10";
         assert_eq!(h.send_clicks(other, 1).await, Ok(()));
         assert_eq!(h.stored().len(), 1);
     }

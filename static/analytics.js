@@ -473,13 +473,11 @@
     var heatmapRequested = false;
     heatmapPageview = function () {
       var sampled = Math.random() * 100 < heatmapSamplePct;
-      var screenResolution = window.screen.width + "x" + window.screen.height;
       if (window.__betterlytics_heatmap__) {
-        window.__betterlytics_heatmap__.pageview(sampled, screenResolution);
+        window.__betterlytics_heatmap__.pageview(sampled);
         return;
       }
       heatmapConfig.sampled = sampled;
-      heatmapConfig.screenResolution = screenResolution;
       if (sampled && !heatmapRequested) {
         heatmapRequested = true;
         loadScript(heatmapScriptUrl).catch(function () {});
