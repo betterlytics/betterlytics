@@ -1,5 +1,3 @@
-import { applyPercentOff } from './discount';
-
 export type Promo = {
   id: string;
   /** Created in Stripe by scripts/create-promo-coupon.ts. */
@@ -26,10 +24,6 @@ export function promoHasEnded(promo: Promo, now: number = Date.now()): boolean {
 
 export function livePromo(isCloud: boolean, now: number = Date.now()): Promo | null {
   return isCloud && !promoHasEnded(BLACK_FRIDAY_2026, now) ? BLACK_FRIDAY_2026 : null;
-}
-
-export function promoCents(cents: number, promo: Promo): number {
-  return applyPercentOff(cents, promo.percentOff);
 }
 
 export function promoLastDay(promo: Promo): Date {

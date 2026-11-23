@@ -5280,6 +5280,7 @@
       "action": "Se planer"
     },
     "then": "De første {months} månedene, deretter {price}/mnd",
+    "untilThen": "Til {date}, deretter {price}/mnd",
     "barTag": "Black Friday",
     "tag": "−{percent} %",
     "until": "til og med {date}"

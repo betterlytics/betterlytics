@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BLACK_FRIDAY_2026, livePromo, PROMO_TIME_ZONE, promoCents, promoLastDay } from './promo';
+import { BLACK_FRIDAY_2026, livePromo, PROMO_TIME_ZONE, promoLastDay } from './promo';
 
 describe('livePromo', () => {
   const end = BLACK_FRIDAY_2026.endsAt.getTime();
@@ -11,13 +11,6 @@ describe('livePromo', () => {
 
   it('never runs self-hosted', () => {
     expect(livePromo(false, end - 1)).toBeNull();
-  });
-});
-
-describe('promoCents', () => {
-  it('takes 30% off whole-dollar prices to an exact cent', () => {
-    expect(promoCents(900, BLACK_FRIDAY_2026)).toBe(630);
-    expect(promoCents(25_400, BLACK_FRIDAY_2026)).toBe(17_780);
   });
 });
 

@@ -12,11 +12,10 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import NumberFlow from '@number-flow/react';
 import { EventCountText, FLUSH, QUICK_ROLL } from './EventCountFlow';
-import { usePlanCards, usePlanFeatures, type PlanCard } from './usePlanFeatures';
-import type { Promo } from '@/lib/billing/promo';
+import { usePlanCards, usePlanFeatures, type CardDiscount, type PlanCard } from './usePlanFeatures';
 
 interface PricingCardsProps {
-  promo: Promo | null;
+  discount: CardDiscount | null;
   volume: number;
   currency: Currency;
   onPlanSelect: Dispatch<SelectedPlan>;
@@ -25,10 +24,10 @@ interface PricingCardsProps {
 
 type BillingPlanCard = PlanCard & { description: string; isCurrent: boolean };
 
-export function PricingCards({ promo, volume, currency, onPlanSelect, billingData }: PricingCardsProps) {
+export function PricingCards({ discount, volume, currency, onPlanSelect, billingData }: PricingCardsProps) {
   const t = useTranslations('pricingCards');
   const featuresFor = usePlanFeatures();
-  const planCards = usePlanCards(volume, currency, { promo, priceLocale: 'en-US' });
+  const planCards = usePlanCards(volume, currency, { discount, priceLocale: 'en-US' });
 
   const cards: BillingPlanCard[] = useMemo(() => {
     const { subscription } = billingData;
@@ -114,7 +113,7 @@ export function PricingCards({ promo, volume, currency, onPlanSelect, billingDat
             <p className='text-muted-foreground mt-1.5 text-sm leading-relaxed text-pretty'>{card.description}</p>
             <div className='mt-6'>
               {/* reserved on every card so prices stay level */}
-              {promo && (
+              {discount && (
                 <p className='text-muted-foreground h-5 text-sm leading-5 tabular-nums'>
                   {card.promo && (
                     <>
@@ -153,7 +152,7 @@ export function PricingCards({ promo, volume, currency, onPlanSelect, billingDat
               <p className='text-foreground/80 mt-2.5 text-sm'>
                 <EventCountText {...card.volumeLabel} />
               </p>
-              {card.promo && <p className='text-muted-foreground mt-1 text-sm'>{card.promo.note}</p>}
+              {card.promo?.note && <p className='text-muted-foreground mt-1 text-sm'>{card.promo.note}</p>}
             </div>
             <div className='mt-6'>{renderButton(card)}</div>
             <ul className='mt-7 space-y-3 border-t pt-7'>

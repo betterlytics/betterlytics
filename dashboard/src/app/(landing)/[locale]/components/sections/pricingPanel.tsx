@@ -144,7 +144,7 @@ function Plan({
         <p className='mt-1.5 text-body-sm tracking-ui text-muted'>
           <EventCountText {...volumeLabel} />
         </p>
-        {promo ? <p className='mt-1 text-body-sm tracking-ui text-muted'>{promo.note}</p> : null}
+        {promo?.note ? <p className='mt-1 text-body-sm tracking-ui text-muted'>{promo.note}</p> : null}
       </div>
       <div>
         <ul className='mt-3 mb-[26px] border-t border-rule-08 pt-[22px] transition-ink'>
@@ -188,7 +188,7 @@ export function PricingPanel() {
 
   const events = VOLUME_STOPS[rangeIndex];
   const lastIndex = VOLUME_STOPS.length - 1;
-  const cards = usePlanCards(events, CURRENCY, { promo });
+  const cards = usePlanCards(events, CURRENCY, { discount: promo });
 
   const sales: PlanCta = { label: t('contactCta'), destination: 'contact' };
 
