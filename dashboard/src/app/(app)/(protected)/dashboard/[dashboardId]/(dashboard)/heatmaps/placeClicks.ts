@@ -28,14 +28,16 @@ const MAX_DRIFT = 0.25;
  * Puts each click on its element, by its offset inside it. When the selector matches several
  * elements, the one clearly closest to where the clicks were made gets them. Clicks whose element
  * is missing, can't be told apart from look-alikes, or sits far from where they were made are left
- * out: at their page position they would land on whatever this layout has there. Clicks on the
- * page itself have no element and are drawn at their page position, unless they were on a fixed
- * part, whose page position includes the scroll.
+ * out: at their page position they would land on whatever this layout has there. With
+ * `keepUnplaced` they are drawn at their page position anyway, for the live page, where no click
+ * should go missing. Clicks on the page itself have no element and are drawn at their page
+ * position, unless they were on a fixed part, whose page position includes the scroll.
  */
 export function placeClicks<Host>(
   anchors: HeatmapClickAnchor[],
   find: (selector: string) => Candidate<Host>[],
   pageHeight: number,
+  { keepUnplaced = false }: { keepUnplaced?: boolean } = {},
 ): PlacedClicks<Host> {
   const found = new Map<string, Candidate<Host>[]>();
   const located = new Map<Candidate<Host>, LocatedElement<Host>>();
@@ -58,7 +60,10 @@ export function placeClicks<Host>(
       found.set(anchor.selector, candidates);
     }
     const candidate = pick(candidates, anchor, pageHeight);
-    if (!candidate) continue;
+    if (!candidate) {
+      if (keepUnplaced && !anchor.fixed) add(null, { x: anchor.x, y: anchor.y, count: anchor.count });
+      continue;
+    }
     let box = located.get(candidate);
     if (!box) {
       box = candidate.locate();
@@ -134,6 +139,18 @@ export function findInDocument(doc: Document): (selector: string) => Candidate<H
     }
     return candidates;
   };
+}
+
+/** An element the framed live page found: its box on the page, and the area its clicks are compared with */
+export type FrameElement = { box: ElementBox; area: ElementBox };
+
+/**
+ * Finds a selector's elements among those the framed live page reported. The frame leaves out
+ * elements in fixed, sticky or scrolled-away parts, so every one is located on the page itself.
+ */
+export function findInFrame(found: ReadonlyMap<string, FrameElement[]>): (selector: string) => Candidate<never>[] {
+  return (selector) =>
+    (found.get(selector) ?? []).map(({ box, area }) => ({ area, locate: () => ({ host: null, ...box }) }));
 }
 
 function onPage(rect: ElementBox, view: Window | null): ElementBox {

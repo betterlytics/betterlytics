@@ -533,9 +533,10 @@
     return null;
   }
 
-  // The Heatmaps page frames the live page: tell the dashboard how tall the page is and which page
-  // the frame ended up on. Messages go only to the dashboard, the origin this script is served
-  // from, since the page's height and path can tell another site something about the visitor.
+  // The Heatmaps page frames the live page: tell the dashboard how tall the page is, which page the
+  // frame ended up on, and where the elements that got clicks are, so it can put the clicks on
+  // them. Messages go only to the dashboard, the origin this script is served from, since the
+  // page's height and path can tell another site something about the visitor.
   function startPreview() {
     var dashboardOrigin;
     try {
@@ -543,32 +544,126 @@
     } catch (e) {
       return;
     }
+    // The dashboard asks for its 2000 most clicked selectors at most, and heatmap.js keeps them
+    // under 500 characters. A selector matching more than 20 elements was made on a very
+    // different page, as on captures.
+    var MAX_FIND_SELECTORS = 2000;
+    var MAX_SELECTOR_CHARS = 500;
+    var MAX_MATCHES = 20;
+    // Elements are looked up again once the page has been still this long after a report
+    var FIND_DELAY_MS = 300;
+    var SCROLLING_OVERFLOW = /^(auto|scroll|overlay)$/;
+    var selectors = [];
+    var lastFound = null;
+    var findTimer = null;
+
     // The heat is drawn at the frame's full width, the width visitors' clicks were recorded at,
     // so the page's own scrollbar must not take any of it. The dashboard scrolls the frame.
     document.documentElement.style.setProperty("scrollbar-width", "none", "important");
-    function report() {
-      window.parent.postMessage(
-        {
-          type: "betterlytics:preview",
-          height: config.documentHeight(),
-          path: window.location.pathname,
-        },
-        dashboardOrigin
-      );
+    function post(message) {
+      window.parent.postMessage(message, dashboardOrigin);
     }
-    // The frame keeps a visitor's window height and is scrolled along with the heatmap
+    function report() {
+      post({
+        type: "betterlytics:preview",
+        height: config.documentHeight(),
+        path: window.location.pathname,
+      });
+      // Late content and scrolling can move the elements
+      if (selectors.length > 0) {
+        clearTimeout(findTimer);
+        findTimer = setTimeout(sendFound, FIND_DELAY_MS);
+      }
+    }
+    // Sent when asked, then again whenever the elements have moved
+    function sendFound(asked) {
+      var found = findElements();
+      var json = JSON.stringify(found);
+      if (asked !== true && json === lastFound) return;
+      lastFound = json;
+      post({ type: "betterlytics:preview-found", found: found });
+    }
     window.addEventListener("message", function (event) {
       if (event.source !== window.parent || event.origin !== dashboardOrigin) {
         return;
       }
       var data = event.data;
-      if (!data || data.type !== "betterlytics:preview-scroll" || typeof data.y !== "number") {
-        return;
+      if (!data) return;
+      // The frame keeps a visitor's window height and is scrolled along with the heatmap
+      if (data.type === "betterlytics:preview-scroll" && typeof data.y === "number") {
+        window.scrollTo({ top: data.y, behavior: "instant" });
+        // Scrolling can load more of the page
+        report();
+      } else if (data.type === "betterlytics:preview-find" && Array.isArray(data.selectors)) {
+        selectors = data.selectors
+          .filter(function (selector) {
+            return typeof selector === "string" && selector.length <= MAX_SELECTOR_CHARS;
+          })
+          .slice(0, MAX_FIND_SELECTORS);
+        sendFound(true);
       }
-      window.scrollTo({ top: data.y, behavior: "instant" });
-      // Scrolling can load more of the page
-      report();
     });
+
+    // Each selector's elements, as [left, top, width, height] boxes on the page: the element's own,
+    // and the area its clicks are compared with, which is the outermost part around it that scrolls
+    // its own content, since a click's page position includes the visitor's scroll there. Elements
+    // in a fixed or sticky part, or out of sight in a scrolling one, aren't where the dashboard
+    // draws the page's heat, so they are left out.
+    function findElements() {
+      var root = document.documentElement;
+      var pageScrolls = root.scrollHeight > root.clientHeight;
+      var found = [];
+      for (var i = 0; i < selectors.length; i++) {
+        var matches;
+        try {
+          matches = document.querySelectorAll(selectors[i]);
+        } catch (e) {
+          continue;
+        }
+        if (matches.length > MAX_MATCHES) continue;
+        var elements = [];
+        for (var j = 0; j < matches.length; j++) {
+          var element = elementOnPage(matches[j], pageScrolls);
+          if (element) elements.push(element);
+        }
+        if (elements.length > 0) found.push({ selector: selectors[i], elements: elements });
+      }
+      return found;
+    }
+    function elementOnPage(element, pageScrolls) {
+      var rect = element.getBoundingClientRect();
+      if (!(rect.width > 0 && rect.height > 0)) return null;
+      var area = rect;
+      for (var el = element; el && el !== document.documentElement; el = el.parentElement) {
+        var style = window.getComputedStyle(el);
+        if (style.position === "fixed" || style.position === "sticky") return null;
+        // The body scrolls only when it does so in place of the page
+        if (el === element || (el === document.body && pageScrolls) || !scrollsOwnContent(el, style)) {
+          continue;
+        }
+        var part = el.getBoundingClientRect();
+        if (rect.right <= part.left || rect.left >= part.right || rect.bottom <= part.top || rect.top >= part.bottom) {
+          return null;
+        }
+        area = part;
+      }
+      return { box: pageBox(rect), area: pageBox(area) };
+    }
+    function scrollsOwnContent(el, style) {
+      return (
+        (SCROLLING_OVERFLOW.test(style.overflowY) && el.scrollHeight > el.clientHeight) ||
+        (SCROLLING_OVERFLOW.test(style.overflowX) && el.scrollWidth > el.clientWidth)
+      );
+    }
+    function pageBox(rect) {
+      return [
+        Math.round(rect.left + window.scrollX),
+        Math.round(rect.top + window.scrollY),
+        Math.round(rect.width),
+        Math.round(rect.height),
+      ];
+    }
+
     report();
     // Late content keeps changing the height for a while after load
     var reports = 0;

@@ -15,7 +15,7 @@ Heatmaps show where visitors click on a page. Pick a page and a device, and the 
 - **Devices:** Desktop, Tablet and Mobile each get their own heatmap, since layouts change with the window width. A warning sign on a device means the page has no data from it in the period; its layout is still shown and can be captured.
 - **Period:** the date range decides which clicks are drawn.
 - **Fixed elements:** clicks on fixed or sticky elements, such as a header that stays on screen, are drawn on that element when a capture or replay layout has it. On the live page they're left out.
-- **Hidden clicks:** on a capture or replay layout, clicks are drawn on the element they were made on. A click isn't drawn when its element isn't on the layout, or when several elements look the same and none is clearly where the click was made; giving the elements a [stable id](/integration/heatmaps#stable-element-ids) helps.
+- **Hidden clicks:** on a capture or replay layout, clicks are drawn on the element they were made on. A click isn't drawn when its element isn't on the layout, or when several elements look the same and none is clearly where the click was made; giving the elements a [stable id](/integration/heatmaps#stable-element-ids) helps. The live page draws such a click at its position on the page instead, where it lines up only for visitors whose window was the size of the frame.
 
 Heatmaps aren't available on public dashboards.
 
@@ -25,7 +25,7 @@ The panel picks a background for each page and device, in this order:
 
 1. **A capture** of the page: the newest one, or one you picked from the capture history. Clicks land on the elements they were made on.
 2. **A capture from the latest replay:** the layout from a [session replay](/dashboard/session-replay) recorded on that device, when Session Replay is on. The panel shows the recording date.
-3. **The live page**, framed at the device's width, when your site allows framing (see [Showing your live page](/integration/heatmaps#showing-your-live-page)). It shows the page as it is now, which may differ from when the clicks happened. Pages grouped with `data-dynamic-urls` skip this step.
+3. **The live page**, framed at the device's width, when your site allows framing (see [Showing your live page](/integration/heatmaps#showing-your-live-page)). It shows the page as it is now, which may differ from when the clicks happened. Clicks land on the elements they were made on, like on a capture. Pages grouped with `data-dynamic-urls` skip this step.
 4. **No capture:** a prompt to capture the page.
 
 The bar above the heatmap shows which background you're looking at. When a background can't be loaded, for example because the replay has expired, the panel moves on to the next one.

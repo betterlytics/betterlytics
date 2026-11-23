@@ -49,11 +49,6 @@ export const HeatmapClickPointSchema = z.object({
 
 export type HeatmapClickPoint = z.infer<typeof HeatmapClickPointSchema>;
 
-export type HeatmapClicks = {
-  width: number;
-  points: HeatmapClickPoint[];
-};
-
 // Changes right after a snapshot are applied too: an in-app navigation snapshots the page
 // before the new route has rendered, and lazy content arrives just after load
 export const SNAPSHOT_SETTLE_MS = 3000;

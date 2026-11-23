@@ -6,8 +6,6 @@ import {
   HEATMAP_POINT_CELL_PX,
   HeatmapClickAnchor,
   HeatmapClickAnchorSchema,
-  HeatmapClickPoint,
-  HeatmapClickPointSchema,
   HeatmapDevice,
   HeatmapPageRow,
   HeatmapPageRowSchema,
@@ -71,53 +69,6 @@ export async function getHeatmapPages(siteQuery: BASiteQuery, limit: number): Pr
     .toPromise();
 
   return rows.map((row) => HeatmapPageRowSchema.parse(row));
-}
-
-export async function getHeatmapClickPoints(
-  siteQuery: BASiteQuery,
-  url: string,
-  device: HeatmapDevice,
-  width: number,
-  maxHeight: number,
-): Promise<HeatmapClickPoint[]> {
-  const { siteId, startDateTime, endDateTime } = siteQuery;
-
-  const query = safeSql`
-    SELECT
-      intDiv(toUInt32(round(page_x * {width:UInt32} / greatest(viewport_width, 1))), {cell:UInt32}) * {cell:UInt32} AS x,
-      intDiv(page_y, {cell:UInt32}) * {cell:UInt32} AS y,
-      count() AS count
-    FROM analytics.heatmap_clicks
-    WHERE site_id = {site_id:String}
-      AND device = {device:String}
-      AND url = {url:String}
-      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-      AND NOT is_fixed
-      AND page_y < {max_height:UInt32}
-    GROUP BY x, y
-    HAVING x < {width:UInt32}
-    ORDER BY count DESC
-    LIMIT {limit:UInt32}
-  `;
-
-  const rows = await clickhouse
-    .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        site_id: siteId,
-        device,
-        url,
-        width,
-        cell: HEATMAP_POINT_CELL_PX,
-        max_height: maxHeight,
-        start_date: startDateTime,
-        end_date: endDateTime,
-        limit: MAX_POINTS,
-      },
-    })
-    .toPromise();
-
-  return rows.map((row) => HeatmapClickPointSchema.parse(row));
 }
 
 // Offsets are rounded to 5% of the element so clicks from different window widths share a

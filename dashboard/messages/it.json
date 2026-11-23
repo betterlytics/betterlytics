@@ -4003,7 +4003,7 @@
         "capture": "Catturata il {date}",
         "replay": "Catturata il {date} dall'ultimo replay",
         "live": "Pagina dal vivo",
-        "liveHint": "La tua pagina com'è adesso, che può essere diversa da quando sono avvenuti i clic. I clic sono mostrati nella loro posizione sulla pagina.",
+        "liveHint": "La tua pagina com'è adesso, che può essere diversa da quando sono avvenuti i clic. I clic sono mostrati sull'elemento su cui sono stati fatti, o nella loro posizione sulla pagina quando quell'elemento non c'è.",
         "none": "Nessuna cattura di questa pagina"
       },
       "capture": {

@@ -11,6 +11,7 @@ import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import {
   HEATMAP_DEVICE_VIEWPORT_HEIGHTS,
+  HEATMAP_DEVICE_WIDTHS,
   type HeatmapDevice,
   type HeatmapReplaySnapshot,
 } from '@/entities/analytics/clickHeatmap.entities';
@@ -226,8 +227,8 @@ type LiveHeatmapProps = {
 function LiveHeatmap({ url, device, pageUrl, history, actions, onUnusable }: LiveHeatmapProps) {
   const t = useTranslations('components.heatmaps');
   const { input, options } = useBAQueryParams();
-  const clicksQuery = trpc.clickHeatmap.clicks.useQuery({ ...input, url, device }, options);
-  const clicks = clicksQuery.data;
+  const width = HEATMAP_DEVICE_WIDTHS[device];
+  const anchorsQuery = trpc.clickHeatmap.anchors.useQuery({ ...input, url, device, width }, options);
 
   return (
     <FrameContent
@@ -239,17 +240,17 @@ function LiveHeatmap({ url, device, pageUrl, history, actions, onUnusable }: Liv
       }
       actions={actions}
     >
-      {clicks ? (
+      {anchorsQuery.data ? (
         <LiveHeatmapView
           pageUrl={pageUrl}
           pagePath={url}
-          width={clicks.width}
+          width={width}
           viewportHeight={HEATMAP_DEVICE_VIEWPORT_HEIGHTS[device]}
-          points={clicks.points}
+          anchors={anchorsQuery.data}
           onUnusable={onUnusable}
         />
       ) : (
-        <FrameSpinner failed={clicksQuery.isError} />
+        <FrameSpinner failed={anchorsQuery.isError} />
       )}
     </FrameContent>
   );

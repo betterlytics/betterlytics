@@ -4003,7 +4003,7 @@
         "capture": "Tatt opp {date}",
         "replay": "Tatt opp {date} fra den siste sesjonsavspillingen",
         "live": "Live side",
-        "liveHint": "Siden din slik den er nå, som kan avvike fra da klikkene skjedde. Klikk vises der de skjedde på siden.",
+        "liveHint": "Siden din slik den er nå, som kan avvike fra da klikkene skjedde. Klikk vises på elementet det ble klikket på, eller der de skjedde på siden når elementet ikke finnes der.",
         "none": "Ingen opptak av denne siden"
       },
       "capture": {

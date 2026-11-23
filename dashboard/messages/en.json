@@ -4003,7 +4003,7 @@
         "capture": "Captured {date}",
         "replay": "Captured {date} from the latest replay",
         "live": "Live page",
-        "liveHint": "Your page as it is now, which may differ from when the clicks happened. Clicks are shown at their position on the page.",
+        "liveHint": "Your page as it is now, which may differ from when the clicks happened. Clicks are shown on the element they were made on, or at their position on the page when that element isn't there.",
         "none": "No capture for this page"
       },
       "capture": {

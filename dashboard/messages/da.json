@@ -4003,7 +4003,7 @@
         "capture": "Optaget {date}",
         "replay": "Optaget {date} fra den seneste session replay",
         "live": "Live side",
-        "liveHint": "Din side, som den ser ud nu, og den kan afvige fra da klikkene skete. Klik vises på deres position på siden.",
+        "liveHint": "Din side, som den ser ud nu, og den kan afvige fra da klikkene skete. Klik vises på det element, der blev klikket på, eller på deres position på siden, når elementet ikke er der.",
         "none": "Ingen optagelse af denne side"
       },
       "capture": {

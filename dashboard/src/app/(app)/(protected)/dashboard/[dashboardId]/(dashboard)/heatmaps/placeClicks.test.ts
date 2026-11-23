@@ -1,7 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EventType, type eventWithTime } from '@rrweb/types';
 import { SNAPSHOT_SETTLE_MS, type HeatmapClickAnchor } from '@/entities/analytics/clickHeatmap.entities';
-import { findInDocument, placeClicks, type Candidate, type ElementBox, type LocatedElement } from './placeClicks';
+import {
+  findInDocument,
+  findInFrame,
+  placeClicks,
+  type Candidate,
+  type ElementBox,
+  type LocatedElement,
+} from './placeClicks';
 import { snapshotEvents } from './snapshotEvents';
 
 const PAGE_HEIGHT = 4000;
@@ -142,6 +149,23 @@ describe('placeClicks', () => {
       PAGE_HEIGHT,
     );
     expect(layers.size).toBe(0);
+  });
+
+  it('keeps the clicks it cannot place at their page position when asked to, except fixed ones', () => {
+    const layers = placeClicks(
+      [
+        anchor('a.renamed', { x: 640, y: 900, count: 2 }),
+        anchor('nav.sticky', { fixed: true, count: 4 }),
+        anchor('button#buy', onBuy),
+      ],
+      find,
+      PAGE_HEIGHT,
+      { keepUnplaced: true },
+    );
+    expect(layers.get(null)).toEqual([
+      { x: 640, y: 900, count: 2 },
+      { x: 360, y: 1020, count: 1 },
+    ]);
   });
 
   it('places clicks on the page itself by their page position', () => {
@@ -338,6 +362,32 @@ describe('findInDocument', () => {
     expect(page.find('li')).toEqual([]);
     expect(page.find('nav')).toEqual([]);
     expect(page.find('> a')).toEqual([]);
+  });
+});
+
+describe('findInFrame', () => {
+  // A button in a centered 1100 px column of the 1440 px frame
+  const box = { left: 194, top: 1158, width: 120, height: 48 };
+
+  it('finds the elements the frame reported, located on the page itself', () => {
+    const area = { left: 170, top: 1100, width: 1100, height: 200 };
+    const find = findInFrame(new Map([['button#plan-a', [{ box, area }]]]));
+    const [found] = find('button#plan-a');
+    expect(found.area).toEqual(area);
+    expect(found.locate()).toEqual({ host: null, ...box });
+    expect(find('button#gone')).toEqual([]);
+  });
+
+  it('puts a click from a wider and taller window on its element in the frame', () => {
+    // Made at 594,1358 in a 1905 x 1080 window on a 1927 px page; the x is scaled to the frame
+    const find = findInFrame(new Map([['button#plan-a', [{ box, area: box }]]]));
+    const layers = placeClicks(
+      [anchor('button#plan-a', { x: 449, y: 1358, relY: 1358 / 1927 })],
+      find,
+      1732,
+      { keepUnplaced: true },
+    );
+    expect(layers.get(null)).toEqual([{ x: 254, y: 1182, count: 1 }]);
   });
 });
 

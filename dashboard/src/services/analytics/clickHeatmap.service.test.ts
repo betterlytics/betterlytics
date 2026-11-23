@@ -1,13 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { getCaptureOrigin, getHeatmapBackground, getHeatmapClicksForPage } from './clickHeatmap.service';
-import { getHeatmapClickPoints, getMostVisitedHost } from '@/repositories/clickhouse/clickHeatmap.repository';
+import { getCaptureOrigin, getHeatmapBackground } from './clickHeatmap.service';
+import { getMostVisitedHost } from '@/repositories/clickhouse/clickHeatmap.repository';
 import { findLatestReplaySnapshot } from '@/repositories/clickhouse/replaySnapshots.repository';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import type { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 vi.mock('@/repositories/clickhouse/clickHeatmap.repository', () => ({
   getHeatmapClickAnchors: vi.fn(),
-  getHeatmapClickPoints: vi.fn(),
   getHeatmapPages: vi.fn(),
   getMostVisitedHost: vi.fn(),
   hasHeatmapClicks: vi.fn(),
@@ -28,17 +27,6 @@ const siteQuery = { siteId: 'test-site' } as unknown as BASiteQuery;
 
 beforeEach(() => {
   vi.resetAllMocks();
-});
-
-describe('getHeatmapClicksForPage', () => {
-  it('draws at the device width and asks for points scaled to it', async () => {
-    vi.mocked(getHeatmapClickPoints).mockResolvedValue([{ x: 180, y: 1800, count: 3 }]);
-
-    const result = await getHeatmapClicksForPage(siteQuery, '/', 'mobile');
-
-    expect(result).toEqual({ width: 390, points: [{ x: 180, y: 1800, count: 3 }] });
-    expect(getHeatmapClickPoints).toHaveBeenCalledWith(siteQuery, '/', 'mobile', 390, 20000);
-  });
 });
 
 describe('getHeatmapBackground', () => {

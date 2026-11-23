@@ -2,7 +2,6 @@ import 'server-only';
 
 import {
   getHeatmapClickAnchors,
-  getHeatmapClickPoints,
   getHeatmapPages,
   getMostVisitedHost,
   hasHeatmapClicks,
@@ -12,11 +11,9 @@ import { findDashboardById } from '@/repositories/postgres/dashboard.repository'
 import { findLatestReplaySnapshot } from '@/repositories/clickhouse/replaySnapshots.repository';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import {
-  HEATMAP_DEVICE_WIDTHS,
   HEATMAP_MAX_PAGE_HEIGHT,
   HEATMAP_PAGE_LIMIT,
   HeatmapBackground,
-  HeatmapClicks,
   HeatmapDevice,
 } from '@/entities/analytics/clickHeatmap.entities';
 
@@ -26,16 +23,6 @@ export async function getHasHeatmapClicks(siteId: string): Promise<boolean> {
 
 export async function getHeatmapPagesForSite(siteQuery: BASiteQuery) {
   return getHeatmapPages(siteQuery, HEATMAP_PAGE_LIMIT);
-}
-
-export async function getHeatmapClicksForPage(
-  siteQuery: BASiteQuery,
-  url: string,
-  device: HeatmapDevice,
-): Promise<HeatmapClicks> {
-  const width = HEATMAP_DEVICE_WIDTHS[device];
-  const points = await getHeatmapClickPoints(siteQuery, url, device, width, HEATMAP_MAX_PAGE_HEIGHT);
-  return { width, points };
 }
 
 export async function getHeatmapBackground(
