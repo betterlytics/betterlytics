@@ -126,7 +126,7 @@ function UserSettingsDialogContent({ closeDialog, initialTab }: UserSettingsDial
       value={activeTabId}
       onValueChange={setActiveTabId}
       orientation='vertical'
-      className='flex h-full min-h-0 flex-col gap-0 md:flex-row'
+      className='flex h-full min-h-0 min-w-0 flex-col gap-0 md:flex-row'
     >
       {/* Desktop sidebar */}
       <div className='bg-muted/30 hidden h-full w-56 flex-shrink-0 flex-col border-r md:flex'>

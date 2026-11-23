@@ -170,17 +170,18 @@ function ConnectionRow({ connection, disabled, onEdit, onRevoke }: ConnectionRow
 
   return (
     <div className='flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between'>
-      <div className='min-w-0 flex-1 space-y-1'>
+      {/* text wraps instead of truncating: the settings dialog's scroll area widens to fit unbreakable lines */}
+      <div className='min-w-0 flex-1 space-y-1 wrap-anywhere'>
         <div className='flex min-w-0 items-center gap-2'>
-          <p className='truncate text-sm font-medium'>{connection.name}</p>
+          <p className='min-w-0 text-sm font-medium'>{connection.name}</p>
           {!connection.verified && (
             <Badge variant='outline' className='text-muted-foreground shrink-0' title={t('unverifiedHint')}>
               {t('unverified')}
             </Badge>
           )}
         </div>
-        {connection.host && <p className='text-muted-foreground truncate font-mono text-xs'>{connection.host}</p>}
-        <p className='truncate text-xs' title={connection.allDashboards ? undefined : domains.join(', ')}>
+        {connection.host && <p className='text-muted-foreground font-mono text-xs'>{connection.host}</p>}
+        <p className='text-xs' title={connection.allDashboards ? undefined : domains.join(', ')}>
           {connection.scopes.map((scope) => t(`scopes.${scope}`)).join(', ')}
           {connection.scopes.length > 0 && ' · '}
           {dashboardsLabel}
