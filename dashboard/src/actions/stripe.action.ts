@@ -132,7 +132,14 @@ export const createStripeCheckoutSession = withUserAuth(
       };
     } catch (error) {
       if (error instanceof UserException) throw error;
-      console.error('Failed to create Stripe checkout session:', error);
+      const couponRejected =
+        error instanceof Stripe.errors.StripeInvalidRequestError && Boolean(error.param?.startsWith('discounts'));
+      console.error(
+        couponRejected
+          ? 'Promo coupon rejected by Stripe, every checkout fails until it exists:'
+          : 'Failed to create Stripe checkout session:',
+        error,
+      );
       throw new UserException('Failed to create checkout session. Please try again.');
     }
   },
