@@ -25,11 +25,7 @@ Heatmaps are off by default. Add `data-heatmaps="true"` to your analytics script
 Clicks are sent within 30 seconds, or sooner when a visitor leaves the page or switches tabs, and then show up on the Heatmaps page.
 
 <Callout type="info">
-Self-hosting? Load `analytics.js` from your instance and send events to it. [Tracking Scripts](/installation/self-hosting#tracking-scripts) in the Self-Hosting guide shows the two changes.
-</Callout>
-
-<Callout type="info">
-The [`@betterlytics/tracker`](https://www.npmjs.com/package/@betterlytics/tracker) npm package has no heatmaps option yet. Use the script tag for heatmaps.
+Self-hosting? Load `analytics.js` from your instance and send events to it, with the script tag and the npm package alike. [Tracking Scripts](/installation/self-hosting#tracking-scripts) in the Self-Hosting guide shows the two changes.
 </Callout>
 
 ### Configuration reference
@@ -40,6 +36,20 @@ The [`@betterlytics/tracker`](https://www.npmjs.com/package/@betterlytics/tracke
 | `data-heatmap-sample` | number (0 to 100) | `100` | Percent of page views that record clicks. |
 | `data-dynamic-urls` | string list | - | Groups pages such as `/product/*` into one heatmap, the same way as for pageviews. See [Dynamic URLs](/integration/dynamic-urls). |
 | `data-scripts-base-url` | string (URL) | Origin of `analytics.js` | Base to load `heatmap.js` and `capture.js` from. |
+
+### Using the npm package
+
+Heatmaps are disabled by default. Enable them with `enableHeatmaps`, available from `@betterlytics/tracker` 0.2.4:
+
+```ts
+import betterlytics from '@betterlytics/tracker';
+
+betterlytics.init('your-site-id', {
+  enableHeatmaps: true, // true | false (default)
+});
+```
+
+See the package docs for the full API and options: [@betterlytics/tracker on npm](https://www.npmjs.com/package/@betterlytics/tracker).
 
 ## How clicks are recorded
 
