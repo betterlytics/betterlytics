@@ -4168,6 +4168,7 @@
       "tabs": {
         "account": "Konto",
         "preferences": "Præferencer",
+        "aiAccess": "AI-adgang",
         "billing": "Fakturering"
       },
       "dialog": {
@@ -4369,6 +4370,54 @@
         },
         "toast": {
           "success": "Loggede ud af {count, plural, =0 {ingen andre enheder} =1 {1 anden enhed} other {# andre enheder}}."
+        }
+      },
+      "aiAccess": {
+        "title": "Forbundne agenter",
+        "description": "AI-agenter, du har forbundet til din konto. Hver af dem kan kun læse de dashboards, der står ud for den.",
+        "loadError": "Dine forbundne agenter kunne ikke indlæses.",
+        "empty": {
+          "title": "Ingen agenter forbundet",
+          "description": "Forbind Claude, Cursor eller en anden MCP-klient for at stille spørgsmål om din statistik. <link>Læs opsætningsguiden</link>"
+        },
+        "unverified": "Ikke verificeret",
+        "unverifiedHint": "Appen har selv valgt sit navn, da den blev registreret. Domænet er der, hvor den sender dig hen efter forbindelsen.",
+        "scopes": {
+          "readAnalytics": "Læse statistik"
+        },
+        "allDashboards": "Alle dashboards",
+        "noDashboards": "Ingen dashboards",
+        "moreDashboards": "+{count} mere",
+        "connected": "Forbundet {date}",
+        "lastUsed": "Sidst brugt {date}",
+        "neverUsed": "Aldrig brugt",
+        "editDashboards": "Redigér dashboards",
+        "revoke": "Tilbagekald",
+        "revokeDialog": {
+          "title": "Tilbagekald adgang for {name}?",
+          "description": "{name} mister adgangen med det samme og skal forbindes igen for at læse din statistik.",
+          "cancel": "Annullér",
+          "confirm": "Tilbagekald adgang"
+        },
+        "toast": {
+          "revoked": "Adgangen for {name} er tilbagekaldt.",
+          "dashboardsUpdated": "De dashboards, {name} kan læse, er opdateret."
+        },
+        "editDialog": {
+          "title": "Dashboards for {name}",
+          "description": "Ændringerne gælder fra næste forespørgsel fra {name}. Den skal ikke forbindes igen.",
+          "modeAll": "Alle dashboards",
+          "modeSelected": "Kun valgte",
+          "allHint": "Inkluderer dashboards, du tilføjer senere",
+          "search": "Søg i dashboards",
+          "selectAll": "Vælg alle",
+          "selected": "{selected} af {total} valgt",
+          "pickOne": "Vælg mindst ét dashboard",
+          "noMatch": "Ingen dashboards matcher din søgning.",
+          "empty": "Du har ingen dashboards.",
+          "cancel": "Annullér",
+          "save": "Gem",
+          "saving": "Gemmer..."
         }
       },
       "danger": {

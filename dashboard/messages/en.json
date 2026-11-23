@@ -4168,6 +4168,7 @@
       "tabs": {
         "account": "Account",
         "preferences": "Preferences",
+        "aiAccess": "AI access",
         "billing": "Billing"
       },
       "dialog": {
@@ -4369,6 +4370,54 @@
         },
         "toast": {
           "success": "Signed out {count, plural, =0 {no other devices} =1 {1 other device} other {# other devices}}."
+        }
+      },
+      "aiAccess": {
+        "title": "Connected agents",
+        "description": "AI agents you connected to your account. Each one can read only the dashboards listed for it.",
+        "loadError": "Could not load your connected agents.",
+        "empty": {
+          "title": "No agents connected",
+          "description": "Connect Claude, Cursor or another MCP client to ask questions about your analytics. <link>Read the setup guide</link>"
+        },
+        "unverified": "Unverified",
+        "unverifiedHint": "This app named itself when it registered. The domain shown is where it sends you after connecting.",
+        "scopes": {
+          "readAnalytics": "Read analytics"
+        },
+        "allDashboards": "All dashboards",
+        "noDashboards": "No dashboards",
+        "moreDashboards": "+{count} more",
+        "connected": "Connected {date}",
+        "lastUsed": "Last used {date}",
+        "neverUsed": "Never used",
+        "editDashboards": "Edit dashboards",
+        "revoke": "Revoke",
+        "revokeDialog": {
+          "title": "Revoke access for {name}?",
+          "description": "{name} loses access right away and has to connect again to read your analytics.",
+          "cancel": "Cancel",
+          "confirm": "Revoke access"
+        },
+        "toast": {
+          "revoked": "Revoked access for {name}.",
+          "dashboardsUpdated": "Updated the dashboards {name} can read."
+        },
+        "editDialog": {
+          "title": "Dashboards for {name}",
+          "description": "Changes apply to the next request from {name}. It does not need to connect again.",
+          "modeAll": "All dashboards",
+          "modeSelected": "Only selected",
+          "allHint": "Includes dashboards you add later",
+          "search": "Search dashboards",
+          "selectAll": "Select all",
+          "selected": "{selected} of {total} selected",
+          "pickOne": "Pick at least one dashboard",
+          "noMatch": "No dashboards match your search.",
+          "empty": "You don't have any dashboards.",
+          "cancel": "Cancel",
+          "save": "Save",
+          "saving": "Saving..."
         }
       },
       "danger": {

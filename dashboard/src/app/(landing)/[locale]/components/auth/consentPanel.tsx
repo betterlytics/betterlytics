@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-  useSyncExternalStore,
-  type ReactNode,
-} from 'react';
+import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -18,6 +9,7 @@ import { allowMcpConsentAction, denyMcpConsentAction } from '@/app/actions/auth/
 import { DomainFavicon } from '@/components/domain/DomainFavicon';
 import { Avatar } from '@/components/ui/avatar';
 import { GravatarImage } from '@/components/ui/gravatar-image';
+import { useDashboardGrantPicker } from '@/hooks/use-dashboard-grant-picker';
 import { authClient } from '@/lib/auth-client';
 import { MCP_CONSENT_REQUEST_INVALID } from '@/constants/auth';
 import type { McpConsentRequest } from '@/services/auth/mcpConsent.service';
@@ -31,7 +23,6 @@ import { Spinner } from './icons';
 import form from './authForm.module.css';
 import styles from './consent.module.css';
 
-const SEARCH_FROM_DASHBOARDS = 8;
 const MULTI_PART_SUFFIXES = new Set(['co.uk', 'org.uk', 'ac.uk', 'com.au', 'co.nz', 'co.jp', 'com.br', 'co.za']);
 
 const ICONS = {
@@ -90,15 +81,6 @@ function CheckMark() {
   return <Checkbox.Indicator className={styles.indicator} />;
 }
 
-type Selection = { allDashboards: boolean; picked: Set<string> };
-
-function initialSelection(request: McpConsentRequest): Selection {
-  if (!request.previous || request.previous.allDashboards) {
-    return { allDashboards: true, picked: new Set(request.dashboards.map((dashboard) => dashboard.id)) };
-  }
-  return { allDashboards: false, picked: new Set(request.previous.dashboardIds) };
-}
-
 export function ConsentPanel({
   request,
   oauthQuery,
@@ -121,54 +103,34 @@ export function ConsentPanel({
   };
   const client = request.clientName;
 
-  const [selection, setSelection] = useState<Selection>(() => initialSelection(request));
-  const [query, setQuery] = useState('');
+  const {
+    allDashboards,
+    setAllDashboards,
+    picked,
+    togglePicked,
+    toggleVisible,
+    selectAllState,
+    query,
+    setQuery,
+    total,
+    searchable,
+    visible,
+    visiblePicked,
+    canSave: canAllow,
+    selection,
+  } = useDashboardGrantPicker(request.dashboards, request.previous);
   const [pending, setPending] = useState<'allow' | 'cancel' | 'switch' | null>(null);
   const [failed, setFailed] = useState(false);
 
-  const { allDashboards, picked } = selection;
-  const total = request.dashboards.length;
-  const searchable = total >= SEARCH_FROM_DASHBOARDS;
-  const visible = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    return searchable && needle
-      ? request.dashboards.filter((d) => d.domain.toLowerCase().includes(needle))
-      : request.dashboards;
-  }, [query, request.dashboards, searchable]);
-  const visiblePicked = visible.filter((d) => picked.has(d.id)).length;
-  const canAllow = allDashboards || picked.size > 0;
   const busy = pending !== null;
   const warnUnverified = !request.verified;
   const warnLoopback = request.onlyLoopbackRedirects;
-
-  const setPicked = (next: Set<string>) => setSelection((current) => ({ ...current, picked: next }));
-  const setAllDashboards = (on: boolean) => setSelection((current) => ({ ...current, allDashboards: on }));
-
-  const togglePicked = (dashboardId: string, on: boolean) => {
-    const next = new Set(picked);
-    if (on) next.add(dashboardId);
-    else next.delete(dashboardId);
-    setPicked(next);
-  };
-
-  // acts on the rows the search shows, so "search shop, select all" picks only those
-  const toggleVisible = (on: boolean) => {
-    const next = new Set(picked);
-    for (const dashboard of visible) {
-      if (on) next.add(dashboard.id);
-      else next.delete(dashboard.id);
-    }
-    setPicked(next);
-  };
 
   const allow = async () => {
     if (busy || !canAllow) return;
     setPending('allow');
     setFailed(false);
-    const result = await allowMcpConsentAction(oauthQuery, {
-      allDashboards,
-      dashboardIds: allDashboards ? [] : [...picked],
-    }).catch(() => null);
+    const result = await allowMcpConsentAction(oauthQuery, selection).catch(() => null);
     if (result?.success) {
       window.location.assign(result.data.url);
       return;
@@ -355,13 +317,7 @@ export function ConsentPanel({
                       <label className={styles.selectAll}>
                         <Checkbox.Root
                           className={styles.checkbox}
-                          checked={
-                            allDashboards || (visiblePicked > 0 && visiblePicked === visible.length)
-                              ? true
-                              : visiblePicked === 0
-                                ? false
-                                : 'indeterminate'
-                          }
+                          checked={selectAllState}
                           disabled={allDashboards || visible.length === 0}
                           onCheckedChange={() => toggleVisible(visiblePicked < visible.length)}
                         >

@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { env } from '@/lib/env';
+import { isMcpOAuthEnabled } from '@/mcp/auth/oauth';
 
 type PublicPrefixedKey = keyof typeof env & `PUBLIC_${string}`;
 
@@ -26,6 +27,9 @@ export type PublicEnvironmentVariableKeys = (typeof PUBLIC_ENVIRONMENT_VARIABLES
 
 export type PublicEnvironmentVariables = {
   [K in PublicEnvironmentVariableKeys]: (typeof env)[K];
+} & {
+  // derived from IS_CLOUD and the resource URL, so no single variable says it
+  MCP_OAUTH_ENABLED: boolean;
 };
 
 export function getPublicEnvironmentVariables() {
@@ -34,6 +38,6 @@ export function getPublicEnvironmentVariables() {
       ...vars,
       [key]: env[key],
     }),
-    {} as PublicEnvironmentVariables,
+    { MCP_OAUTH_ENABLED: isMcpOAuthEnabled() } as PublicEnvironmentVariables,
   );
 }

@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import {
   ArrowUpCircle,
   ArrowUpRight,
+  Bot,
   Bug,
   BookOpen,
   CreditCard,
@@ -16,6 +17,7 @@ import {
 import UserAccountSettings from '@/components/userSettings/account/UserAccountSettings';
 import UserPreferencesSettings from '@/components/userSettings/preferences/UserPreferencesSettings';
 import UserBillingSettings from '@/components/userSettings/billing/UserBillingSettings';
+import UserAiAccessSettings from '@/components/userSettings/aiAccess/UserAiAccessSettings';
 import { BugReportDialog } from '@/components/bugReport/BugReportDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -81,9 +83,9 @@ interface UserSettingsDialogContentProps {
 function UserSettingsDialogContent({ closeDialog, initialTab }: UserSettingsDialogContentProps) {
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const tTabs = useTranslations('components.userSettings.tabs');
-  const { PUBLIC_IS_CLOUD } = usePublicEnvironmentVariablesContext();
+  const { PUBLIC_IS_CLOUD, MCP_OAUTH_ENABLED } = usePublicEnvironmentVariablesContext();
 
-  const tabs: TabConfig[] = useMemo(
+  const tabs = useMemo<TabConfig[]>(
     () => [
       {
         id: 'account',
@@ -98,6 +100,13 @@ function UserSettingsDialogContent({ closeDialog, initialTab }: UserSettingsDial
         render: () => <UserPreferencesSettings />,
       },
       {
+        id: 'aiAccess',
+        label: tTabs('aiAccess'),
+        icon: Bot,
+        disabled: !MCP_OAUTH_ENABLED,
+        render: () => <UserAiAccessSettings />,
+      },
+      {
         id: 'billing',
         label: tTabs('billing'),
         icon: CreditCard,
@@ -105,7 +114,7 @@ function UserSettingsDialogContent({ closeDialog, initialTab }: UserSettingsDial
         render: ({ closeDialog }) => <UserBillingSettings onCloseDialog={closeDialog} />,
       },
     ],
-    [tTabs, isFeatureFlagEnabled],
+    [tTabs, isFeatureFlagEnabled, MCP_OAUTH_ENABLED],
   );
 
   const availableTabs = tabs.filter((tab) => !tab.disabled);

@@ -4168,6 +4168,7 @@
       "tabs": {
         "account": "Konto",
         "preferences": "Preferanser",
+        "aiAccess": "AI-tilgang",
         "billing": "Fakturering"
       },
       "dialog": {
@@ -4369,6 +4370,54 @@
         },
         "toast": {
           "success": "Logget ut av {count, plural, =0 {ingen andre enheter} =1 {1 annen enhet} other {# andre enheter}}."
+        }
+      },
+      "aiAccess": {
+        "title": "Tilkoblede agenter",
+        "description": "AI-agenter du har koblet til kontoen din. Hver av dem kan bare lese dashbordene som står oppført for den.",
+        "loadError": "Kunne ikke laste inn de tilkoblede agentene dine.",
+        "empty": {
+          "title": "Ingen agenter tilkoblet",
+          "description": "Koble til Claude, Cursor eller en annen MCP-klient for å stille spørsmål om statistikken din. <link>Les oppsettsveiledningen</link>"
+        },
+        "unverified": "Ikke verifisert",
+        "unverifiedHint": "Appen valgte navnet sitt selv da den ble registrert. Domenet er der den sender deg etter tilkoblingen.",
+        "scopes": {
+          "readAnalytics": "Lese statistikk"
+        },
+        "allDashboards": "Alle dashbord",
+        "noDashboards": "Ingen dashbord",
+        "moreDashboards": "+{count} til",
+        "connected": "Tilkoblet {date}",
+        "lastUsed": "Sist brukt {date}",
+        "neverUsed": "Aldri brukt",
+        "editDashboards": "Rediger dashbord",
+        "revoke": "Tilbakekall",
+        "revokeDialog": {
+          "title": "Tilbakekalle tilgangen for {name}?",
+          "description": "{name} mister tilgangen umiddelbart og må kobles til på nytt for å lese statistikken din.",
+          "cancel": "Avbryt",
+          "confirm": "Tilbakekall tilgang"
+        },
+        "toast": {
+          "revoked": "Tilgangen for {name} er tilbakekalt.",
+          "dashboardsUpdated": "Dashbordene {name} kan lese, er oppdatert."
+        },
+        "editDialog": {
+          "title": "Dashbord for {name}",
+          "description": "Endringene gjelder fra neste forespørsel fra {name}. Den trenger ikke å kobles til på nytt.",
+          "modeAll": "Alle dashbord",
+          "modeSelected": "Bare valgte",
+          "allHint": "Inkluderer dashbord du legger til senere",
+          "search": "Søk i dashbord",
+          "selectAll": "Velg alle",
+          "selected": "{selected} av {total} valgt",
+          "pickOne": "Velg minst ett dashbord",
+          "noMatch": "Ingen dashbord samsvarer med søket.",
+          "empty": "Du har ingen dashbord.",
+          "cancel": "Avbryt",
+          "save": "Lagre",
+          "saving": "Lagrer..."
         }
       },
       "danger": {

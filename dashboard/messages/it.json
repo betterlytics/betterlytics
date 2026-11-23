@@ -4168,6 +4168,7 @@
       "tabs": {
         "account": "Account",
         "preferences": "Preferenze",
+        "aiAccess": "Accesso AI",
         "billing": "Fatturazione"
       },
       "dialog": {
@@ -4369,6 +4370,54 @@
         },
         "toast": {
           "success": "Disconnesso da {count, plural, =0 {nessun altro dispositivo} =1 {1 altro dispositivo} other {# altri dispositivi}}."
+        }
+      },
+      "aiAccess": {
+        "title": "Agenti collegati",
+        "description": "Gli agenti AI che hai collegato al tuo account. Ognuno può leggere solo le dashboard indicate.",
+        "loadError": "Impossibile caricare gli agenti collegati.",
+        "empty": {
+          "title": "Nessun agente collegato",
+          "description": "Collega Claude, Cursor o un altro client MCP per fare domande sulle tue statistiche. <link>Leggi la guida alla configurazione</link>"
+        },
+        "unverified": "Non verificata",
+        "unverifiedHint": "Il nome è stato scelto dall'app stessa al momento della registrazione. Il dominio indicato è quello verso cui ti reindirizza dopo il collegamento.",
+        "scopes": {
+          "readAnalytics": "Leggere le statistiche"
+        },
+        "allDashboards": "Tutte le dashboard",
+        "noDashboards": "Nessuna dashboard",
+        "moreDashboards": "+{count} altre",
+        "connected": "Collegato il {date}",
+        "lastUsed": "Ultimo utilizzo {date}",
+        "neverUsed": "Mai utilizzato",
+        "editDashboards": "Modifica dashboard",
+        "revoke": "Revoca",
+        "revokeDialog": {
+          "title": "Revocare l'accesso a {name}?",
+          "description": "{name} perde subito l'accesso e dovrà collegarsi di nuovo per leggere le tue statistiche.",
+          "cancel": "Annulla",
+          "confirm": "Revoca accesso"
+        },
+        "toast": {
+          "revoked": "Accesso revocato a {name}.",
+          "dashboardsUpdated": "Dashboard leggibili da {name} aggiornate."
+        },
+        "editDialog": {
+          "title": "Dashboard per {name}",
+          "description": "Le modifiche valgono dalla prossima richiesta di {name}, senza bisogno di collegarsi di nuovo.",
+          "modeAll": "Tutte le dashboard",
+          "modeSelected": "Solo selezionate",
+          "allHint": "Include le dashboard che aggiungerai in seguito",
+          "search": "Cerca dashboard",
+          "selectAll": "Seleziona tutte",
+          "selected": "{selected} di {total} selezionate",
+          "pickOne": "Scegli almeno una dashboard",
+          "noMatch": "Nessuna dashboard corrisponde alla ricerca.",
+          "empty": "Non hai nessuna dashboard.",
+          "cancel": "Annulla",
+          "save": "Salva",
+          "saving": "Salvataggio..."
         }
       },
       "danger": {
