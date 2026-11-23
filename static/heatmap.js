@@ -28,8 +28,8 @@
   var MAX_SELECTOR_CHARS = 500;
   var MAX_PAGE_WIDTH = 16384;
   var MAX_PAGE_HEIGHT = 1000000;
-  // Pending clicks are sent within a minute, so a crashed or killed tab loses little
-  var MAX_PENDING_MS = 60 * 1000;
+  // Pending clicks are sent within 30 seconds, so a crashed or killed tab loses little
+  var MAX_PENDING_MS = 30 * 1000;
 
   // React useId output (":r1:", "«r1»", "_r_1_") changes between page loads, also inside
   // library ids such as Radix's "radix-_r_v_-trigger-exit"
