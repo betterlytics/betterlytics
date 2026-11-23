@@ -35,14 +35,12 @@ const ROLES = [
     name: "salts_rw",
     passwordEnv: "POSTGRES_SALTS_RW_PASSWORD",
     // Read-write: secret fingerprint salts. Also the backend's heatmap capture uploads, which
-    // claim a capture link, check that its creator may still capture, and write the capture
-    // row; reusing this role avoids a new env var.
+    // claim a capture link and write the capture row; reusing this role avoids a new env var.
     grants: {
       AnalyticsSalt: ["SELECT", "INSERT", "DELETE"],
       HeatmapCaptureLink: ["SELECT", "UPDATE"],
       HeatmapCapture: ["SELECT", "INSERT", "DELETE"],
       Dashboard: ["SELECT"],
-      UserDashboard: ["SELECT"],
     },
   },
   {

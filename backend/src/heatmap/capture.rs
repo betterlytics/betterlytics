@@ -332,8 +332,6 @@ fn check_viewport(device: &str, viewport_width: u32) -> Result<(), Refusal> {
     ))
 }
 
-/// The link's creator must still be allowed to capture: the roles mirror `canCaptureHeatmaps`
-/// in dashboard/src/lib/permissions.ts
 async fn find_link(pool: &PostgresPool, token_hash: &str) -> Result<Option<Link>, Refusal> {
     let conn = pool.connection().await?;
     let row = conn
@@ -344,14 +342,7 @@ async fn find_link(pool: &PostgresPool, token_hash: &str) -> Result<Option<Link>
                WHERE l."tokenHash" = $1
                  AND l."usedAt" IS NULL
                  AND l."expiresAt" > timezone('utc', now())
-                 AND d."deletedAt" IS NULL
-                 AND EXISTS (
-                   SELECT 1 FROM "UserDashboard" m
-                   WHERE m."dashboardId" = l."dashboardId"
-                     AND m."userId" = l."createdById"
-                     AND m."deletedAt" IS NULL
-                     AND m."role" IN ('owner', 'admin', 'editor')
-                 )"#,
+                 AND d."deletedAt" IS NULL"#,
             &[&token_hash],
         )
         .await?;
