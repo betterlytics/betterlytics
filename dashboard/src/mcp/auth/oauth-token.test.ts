@@ -18,7 +18,12 @@ import { validateOAuthToken } from '@/mcp/auth/oauth-token';
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mocks.verifyJwsAccessToken.mockResolvedValue({ sub: 'user-1', azp: 'client-1', scope: 'dashboards:read' });
+  mocks.verifyJwsAccessToken.mockResolvedValue({
+    sub: 'user-1',
+    azp: 'client-1',
+    scope: 'dashboards:read',
+    iat: 1_795_000_000,
+  });
 });
 
 describe('validateOAuthToken', () => {
@@ -27,7 +32,14 @@ describe('validateOAuthToken', () => {
     mocks.resolveOAuthMcpContext.mockResolvedValue(context);
 
     expect(await validateOAuthToken('token')).toEqual({ valid: true, context });
-    expect(mocks.resolveOAuthMcpContext).toHaveBeenCalledWith('user-1', 'client-1');
+    expect(mocks.resolveOAuthMcpContext).toHaveBeenCalledWith('user-1', 'client-1', 1_795_000_000);
+  });
+
+  it('refuses a token without an issue time, which a revoke could not be checked against', async () => {
+    mocks.verifyJwsAccessToken.mockResolvedValue({ sub: 'user-1', azp: 'client-1', scope: 'dashboards:read' });
+
+    expect(await validateOAuthToken('token')).toEqual({ valid: false, reason: 'Invalid access token' });
+    expect(mocks.resolveOAuthMcpContext).not.toHaveBeenCalled();
   });
 
   it('refuses a token that has not expired once its connection is revoked', async () => {

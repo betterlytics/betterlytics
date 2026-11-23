@@ -28,6 +28,8 @@ const MEMBERSHIPS = [
   { dashboardId: 'dash-a', siteId: 'site-a', domain: 'a.example.com', role: 'viewer' as const },
 ];
 
+const ISSUED_AT = 1_795_000_000;
+
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.findUserById.mockResolvedValue({ id: 'user-1', deletedAt: null, disabledAt: null });
@@ -60,7 +62,7 @@ describe('resolveOAuthMcpContext', () => {
       grant: { allDashboards: false, dashboardIds: ['dash-a'] },
     });
 
-    expect(await resolveOAuthMcpContext('user-1', 'client-1')).toEqual({
+    expect(await resolveOAuthMcpContext('user-1', 'client-1', ISSUED_AT)).toEqual({
       credentialId: 'oauth-consent:consent-1',
       dashboards: [MEMBERSHIPS[1]],
     });
@@ -73,7 +75,7 @@ describe('resolveOAuthMcpContext', () => {
       grant: { allDashboards: false, dashboardIds: ['dash-left'] },
     });
 
-    expect(await resolveOAuthMcpContext('user-1', 'client-1')).toEqual({
+    expect(await resolveOAuthMcpContext('user-1', 'client-1', ISSUED_AT)).toEqual({
       credentialId: 'oauth-consent:consent-1',
       dashboards: [],
     });
@@ -87,14 +89,38 @@ describe('resolveOAuthMcpContext', () => {
     mocks.findMcpConsentGrant.mockResolvedValue(consent);
     mocks.findUserById.mockResolvedValue({ id: 'user-1', ...user });
 
-    expect(await resolveOAuthMcpContext('user-1', 'client-1')).toBeNull();
+    expect(await resolveOAuthMcpContext('user-1', 'client-1', ISSUED_AT)).toBeNull();
     expect(mocks.touchMcpGrantLastUsed).not.toHaveBeenCalled();
+  });
+
+  it('refuses a token issued before the consent: revoked, then the client connected again', async () => {
+    mocks.findMcpConsentGrant.mockResolvedValue({
+      consentId: 'consent-2',
+      createdAt: new Date((ISSUED_AT + 1) * 1000),
+      grant: { allDashboards: true, dashboardIds: [] },
+    });
+
+    expect(await resolveOAuthMcpContext('user-1', 'client-1', ISSUED_AT)).toBeNull();
+    expect(mocks.touchMcpGrantLastUsed).not.toHaveBeenCalled();
+  });
+
+  it('accepts a token issued in the second the consent was created', async () => {
+    mocks.findMcpConsentGrant.mockResolvedValue({
+      consentId: 'consent-1',
+      createdAt: new Date(ISSUED_AT * 1000),
+      grant: { allDashboards: true, dashboardIds: [] },
+    });
+
+    expect(await resolveOAuthMcpContext('user-1', 'client-1', ISSUED_AT)).toEqual({
+      credentialId: 'oauth-consent:consent-1',
+      dashboards: MEMBERSHIPS,
+    });
   });
 
   it('records the use on the consent it authorized', async () => {
     mocks.findMcpConsentGrant.mockResolvedValue({ consentId: 'consent-1', grant: null });
 
-    await resolveOAuthMcpContext('user-1', 'client-1');
+    await resolveOAuthMcpContext('user-1', 'client-1', ISSUED_AT);
 
     expect(mocks.touchMcpGrantLastUsed).toHaveBeenCalledWith('consent-1');
   });
@@ -107,7 +133,7 @@ describe('resolveOAuthMcpContext', () => {
     });
     mocks.touchMcpGrantLastUsed.mockRejectedValue(new Error('database down'));
 
-    expect(await resolveOAuthMcpContext('user-1', 'client-1')).toEqual({
+    expect(await resolveOAuthMcpContext('user-1', 'client-1', ISSUED_AT)).toEqual({
       credentialId: 'oauth-consent:consent-1',
       dashboards: MEMBERSHIPS,
     });

@@ -42,6 +42,7 @@ export async function findMcpConsentGrant(userId: string, clientId: string): Pro
     orderBy: { updatedAt: 'desc' },
     select: {
       id: true,
+      createdAt: true,
       grant: { select: { allDashboards: true, dashboards: { select: { dashboardId: true } } } },
     },
   });
@@ -49,6 +50,7 @@ export async function findMcpConsentGrant(userId: string, clientId: string): Pro
 
   return McpConsentGrantSchema.parse({
     consentId: consent.id,
+    createdAt: consent.createdAt,
     grant: consent.grant && {
       allDashboards: consent.grant.allDashboards,
       dashboardIds: consent.grant.dashboards.map((row) => row.dashboardId),
@@ -123,13 +125,18 @@ export async function touchMcpGrantLastUsed(consentId: string): Promise<void> {
 }
 
 /**
- * Deletes every consent of the user for the client, or for every client without one, with their access and refresh
- * tokens. MCP calls are checked against the consent, so a token that hasn't expired stops working too.
- * Returns the number of consents deleted.
+ * Deletes the user's consents for the client with their stored tokens, and returns how many consents went. MCP access
+ * tokens are JWTs that are never stored: resolveOAuthMcpContext refuses those against the consent instead.
  */
-export async function deleteMcpConnections(userId: string, clientId?: string): Promise<number> {
-  const where = clientId === undefined ? { userId } : { userId, clientId };
+export async function deleteMcpConnection(userId: string, clientId: string): Promise<number> {
+  return deleteConsentsWithTokens({ userId, clientId });
+}
 
+export async function deleteAllMcpConnections(userId: string): Promise<number> {
+  return deleteConsentsWithTokens({ userId });
+}
+
+async function deleteConsentsWithTokens(where: { userId: string; clientId?: string }): Promise<number> {
   return prisma.$transaction(async (tx) => {
     await tx.oauthAccessToken.deleteMany({ where });
     await tx.oauthRefreshToken.deleteMany({ where });

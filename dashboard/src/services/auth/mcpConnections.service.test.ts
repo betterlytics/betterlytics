@@ -4,7 +4,8 @@ const mocks = vi.hoisted(() => ({
   findMcpConnections: vi.fn(),
   findMcpConsentGrant: vi.fn(),
   replaceMcpGrant: vi.fn(),
-  deleteMcpConnections: vi.fn(),
+  deleteMcpConnection: vi.fn(),
+  deleteAllMcpConnections: vi.fn(),
   findUserMemberships: vi.fn(),
 }));
 
@@ -14,7 +15,8 @@ vi.mock('@/repositories/postgres/mcpGrant.repository', () => ({
   findMcpConnections: mocks.findMcpConnections,
   findMcpConsentGrant: mocks.findMcpConsentGrant,
   replaceMcpGrant: mocks.replaceMcpGrant,
-  deleteMcpConnections: mocks.deleteMcpConnections,
+  deleteMcpConnection: mocks.deleteMcpConnection,
+  deleteAllMcpConnections: mocks.deleteAllMcpConnections,
   touchMcpGrantLastUsed: vi.fn(),
 }));
 vi.mock('@/repositories/postgres/dashboard.repository', () => ({
@@ -139,15 +141,16 @@ describe('listMcpConnections', () => {
 
 describe('revokeMcpConnection', () => {
   it("deletes the user's consents and tokens for the client", async () => {
-    mocks.deleteMcpConnections.mockResolvedValue(2);
+    mocks.deleteMcpConnection.mockResolvedValue(2);
 
     await revokeMcpConnection('user-1', 'client-1');
 
-    expect(mocks.deleteMcpConnections).toHaveBeenCalledWith('user-1', 'client-1');
+    expect(mocks.deleteMcpConnection).toHaveBeenCalledWith('user-1', 'client-1');
+    expect(mocks.deleteAllMcpConnections).not.toHaveBeenCalled();
   });
 
   it("refuses a client the user hasn't connected", async () => {
-    mocks.deleteMcpConnections.mockResolvedValue(0);
+    mocks.deleteMcpConnection.mockResolvedValue(0);
 
     await expect(revokeMcpConnection('user-1', 'someone-elses')).rejects.toThrow('notFound');
   });
@@ -155,11 +158,11 @@ describe('revokeMcpConnection', () => {
 
 describe('revokeAllMcpConnections', () => {
   it("deletes every consent and token of the user's", async () => {
-    mocks.deleteMcpConnections.mockResolvedValue(3);
+    mocks.deleteAllMcpConnections.mockResolvedValue(3);
 
     await revokeAllMcpConnections('user-1');
 
-    expect(mocks.deleteMcpConnections).toHaveBeenCalledWith('user-1');
+    expect(mocks.deleteAllMcpConnections).toHaveBeenCalledWith('user-1');
   });
 });
 

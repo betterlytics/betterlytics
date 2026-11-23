@@ -27,17 +27,34 @@ export function grantedDashboards(
     .map(({ dashboardId, siteId, domain, role }) => ({ dashboardId, siteId, domain, role }));
 }
 
+/** Every dashboard the user can grant, by domain: what the consent page and the edit dialog pick from. */
+export function grantableDashboards(
+  memberships: DashboardMembership[],
+): { id: string; domain: string; role: DashboardMembership['role'] }[] {
+  return memberships
+    .map(({ dashboardId, domain, role }) => ({ id: dashboardId, domain, role }))
+    .sort((a, b) => a.domain.localeCompare(b.domain));
+}
+
 /**
  * Checked on every MCP call, so a deleted or disabled user, a revoked consent or a left dashboard takes effect
  * before the access token expires. Null when the connection no longer authorizes anything.
+ * `issuedAt` is the token's `iat` in seconds: access tokens aren't stored, so a token issued before a revoke would
+ * otherwise work again once the client reconnects.
  */
-export async function resolveOAuthMcpContext(userId: string, clientId: string): Promise<McpContext | null> {
+export async function resolveOAuthMcpContext(
+  userId: string,
+  clientId: string,
+  issuedAt: number,
+): Promise<McpContext | null> {
   const [user, consent, memberships] = await Promise.all([
     findUserById(userId),
     findMcpConsentGrant(userId, clientId),
     findUserMemberships(userId),
   ]);
   if (!user || user.deletedAt || user.disabledAt || !consent) return null;
+  // better-auth stamps the consent's createdAt to the second, like iat
+  if (consent.createdAt && issuedAt < Math.floor(consent.createdAt.getTime() / 1000)) return null;
 
   // not awaited, so the call doesn't wait on the write, and a failed write doesn't fail it
   touchMcpGrantLastUsed(consent.consentId).catch((error) => {

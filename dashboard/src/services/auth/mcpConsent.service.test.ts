@@ -44,7 +44,7 @@ beforeEach(() => {
     discovered: false,
     disabled: false,
   });
-  vi.mocked(findMcpConsentGrant).mockResolvedValue({ consentId: 'consent-1', grant: null });
+  vi.mocked(findMcpConsentGrant).mockResolvedValue({ consentId: 'consent-1', createdAt: null, grant: null });
   vi.mocked(auth.api.oauth2Consent).mockImplementation(
     async () => Response.json({ url: 'http://127.0.0.1:4000/callback?code=x' }) as never,
   );

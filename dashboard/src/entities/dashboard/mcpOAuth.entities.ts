@@ -19,6 +19,8 @@ export const McpGrantSelectionSchema = z
 
 export const McpConsentGrantSchema = z.object({
   consentId: z.string(),
+  // reconnecting after a revoke creates a new consent, so tokens issued before this belong to the revoked one
+  createdAt: z.date().nullable(),
   // null when the consent was stored without a grant, which reads no dashboards
   grant: z
     .object({

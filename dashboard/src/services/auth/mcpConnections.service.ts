@@ -8,12 +8,17 @@ import { clientDisplayName, clientIdentityHost, urlHost } from '@/mcp/auth/clien
 import { MCP_READ_SCOPE } from '@/mcp/auth/oauth';
 import { findUserMemberships } from '@/repositories/postgres/dashboard.repository';
 import {
-  deleteMcpConnections,
+  deleteAllMcpConnections,
+  deleteMcpConnection,
   findMcpConnections,
   findMcpConsentGrant,
   replaceMcpGrant,
 } from '@/repositories/postgres/mcpGrant.repository';
-import { assertPickedDashboardsAvailable, grantedDashboards } from '@/services/auth/mcpAccess.service';
+import {
+  assertPickedDashboardsAvailable,
+  grantableDashboards,
+  grantedDashboards,
+} from '@/services/auth/mcpAccess.service';
 
 // Each scope gets its own label, so a later write scope doesn't read as "Read analytics"
 const SCOPE_LABELS = { [MCP_READ_SCOPE]: 'readAnalytics' } as const;
@@ -71,17 +76,12 @@ export async function listMcpConnections(userId: string): Promise<McpConnections
     };
   });
 
-  return {
-    connections,
-    dashboards: memberships
-      .map(({ dashboardId, domain, role }) => ({ id: dashboardId, domain, role }))
-      .sort((a, b) => a.domain.localeCompare(b.domain)),
-  };
+  return { connections, dashboards: grantableDashboards(memberships) };
 }
 
 /** The agent's next call is refused, even with an access token that hasn't expired. */
 export async function revokeMcpConnection(userId: string, clientId: string): Promise<void> {
-  const revoked = await deleteMcpConnections(userId, clientId);
+  const revoked = await deleteMcpConnection(userId, clientId);
   if (revoked === 0) throw await connectionNotFound();
 }
 
@@ -100,5 +100,5 @@ export async function updateMcpConnectionDashboards(
 
 /** On a password reset or change: every agent has to connect again. Personal tokens are left alone. */
 export async function revokeAllMcpConnections(userId: string): Promise<void> {
-  await deleteMcpConnections(userId);
+  await deleteAllMcpConnections(userId);
 }

@@ -21,7 +21,11 @@ import {
   isMcpConsentRequestAnswered,
   markMcpConsentRequestAnswered,
 } from '@/repositories/postgres/mcpConsentRequest.repository';
-import { assertPickedDashboardsAvailable, grantedDashboards } from '@/services/auth/mcpAccess.service';
+import {
+  assertPickedDashboardsAvailable,
+  grantableDashboards,
+  grantedDashboards,
+} from '@/services/auth/mcpAccess.service';
 
 // What the OAuth provider adds to the authorization request it signs for the consent page
 const SIGNATURE_PARAMS = ['sig', 'exp', 'ba_iat', 'ba_param', 'ba_pl'];
@@ -123,9 +127,7 @@ export async function getMcpConsentRequest(userId: string, oauthQuery: string): 
     redirectHost,
     redirectIsLoopback: isLoopbackRedirect(redirectUri),
     onlyLoopbackRedirects: client.redirectUris.length > 0 && client.redirectUris.every(isLoopbackRedirect),
-    dashboards: memberships
-      .map(({ dashboardId, domain, role }) => ({ id: dashboardId, domain, role }))
-      .sort((a, b) => a.domain.localeCompare(b.domain)),
+    dashboards: grantableDashboards(memberships),
     previous,
     authorizeUrl: `${MCP_OAUTH_ISSUER}/oauth2/authorize?${unsigned}`,
   };
