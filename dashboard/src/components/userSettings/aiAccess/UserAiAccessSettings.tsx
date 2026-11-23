@@ -32,8 +32,10 @@ export default function UserAiAccessSettings() {
 
   const { data, isLoading, isError } = useQuery({
     queryKey: MCP_CONNECTIONS_QUERY_KEY,
-    // refetched whenever the tab opens: a password change or another device can revoke connections meanwhile
+    // fetched fresh whenever the tab opens, without showing the old list first: a password change or another
+    // device can revoke connections meanwhile
     staleTime: 0,
+    gcTime: 0,
     queryFn: async () => {
       const result = await listMcpConnectionsAction();
       if (!result.success) {
