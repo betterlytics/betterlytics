@@ -14,6 +14,7 @@ import { createDefaultUserSettings, getUserSettings } from '@/services/account/u
 import { createFreeSubscriptionForUser } from '@/services/billing/subscription.service';
 import { sendVerificationEmail, VERIFICATION_LINK_EXPIRY_SECONDS } from '@/services/account/verification.service';
 import { sendTwoFactorChangedNotification } from '@/services/auth/twoFactorNotification.service';
+import { revokeAllMcpConnections } from '@/services/auth/mcpConnections.service';
 import { setLocaleCookie } from '@/constants/cookies';
 import { getSignupAllowance } from '@/services/auth/signupGate.service';
 import {
@@ -131,6 +132,7 @@ export const auth = betterAuth({
       } catch (error) {
         console.error('Failed to prune reset tokens after password reset:', { userId: user.id, error });
       }
+      await revokeMcpConnectionsAfterPasswordEvent(user.id);
       await sendPasswordChangedNotification(user.id, user.email, user.name ?? null);
     },
   },
@@ -366,6 +368,7 @@ export const auth = betterAuth({
       update: {
         after: async (account, ctx) => {
           if (ctx?.path === '/change-password') {
+            await revokeMcpConnectionsAfterPasswordEvent(account.userId);
             const user = ctx.context.session?.user;
             if (user) {
               await sendPasswordChangedNotification(user.id, user.email, user.name ?? null);
@@ -421,6 +424,15 @@ export const auth = betterAuth({
     nextCookies(),
   ],
 });
+
+// Like the sessions revoked next to it: an agent connected by whoever knew the old password has to connect again
+async function revokeMcpConnectionsAfterPasswordEvent(userId: string) {
+  try {
+    await revokeAllMcpConnections(userId);
+  } catch (error) {
+    console.error('Failed to revoke MCP connections after a password change:', { userId, error });
+  }
+}
 
 export function getEnabledOAuthProviders(): { google: boolean; github: boolean } {
   return {
