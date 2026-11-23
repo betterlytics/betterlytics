@@ -550,12 +550,16 @@
     var MAX_FIND_SELECTORS = 2000;
     var MAX_SELECTOR_CHARS = 500;
     var MAX_MATCHES = 20;
-    // Elements are looked up again once the page has been still this long after a report
+    // Elements are looked up again once the page has been still this long after a report or the
+    // end of a transition or animation, and once more a while after a report, for animations run
+    // by scripts
     var FIND_DELAY_MS = 300;
+    var SETTLED_FIND_DELAY_MS = 1500;
     var SCROLLING_OVERFLOW = /^(auto|scroll|overlay)$/;
     var selectors = [];
     var lastFound = null;
     var findTimer = null;
+    var settledTimer = null;
 
     // The heat is drawn at the frame's full width, the width visitors' clicks were recorded at,
     // so the page's own scrollbar must not take any of it. The dashboard scrolls the frame.
@@ -570,10 +574,16 @@
         path: window.location.pathname,
       });
       // Late content and scrolling can move the elements
+      scheduleFind();
       if (selectors.length > 0) {
-        clearTimeout(findTimer);
-        findTimer = setTimeout(sendFound, FIND_DELAY_MS);
+        clearTimeout(settledTimer);
+        settledTimer = setTimeout(sendFound, SETTLED_FIND_DELAY_MS);
       }
+    }
+    function scheduleFind() {
+      if (selectors.length === 0) return;
+      clearTimeout(findTimer);
+      findTimer = setTimeout(sendFound, FIND_DELAY_MS);
     }
     // Sent when asked, then again whenever the elements have moved
     function sendFound(asked) {
@@ -603,15 +613,22 @@
         sendFound(true);
       }
     });
+    // Content revealed on scroll and carousels move elements after the report
+    document.addEventListener("transitionend", scheduleFind, true);
+    document.addEventListener("animationend", scheduleFind, true);
 
     // Each selector's elements, as [left, top, width, height] boxes on the page: the element's own,
     // and the area its clicks are compared with, which is the outermost part around it that scrolls
     // its own content, since a click's page position includes the visitor's scroll there. Elements
-    // in a fixed or sticky part, or out of sight in a scrolling one, aren't where the dashboard
-    // draws the page's heat, so they are left out.
+    // in a fixed or sticky part, cut off by a part around them (a carousel's other slides, say), or
+    // off the page aren't where the dashboard draws the page's heat, so they are left out.
+    // findInDocument in the dashboard's placeClicks.ts finds elements on captures by the same rules,
+    // except that it keeps elements that are cut off, and only counts scrolling parts it can draw
+    // heat inside; the frame is another origin, so the two can't share code.
     function findElements() {
       var root = document.documentElement;
       var pageScrolls = root.scrollHeight > root.clientHeight;
+      var pageWidth = root.clientWidth;
       var found = [];
       for (var i = 0; i < selectors.length; i++) {
         var matches;
@@ -623,31 +640,36 @@
         if (matches.length > MAX_MATCHES) continue;
         var elements = [];
         for (var j = 0; j < matches.length; j++) {
-          var element = elementOnPage(matches[j], pageScrolls);
+          var element = elementOnPage(matches[j], pageScrolls, pageWidth);
           if (element) elements.push(element);
         }
         if (elements.length > 0) found.push({ selector: selectors[i], elements: elements });
       }
       return found;
     }
-    function elementOnPage(element, pageScrolls) {
+    function elementOnPage(element, pageScrolls, pageWidth) {
       var rect = element.getBoundingClientRect();
       if (!(rect.width > 0 && rect.height > 0)) return null;
+      // Moved off the page until it opens, like some menus and drawers
+      if (rect.right <= 0 || rect.left >= pageWidth || rect.bottom + window.scrollY <= 0) return null;
       var area = rect;
       for (var el = element; el && el !== document.documentElement; el = el.parentElement) {
         var style = window.getComputedStyle(el);
         if (style.position === "fixed" || style.position === "sticky") return null;
-        // The body scrolls only when it does so in place of the page
-        if (el === element || (el === document.body && pageScrolls) || !scrollsOwnContent(el, style)) {
+        // The body's overflow belongs to the page unless the body scrolls in place of it
+        if (el === element || (el === document.body && pageScrolls) || !cutsOffContent(style)) {
           continue;
         }
         var part = el.getBoundingClientRect();
         if (rect.right <= part.left || rect.left >= part.right || rect.bottom <= part.top || rect.top >= part.bottom) {
           return null;
         }
-        area = part;
+        if (scrollsOwnContent(el, style)) area = part;
       }
       return { box: pageBox(rect), area: pageBox(area) };
+    }
+    function cutsOffContent(style) {
+      return style.overflowX !== "visible" || style.overflowY !== "visible";
     }
     function scrollsOwnContent(el, style) {
       return (

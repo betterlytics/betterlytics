@@ -366,12 +366,13 @@ describe('findInDocument', () => {
 });
 
 describe('findInFrame', () => {
+  const page = { width: 1440, height: 1732 };
   // A button in a centered 1100 px column of the 1440 px frame
   const box = { left: 194, top: 1158, width: 120, height: 48 };
 
   it('finds the elements the frame reported, located on the page itself', () => {
     const area = { left: 170, top: 1100, width: 1100, height: 200 };
-    const find = findInFrame(new Map([['button#plan-a', [{ box, area }]]]));
+    const find = findInFrame(new Map([['button#plan-a', [{ box, area }]]]), page);
     const [found] = find('button#plan-a');
     expect(found.area).toEqual(area);
     expect(found.locate()).toEqual({ host: null, ...box });
@@ -380,14 +381,25 @@ describe('findInFrame', () => {
 
   it('puts a click from a wider and taller window on its element in the frame', () => {
     // Made at 594,1358 in a 1905 x 1080 window on a 1927 px page; the x is scaled to the frame
-    const find = findInFrame(new Map([['button#plan-a', [{ box, area: box }]]]));
+    const find = findInFrame(new Map([['button#plan-a', [{ box, area: box }]]]), page);
     const layers = placeClicks(
       [anchor('button#plan-a', { x: 449, y: 1358, relY: 1358 / 1927 })],
       find,
-      1732,
+      page.height,
       { keepUnplaced: true },
     );
     expect(layers.get(null)).toEqual([{ x: 254, y: 1182, count: 1 }]);
+  });
+
+  it('keeps the page position of a click whose element reaches outside the drawn page', () => {
+    // The next slide of a carousel, laid out past the frame's right edge
+    const slide = { left: 1500, top: 300, width: 1440, height: 600 };
+    const find = findInFrame(new Map([['div.slide > a', [{ box: slide, area: slide }]]]), page);
+    expect(find('div.slide > a')).toEqual([]);
+    const layers = placeClicks([anchor('div.slide > a', { x: 700, y: 640, relY: 640 / 1927 })], find, page.height, {
+      keepUnplaced: true,
+    });
+    expect(layers.get(null)).toEqual([{ x: 700, y: 640, count: 1 }]);
   });
 });
 

@@ -114,7 +114,8 @@ const MAX_CANDIDATES = 20;
  * made in. An element inside a fixed, sticky or scrolling part is located from that part's content
  * corner, so heat drawn inside the part stays on it. A static part is made positioned before the
  * element is located, so a layer inside it is placed against it; only an element that gets clicks
- * is located.
+ * is located. static/capture.js finds elements on the live page by the same rules, minus the ones
+ * cut off by a part around them, since heat is drawn on the page itself there.
  */
 export function findInDocument(doc: Document): (selector: string) => Candidate<HTMLElement>[] {
   const view = doc.defaultView;
@@ -146,11 +147,21 @@ export type FrameElement = { box: ElementBox; area: ElementBox };
 
 /**
  * Finds a selector's elements among those the framed live page reported. The frame leaves out
- * elements in fixed, sticky or scrolled-away parts, so every one is located on the page itself.
+ * elements in fixed or sticky parts and ones cut off by a part around them, so every one is
+ * located on the page itself. One that doesn't fit inside the drawn page finds nothing, so its
+ * clicks keep their page position instead of being drawn where they can't be seen.
  */
-export function findInFrame(found: ReadonlyMap<string, FrameElement[]>): (selector: string) => Candidate<never>[] {
+export function findInFrame(
+  found: ReadonlyMap<string, FrameElement[]>,
+  page: { width: number; height: number },
+): (selector: string) => Candidate<never>[] {
   return (selector) =>
-    (found.get(selector) ?? []).map(({ box, area }) => ({ area, locate: () => ({ host: null, ...box }) }));
+    (found.get(selector) ?? [])
+      .filter(
+        ({ box }) =>
+          box.left >= 0 && box.top >= 0 && box.left + box.width <= page.width && box.top + box.height <= page.height,
+      )
+      .map(({ box, area }) => ({ area, locate: () => ({ host: null, ...box }) }));
 }
 
 function onPage(rect: ElementBox, view: Window | null): ElementBox {

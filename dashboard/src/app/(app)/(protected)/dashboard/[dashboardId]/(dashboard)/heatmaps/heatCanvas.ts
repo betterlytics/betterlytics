@@ -1,4 +1,4 @@
-import { HEATMAP_POINT_CELL_PX, type HeatmapClickPoint } from '@/entities/analytics/clickHeatmap.entities';
+import type { HeatmapClickPoint } from '@/entities/analytics/clickHeatmap.entities';
 
 export const HEAT_RESOLUTION = 0.5;
 const HEAT_RADIUS_PX = 18;
@@ -58,15 +58,12 @@ export function maxCountOf(points: HeatmapClickPoint[]): number {
   return points.reduce((max, point) => Math.max(max, point.count), 0);
 }
 
-// Points from the click query sit on the corner of their cell, so they are drawn at its
-// center; points placed on an element are exact and pass 0. Heat split over several images
-// passes the busiest point of all of them, so the colors compare.
+// Heat split over several images passes the busiest point of all of them, so the colors compare
 export function drawHeat(
   canvas: HTMLCanvasElement,
   points: HeatmapClickPoint[],
   width: number,
   height: number,
-  pointOffset = HEATMAP_POINT_CELL_PX / 2,
   maxCount = maxCountOf(points),
 ) {
   const canvasWidth = Math.max(1, Math.round(width * HEAT_RESOLUTION));
@@ -84,11 +81,7 @@ export function drawHeat(
 
   for (const point of points) {
     ctx.globalAlpha = heatAlpha(point.count, maxCount);
-    ctx.drawImage(
-      stamp,
-      (point.x + pointOffset) * HEAT_RESOLUTION - radius,
-      (point.y + pointOffset) * HEAT_RESOLUTION - radius,
-    );
+    ctx.drawImage(stamp, point.x * HEAT_RESOLUTION - radius, point.y * HEAT_RESOLUTION - radius);
   }
   ctx.globalAlpha = 1;
 

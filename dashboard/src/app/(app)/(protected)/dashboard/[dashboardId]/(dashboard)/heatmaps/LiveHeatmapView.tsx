@@ -113,8 +113,12 @@ export function LiveHeatmapView({ pageUrl, pagePath, width, viewportHeight, anch
   const height = Math.max(pageHeight ?? 0, viewportHeight);
 
   const points = useMemo(
-    () => (found ? (placeClicks(pageAnchors, findInFrame(found), height, { keepUnplaced: true }).get(null) ?? []) : []),
-    [pageAnchors, found, height],
+    () =>
+      found
+        ? (placeClicks(pageAnchors, findInFrame(found, { width, height }), height, { keepUnplaced: true }).get(null) ??
+          [])
+        : [],
+    [pageAnchors, found, width, height],
   );
 
   useEffect(() => {

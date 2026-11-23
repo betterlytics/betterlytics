@@ -209,7 +209,7 @@ function heatLayer(
   const height = Math.min(Math.max(scrollHeight - top, 1), HEATMAP_MAX_PAGE_HEIGHT);
   const canvas = document.createElement('canvas');
   const shifted = points.map((point) => ({ ...point, x: point.x - left, y: point.y - top }));
-  drawHeat(canvas, shifted, width, height, 0, maxCount);
+  drawHeat(canvas, shifted, width, height, maxCount);
 
   const layer = doc.createElement('div');
   layer.style.cssText = [
