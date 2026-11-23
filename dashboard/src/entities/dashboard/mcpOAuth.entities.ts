@@ -38,7 +38,19 @@ export const OauthClientDetailsSchema = z.object({
   disabled: z.boolean(),
 });
 
+// One per user and OAuth client: the latest consent, as findMcpConsentGrant reads it on every call
+export const McpConnectionRecordSchema = z.object({
+  consentId: z.string(),
+  client: OauthClientDetailsSchema.omit({ icon: true, disabled: true }),
+  scopes: z.array(z.string()),
+  // when the user last approved the client on the consent page; better-auth always sets it
+  connectedAt: z.date().nullable(),
+  lastUsedAt: z.date().nullable(),
+  grant: McpConsentGrantSchema.shape.grant,
+});
+
 export type DashboardMembership = z.infer<typeof DashboardMembershipSchema>;
 export type McpGrantSelection = z.infer<typeof McpGrantSelectionSchema>;
 export type McpConsentGrant = z.infer<typeof McpConsentGrantSchema>;
 export type OauthClientDetails = z.infer<typeof OauthClientDetailsSchema>;
+export type McpConnectionRecord = z.infer<typeof McpConnectionRecordSchema>;

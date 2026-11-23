@@ -1,5 +1,7 @@
 import prisma from '@/lib/postgres';
 import {
+  McpConnectionRecord,
+  McpConnectionRecordSchema,
   McpConsentGrant,
   McpConsentGrantSchema,
   McpGrantSelection,
@@ -32,9 +34,11 @@ export async function findOauthClient(clientId: string): Promise<OauthClientDeta
   });
 }
 
+const ENABLED_CLIENT = { OR: [{ disabled: false }, { disabled: null }] };
+
 export async function findMcpConsentGrant(userId: string, clientId: string): Promise<McpConsentGrant | null> {
   const consent = await prisma.oauthConsent.findFirst({
-    where: { userId, clientId, client: { OR: [{ disabled: false }, { disabled: null }] } },
+    where: { userId, clientId, client: ENABLED_CLIENT },
     orderBy: { updatedAt: 'desc' },
     select: {
       id: true,
@@ -69,5 +73,67 @@ export async function replaceMcpGrant(consentId: string, selection: McpGrantSele
         data: picked.map((dashboardId) => ({ grantId: grant.id, dashboardId })),
       });
     }
+  });
+}
+
+/** The user's connections, newest first, one per client: its latest consent, the one MCP calls are checked against. */
+export async function findMcpConnections(userId: string): Promise<McpConnectionRecord[]> {
+  const consents = await prisma.oauthConsent.findMany({
+    where: { userId, client: ENABLED_CLIENT },
+    // as findMcpConsentGrant orders them, so each row is the consent calls are checked against
+    orderBy: { updatedAt: 'desc' },
+    select: {
+      id: true,
+      scopes: true,
+      createdAt: true,
+      updatedAt: true,
+      client: { select: { clientId: true, name: true, redirectUris: true, clientDiscoveryId: true } },
+      grant: {
+        select: { allDashboards: true, lastUsedAt: true, dashboards: { select: { dashboardId: true } } },
+      },
+    },
+  });
+
+  const seen = new Set<string>();
+  return consents.flatMap((consent) => {
+    if (seen.has(consent.client.clientId)) return [];
+    seen.add(consent.client.clientId);
+
+    return McpConnectionRecordSchema.parse({
+      consentId: consent.id,
+      client: {
+        clientId: consent.client.clientId,
+        name: consent.client.name,
+        redirectUris: consent.client.redirectUris,
+        discovered: consent.client.clientDiscoveryId !== null,
+      },
+      scopes: consent.scopes,
+      connectedAt: consent.updatedAt ?? consent.createdAt,
+      lastUsedAt: consent.grant?.lastUsedAt ?? null,
+      grant: consent.grant && {
+        allDashboards: consent.grant.allDashboards,
+        dashboardIds: consent.grant.dashboards.map((row) => row.dashboardId),
+      },
+    });
+  });
+}
+
+export async function touchMcpGrantLastUsed(consentId: string): Promise<void> {
+  await prisma.mcpGrant.updateMany({ where: { consentId }, data: { lastUsedAt: new Date() } });
+}
+
+/**
+ * Deletes every consent of the user for the client, or for every client without one, with their access and refresh
+ * tokens. MCP calls are checked against the consent, so a token that hasn't expired stops working too.
+ * Returns the number of consents deleted.
+ */
+export async function deleteMcpConnections(userId: string, clientId?: string): Promise<number> {
+  const where = clientId === undefined ? { userId } : { userId, clientId };
+
+  return prisma.$transaction(async (tx) => {
+    await tx.oauthAccessToken.deleteMany({ where });
+    await tx.oauthRefreshToken.deleteMany({ where });
+    const { count } = await tx.oauthConsent.deleteMany({ where });
+    return count;
   });
 }

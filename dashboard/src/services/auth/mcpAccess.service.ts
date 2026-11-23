@@ -1,9 +1,14 @@
 import 'server-only';
 
-import type { DashboardMembership, McpConsentGrant } from '@/entities/dashboard/mcpOAuth.entities';
+import type {
+  DashboardMembership,
+  McpConsentGrant,
+  McpGrantSelection,
+} from '@/entities/dashboard/mcpOAuth.entities';
+import { UserException } from '@/lib/exceptions';
 import type { McpContext, McpDashboard } from '@/mcp/context';
 import { findUserMemberships } from '@/repositories/postgres/dashboard.repository';
-import { findMcpConsentGrant } from '@/repositories/postgres/mcpGrant.repository';
+import { findMcpConsentGrant, touchMcpGrantLastUsed } from '@/repositories/postgres/mcpGrant.repository';
 import { findUserById } from '@/repositories/postgres/user.repository';
 
 /**
@@ -33,8 +38,26 @@ export async function resolveOAuthMcpContext(userId: string, clientId: string): 
   ]);
   if (!user || user.deletedAt || user.disabledAt || !consent) return null;
 
+  try {
+    await touchMcpGrantLastUsed(consent.consentId);
+  } catch (error) {
+    console.error('Failed to record MCP connection use:', { consentId: consent.consentId, error });
+  }
+
   return {
     credentialId: `oauth-consent:${consent.consentId}`,
     dashboards: grantedDashboards(consent.grant, memberships),
   };
+}
+
+/** Every picked dashboard is checked against the user's memberships now, not as the page showed them. */
+export async function assertPickedDashboardsAvailable(
+  userId: string,
+  selection: McpGrantSelection,
+): Promise<void> {
+  if (selection.allDashboards) return;
+  const memberOf = new Set((await findUserMemberships(userId)).map((membership) => membership.dashboardId));
+  if (selection.dashboardIds.some((dashboardId) => !memberOf.has(dashboardId))) {
+    throw new UserException('One of the picked dashboards is no longer available');
+  }
 }

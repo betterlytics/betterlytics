@@ -952,6 +952,7 @@ model McpGrant {
   consentId     String              @unique
   consent       OauthConsent        @relation(fields: [consentId], references: [id], onDelete: Cascade)
   allDashboards Boolean
+  lastUsedAt    DateTime?
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @updatedAt
   dashboards    McpGrantDashboard[]

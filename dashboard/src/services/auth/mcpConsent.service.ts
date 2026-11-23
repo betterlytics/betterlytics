@@ -10,6 +10,7 @@ import { env } from '@/lib/env';
 import { UserException } from '@/lib/exceptions';
 import { MCP_OAUTH_ISSUER } from '@/mcp/auth/oauth';
 import { isLoopbackRedirect } from '@/mcp/auth/redirect-uri';
+import { clientDisplayName, clientIdentityHost, urlHost } from '@/mcp/auth/client-identity';
 import { findUserMemberships } from '@/repositories/postgres/dashboard.repository';
 import {
   findMcpConsentGrant,
@@ -20,7 +21,7 @@ import {
   isMcpConsentRequestAnswered,
   markMcpConsentRequestAnswered,
 } from '@/repositories/postgres/mcpConsentRequest.repository';
-import { grantedDashboards } from '@/services/auth/mcpAccess.service';
+import { assertPickedDashboardsAvailable, grantedDashboards } from '@/services/auth/mcpAccess.service';
 
 // What the OAuth provider adds to the authorization request it signs for the consent page
 const SIGNATURE_PARAMS = ['sig', 'exp', 'ba_iat', 'ba_param', 'ba_pl'];
@@ -86,14 +87,6 @@ async function markAnswered(params: URLSearchParams): Promise<void> {
   await markMcpConsentRequestAnswered(requestKey(params), new Date(Number(params.get('exp')) * 1000));
 }
 
-function urlHost(value: string): string | null {
-  try {
-    return new URL(value).host;
-  } catch {
-    return null;
-  }
-}
-
 /** Null for a request that is unsigned, expired, already answered, or for a client that is gone or disabled. */
 export async function getMcpConsentRequest(userId: string, oauthQuery: string): Promise<McpConsentRequest | null> {
   const params = await verifiedRequest(oauthQuery);
@@ -109,7 +102,7 @@ export async function getMcpConsentRequest(userId: string, oauthQuery: string): 
   const redirectHost = urlHost(redirectUri);
   if (!client || client.disabled || !redirectHost) return null;
 
-  const identityHost = client.discovered ? urlHost(client.clientId) : null;
+  const identityHost = clientIdentityHost(client);
   const logoUrl = client.discovered && client.icon?.startsWith('https://') ? client.icon : null;
 
   const unsigned = new URLSearchParams(params);
@@ -123,7 +116,7 @@ export async function getMcpConsentRequest(userId: string, oauthQuery: string): 
     : null;
 
   return {
-    clientName: client.name?.trim() || identityHost || redirectHost,
+    clientName: clientDisplayName(client.name, identityHost, redirectHost) ?? redirectHost,
     verified: client.discovered,
     identityHost,
     logoUrl,
@@ -166,13 +159,7 @@ export async function allowMcpConsent(
   const params = await requireOpenRequest(oauthQuery);
   const clientId = params.get('client_id')!;
 
-  // every picked dashboard is checked against the user's memberships now, not as the page showed them
-  if (!selection.allDashboards) {
-    const memberOf = new Set((await findUserMemberships(userId)).map((membership) => membership.dashboardId));
-    if (selection.dashboardIds.some((dashboardId) => !memberOf.has(dashboardId))) {
-      throw new UserException('One of the picked dashboards is no longer available');
-    }
-  }
+  await assertPickedDashboardsAvailable(userId, selection);
 
   const url = await submitConsent(true, oauthQuery, requestHeaders);
 
