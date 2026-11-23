@@ -155,7 +155,7 @@ function UserSettingsDialogContent({ closeDialog, initialTab }: UserSettingsDial
         ))}
       </TabsList>
 
-      <ScrollArea className='min-h-0 min-w-0 flex-1'>
+      <ScrollArea className='min-h-0 min-w-0 flex-1 [&>[data-slot=scroll-area-viewport]>div]:!block'>
         <div className='px-5 pt-6 pb-8 md:px-8 md:pt-8 md:pb-10'>
           <h2 className='mb-8 hidden text-2xl font-semibold md:block'>{activeTab.label}</h2>
           {availableTabs.map((tab) => (

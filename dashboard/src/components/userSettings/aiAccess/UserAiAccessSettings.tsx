@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bot } from 'lucide-react';
+import { Bot, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -12,13 +12,13 @@ import { DestructiveActionDialog } from '@/components/dialogs';
 import ExternalLink from '@/components/ExternalLink';
 import UserSettingsSection from '@/components/userSettings/shared/UserSettingsSection';
 import EditConnectionDashboardsDialog from '@/components/userSettings/aiAccess/EditConnectionDashboardsDialog';
-import { MCP_CONNECTIONS_QUERY_KEY } from '@/components/userSettings/aiAccess/mcpConnectionsQuery';
 import { listMcpConnectionsAction, revokeMcpConnectionAction } from '@/app/actions/account/mcpConnections.action';
 import type { McpConnection, McpConnectionsOverview } from '@/services/auth/mcpConnections.service';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 
 const MCP_SETUP_DOCS_URL = 'https://betterlytics.io/docs/dashboard/mcp';
 const SHOWN_DASHBOARDS = 3;
+const MCP_CONNECTIONS_QUERY_KEY = ['mcpConnections'] as const;
 
 export default function UserAiAccessSettings() {
   const t = useTranslations('components.userSettings.aiAccess');
@@ -32,6 +32,8 @@ export default function UserAiAccessSettings() {
 
   const { data, isLoading, isError } = useQuery({
     queryKey: MCP_CONNECTIONS_QUERY_KEY,
+    // refetched whenever the tab opens: a password change or another device can revoke connections meanwhile
+    staleTime: 0,
     queryFn: async () => {
       const result = await listMcpConnectionsAction();
       if (!result.success) {
@@ -112,6 +114,7 @@ export default function UserAiAccessSettings() {
           key={editing.clientId}
           connection={editing}
           dashboards={data.dashboards}
+          onSaved={() => queryClient.invalidateQueries({ queryKey: MCP_CONNECTIONS_QUERY_KEY })}
           onClose={() => setEditing(null)}
         />
       )}
@@ -169,34 +172,55 @@ function ConnectionRow({ connection, disabled, onEdit, onRevoke }: ConnectionRow
         : domains.join(', ');
 
   return (
-    <div className='flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between'>
-      {/* text wraps instead of truncating: the settings dialog's scroll area widens to fit unbreakable lines */}
-      <div className='min-w-0 flex-1 space-y-1 wrap-anywhere'>
+    <div className='flex items-center justify-between gap-2 px-4 py-3'>
+      <div className='min-w-0 flex-1 space-y-1'>
         <div className='flex min-w-0 items-center gap-2'>
-          <p className='min-w-0 text-sm font-medium'>{connection.name}</p>
+          <p className='truncate text-sm font-medium' title={connection.name}>
+            {connection.name}
+          </p>
           {!connection.verified && (
             <Badge variant='outline' className='text-muted-foreground shrink-0' title={t('unverifiedHint')}>
               {t('unverified')}
             </Badge>
           )}
         </div>
-        {connection.host && <p className='text-muted-foreground font-mono text-xs'>{connection.host}</p>}
-        <p className='text-xs' title={connection.allDashboards ? undefined : domains.join(', ')}>
+        {connection.host && (
+          <p className='text-muted-foreground truncate font-mono text-xs' title={connection.host}>
+            {connection.host}
+          </p>
+        )}
+        <p className='truncate text-xs' title={connection.allDashboards ? undefined : domains.join(', ')}>
           {connection.scopes.map((scope) => t(`scopes.${scope}`)).join(', ')}
           {connection.scopes.length > 0 && ' · '}
           {dashboardsLabel}
         </p>
-        <p className='text-muted-foreground text-xs'>
+        <p className='text-muted-foreground truncate text-xs'>
           {connection.connectedAt && <>{t('connected', { date: formatDate(connection.connectedAt) })} · </>}
           {connection.lastUsedAt ? t('lastUsed', { date: formatDate(connection.lastUsedAt) }) : t('neverUsed')}
         </p>
       </div>
-      <div className='flex shrink-0 gap-2'>
-        <Button variant='outline' size='sm' className='cursor-pointer' onClick={onEdit} disabled={disabled}>
-          {t('editDashboards')}
+      <div className='flex shrink-0 items-center gap-1'>
+        <Button
+          variant='ghost'
+          size='icon'
+          className='text-muted-foreground hover:text-foreground size-8 cursor-pointer'
+          onClick={onEdit}
+          disabled={disabled}
+          aria-label={t('editDashboards')}
+          title={t('editDashboards')}
+        >
+          <Pencil className='size-3.5' />
         </Button>
-        <Button variant='destructive' size='sm' className='cursor-pointer' onClick={onRevoke} disabled={disabled}>
-          {t('revoke')}
+        <Button
+          variant='ghost'
+          size='icon'
+          className='text-muted-foreground hover:text-destructive size-8 cursor-pointer'
+          onClick={onRevoke}
+          disabled={disabled}
+          aria-label={t('revoke')}
+          title={t('revoke')}
+        >
+          <Trash2 className='size-3.5' />
         </Button>
       </div>
     </div>

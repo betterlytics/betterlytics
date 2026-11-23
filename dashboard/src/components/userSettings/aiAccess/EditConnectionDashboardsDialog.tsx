@@ -3,7 +3,6 @@
 import { useId, useTransition } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 import {
   Dialog,
@@ -22,17 +21,18 @@ import { updateMcpConnectionDashboardsAction } from '@/app/actions/account/mcpCo
 import { useDashboardGrantPicker } from '@/hooks/use-dashboard-grant-picker';
 import type { McpConnection, McpConnectionsOverview } from '@/services/auth/mcpConnections.service';
 import { cn } from '@/lib/utils';
-import { MCP_CONNECTIONS_QUERY_KEY } from '@/components/userSettings/aiAccess/mcpConnectionsQuery';
 
 interface EditConnectionDashboardsDialogProps {
   connection: McpConnection;
   dashboards: McpConnectionsOverview['dashboards'];
+  onSaved: () => Promise<unknown>;
   onClose: () => void;
 }
 
 export default function EditConnectionDashboardsDialog({
   connection,
   dashboards,
+  onSaved,
   onClose,
 }: EditConnectionDashboardsDialogProps) {
   const t = useTranslations('components.userSettings.aiAccess.editDialog');
@@ -40,7 +40,6 @@ export default function EditConnectionDashboardsDialog({
   const tDialog = useTranslations('components.userSettings.dialog');
   const tRoles = useTranslations('members.roles');
   const id = useId();
-  const queryClient = useQueryClient();
   const [isPending, startTransition] = useTransition();
 
   const picker = useDashboardGrantPicker(dashboards, {
@@ -53,7 +52,7 @@ export default function EditConnectionDashboardsDialog({
     startTransition(async () => {
       const result = await updateMcpConnectionDashboardsAction(connection.clientId, picker.selection);
       if (result.success) {
-        await queryClient.invalidateQueries({ queryKey: MCP_CONNECTIONS_QUERY_KEY });
+        await onSaved();
         toast.success(tToast('dashboardsUpdated', { name: connection.name }));
         onClose();
       } else {
@@ -76,7 +75,7 @@ export default function EditConnectionDashboardsDialog({
               <label
                 key={String(all)}
                 className={cn(
-                  'flex-1 cursor-pointer rounded-md border px-3 py-2 text-center text-sm font-medium transition-colors',
+                  'has-[:focus-visible]:ring-ring/50 flex-1 cursor-pointer rounded-md border px-3 py-2 text-center text-sm font-medium transition-[color,background-color,box-shadow] has-[:focus-visible]:ring-[3px]',
                   picker.allDashboards === all
                     ? 'border-primary bg-primary/5 text-foreground'
                     : 'text-muted-foreground hover:bg-accent/50',
