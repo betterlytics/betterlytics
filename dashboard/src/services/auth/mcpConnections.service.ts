@@ -1,6 +1,7 @@
 import 'server-only';
 
 import type { DashboardRole } from '@prisma/client';
+import { getTranslations } from 'next-intl/server';
 import type { McpGrantSelection } from '@/entities/dashboard/mcpOAuth.entities';
 import { UserException } from '@/lib/exceptions';
 import { clientDisplayName, clientIdentityHost, urlHost } from '@/mcp/auth/client-identity';
@@ -37,6 +38,11 @@ export type McpConnectionsOverview = {
   // every dashboard the user can grant, for editing a connection
   dashboards: { id: string; domain: string; role: DashboardRole }[];
 };
+
+async function connectionNotFound(): Promise<UserException> {
+  const t = await getTranslations('validation.mcpConnections');
+  return new UserException(t('notFound'));
+}
 
 function hasScopeLabel(scope: string): scope is keyof typeof SCOPE_LABELS {
   return Object.hasOwn(SCOPE_LABELS, scope);
@@ -76,7 +82,7 @@ export async function listMcpConnections(userId: string): Promise<McpConnections
 /** The agent's next call is refused, even with an access token that hasn't expired. */
 export async function revokeMcpConnection(userId: string, clientId: string): Promise<void> {
   const revoked = await deleteMcpConnections(userId, clientId);
-  if (revoked === 0) throw new UserException('This connection no longer exists');
+  if (revoked === 0) throw await connectionNotFound();
 }
 
 /** Takes effect on the agent's next call, without reconnecting. */
@@ -86,7 +92,7 @@ export async function updateMcpConnectionDashboards(
   selection: McpGrantSelection,
 ): Promise<void> {
   const consent = await findMcpConsentGrant(userId, clientId);
-  if (!consent) throw new UserException('This connection no longer exists');
+  if (!consent) throw await connectionNotFound();
 
   await assertPickedDashboardsAvailable(userId, selection);
   await replaceMcpGrant(consent.consentId, selection);

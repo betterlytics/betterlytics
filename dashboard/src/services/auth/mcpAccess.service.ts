@@ -5,6 +5,7 @@ import type {
   McpConsentGrant,
   McpGrantSelection,
 } from '@/entities/dashboard/mcpOAuth.entities';
+import { getTranslations } from 'next-intl/server';
 import { UserException } from '@/lib/exceptions';
 import type { McpContext, McpDashboard } from '@/mcp/context';
 import { findUserMemberships } from '@/repositories/postgres/dashboard.repository';
@@ -38,11 +39,10 @@ export async function resolveOAuthMcpContext(userId: string, clientId: string): 
   ]);
   if (!user || user.deletedAt || user.disabledAt || !consent) return null;
 
-  try {
-    await touchMcpGrantLastUsed(consent.consentId);
-  } catch (error) {
+  // not awaited, so the call doesn't wait on the write, and a failed write doesn't fail it
+  touchMcpGrantLastUsed(consent.consentId).catch((error) => {
     console.error('Failed to record MCP connection use:', { consentId: consent.consentId, error });
-  }
+  });
 
   return {
     credentialId: `oauth-consent:${consent.consentId}`,
@@ -58,6 +58,7 @@ export async function assertPickedDashboardsAvailable(
   if (selection.allDashboards) return;
   const memberOf = new Set((await findUserMemberships(userId)).map((membership) => membership.dashboardId));
   if (selection.dashboardIds.some((dashboardId) => !memberOf.has(dashboardId))) {
-    throw new UserException('One of the picked dashboards is no longer available');
+    const t = await getTranslations('validation.mcpConnections');
+    throw new UserException(t('dashboardUnavailable'));
   }
 }

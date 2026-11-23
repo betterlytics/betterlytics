@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   findUserMemberships: vi.fn(),
 }));
 
+vi.mock('next-intl/server', () => ({ getTranslations: vi.fn(async () => (key: string) => key) }));
 vi.mock('@/mcp/auth/oauth', () => ({ MCP_READ_SCOPE: 'dashboards:read' }));
 vi.mock('@/repositories/postgres/mcpGrant.repository', () => ({
   findMcpConnections: mocks.findMcpConnections,
@@ -148,7 +149,7 @@ describe('revokeMcpConnection', () => {
   it("refuses a client the user hasn't connected", async () => {
     mocks.deleteMcpConnections.mockResolvedValue(0);
 
-    await expect(revokeMcpConnection('user-1', 'someone-elses')).rejects.toThrow('no longer exists');
+    await expect(revokeMcpConnection('user-1', 'someone-elses')).rejects.toThrow('notFound');
   });
 });
 
@@ -178,7 +179,7 @@ describe('updateMcpConnectionDashboards', () => {
 
     await expect(
       updateMcpConnectionDashboards('user-1', 'client-1', { allDashboards: true, dashboardIds: [] }),
-    ).rejects.toThrow('no longer exists');
+    ).rejects.toThrow('notFound');
     expect(mocks.replaceMcpGrant).not.toHaveBeenCalled();
   });
 
@@ -187,7 +188,7 @@ describe('updateMcpConnectionDashboards', () => {
 
     await expect(
       updateMcpConnectionDashboards('user-1', 'client-1', { allDashboards: false, dashboardIds: ['dash-other'] }),
-    ).rejects.toThrow('no longer available');
+    ).rejects.toThrow('dashboardUnavailable');
     expect(mocks.replaceMcpGrant).not.toHaveBeenCalled();
   });
 });

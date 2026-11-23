@@ -4674,6 +4674,11 @@
       "invitationExpired": "Questo invito è scaduto",
       "invitationEmailMismatch": "Questo invito è stato inviato a un indirizzo email diverso",
       "invitationNotFound": "Invito non trovato"
+    },
+    "mcpConnections": {
+      "notFound": "Questo collegamento non esiste più.",
+      "unavailable": "L'accesso AI non è disponibile.",
+      "dashboardUnavailable": "Una delle dashboard selezionate non è più disponibile."
     }
   },
   "banners": {

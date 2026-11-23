@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   findUserMemberships: vi.fn(),
 }));
 
+vi.mock('next-intl/server', () => ({ getTranslations: vi.fn(async () => (key: string) => key) }));
 vi.mock('@/repositories/postgres/user.repository', () => ({ findUserById: mocks.findUserById }));
 vi.mock('@/repositories/postgres/mcpGrant.repository', () => ({
   findMcpConsentGrant: mocks.findMcpConsentGrant,
@@ -126,6 +127,6 @@ describe('assertPickedDashboardsAvailable', () => {
   it('refuses a dashboard the user is not a member of', async () => {
     await expect(
       assertPickedDashboardsAvailable('user-1', { allDashboards: false, dashboardIds: ['dash-a', 'dash-other'] }),
-    ).rejects.toThrow('no longer available');
+    ).rejects.toThrow('dashboardUnavailable');
   });
 });

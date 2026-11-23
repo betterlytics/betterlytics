@@ -1,6 +1,7 @@
 'use server';
 
 import { z } from 'zod';
+import { getTranslations } from 'next-intl/server';
 import { withUserAuth } from '@/auth/auth-actions';
 import type { User } from '@/entities/auth/session.entities';
 import { McpGrantSelectionSchema, type McpGrantSelection } from '@/entities/dashboard/mcpOAuth.entities';
@@ -15,23 +16,25 @@ import {
 
 const ClientIdSchema = z.string().min(1).max(2048);
 
-function requireMcpOAuth() {
-  if (!isMcpOAuthEnabled()) throw new UserException('AI access is not available');
+async function requireMcpOAuth() {
+  if (isMcpOAuthEnabled()) return;
+  const t = await getTranslations('validation.mcpConnections');
+  throw new UserException(t('unavailable'));
 }
 
 export const listMcpConnectionsAction = withUserAuth(async (user: User): Promise<McpConnectionsOverview> => {
-  requireMcpOAuth();
+  await requireMcpOAuth();
   return listMcpConnections(user.id);
 });
 
 export const revokeMcpConnectionAction = withUserAuth(async (user: User, clientId: string): Promise<void> => {
-  requireMcpOAuth();
+  await requireMcpOAuth();
   await revokeMcpConnection(user.id, ClientIdSchema.parse(clientId));
 });
 
 export const updateMcpConnectionDashboardsAction = withUserAuth(
   async (user: User, clientId: string, selection: McpGrantSelection): Promise<void> => {
-    requireMcpOAuth();
+    await requireMcpOAuth();
     await updateMcpConnectionDashboards(
       user.id,
       ClientIdSchema.parse(clientId),

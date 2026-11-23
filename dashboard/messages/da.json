@@ -4674,6 +4674,11 @@
       "invitationExpired": "Denne invitation er udløbet",
       "invitationEmailMismatch": "Denne invitation blev sendt til en anden e-mailadresse",
       "invitationNotFound": "Invitation ikke fundet"
+    },
+    "mcpConnections": {
+      "notFound": "Denne forbindelse findes ikke længere.",
+      "unavailable": "AI-adgang er ikke tilgængelig.",
+      "dashboardUnavailable": "Et af de valgte dashboards er ikke længere tilgængeligt."
     }
   },
   "banners": {
