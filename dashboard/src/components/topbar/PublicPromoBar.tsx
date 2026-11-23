@@ -16,7 +16,7 @@ export default function PublicPromoBar() {
   if (!promo || !PROMO_PAGES.test(pathname)) return null;
 
   return (
-    <div className='bg-muted/60 text-foreground/85 border-b text-sm'>
+    <div className='bg-muted/60 text-foreground/85 border-b text-sm' data-nosnippet>
       <p className='mx-auto max-w-7xl px-8 py-2 text-center text-balance'>
         <span className='bg-primary text-primary-foreground mr-2.5 inline-block rounded px-2 align-[1px] text-xs leading-5 font-medium'>
           {t('barTag')}
