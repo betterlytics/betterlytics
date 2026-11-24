@@ -4374,14 +4374,16 @@
       },
       "aiAccess": {
         "title": "Connected agents",
-        "description": "AI agents you connected to your account. Each one can read only the dashboards listed for it.",
+        "description": "Agents connected to your account and the dashboards each can read.",
         "loadError": "Could not load your connected agents.",
-        "empty": {
-          "title": "No agents connected",
-          "description": "Connect Claude, Cursor or another MCP client to ask questions about your analytics. <link>Read the setup guide</link>"
+        "empty": "No agents connected. <link>Read the setup guide</link>",
+        "columns": {
+          "agent": "Agent",
+          "dashboards": "Dashboards",
+          "lastUsed": "Last used"
         },
+        "actions": "Actions for {name}",
         "unverified": "Unverified",
-        "unverifiedHint": "This app named itself when it registered. The domain shown is where it sends you after connecting.",
         "scopes": {
           "readAnalytics": "Read analytics"
         },

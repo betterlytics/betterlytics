@@ -4374,14 +4374,16 @@
       },
       "aiAccess": {
         "title": "Tilkoblede agenter",
-        "description": "AI-agenter du har koblet til kontoen din. Hver av dem kan bare lese dashbordene som står oppført for den.",
+        "description": "Agenter koblet til kontoen din og dashbordene hver av dem kan lese.",
         "loadError": "Kunne ikke laste inn de tilkoblede agentene dine.",
-        "empty": {
-          "title": "Ingen agenter tilkoblet",
-          "description": "Koble til Claude, Cursor eller en annen MCP-klient for å stille spørsmål om statistikken din. <link>Les oppsettsveiledningen</link>"
+        "empty": "Ingen agenter tilkoblet. <link>Les oppsettsveiledningen</link>",
+        "columns": {
+          "agent": "Agent",
+          "dashboards": "Dashbord",
+          "lastUsed": "Sist brukt"
         },
+        "actions": "Handlinger for {name}",
         "unverified": "Ikke verifisert",
-        "unverifiedHint": "Appen valgte navnet sitt selv da den ble registrert. Domenet er der den sender deg etter tilkoblingen.",
         "scopes": {
           "readAnalytics": "Lese statistikk"
         },

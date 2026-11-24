@@ -4374,14 +4374,16 @@
       },
       "aiAccess": {
         "title": "Forbundne agenter",
-        "description": "AI-agenter, du har forbundet til din konto. Hver af dem kan kun læse de dashboards, der står ud for den.",
+        "description": "Agenter forbundet til din konto og de dashboards, hver af dem kan læse.",
         "loadError": "Dine forbundne agenter kunne ikke indlæses.",
-        "empty": {
-          "title": "Ingen agenter forbundet",
-          "description": "Forbind Claude, Cursor eller en anden MCP-klient for at stille spørgsmål om din statistik. <link>Læs opsætningsguiden</link>"
+        "empty": "Ingen agenter forbundet. <link>Læs opsætningsguiden</link>",
+        "columns": {
+          "agent": "Agent",
+          "dashboards": "Dashboards",
+          "lastUsed": "Sidst brugt"
         },
+        "actions": "Handlinger for {name}",
         "unverified": "Ikke verificeret",
-        "unverifiedHint": "Appen har selv valgt sit navn, da den blev registreret. Domænet er der, hvor den sender dig hen efter forbindelsen.",
         "scopes": {
           "readAnalytics": "Læse statistik"
         },

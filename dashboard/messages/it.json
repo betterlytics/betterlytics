@@ -4374,14 +4374,16 @@
       },
       "aiAccess": {
         "title": "Agenti collegati",
-        "description": "Gli agenti AI che hai collegato al tuo account. Ognuno può leggere solo le dashboard indicate.",
+        "description": "Gli agenti collegati al tuo account e le dashboard che ognuno può leggere.",
         "loadError": "Impossibile caricare gli agenti collegati.",
-        "empty": {
-          "title": "Nessun agente collegato",
-          "description": "Collega Claude, Cursor o un altro client MCP per fare domande sulle tue statistiche. <link>Leggi la guida alla configurazione</link>"
+        "empty": "Nessun agente collegato. <link>Leggi la guida alla configurazione</link>",
+        "columns": {
+          "agent": "Agente",
+          "dashboards": "Dashboard",
+          "lastUsed": "Ultimo utilizzo"
         },
+        "actions": "Azioni per {name}",
         "unverified": "Non verificata",
-        "unverifiedHint": "Il nome è stato scelto dall'app stessa al momento della registrazione. Il dominio indicato è quello verso cui ti reindirizza dopo il collegamento.",
         "scopes": {
           "readAnalytics": "Leggere le statistiche"
         },

@@ -4,10 +4,18 @@ import { useState, useTransition } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bot, Pencil, Trash2 } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { DestructiveActionDialog } from '@/components/dialogs';
 import ExternalLink from '@/components/ExternalLink';
 import UserSettingsSection from '@/components/userSettings/shared/UserSettingsSection';
@@ -81,22 +89,51 @@ export default function UserAiAccessSettings() {
         </div>
       ) : isError || !data ? (
         <p className='text-muted-foreground text-sm'>{t('loadError')}</p>
-      ) : data.connections.length === 0 ? (
-        <EmptyState />
       ) : (
-        <div className='divide-border divide-y rounded-md border'>
-          {data.connections.map((connection) => (
-            <ConnectionRow
-              key={connection.clientId}
-              connection={connection}
-              disabled={isPending}
-              onEdit={() => setEditing(connection)}
-              onRevoke={() => {
-                setRevoking(connection);
-                setIsRevokeOpen(true);
-              }}
-            />
-          ))}
+        <div className='rounded-md border'>
+          <Table className='table-fixed'>
+            <TableHeader>
+              <TableRow>
+                <TableHead className='pl-4'>{t('columns.agent')}</TableHead>
+                <TableHead className='hidden w-1/4 lg:table-cell'>{t('columns.dashboards')}</TableHead>
+                <TableHead className='hidden w-1/4 lg:table-cell'>{t('columns.lastUsed')}</TableHead>
+                <TableHead className='w-12' />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.connections.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className='text-muted-foreground py-8 text-center whitespace-normal'>
+                    {t.rich('empty', {
+                      link: (chunks) => (
+                        <ExternalLink
+                          href={MCP_SETUP_DOCS_URL}
+                          target='_blank'
+                          rel='noopener noreferrer'
+                          className='text-primary underline underline-offset-2'
+                        >
+                          {chunks}
+                        </ExternalLink>
+                      ),
+                    })}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                data.connections.map((connection) => (
+                  <ConnectionRow
+                    key={connection.clientId}
+                    connection={connection}
+                    disabled={isPending}
+                    onEdit={() => setEditing(connection)}
+                    onRevoke={() => {
+                      setRevoking(connection);
+                      setIsRevokeOpen(true);
+                    }}
+                  />
+                ))
+              )}
+            </TableBody>
+          </Table>
         </div>
       )}
 
@@ -124,31 +161,6 @@ export default function UserAiAccessSettings() {
   );
 }
 
-function EmptyState() {
-  const t = useTranslations('components.userSettings.aiAccess');
-
-  return (
-    <div className='flex flex-col items-center gap-2 rounded-md border border-dashed px-6 py-10 text-center'>
-      <Bot className='text-muted-foreground h-6 w-6' />
-      <p className='text-sm font-medium'>{t('empty.title')}</p>
-      <p className='text-muted-foreground max-w-sm text-xs'>
-        {t.rich('empty.description', {
-          link: (chunks) => (
-            <ExternalLink
-              href={MCP_SETUP_DOCS_URL}
-              target='_blank'
-              rel='noopener noreferrer'
-              className='text-primary underline underline-offset-2'
-            >
-              {chunks}
-            </ExternalLink>
-          ),
-        })}
-      </p>
-    </div>
-  );
-}
-
 interface ConnectionRowProps {
   connection: McpConnection;
   disabled: boolean;
@@ -172,16 +184,17 @@ function ConnectionRow({ connection, disabled, onEdit, onRevoke }: ConnectionRow
       : hidden > 0
         ? `${domains.slice(0, SHOWN_DASHBOARDS).join(', ')} ${t('moreDashboards', { count: hidden })}`
         : domains.join(', ');
+  const dashboardsTitle = connection.allDashboards ? undefined : domains.join(', ');
 
   return (
-    <div className='flex items-center justify-between gap-2 px-4 py-3'>
-      <div className='min-w-0 flex-1 space-y-1'>
+    <TableRow>
+      <TableCell className='py-3 pl-4'>
         <div className='flex min-w-0 items-center gap-2'>
-          <p className='truncate text-sm font-medium' title={connection.name}>
+          <p className='truncate font-medium' title={connection.name}>
             {connection.name}
           </p>
           {!connection.verified && (
-            <Badge variant='outline' className='text-muted-foreground shrink-0' title={t('unverifiedHint')}>
+            <Badge variant='outline' className='text-muted-foreground shrink-0'>
               {t('unverified')}
             </Badge>
           )}
@@ -191,40 +204,59 @@ function ConnectionRow({ connection, disabled, onEdit, onRevoke }: ConnectionRow
             {connection.host}
           </p>
         )}
-        <p className='truncate text-xs' title={connection.allDashboards ? undefined : domains.join(', ')}>
-          {connection.scopes.map((scope) => t(`scopes.${scope}`)).join(', ')}
-          {connection.scopes.length > 0 && ' · '}
+        <div className='mt-1 lg:hidden'>
+          <p className='truncate' title={dashboardsTitle}>
+            {dashboardsLabel}
+          </p>
+          <p className='text-muted-foreground truncate text-xs'>
+            {connection.lastUsedAt ? t('lastUsed', { date: formatDate(connection.lastUsedAt) }) : t('neverUsed')}
+          </p>
+        </div>
+      </TableCell>
+      <TableCell className='hidden py-3 lg:table-cell'>
+        <p className='truncate' title={dashboardsTitle}>
           {dashboardsLabel}
         </p>
         <p className='text-muted-foreground truncate text-xs'>
-          {connection.connectedAt && <>{t('connected', { date: formatDate(connection.connectedAt) })} · </>}
-          {connection.lastUsedAt ? t('lastUsed', { date: formatDate(connection.lastUsedAt) }) : t('neverUsed')}
+          {connection.scopes.map((scope) => t(`scopes.${scope}`)).join(', ')}
         </p>
-      </div>
-      <div className='flex shrink-0 items-center gap-1'>
-        <Button
-          variant='ghost'
-          size='icon'
-          className='text-muted-foreground hover:text-foreground size-8 cursor-pointer'
-          onClick={onEdit}
-          disabled={disabled}
-          aria-label={t('editDashboards')}
-          title={t('editDashboards')}
-        >
-          <Pencil className='size-3.5' />
-        </Button>
-        <Button
-          variant='ghost'
-          size='icon'
-          className='text-muted-foreground hover:text-destructive size-8 cursor-pointer'
-          onClick={onRevoke}
-          disabled={disabled}
-          aria-label={t('revoke')}
-          title={t('revoke')}
-        >
-          <Trash2 className='size-3.5' />
-        </Button>
-      </div>
-    </div>
+      </TableCell>
+      <TableCell className='hidden py-3 lg:table-cell'>
+        {connection.lastUsedAt ? (
+          <p className='truncate'>{formatDate(connection.lastUsedAt)}</p>
+        ) : (
+          <p className='text-muted-foreground truncate'>{t('neverUsed')}</p>
+        )}
+        {connection.connectedAt && (
+          <p className='text-muted-foreground truncate text-xs'>
+            {t('connected', { date: formatDate(connection.connectedAt) })}
+          </p>
+        )}
+      </TableCell>
+      <TableCell className='py-3'>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant='ghost'
+              size='icon'
+              className='size-8 cursor-pointer'
+              disabled={disabled}
+              aria-label={t('actions', { name: connection.name })}
+            >
+              <MoreHorizontal className='size-4' />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align='end'>
+            <DropdownMenuItem className='cursor-pointer' onClick={onEdit}>
+              {t('editDashboards')}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className='text-destructive focus:text-destructive cursor-pointer' onClick={onRevoke}>
+              {t('revoke')}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </TableCell>
+    </TableRow>
   );
 }
