@@ -43,7 +43,10 @@ export default async function MCPSettingsPage({ params }: McpPageProps) {
           <AiAccessSetting dashboardId={dashboardId} initialEnabled={settings.aiAccessEnabled} access={access} />
         </SettingsSection>
         {view.canManage && (
-          <SettingsSection title={t('access.title')} description={t('access.description')}>
+          <SettingsSection
+            title={t('access.title')}
+            description={settings.aiAccessEnabled ? t('access.description') : t('access.descriptionOff')}
+          >
             <McpAccessList dashboardId={dashboardId} connections={view.connections} tokens={view.tokens} />
           </SettingsSection>
         )}

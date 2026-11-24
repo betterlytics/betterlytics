@@ -175,6 +175,7 @@ function McpConnectionsSection({ onCloseDialog }: UserAiAccessSettingsProps) {
           selection={{
             allDashboards: editing.allDashboards,
             dashboardIds: editing.dashboards.map((dashboard) => dashboard.id),
+            excludedDashboardIds: editing.excludedDashboards.map((dashboard) => dashboard.id),
           }}
           dashboards={data.dashboards}
           save={(selection) => updateMcpConnectionDashboardsAction(editing.clientId, selection)}
@@ -203,11 +204,25 @@ function ConnectionRow({ connection, disabled, onEdit, onRevoke }: ConnectionRow
 
   const domains = connection.dashboards.map((dashboard) => dashboard.domain);
   const more = connection.allDashboards ? 0 : domains.length - 1;
+  const excluded = connection.excludedDashboards.map((dashboard) => dashboard.domain);
   // the first name truncates, the count after it doesn't, so the cell never hides how many there are
   const dashboardsLabel = (
-    <div className='flex min-w-0 gap-1' title={connection.allDashboards ? undefined : domains.join(', ')}>
+    <div
+      className='flex min-w-0 gap-1'
+      title={
+        connection.allDashboards
+          ? excluded.length > 0
+            ? t('removedDashboards', { domains: excluded.join(', ') })
+            : undefined
+          : domains.join(', ')
+      }
+    >
       <span className='truncate'>
-        {connection.allDashboards ? t('allDashboards') : (domains[0] ?? t('noDashboards'))}
+        {connection.allDashboards
+          ? excluded.length > 0
+            ? t('allDashboardsExcept', { count: excluded.length })
+            : t('allDashboards')
+          : (domains[0] ?? t('noDashboards'))}
       </span>
       {more > 0 && <span className='shrink-0'>{t('moreDashboards', { count: more })}</span>}
     </div>

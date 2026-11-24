@@ -20,6 +20,7 @@ import {
   assertPickedDashboardsAvailable,
   grantableDashboards,
   grantedDashboards,
+  selectionKeepingExclusions,
 } from '@/services/auth/mcpAccess.service';
 
 // Each scope gets its own label, so a later write scope doesn't read as "Read analytics"
@@ -36,6 +37,8 @@ export type McpConnection = {
   allDashboards: boolean;
   // the granted dashboards the user is still a member of, including ones with AI access off
   dashboards: { id: string; domain: string }[];
+  // under All dashboards, the user's dashboards owners or admins removed from the connection
+  excludedDashboards: { id: string; domain: string }[];
   connectedAt: Date | null;
   lastUsedAt: Date | null;
 };
@@ -94,6 +97,12 @@ export async function listMcpConnections(userId: string): Promise<McpConnections
       dashboards: grantedDashboards(record.grant, memberships)
         .map(({ dashboardId, domain }) => ({ id: dashboardId, domain }))
         .sort((a, b) => a.domain.localeCompare(b.domain)),
+      excludedDashboards: record.grant?.allDashboards
+        ? memberships
+            .filter((membership) => record.grant!.excludedDashboardIds.includes(membership.dashboardId))
+            .map(({ dashboardId, domain }) => ({ id: dashboardId, domain }))
+            .sort((a, b) => a.domain.localeCompare(b.domain))
+        : [],
       connectedAt: record.connectedAt,
       lastUsedAt: record.lastUsedAt,
     };
@@ -118,7 +127,7 @@ export async function updateMcpConnectionDashboards(
   if (!consent) throw await connectionNotFound();
 
   await assertPickedDashboardsAvailable(userId, selection, consent.grant);
-  await replaceMcpGrant(consent.consentId, selection);
+  await replaceMcpGrant(consent.consentId, selectionKeepingExclusions(selection, consent.grant));
 }
 
 export async function getDashboardMcpConnections(dashboardId: string): Promise<DashboardMcpConnection[]> {

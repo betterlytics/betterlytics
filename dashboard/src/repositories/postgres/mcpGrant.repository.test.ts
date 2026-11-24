@@ -81,13 +81,33 @@ describe('findMcpConnections', () => {
 });
 
 describe('replaceMcpGrant', () => {
-  it("clears the dashboards owners or admins removed, as the member's own choice adds them back", async () => {
+  beforeEach(() => {
     tx.mcpGrant.upsert.mockResolvedValue({ id: 'grant-1' });
+  });
 
-    await replaceMcpGrant('consent-1', { allDashboards: true, dashboardIds: [] });
+  it('stores the excluded dashboards of an All dashboards selection in place of the old ones', async () => {
+    await replaceMcpGrant('consent-1', {
+      allDashboards: true,
+      dashboardIds: [],
+      excludedDashboardIds: ['dash-1'],
+    });
+
+    expect(tx.mcpGrant.upsert).toHaveBeenCalledWith(expect.objectContaining({ update: { allDashboards: true } }));
+    expect(tx.mcpGrantExcludedDashboard.deleteMany).toHaveBeenCalledWith({ where: { grantId: 'grant-1' } });
+    expect(tx.mcpGrantExcludedDashboard.createMany).toHaveBeenCalledWith({
+      data: [{ grantId: 'grant-1', dashboardId: 'dash-1' }],
+    });
+  });
+
+  it('stores no excluded dashboards for picked dashboards', async () => {
+    await replaceMcpGrant('consent-1', {
+      allDashboards: false,
+      dashboardIds: ['dash-2'],
+      excludedDashboardIds: ['dash-1'],
+    });
 
     expect(tx.mcpGrantExcludedDashboard.deleteMany).toHaveBeenCalledWith({ where: { grantId: 'grant-1' } });
-    expect(tx.mcpGrant.upsert).toHaveBeenCalledWith(expect.objectContaining({ update: { allDashboards: true } }));
+    expect(tx.mcpGrantExcludedDashboard.createMany).not.toHaveBeenCalled();
   });
 });
 

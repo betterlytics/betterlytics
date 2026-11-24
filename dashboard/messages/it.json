@@ -755,7 +755,8 @@
           "pickOne": "Scegli almeno una dashboard",
           "noMatch": "Nessuna dashboard corrisponde alla ricerca.",
           "empty": "Non hai ancora nessuna dashboard. Connetti con Tutte le dashboard, incluse quelle future, oppure <link>aggiungi il tuo primo sito</link> prima di connetterti.",
-          "aiAccessOff": "Accesso AI disattivato da proprietari o amministratori"
+          "aiAccessOff": "Accesso AI disattivato da proprietari o amministratori",
+          "removedByAdmins": "Rimossa da proprietari o amministratori"
         },
         "roles": {
           "owner": "Proprietario",
@@ -4392,6 +4393,8 @@
           "readAnalytics": "Leggere le statistiche"
         },
         "allDashboards": "Tutte le dashboard",
+        "allDashboardsExcept": "Tutte tranne {count, plural, one {# dashboard} other {# dashboard}}",
+        "removedDashboards": "Rimosse da proprietari o amministratori: {domains}",
         "noDashboards": "Nessuna dashboard",
         "moreDashboards": "+{count} altre",
         "connected": "Collegato il {date}",
@@ -4424,7 +4427,8 @@
           "cancel": "Annulla",
           "save": "Salva",
           "saving": "Salvataggio...",
-          "aiAccessOff": "Accesso AI disattivato da proprietari o amministratori"
+          "aiAccessOff": "Accesso AI disattivato da proprietari o amministratori",
+          "removedByAdmins": "Rimossa da proprietari o amministratori"
         },
         "tokens": {
           "title": "Token di accesso personali",
@@ -5194,8 +5198,7 @@
       "endpointCopied": "URL del server copiato"
     },
     "aiAccess": {
-      "title": "Accesso agli agenti AI",
-      "label": "Consenti l'accesso agli agenti AI",
+      "title": "Consenti l'accesso agli agenti AI",
       "on": "I membri possono collegare agenti e token a questa dashboard.",
       "off": "Disattivato: nessun agente o token può leggere questa dashboard.",
       "toast": {
@@ -5214,6 +5217,7 @@
     "access": {
       "title": "Chi ha accesso",
       "description": "I collegamenti agli agenti e i token dei membri che possono leggere questa dashboard.",
+      "descriptionOff": "L'accesso AI è disattivato, quindi nessuno di questi può leggere questa dashboard finché non viene riattivato.",
       "empty": "Nessun collegamento o token può leggere questa dashboard.",
       "kind": {
         "connection": "Collegamento",

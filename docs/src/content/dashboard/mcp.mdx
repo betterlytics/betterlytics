@@ -128,7 +128,7 @@ Every dashboard has an **AI access** page under **Dashboard > Settings > AI acce
 - **Off:** no agent connection or token can read the dashboard. Calls to it return an error saying its owners or admins turned AI access off, it's left out of `list_dashboards`, and members can't pick it for a new token or connection. Connections and tokens stay valid for their other dashboards.
 - **On again:** existing connections and tokens read the dashboard again on their next request, without reconnecting.
 
-Owners and admins also see every member's connection and token that can read the dashboard, and can remove the dashboard from any of them. Nothing is revoked: the connection or token keeps its other dashboards, an **All dashboards** connection keeps covering future dashboards, and the member can add this dashboard back under **Account settings > AI access**. To stop every agent, turn AI access off instead.
+Owners and admins also see every member's connection and token that can read the dashboard, and can remove the dashboard from any of them. Nothing is revoked: the connection or token keeps its other dashboards, an **All dashboards** connection keeps covering future dashboards, and the member can add this dashboard back by ticking it again under **Account settings > AI access**, where it shows as removed. To stop every agent, turn AI access off instead.
 
 ## Security
 

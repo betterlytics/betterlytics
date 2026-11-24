@@ -69,7 +69,7 @@ function record(overrides: Record<string, unknown> = {}) {
     scopes: ['openid', 'dashboards:read'],
     connectedAt: CONNECTED,
     lastUsedAt: USED,
-    grant: { allDashboards: true, dashboardIds: [] },
+    grant: { allDashboards: true, dashboardIds: [], excludedDashboardIds: [] },
     ...overrides,
   };
 }
@@ -97,6 +97,7 @@ describe('listMcpConnections', () => {
           { id: 'dash-a', domain: 'a.example.com' },
           { id: 'dash-b', domain: 'b.example.com' },
         ],
+        excludedDashboards: [],
         connectedAt: CONNECTED,
         lastUsedAt: USED,
       },
@@ -192,7 +193,7 @@ describe('updateMcpConnectionDashboards', () => {
     await updateMcpConnectionDashboards('user-1', 'client-1', selection);
 
     expect(mocks.findMcpConsentGrant).toHaveBeenCalledWith('user-1', 'client-1');
-    expect(mocks.replaceMcpGrant).toHaveBeenCalledWith('consent-1', selection);
+    expect(mocks.replaceMcpGrant).toHaveBeenCalledWith('consent-1', { ...selection, excludedDashboardIds: [] });
   });
 
   it("refuses a client the user hasn't connected", async () => {
@@ -239,7 +240,70 @@ describe('updateMcpConnectionDashboards with AI access off', () => {
     const selection = { allDashboards: false, dashboardIds: ['dash-a', 'dash-b'] };
 
     await updateMcpConnectionDashboards('user-1', 'client-1', selection);
-    expect(mocks.replaceMcpGrant).toHaveBeenCalledWith('consent-1', selection);
+    expect(mocks.replaceMcpGrant).toHaveBeenCalledWith('consent-1', { ...selection, excludedDashboardIds: [] });
+  });
+});
+
+describe('dashboards owners or admins removed from an All dashboards connection', () => {
+  const removedA = {
+    consentId: 'consent-1',
+    grant: { allDashboards: true, dashboardIds: [], excludedDashboardIds: ['dash-a'] },
+  };
+
+  it('shows them to the member, apart from the dashboards the connection reads', async () => {
+    mocks.findMcpConnections.mockResolvedValue([record({ grant: removedA.grant })]);
+
+    const [connection] = (await listMcpConnections('user-1')).connections;
+
+    expect(connection).toMatchObject({
+      allDashboards: true,
+      dashboards: [{ id: 'dash-b', domain: 'b.example.com' }],
+      excludedDashboards: [{ id: 'dash-a', domain: 'a.example.com' }],
+    });
+  });
+
+  it('keeps them removed when the member saves without ticking them again', async () => {
+    mocks.findMcpConsentGrant.mockResolvedValue(removedA);
+
+    await updateMcpConnectionDashboards('user-1', 'client-1', {
+      allDashboards: true,
+      dashboardIds: [],
+      excludedDashboardIds: ['dash-a'],
+    });
+    expect(mocks.replaceMcpGrant).toHaveBeenCalledWith('consent-1', {
+      allDashboards: true,
+      dashboardIds: [],
+      excludedDashboardIds: ['dash-a'],
+    });
+  });
+
+  it('adds one back when the member ticks it again', async () => {
+    mocks.findMcpConsentGrant.mockResolvedValue(removedA);
+
+    await updateMcpConnectionDashboards('user-1', 'client-1', {
+      allDashboards: true,
+      dashboardIds: [],
+      excludedDashboardIds: [],
+    });
+    expect(mocks.replaceMcpGrant).toHaveBeenCalledWith('consent-1', {
+      allDashboards: true,
+      dashboardIds: [],
+      excludedDashboardIds: [],
+    });
+  });
+
+  it("never lets a member's selection remove a dashboard owners or admins didn't", async () => {
+    mocks.findMcpConsentGrant.mockResolvedValue(removedA);
+
+    await updateMcpConnectionDashboards('user-1', 'client-1', {
+      allDashboards: true,
+      dashboardIds: [],
+      excludedDashboardIds: ['dash-a', 'dash-b'],
+    });
+    expect(mocks.replaceMcpGrant).toHaveBeenCalledWith(
+      'consent-1',
+      expect.objectContaining({ excludedDashboardIds: ['dash-a'] }),
+    );
   });
 });
 

@@ -75,7 +75,8 @@ export default function DashboardGrantPickerList({ picker, onCloseDialog }: Dash
         )}
         {picker.visible.map((dashboard) => {
           const unavailable = picker.isUnavailable(dashboard.id);
-          const locked = picker.allDashboards || unavailable;
+          const locked = picker.isLocked(dashboard.id);
+          const excluded = picker.isExcluded(dashboard.id);
           return (
             <label
               key={dashboard.id}
@@ -85,21 +86,23 @@ export default function DashboardGrantPickerList({ picker, onCloseDialog }: Dash
               )}
             >
               <Checkbox
-                checked={picker.allDashboards || picker.picked.has(dashboard.id)}
+                checked={picker.isChecked(dashboard.id)}
                 disabled={locked}
                 onCheckedChange={(on) => picker.togglePicked(dashboard.id, on === true)}
               />
               <DomainFavicon domain={dashboard.domain} size={16} />
               <span className='min-w-0 flex-1'>
                 <span
-                  className={cn('block truncate', unavailable && 'text-muted-foreground')}
+                  className={cn('block truncate', (unavailable || excluded) && 'text-muted-foreground')}
                   title={dashboard.domain}
                 >
                   {dashboard.domain}
                 </span>
-                {!dashboard.aiAccessEnabled && (
+                {!dashboard.aiAccessEnabled ? (
                   <span className='text-muted-foreground block truncate text-xs'>{t('aiAccessOff')}</span>
-                )}
+                ) : excluded ? (
+                  <span className='text-muted-foreground block truncate text-xs'>{t('removedByAdmins')}</span>
+                ) : null}
               </span>
               <Badge variant='outline' className='text-muted-foreground shrink-0'>
                 {tRoles(dashboard.role)}

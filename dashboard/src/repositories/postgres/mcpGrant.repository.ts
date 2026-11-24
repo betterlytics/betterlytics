@@ -75,10 +75,11 @@ export async function findMcpConsentGrant(userId: string, clientId: string): Pro
   });
 }
 
-/** The member's own choice, so it also clears the dashboards owners or admins removed from All dashboards. */
+/** Under All dashboards, the selection's excluded dashboards replace the stored ones; otherwise there are none. */
 export async function replaceMcpGrant(consentId: string, selection: McpGrantSelection): Promise<void> {
-  const { allDashboards, dashboardIds } = McpGrantSelectionSchema.parse(selection);
+  const { allDashboards, dashboardIds, excludedDashboardIds = [] } = McpGrantSelectionSchema.parse(selection);
   const picked = allDashboards ? [] : [...new Set(dashboardIds)];
+  const excluded = allDashboards ? [...new Set(excludedDashboardIds)] : [];
 
   await prisma.$transaction(async (tx) => {
     const grant = await tx.mcpGrant.upsert({
@@ -92,6 +93,11 @@ export async function replaceMcpGrant(consentId: string, selection: McpGrantSele
     if (picked.length > 0) {
       await tx.mcpGrantDashboard.createMany({
         data: picked.map((dashboardId) => ({ grantId: grant.id, dashboardId })),
+      });
+    }
+    if (excluded.length > 0) {
+      await tx.mcpGrantExcludedDashboard.createMany({
+        data: excluded.map((dashboardId) => ({ grantId: grant.id, dashboardId })),
       });
     }
   });

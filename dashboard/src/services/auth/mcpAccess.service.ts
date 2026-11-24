@@ -39,6 +39,23 @@ function mcpContext(credentialId: string, granted: DashboardMembership[]): McpCo
   };
 }
 
+/**
+ * The selection to store over the credential's current grant. A member only takes back dashboards owners or admins
+ * removed, by ticking them again: under All dashboards the removed ones they left out stay removed, and a
+ * selection never removes new ones.
+ */
+export function selectionKeepingExclusions(
+  selection: McpGrantSelection,
+  current: Grant | null,
+): McpGrantSelection {
+  if (!selection.allDashboards) return { ...selection, excludedDashboardIds: [] };
+  const leftOut = new Set(selection.excludedDashboardIds ?? []);
+  const excludedDashboardIds = current?.allDashboards
+    ? (current.excludedDashboardIds ?? []).filter((dashboardId) => leftOut.has(dashboardId))
+    : [];
+  return { ...selection, excludedDashboardIds };
+}
+
 /** Every dashboard the user can grant, by domain: what the consent page and the edit dialog pick from. */
 export function grantableDashboards(memberships: DashboardMembership[]): {
   id: string;

@@ -24,6 +24,7 @@ vi.mock('@/repositories/postgres/dashboard.repository', () => ({
 import {
   assertPickedDashboardsAvailable,
   grantedDashboards,
+  selectionKeepingExclusions,
   resolveOAuthMcpContext,
   resolveTokenMcpContext,
 } from '@/services/auth/mcpAccess.service';
@@ -307,5 +308,44 @@ describe('assertPickedDashboardsAvailable', () => {
         { allDashboards: true, dashboardIds: [], excludedDashboardIds: [] },
       ),
     ).resolves.toBeUndefined();
+  });
+});
+
+describe('selectionKeepingExclusions', () => {
+  const removedA = { allDashboards: true, dashboardIds: [], excludedDashboardIds: ['dash-a'] };
+
+  it('keeps a removed dashboard the member left out, and drops one they ticked again', () => {
+    expect(
+      selectionKeepingExclusions(
+        { allDashboards: true, dashboardIds: [], excludedDashboardIds: ['dash-a'] },
+        removedA,
+      ),
+    ).toEqual(removedA);
+    expect(
+      selectionKeepingExclusions({ allDashboards: true, dashboardIds: [], excludedDashboardIds: [] }, removedA)
+        .excludedDashboardIds,
+    ).toEqual([]);
+  });
+
+  it('removes nothing that owners or admins did not, nor on a first consent', () => {
+    expect(
+      selectionKeepingExclusions(
+        { allDashboards: true, dashboardIds: [], excludedDashboardIds: ['dash-a', 'dash-new'] },
+        removedA,
+      ).excludedDashboardIds,
+    ).toEqual(['dash-a']);
+    expect(
+      selectionKeepingExclusions({ allDashboards: true, dashboardIds: [], excludedDashboardIds: ['dash-a'] }, null)
+        .excludedDashboardIds,
+    ).toEqual([]);
+  });
+
+  it('has no excluded dashboards for picked dashboards', () => {
+    expect(
+      selectionKeepingExclusions(
+        { allDashboards: false, dashboardIds: ['dash-new'], excludedDashboardIds: ['dash-a'] },
+        removedA,
+      ),
+    ).toEqual({ allDashboards: false, dashboardIds: ['dash-new'], excludedDashboardIds: [] });
   });
 });

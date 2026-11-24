@@ -101,6 +101,9 @@ export function ConsentPanel({
     visible,
     selectAllPicks,
     isUnavailable,
+    isChecked,
+    isLocked,
+    isExcluded,
     canSave: canAllow,
     selection,
   } = useDashboardGrantPicker(request.dashboards, request.previous);
@@ -293,7 +296,6 @@ export function ConsentPanel({
                 <DashboardList
                   dashboards={visible}
                   allDashboards={allDashboards}
-                  picked={picked}
                   searchable={searchable}
                   query={query}
                   onQuery={setQuery}
@@ -325,7 +327,11 @@ export function ConsentPanel({
                   }
                   onToggle={togglePicked}
                   isUnavailable={isUnavailable}
+                  isChecked={isChecked}
+                  isLocked={isLocked}
+                  isExcluded={isExcluded}
                   aiAccessOffLabel={t('dashboards.aiAccessOff')}
+                  removedLabel={t('dashboards.removedByAdmins')}
                   roleLabel={(role) => t(`roles.${role}`)}
                   searchLabel={t('dashboards.search')}
                   noMatch={t('dashboards.noMatch')}
@@ -399,28 +405,34 @@ export function ConsentPanel({
 function DashboardList({
   dashboards,
   allDashboards,
-  picked,
   searchable,
   query,
   onQuery,
   selectAll,
   onToggle,
   isUnavailable,
+  isChecked,
+  isLocked,
+  isExcluded,
   aiAccessOffLabel,
+  removedLabel,
   roleLabel,
   searchLabel,
   noMatch,
 }: {
   dashboards: McpConsentRequest['dashboards'];
   allDashboards: boolean;
-  picked: Set<string>;
   searchable: boolean;
   query: string;
   onQuery: (query: string) => void;
   selectAll: ReactNode;
   onToggle: (dashboardId: string, on: boolean) => void;
   isUnavailable: (dashboardId: string) => boolean;
+  isChecked: (dashboardId: string) => boolean;
+  isLocked: (dashboardId: string) => boolean;
+  isExcluded: (dashboardId: string) => boolean;
   aiAccessOffLabel: string;
+  removedLabel: string;
   roleLabel: (role: DashboardRole) => string;
   searchLabel: string;
   noMatch: string;
@@ -460,12 +472,22 @@ function DashboardList({
         {dashboards.map((dashboard) => {
           const [sub, base] = splitHost(dashboard.domain);
           const unavailable = isUnavailable(dashboard.id);
+          const excluded = isExcluded(dashboard.id);
+          const locked = isLocked(dashboard.id);
           return (
-            <label key={dashboard.id} className={cn(styles.dashRow, unavailable && styles.dashRowUnavailable)}>
+            <label
+              key={dashboard.id}
+              className={cn(
+                styles.dashRow,
+                unavailable && styles.dashRowUnavailable,
+                excluded && styles.dashRowExcluded,
+                allDashboards && !locked && styles.dashRowOpen,
+              )}
+            >
               <Checkbox.Root
                 className={styles.checkbox}
-                checked={allDashboards || picked.has(dashboard.id)}
-                disabled={allDashboards || unavailable}
+                checked={isChecked(dashboard.id)}
+                disabled={locked}
                 onCheckedChange={(on) => onToggle(dashboard.id, on === true)}
               >
                 <CheckMark />
@@ -476,7 +498,11 @@ function DashboardList({
                   <span>{sub}</span>
                   <span>{base}</span>
                 </span>
-                {!dashboard.aiAccessEnabled ? <span className={styles.dashNote}>{aiAccessOffLabel}</span> : null}
+                {!dashboard.aiAccessEnabled ? (
+                  <span className={styles.dashNote}>{aiAccessOffLabel}</span>
+                ) : excluded ? (
+                  <span className={styles.dashNote}>{removedLabel}</span>
+                ) : null}
               </span>
               <span className={cn(styles.tag, dashboard.role === 'owner' && styles.tagStrong)}>
                 {roleLabel(dashboard.role)}

@@ -588,8 +588,12 @@
     cursor: default;
     background: none;
   }
-  .dashRowUnavailable .domain {
+  .dashRowUnavailable .domain,
+  .dashRowExcluded .domain {
     color: var(--color-muted);
+  }
+  .locked .dashRowOpen {
+    cursor: pointer;
   }
   .dashText {
     display: flex;

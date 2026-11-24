@@ -755,7 +755,8 @@
           "pickOne": "Velg minst ett dashbord",
           "noMatch": "Ingen dashbord samsvarer med søket.",
           "empty": "Du har ingen dashbord ennå. Koble til med Alle dashbord, også de du legger til senere, eller <link>legg til ditt første nettsted</link> før du kobler til.",
-          "aiAccessOff": "AI-tilgang slått av av eiere eller administratorer"
+          "aiAccessOff": "AI-tilgang slått av av eiere eller administratorer",
+          "removedByAdmins": "Fjernet av eiere eller administratorer"
         },
         "roles": {
           "owner": "Eier",
@@ -4392,6 +4393,8 @@
           "readAnalytics": "Lese statistikk"
         },
         "allDashboards": "Alle dashbord",
+        "allDashboardsExcept": "Alle unntatt {count, plural, one {# dashbord} other {# dashbord}}",
+        "removedDashboards": "Fjernet av eiere eller administratorer: {domains}",
         "noDashboards": "Ingen dashbord",
         "moreDashboards": "+{count} til",
         "connected": "Tilkoblet {date}",
@@ -4424,7 +4427,8 @@
           "cancel": "Avbryt",
           "save": "Lagre",
           "saving": "Lagrer...",
-          "aiAccessOff": "AI-tilgang slått av av eiere eller administratorer"
+          "aiAccessOff": "AI-tilgang slått av av eiere eller administratorer",
+          "removedByAdmins": "Fjernet av eiere eller administratorer"
         },
         "tokens": {
           "title": "Personlige tilgangsnøkler",
@@ -5194,10 +5198,9 @@
       "endpointCopied": "Server-URL kopiert"
     },
     "aiAccess": {
-      "title": "Tilgang for AI-agenter",
-      "label": "Tillat tilgang for AI-agenter",
+      "title": "Tillat tilgang for AI-agenter",
       "on": "Medlemmer kan koble agenter og nøkler til dette dashbordet.",
-      "off": "Slått av: ingen agent eller nøkkel kan lese dette dashbordet.",
+      "off": "Av: ingen agent eller nøkkel kan lese dette dashbordet.",
       "toast": {
         "on": "AI-tilgang slått på.",
         "off": "AI-tilgang slått av.",
@@ -5214,6 +5217,7 @@
     "access": {
       "title": "Hvem har tilgang",
       "description": "Medlemmers agenttilkoblinger og nøkler som kan lese dette dashbordet.",
+      "descriptionOff": "AI-tilgang er slått av, så ingen av disse kan lese dette dashbordet før den er slått på igjen.",
       "empty": "Ingen tilkoblinger eller nøkler kan lese dette dashbordet.",
       "kind": {
         "connection": "Tilkobling",

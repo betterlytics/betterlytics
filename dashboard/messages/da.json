@@ -755,7 +755,8 @@
           "pickOne": "Vælg mindst ét dashboard",
           "noMatch": "Ingen dashboards matcher din søgning.",
           "empty": "Du har ingen dashboards endnu. Forbind med Alle dashboards, også dem du tilføjer senere, eller <link>tilføj dit første site</link>, før du forbinder.",
-          "aiAccessOff": "AI-adgang slået fra af ejere eller administratorer"
+          "aiAccessOff": "AI-adgang slået fra af ejere eller administratorer",
+          "removedByAdmins": "Fjernet af ejere eller administratorer"
         },
         "roles": {
           "owner": "Ejer",
@@ -4392,6 +4393,8 @@
           "readAnalytics": "Læse statistik"
         },
         "allDashboards": "Alle dashboards",
+        "allDashboardsExcept": "Alle undtagen {count, plural, one {# dashboard} other {# dashboards}}",
+        "removedDashboards": "Fjernet af ejere eller administratorer: {domains}",
         "noDashboards": "Ingen dashboards",
         "moreDashboards": "+{count} mere",
         "connected": "Forbundet {date}",
@@ -4424,7 +4427,8 @@
           "cancel": "Annullér",
           "save": "Gem",
           "saving": "Gemmer...",
-          "aiAccessOff": "AI-adgang slået fra af ejere eller administratorer"
+          "aiAccessOff": "AI-adgang slået fra af ejere eller administratorer",
+          "removedByAdmins": "Fjernet af ejere eller administratorer"
         },
         "tokens": {
           "title": "Personlige adgangstokens",
@@ -5194,8 +5198,7 @@
       "endpointCopied": "Server-URL kopieret"
     },
     "aiAccess": {
-      "title": "Adgang for AI-agenter",
-      "label": "Tillad adgang for AI-agenter",
+      "title": "Tillad adgang for AI-agenter",
       "on": "Medlemmer kan forbinde agenter og tokens til dette dashboard.",
       "off": "Slået fra: ingen agent eller token kan læse dette dashboard.",
       "toast": {
@@ -5214,6 +5217,7 @@
     "access": {
       "title": "Hvem har adgang",
       "description": "Medlemmers agentforbindelser og tokens, der kan læse dette dashboard.",
+      "descriptionOff": "AI-adgang er slået fra, så ingen af disse kan læse dette dashboard, før den er slået til igen.",
       "empty": "Ingen forbindelser eller tokens kan læse dette dashboard.",
       "kind": {
         "connection": "Forbindelse",

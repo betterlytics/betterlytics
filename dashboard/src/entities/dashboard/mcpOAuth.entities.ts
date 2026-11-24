@@ -14,6 +14,8 @@ export const McpGrantSelectionSchema = z
   .object({
     allDashboards: z.boolean(),
     dashboardIds: z.array(z.string().min(1)).max(1000),
+    // under All dashboards, the ones owners or admins removed that the member left out; ignored otherwise
+    excludedDashboardIds: z.array(z.string().min(1)).max(1000).optional(),
   })
   .refine((selection) => selection.allDashboards || selection.dashboardIds.length > 0, {
     message: 'Pick at least one dashboard',

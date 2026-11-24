@@ -25,6 +25,7 @@ import {
   assertPickedDashboardsAvailable,
   grantableDashboards,
   grantedDashboards,
+  selectionKeepingExclusions,
 } from '@/services/auth/mcpAccess.service';
 
 // What the OAuth provider adds to the authorization request it signs for the consent page
@@ -181,6 +182,11 @@ export async function getMcpConsentRequest(userId: string, oauthQuery: string): 
     ? {
         allDashboards: consent.grant.allDashboards,
         dashboardIds: grantedDashboards(consent.grant, memberships).map((dashboard) => dashboard.dashboardId),
+        excludedDashboardIds: consent.grant.allDashboards
+          ? consent.grant.excludedDashboardIds.filter((dashboardId) =>
+              memberships.some((membership) => membership.dashboardId === dashboardId),
+            )
+          : [],
       }
     : null;
 
@@ -233,7 +239,7 @@ export async function allowMcpConsent(
 
   const consent = await findMcpConsentGrant(userId, clientId);
   if (!consent) throw new Error('The OAuth provider stored no consent');
-  await replaceMcpGrant(consent.consentId, selection);
+  await replaceMcpGrant(consent.consentId, selectionKeepingExclusions(selection, previous?.grant ?? null));
   await markAnswered(params);
 
   return url;
