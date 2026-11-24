@@ -4,7 +4,9 @@ import { notFound, redirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getAuthSession } from '@/auth/auth-actions';
 import type { SupportedLanguages } from '@/constants/i18n';
+import { hasPendingTerms } from '@/constants/legal';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 import { isMcpOAuthEnabled } from '@/mcp/auth/oauth';
 import { getMcpConsentRequest, signedOAuthQuery } from '@/services/auth/mcpConsent.service';
 import { getCachedUserSettings } from '@/services/account/userSettings.service';
@@ -52,6 +54,7 @@ export default async function ConsentPage({ params, searchParams }: Props) {
         oauthQuery={oauthQuery}
         email={session.user.email}
         gravatar={settings.avatar === AvatarMode.gravatar}
+        requireTerms={isFeatureEnabled('isCloud') && hasPendingTerms(session.user)}
       />
     </PublicEnvironmentVariablesProvider>
   );

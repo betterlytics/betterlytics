@@ -14,7 +14,7 @@ import { TermsRequiredModal } from '@/components/account/TermsRequiredModal';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { getUserBillingData } from '@/actions/billing.action';
 import { requireAuth, resolveDashboardContext } from '@/auth/auth-actions';
-import { CURRENT_TERMS_VERSION } from '@/constants/legal';
+import { hasPendingTerms } from '@/constants/legal';
 import { RealtimeQuerySync } from '@/components/dashboard/RealtimeQuerySync';
 import GithubStarCard from '@/components/githubStar/GithubStarCard';
 import { getGithubStarPromptEligibility } from '@/actions/githubStarPrompt.action';
@@ -38,9 +38,7 @@ export default async function DashboardSidebarLayout({ params, children }: Dashb
     billingDataPromise = getUserBillingData();
   }
 
-  const mustAcceptTerms =
-    isClientFeatureEnabled('isCloud') &&
-    (!session.user.termsAcceptedAt || session.user.termsAcceptedVersion !== CURRENT_TERMS_VERSION);
+  const mustAcceptTerms = isClientFeatureEnabled('isCloud') && hasPendingTerms(session.user);
 
   const githubStarEligibilityPromise = getGithubStarPromptEligibility();
 
