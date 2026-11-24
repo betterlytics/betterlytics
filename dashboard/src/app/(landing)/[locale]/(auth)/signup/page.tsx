@@ -45,9 +45,13 @@ export default async function SignUpPage({ params, searchParams }: Props) {
   const connect = oauthQuery ? await getMcpSignInRequest(oauthQuery) : null;
   const redirectTo = connect?.authorizeUrl ?? acceptPath;
 
-  // signed in already, or an expired request: the authorization picks up from here
-  if (connect?.status === 'stale' || (await getAuthSession())) {
-    redirect(redirectTo ?? '/dashboards');
+  // an expired request starts over; signed in already, the authorization picks up from here, or at sign-in when it
+  // asks the visitor to sign in again
+  if (connect?.status === 'stale') {
+    redirect(connect.authorizeUrl);
+  }
+  if (await getAuthSession()) {
+    redirect(connect ? (connect.signedInUrl ?? signInPath(undefined, oauthQuery)) : (acceptPath ?? '/dashboards'));
   }
 
   const t = await getTranslations('public.auth.register');

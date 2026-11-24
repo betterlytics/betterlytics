@@ -83,19 +83,19 @@ async function verifiedRequest(oauthQuery: string): Promise<URLSearchParams | nu
 
 const AUTHORIZE_URL = `${MCP_OAUTH_ISSUER}/oauth2/authorize`;
 
+function promptsOf(params: URLSearchParams): string[] {
+  return (params.get('prompt') ?? '').split(' ').filter(Boolean);
+}
+
 /**
- * The request without its signature, at the authorization endpoint, which signs it afresh and sends the browser on:
- * to sign-in when signed out, else to consent. `prompt=login` is dropped, as the provider drops it after a sign-in,
- * so a signed-in visitor isn't sent back to sign in again.
+ * The request without its signature (and without the prompts left out), at the authorization endpoint, which signs
+ * it afresh and sends the browser on: to sign-in when signed out or asked to sign in again, else to consent.
  */
-function authorizeUrl(params: URLSearchParams): string {
+function authorizeUrl(params: URLSearchParams, leaveOut: string[] = []): string {
   const unsigned = new URLSearchParams(params);
   for (const name of SIGNATURE_PARAMS) unsigned.delete(name);
-  const prompt = unsigned
-    .get('prompt')
-    ?.split(' ')
-    .filter((value) => value && value !== 'login');
-  if (prompt?.length) unsigned.set('prompt', prompt.join(' '));
+  const prompt = promptsOf(params).filter((value) => !leaveOut.includes(value));
+  if (prompt.length) unsigned.set('prompt', prompt.join(' '));
   else unsigned.delete('prompt');
   return `${AUTHORIZE_URL}?${unsigned}`;
 }
@@ -114,8 +114,16 @@ export function toMcpAuthorizeUrl(value: unknown): string | null {
 }
 
 export type McpSignInRequest =
-  // signed out at sign-in or sign-up: the app being connected, unless the client is gone or disabled
-  | { status: 'open'; client: { name: string; verified: boolean } | null; authorizeUrl: string }
+  | {
+      status: 'open';
+      // the app being connected, unless the client is gone or disabled
+      client: { name: string; verified: boolean } | null;
+      authorizeUrl: string;
+      // where a signed-in visitor goes on, or null when the request asks them to sign in again (prompt=login or
+      // max_age), which signing in here does: the provider then drops both. Already having an account answers
+      // prompt=create, which the provider would otherwise keep sending back here.
+      signedInUrl: string | null;
+    }
   // the signature expired (10 minutes) or doesn't match: the authorization starts over
   | { status: 'stale'; authorizeUrl: string };
 
@@ -125,14 +133,20 @@ export async function getMcpSignInRequest(oauthQuery: string): Promise<McpSignIn
   const clientId = params.get('client_id');
   const redirectHost = urlHost(params.get('redirect_uri') ?? '');
   if (!clientId || !redirectHost) return null;
-  const resumeUrl = authorizeUrl(params);
-  if (!(await verifyOAuthQueryParams(oauthQuery, env.AUTH_SECRET)))
-    return { status: 'stale', authorizeUrl: resumeUrl };
+  if (!(await verifyOAuthQueryParams(oauthQuery, env.AUTH_SECRET))) {
+    return { status: 'stale', authorizeUrl: authorizeUrl(params) };
+  }
 
+  const open = {
+    status: 'open' as const,
+    authorizeUrl: authorizeUrl(params),
+    signedInUrl:
+      promptsOf(params).includes('login') || params.has('max_age') ? null : authorizeUrl(params, ['create']),
+  };
   const client = await findOauthClient(clientId);
-  if (!client || client.disabled) return { status: 'open', client: null, authorizeUrl: resumeUrl };
+  if (!client || client.disabled) return { ...open, client: null };
   const name = clientDisplayName(client.name, clientIdentityHost(client), redirectHost) ?? redirectHost;
-  return { status: 'open', client: { name, verified: client.discovered }, authorizeUrl: resumeUrl };
+  return { ...open, client: { name, verified: client.discovered } };
 }
 
 async function requireOpenRequest(oauthQuery: string): Promise<URLSearchParams> {

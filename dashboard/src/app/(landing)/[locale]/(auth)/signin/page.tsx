@@ -43,9 +43,14 @@ export default async function SignInPage({ params, searchParams }: Props) {
   const connect = oauthQuery ? await getMcpSignInRequest(oauthQuery) : null;
   const redirectTo = connect?.authorizeUrl ?? signInRedirectPath(query.callbackUrl);
 
-  // signed in already, or an expired request: the authorization picks up from here
-  if (connect?.status === 'stale' || (await getAuthSession())) {
-    redirect(redirectTo);
+  // an expired request starts over; signed in already, the authorization picks up from here unless it asks the
+  // visitor to sign in again, which this form does
+  if (connect?.status === 'stale') {
+    redirect(connect.authorizeUrl);
+  }
+  if (await getAuthSession()) {
+    if (!connect) redirect(redirectTo);
+    if (connect.signedInUrl) redirect(connect.signedInUrl);
   }
 
   const registrationEnabled = isFeatureEnabled('enableRegistration');

@@ -107,12 +107,27 @@ describe('answered consent requests', () => {
 describe('getMcpSignInRequest', () => {
   const AUTHORIZE = 'https://betterlytics.example/api/auth/oauth2/authorize';
 
+  const REDIRECT = encodeURIComponent('http://127.0.0.1:4000/callback');
+
   it('names the app being connected, and resumes at the authorization without the signature', async () => {
-    expect(await getMcpSignInRequest(`${QUERY}&prompt=login+consent&ba_iat=1&ba_param=client_id`)).toEqual({
+    expect(await getMcpSignInRequest(`${QUERY}&prompt=consent&ba_iat=1&ba_param=client_id`)).toEqual({
       status: 'open',
       client: { name: 'Agent', verified: false },
-      // prompt=login is dropped, as the provider drops it once the visitor has signed in
-      authorizeUrl: `${AUTHORIZE}?client_id=c&redirect_uri=${encodeURIComponent('http://127.0.0.1:4000/callback')}&prompt=consent`,
+      authorizeUrl: `${AUTHORIZE}?client_id=c&redirect_uri=${REDIRECT}&prompt=consent`,
+      signedInUrl: `${AUTHORIZE}?client_id=c&redirect_uri=${REDIRECT}&prompt=consent`,
+    });
+  });
+
+  it('keeps a signed-in visitor here when the request asks them to sign in again', async () => {
+    for (const asks of ['prompt=login+consent', 'max_age=60']) {
+      expect(await getMcpSignInRequest(`${QUERY}&${asks}`)).toMatchObject({ status: 'open', signedInUrl: null });
+    }
+  });
+
+  it('sends a signed-in visitor on without prompt=create, which their account answers', async () => {
+    expect(await getMcpSignInRequest(`${QUERY}&prompt=create+consent`)).toMatchObject({
+      authorizeUrl: `${AUTHORIZE}?client_id=c&redirect_uri=${REDIRECT}&prompt=create+consent`,
+      signedInUrl: `${AUTHORIZE}?client_id=c&redirect_uri=${REDIRECT}&prompt=consent`,
     });
   });
 
