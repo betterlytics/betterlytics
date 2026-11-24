@@ -9,20 +9,26 @@ import { Callout } from "nextra/components";
 
 Betterlytics exposes your analytics data through a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server. This lets you ask AI agents about your website's traffic in natural language, and connect real analytics data to your UI, UX, and code to make data-driven optimizations directly from your development workflow. No dashboards or manual queries needed.
 
-## Creating an API Token
+## Creating a Personal Access Token
 
-1. Navigate to **Dashboard > Settings > MCP**
-2. Enter a name for your token (e.g. "Claude Desktop")
-3. Choose an expiration: 30, 90, or 180 days (default 90), or no expiry
-4. Click **Create token**
-5. Copy the token immediately, it is only shown once
+A personal access token acts as you: it reads the dashboards you pick, with your current role on each, for as long as you're a member. Any member can create one, viewers included. Don't share it.
+
+1. Open your **Account settings** and go to the **AI access** tab
+2. Under **Personal access tokens**, click **Create token**
+3. Enter a name for your token (e.g. "Claude Desktop")
+4. Pick the dashboards it can read
+5. Choose an expiration: 30, 90, or 180 days (default 90), or no expiry
+6. Click **Create token**
+7. Copy the token immediately, it is only shown once
+
+Tokens are read-only. Send the token as a bearer token (`Authorization: Bearer btl_...`); a token sent without the `Bearer ` prefix works too.
 
 ## Setup
 
 Pick your client below to see only its setup steps. Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Antigravity and Codex are supported.
 
 <Callout type="info">
-Self-hosting? Your instance serves its own MCP endpoint at `/api/mcp`, for example `https://analytics.example.com/api/mcp`. Create the token on your instance: the **API Tokens** section under **Dashboard > Settings > MCP** shows this address as the **Server URL**, with a copy button. Paste it into the **Server URL** field below, and every snippet and install link uses your instance instead of Betterlytics Cloud.
+Self-hosting? Your instance serves its own MCP endpoint at `/api/mcp`, for example `https://analytics.example.com/api/mcp`. Create the token on your instance under **Account settings > AI access**: the token is shown together with this address as the **Server URL**, with a copy button. **Dashboard > Settings > MCP** shows the Server URL too. Paste it into the **Server URL** field below, and every snippet and install link uses your instance instead of Betterlytics Cloud.
 </Callout>
 
 <McpSetup />
@@ -111,13 +117,16 @@ Here are some questions you can try:
 
 ## Managing Tokens
 
-View and manage your tokens from **Dashboard > Settings > MCP**. Each token shows its creation date, when it was last used, and when it expires (or that it never does). You can delete tokens at any time. Deleted tokens are immediately revoked.
+View and manage your tokens under **Account settings > AI access**. Each token shows the dashboards it can read, its creation date, when it was last used, and when it expires (or that it never does). Use **Edit dashboards** to change which dashboards a token can read without changing the token itself. You can delete tokens at any time. Deleted tokens are immediately revoked.
 
 Expired tokens stop authenticating and remain in the list so you can spot and delete them. A token's expiration can't be changed after creation; to extend access, create a new token.
 
+Dashboard owners and admins see every token that can read their dashboard under **Dashboard > Settings > MCP**, and can remove the dashboard from a token there. The token keeps working on its other dashboards.
+
 ## Security
 
-- Each token is scoped to a single dashboard
+- Each token reads only the dashboards picked for it, with its creator's current role on each
+- A token stops reading a dashboard on its next request once its creator leaves it, and stops working entirely if its creator's account is deleted or disabled
 - Requests are rate-limited to 60 per minute per site
 
 ---

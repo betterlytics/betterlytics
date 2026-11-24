@@ -152,7 +152,8 @@ export function McpSetup() {
         />
         <p className="mt-2 text-xs leading-relaxed text-[color:var(--muted-foreground)]">
           Leave empty for Betterlytics Cloud. Self-hosting? Paste the server URL
-          shown under <strong>Settings &gt; MCP</strong> in your dashboard.
+          shown when you create a token under{" "}
+          <strong>Account settings &gt; AI access</strong>.
         </p>
 
         <label
