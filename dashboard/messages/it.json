@@ -4383,7 +4383,7 @@
           "lastUsed": "Ultimo utilizzo"
         },
         "actions": "Azioni per {name}",
-        "unverified": "Non verificata",
+        "unverified": "Non verificato",
         "scopes": {
           "readAnalytics": "Leggere le statistiche"
         },

@@ -25,7 +25,6 @@ import type { McpConnection, McpConnectionsOverview } from '@/services/auth/mcpC
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 
 const MCP_SETUP_DOCS_URL = 'https://betterlytics.io/docs/dashboard/mcp';
-const SHOWN_DASHBOARDS = 3;
 const MCP_CONNECTIONS_QUERY_KEY = ['mcpConnections'] as const;
 
 export default function UserAiAccessSettings() {
@@ -78,30 +77,30 @@ export default function UserAiAccessSettings() {
 
   return (
     <UserSettingsSection title={t('title')} description={t('description')}>
-      {isLoading ? (
-        <div className='divide-border divide-y rounded-md border'>
-          {[0, 1].map((row) => (
-            <div key={row} className='space-y-2 px-4 py-3'>
-              <Skeleton className='h-4 w-40' />
-              <Skeleton className='h-3 w-64' />
-            </div>
-          ))}
-        </div>
-      ) : isError || !data ? (
+      {isError || (!isLoading && !data) ? (
         <p className='text-muted-foreground text-sm'>{t('loadError')}</p>
       ) : (
         <div className='rounded-md border'>
           <Table className='table-fixed'>
             <TableHeader>
               <TableRow>
-                <TableHead className='pl-4'>{t('columns.agent')}</TableHead>
-                <TableHead className='hidden w-1/4 lg:table-cell'>{t('columns.dashboards')}</TableHead>
+                <TableHead className='pl-4 lg:w-1/3'>{t('columns.agent')}</TableHead>
+                <TableHead className='hidden lg:table-cell'>{t('columns.dashboards')}</TableHead>
                 <TableHead className='hidden w-1/4 lg:table-cell'>{t('columns.lastUsed')}</TableHead>
                 <TableHead className='w-12' />
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.connections.length === 0 ? (
+              {!data ? (
+                [0, 1].map((row) => (
+                  <TableRow key={row}>
+                    <TableCell colSpan={4} className='py-3 pl-4'>
+                      <Skeleton className='h-4 w-40' />
+                      <Skeleton className='mt-1 h-3 w-24' />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : data.connections.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className='text-muted-foreground py-8 text-center whitespace-normal'>
                     {t.rich('empty', {
@@ -176,15 +175,16 @@ function ConnectionRow({ connection, disabled, onEdit, onRevoke }: ConnectionRow
     formatLocalDateTime(date, locale, { year: 'numeric', month: 'short', day: 'numeric' }) ?? '';
 
   const domains = connection.dashboards.map((dashboard) => dashboard.domain);
-  const hidden = domains.length - SHOWN_DASHBOARDS;
-  const dashboardsLabel = connection.allDashboards
-    ? t('allDashboards')
-    : domains.length === 0
-      ? t('noDashboards')
-      : hidden > 0
-        ? `${domains.slice(0, SHOWN_DASHBOARDS).join(', ')} ${t('moreDashboards', { count: hidden })}`
-        : domains.join(', ');
-  const dashboardsTitle = connection.allDashboards ? undefined : domains.join(', ');
+  const more = connection.allDashboards ? 0 : domains.length - 1;
+  // the first name truncates, the count after it doesn't, so the cell never hides how many there are
+  const dashboardsLabel = (
+    <div className='flex min-w-0 gap-1' title={connection.allDashboards ? undefined : domains.join(', ')}>
+      <span className='truncate'>
+        {connection.allDashboards ? t('allDashboards') : (domains[0] ?? t('noDashboards'))}
+      </span>
+      {more > 0 && <span className='shrink-0'>{t('moreDashboards', { count: more })}</span>}
+    </div>
+  );
 
   return (
     <TableRow>
@@ -204,19 +204,15 @@ function ConnectionRow({ connection, disabled, onEdit, onRevoke }: ConnectionRow
             {connection.host}
           </p>
         )}
-        <div className='mt-1 lg:hidden'>
-          <p className='truncate' title={dashboardsTitle}>
-            {dashboardsLabel}
-          </p>
-          <p className='text-muted-foreground truncate text-xs'>
+        <div className='text-muted-foreground text-xs lg:hidden'>
+          {dashboardsLabel}
+          <p className='truncate'>
             {connection.lastUsedAt ? t('lastUsed', { date: formatDate(connection.lastUsedAt) }) : t('neverUsed')}
           </p>
         </div>
       </TableCell>
       <TableCell className='hidden py-3 lg:table-cell'>
-        <p className='truncate' title={dashboardsTitle}>
-          {dashboardsLabel}
-        </p>
+        {dashboardsLabel}
         <p className='text-muted-foreground truncate text-xs'>
           {connection.scopes.map((scope) => t(`scopes.${scope}`)).join(', ')}
         </p>
