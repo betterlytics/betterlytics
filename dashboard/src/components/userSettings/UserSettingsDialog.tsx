@@ -83,7 +83,7 @@ interface UserSettingsDialogContentProps {
 function UserSettingsDialogContent({ closeDialog, initialTab }: UserSettingsDialogContentProps) {
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const tTabs = useTranslations('components.userSettings.tabs');
-  const { PUBLIC_IS_CLOUD, MCP_OAUTH_ENABLED } = usePublicEnvironmentVariablesContext();
+  const { PUBLIC_IS_CLOUD } = usePublicEnvironmentVariablesContext();
 
   const tabs = useMemo<TabConfig[]>(
     () => [
@@ -103,7 +103,6 @@ function UserSettingsDialogContent({ closeDialog, initialTab }: UserSettingsDial
         id: 'aiAccess',
         label: tTabs('aiAccess'),
         icon: Bot,
-        disabled: !MCP_OAUTH_ENABLED,
         render: ({ closeDialog }) => <UserAiAccessSettings onCloseDialog={closeDialog} />,
       },
       {
@@ -114,7 +113,7 @@ function UserSettingsDialogContent({ closeDialog, initialTab }: UserSettingsDial
         render: ({ closeDialog }) => <UserBillingSettings onCloseDialog={closeDialog} />,
       },
     ],
-    [tTabs, isFeatureFlagEnabled, MCP_OAUTH_ENABLED],
+    [tTabs, isFeatureFlagEnabled],
   );
 
   const availableTabs = tabs.filter((tab) => !tab.disabled);
@@ -203,7 +202,7 @@ function SidebarUpgradeLink({ closeDialog }: { closeDialog: () => void }) {
       <Button
         variant='ghost'
         onClick={handleUpgrade}
-        className='text-blue-600 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-400 hover:bg-blue-500/10 w-full cursor-pointer justify-start gap-2 font-medium'
+        className='w-full cursor-pointer justify-start gap-2 font-medium text-blue-600 hover:bg-blue-500/10 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-400'
       >
         <ArrowUpCircle className='h-4 w-4 flex-shrink-0' />
         <span>{tDialog('upgradePlan')}</span>

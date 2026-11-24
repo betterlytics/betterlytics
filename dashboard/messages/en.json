@@ -4423,6 +4423,66 @@
           "cancel": "Cancel",
           "save": "Save",
           "saving": "Saving..."
+        },
+        "tokens": {
+          "title": "Personal access tokens",
+          "description": "Tokens act as you on the dashboards you pick. Use them for scripts, CI and clients that can't sign in.",
+          "create": "Create token",
+          "loadError": "Could not load your tokens.",
+          "empty": "No tokens yet. <link>Read the setup guide</link>",
+          "columns": {
+            "token": "Token",
+            "dashboards": "Dashboards",
+            "lastUsed": "Last used"
+          },
+          "actions": "Actions for {name}",
+          "created": "Created {date}",
+          "lastUsed": "Last used {date}",
+          "neverUsed": "Never used",
+          "expires": "Expires {date}",
+          "expired": "Expired {date}",
+          "neverExpires": "Never expires",
+          "editDashboards": "Edit dashboards",
+          "editDescription": "Takes effect on the token's next request. The token itself doesn't change.",
+          "delete": "Delete",
+          "deleteDialog": {
+            "title": "Delete {name}?",
+            "description": "{name} stops working right away. Any script or agent using it loses access.",
+            "cancel": "Cancel",
+            "confirm": "Delete token"
+          },
+          "toast": {
+            "created": "Created {name}.",
+            "deleted": "Deleted {name}."
+          },
+          "createDialog": {
+            "title": "Create a personal access token",
+            "description": "Pick the dashboards the token can read. You can change them later.",
+            "nameLabel": "Name",
+            "namePlaceholder": "e.g. Claude Desktop",
+            "dashboardsLabel": "Dashboards",
+            "expirationLabel": "Expiration",
+            "lifetime": {
+              "30d": "30 days",
+              "90d": "90 days",
+              "180d": "180 days",
+              "never": "No expiry"
+            },
+            "actsAsYou": "This token acts as you: it reads the picked dashboards with your role on each, for as long as you're a member. Don't share it.",
+            "readOnly": "Read-only: it can read analytics but not change anything.",
+            "cancel": "Cancel",
+            "create": "Create token",
+            "creating": "Creating...",
+            "createdTitle": "Copy your token",
+            "createdNotice": "Copy this token now. You won't be able to see it again.",
+            "copyToken": "Copy token",
+            "tokenCopied": "Token copied",
+            "endpointLabel": "Server URL",
+            "endpointHint": "Point your MCP client at the server URL and send the token as a bearer token. <link>Setup guides for each client</link>",
+            "copyEndpoint": "Copy server URL",
+            "endpointCopied": "Server URL copied",
+            "done": "Done"
+          }
         }
       },
       "danger": {
@@ -4684,6 +4744,9 @@
       "notFound": "This connection no longer exists.",
       "unavailable": "AI access is not available.",
       "dashboardUnavailable": "One of the picked dashboards is no longer available."
+    },
+    "mcpTokens": {
+      "notFound": "This token no longer exists."
     }
   },
   "banners": {
@@ -5117,40 +5180,39 @@
     }
   },
   "mcp": {
-    "settings": {
-      "title": "API Tokens",
-      "description": "Create tokens to connect AI agents to your analytics data via the Model Context Protocol.",
-      "tokenNameLabel": "Token name",
-      "tokenNamePlaceholder": "e.g. Claude Desktop",
-      "createButton": "Create token",
-      "creating": "Creating...",
-      "newTokenNotice": "Copy this token now. You won't be able to see it again.",
-      "created": "Created {date}",
-      "lastUsed": "Last used {date}",
-      "expirationLabel": "Expiration",
-      "lifetime": {
-        "30d": "30 days",
-        "90d": "90 days",
-        "180d": "180 days",
-        "never": "No expiry"
-      },
-      "expires": "Expires {date}",
-      "expired": "Expired {date}",
-      "neverExpires": "Never expires",
+    "connect": {
+      "title": "Connect an AI agent",
+      "description": "Ask AI agents about this dashboard's analytics over the Model Context Protocol (MCP).",
+      "body": "Create a personal access token in your account settings and pick this dashboard. The token acts as you, so it reads only what you can. <link>Setup guides for each client</link>",
+      "manageTokens": "Manage your tokens",
       "endpointLabel": "Server URL",
-      "endpointHint": "Point your MCP client at this URL and send your token as a bearer token. <link>Setup guides for each client</link>",
+      "endpointHint": "Point your MCP client at this URL and send your token as a bearer token.",
       "copyEndpoint": "Copy server URL",
       "endpointCopied": "Server URL copied"
     },
-    "toast": {
-      "created": "Token created",
-      "createError": "Failed to create token",
-      "deleted": "Token deleted",
-      "deleteError": "Failed to delete token"
+    "tokens": {
+      "title": "Tokens with access",
+      "description": "Members' personal access tokens that can read this dashboard. Each reads with its creator's current role and stops when they leave.",
+      "empty": "No tokens can read this dashboard.",
+      "createdBy": "By {name}",
+      "created": "Created {date}",
+      "lastUsed": "Last used {date}",
+      "neverUsed": "Never used",
+      "expires": "Expires {date}",
+      "expired": "Expired {date}",
+      "neverExpires": "Never expires",
+      "remove": "Remove from this dashboard",
+      "removeAria": "Remove {name} from this dashboard"
     },
-    "deleteDialog": {
-      "title": "Delete {name}",
-      "description": "This token will be permanently revoked. Any MCP clients using it will lose access immediately."
+    "removeDialog": {
+      "title": "Remove {name} from this dashboard?",
+      "description": "{name} stops reading this dashboard on its next request. It keeps working on the other dashboards its creator picked.",
+      "cancel": "Cancel",
+      "confirm": "Remove"
+    },
+    "toast": {
+      "removed": "Removed {name} from this dashboard.",
+      "removeError": "Failed to remove the token."
     }
   },
   "integrationsSettings": {
