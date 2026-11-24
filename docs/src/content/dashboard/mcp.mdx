@@ -28,7 +28,7 @@ Tokens are read-only. Send the token as a bearer token (`Authorization: Bearer b
 Pick your client below to see only its setup steps. Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Antigravity and Codex are supported.
 
 <Callout type="info">
-Self-hosting? Your instance serves its own MCP endpoint at `/api/mcp`, for example `https://analytics.example.com/api/mcp`. Create the token on your instance under **Account settings > AI access**: the token is shown together with this address as the **Server URL**, with a copy button. **Dashboard > Settings > MCP** shows the Server URL too. Paste it into the **Server URL** field below, and every snippet and install link uses your instance instead of Betterlytics Cloud.
+Self-hosting? Your instance serves its own MCP endpoint at `/api/mcp`, for example `https://analytics.example.com/api/mcp`. Create the token on your instance under **Account settings > AI access**: the token is shown together with this address as the **Server URL**, with a copy button. **Dashboard > Settings > AI access** shows the Server URL too. Paste it into the **Server URL** field below, and every snippet and install link uses your instance instead of Betterlytics Cloud.
 </Callout>
 
 <McpSetup />
@@ -121,11 +121,18 @@ View and manage your tokens under **Account settings > AI access**. Each token s
 
 Expired tokens stop authenticating and remain in the list so you can spot and delete them. A token's expiration can't be changed after creation; to extend access, create a new token.
 
-Dashboard owners and admins see every token that can read their dashboard under **Dashboard > Settings > MCP**, and can remove the dashboard from a token there. The token keeps working on its other dashboards.
+## Dashboard AI Access
+
+Every dashboard has an **AI access** page under **Dashboard > Settings > AI access**, with the Server URL and the **Allow AI agent access** switch. Every member sees whether it's on; only owners and admins can change it.
+
+- **Off:** no agent connection or token can read the dashboard. Calls to it return an error saying its owners or admins turned AI access off, it's left out of `list_dashboards`, and members can't pick it for a new token or connection. Connections and tokens stay valid for their other dashboards.
+- **On again:** existing connections and tokens read the dashboard again on their next request, without reconnecting.
+
+Owners and admins also see every member's connection and token that can read the dashboard, and can remove the dashboard from any of them. Nothing is revoked: the connection or token keeps its other dashboards, an **All dashboards** connection keeps covering future dashboards, and the member can add this dashboard back under **Account settings > AI access**. To stop every agent, turn AI access off instead.
 
 ## Security
 
-- Each token reads only the dashboards picked for it, with its creator's current role on each
+- Each token reads only the dashboards picked for it, with its creator's current role on each, and only while the dashboard's AI access is on
 - A token stops reading a dashboard on its next request once its creator leaves it, and stops working entirely if its creator's account is deleted or disabled
 - Requests are rate-limited to 60 per minute per site
 
