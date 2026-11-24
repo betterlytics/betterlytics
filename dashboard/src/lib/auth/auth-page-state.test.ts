@@ -79,6 +79,13 @@ describe('signInPath and signUpPath', () => {
     expect(signUpPath(null)).toBe('/signup');
   });
 
+  it('carries a pending MCP authorization both ways, in place of a callbackUrl', () => {
+    const oauthQuery = 'client_id=c&ba_param=client_id&sig=abc';
+    expect(signInPath('/dashboards', oauthQuery)).toBe(`/signin?${oauthQuery}`);
+    expect(signUpPath(null, oauthQuery)).toBe(`/signup?${oauthQuery}`);
+    expect(signUpPath('tok', oauthQuery)).toBe(`/signup?${oauthQuery}&invite=tok`);
+  });
+
   it('round-trips an invitation through sign-in', () => {
     const callbackUrl = decodeURIComponent(signInPath(acceptInvitePath('tok')).split('callbackUrl=')[1]);
     expect(signUpPath(inviteTokenFromCallback(callbackUrl))).toBe('/signup?invite=tok');

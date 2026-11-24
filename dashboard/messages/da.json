@@ -690,6 +690,8 @@
         },
         "title": "Velkommen tilbage",
         "lede": "Én konto til analyse, session replay, fejl og oppetid.",
+        "connectTitle": "Log ind for at forbinde {client}",
+        "connectLede": "Bagefter vælger du, hvilke dashboards {client} kan læse.",
         "forgotPassword": "Glemt din adgangskode?",
         "submit": "Log ind",
         "submitting": "Logger ind…",
@@ -752,7 +754,7 @@
           "selected": "<b>{selected}</b> af {total} valgt",
           "pickOne": "Vælg mindst ét dashboard",
           "noMatch": "Ingen dashboards matcher din søgning.",
-          "empty": "Du har ingen dashboards endnu. <link>Tilføj et site</link>"
+          "empty": "Du har ingen dashboards endnu. Forbind med Alle dashboards, også dem du tilføjer senere, eller <link>tilføj dit første site</link>, før du forbinder."
         },
         "roles": {
           "owner": "Ejer",
@@ -784,6 +786,7 @@
           "description": "Opret din konto på denne Betterlytics-instans."
         },
         "title": "Opret din konto",
+        "connectTitle": "Opret en konto for at forbinde {client}",
         "lede": "Gratis at komme i gang, intet kreditkort påkrævet.",
         "ledeSelfHosted": "Én konto til analyse, session replay, fejl og oppetid.",
         "ledeFirstUser": "Dette er den første konto på denne instans. Den bliver administrator for instansen.",

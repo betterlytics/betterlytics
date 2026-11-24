@@ -32,14 +32,29 @@ export function inviteTokenFromCallback(callbackUrl: string): string | null {
   return ACCEPT_INVITE_PATH.exec(callbackUrl)?.[1] ?? null;
 }
 
-export function signInPath(callbackUrl?: string): string {
+/**
+ * A pending MCP authorization (`oauthQuery`, the signed query the OAuth provider sent to sign-in) rides along in the
+ * page's own query, where the provider's client reads it on sign-in, so it takes the place of a callbackUrl.
+ */
+export function signInPath(callbackUrl?: string, oauthQuery?: string | null): string {
+  if (oauthQuery) return `/signin?${oauthQuery}`;
   return callbackUrl && callbackUrl !== SIGN_IN_REDIRECT_DEFAULT
     ? `/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`
     : '/signin';
 }
 
-export function signUpPath(inviteToken?: string | null): string {
-  return inviteToken ? `/signup?invite=${encodeURIComponent(inviteToken)}` : '/signup';
+export function signUpPath(inviteToken?: string | null, oauthQuery?: string | null): string {
+  const query = [oauthQuery, inviteToken && `invite=${encodeURIComponent(inviteToken)}`].filter(Boolean).join('&');
+  return query ? `/signup?${query}` : '/signup';
+}
+
+/**
+ * Signing in or up on behalf of an MCP client's authorization request continues it: better-auth answers with the
+ * next page (consent, or back to the client) and its client is already on the way there.
+ */
+export function continuesAuthorization(data: unknown): boolean {
+  const next = data as { redirect?: unknown; url?: unknown } | null;
+  return next?.redirect === true && typeof next.url === 'string';
 }
 
 export type ResetLinkProblem = 'invalid' | 'expired';

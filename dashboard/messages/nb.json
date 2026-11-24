@@ -690,6 +690,8 @@
         },
         "title": "Velkommen tilbake",
         "lede": "Én konto for analyse, sesjonsopptak, feil og oppetid.",
+        "connectTitle": "Logg inn for å koble til {client}",
+        "connectLede": "Deretter velger du hvilke dashbord {client} kan lese.",
         "forgotPassword": "Glemt passordet ditt?",
         "submit": "Logg inn",
         "submitting": "Logger inn…",
@@ -752,7 +754,7 @@
           "selected": "<b>{selected}</b> av {total} valgt",
           "pickOne": "Velg minst ett dashbord",
           "noMatch": "Ingen dashbord samsvarer med søket.",
-          "empty": "Du har ingen dashbord ennå. <link>Legg til et nettsted</link>"
+          "empty": "Du har ingen dashbord ennå. Koble til med Alle dashbord, også de du legger til senere, eller <link>legg til ditt første nettsted</link> før du kobler til."
         },
         "roles": {
           "owner": "Eier",
@@ -784,6 +786,7 @@
           "description": "Opprett kontoen din på denne Betterlytics-instansen."
         },
         "title": "Opprett kontoen din",
+        "connectTitle": "Opprett en konto for å koble til {client}",
         "lede": "Gratis å komme i gang, ingen kredittkort nødvendig.",
         "ledeSelfHosted": "Én konto for analyse, sesjonsopptak, feil og oppetid.",
         "ledeFirstUser": "Dette er den første kontoen på denne instansen. Den blir administrator for instansen.",

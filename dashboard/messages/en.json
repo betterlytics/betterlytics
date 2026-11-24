@@ -690,6 +690,8 @@
         },
         "title": "Welcome back",
         "lede": "One account for analytics, session replay, errors and uptime.",
+        "connectTitle": "Sign in to connect {client}",
+        "connectLede": "Next, you choose which dashboards {client} can read.",
         "forgotPassword": "Forgot your password?",
         "submit": "Sign in",
         "submitting": "Signing in…",
@@ -752,7 +754,7 @@
           "selected": "<b>{selected}</b> of {total} selected",
           "pickOne": "Pick at least one dashboard",
           "noMatch": "No dashboards match your search.",
-          "empty": "You don't have any dashboards yet. <link>Add a site</link>"
+          "empty": "You don't have any dashboards yet. Connect with All dashboards, including future ones, or <link>add your first site</link> before you connect."
         },
         "roles": {
           "owner": "Owner",
@@ -784,6 +786,7 @@
           "description": "Create your account on this Betterlytics instance."
         },
         "title": "Create your account",
+        "connectTitle": "Create an account to connect {client}",
         "lede": "Free to start, no credit card required.",
         "ledeSelfHosted": "One account for analytics, session replay, errors and uptime.",
         "ledeFirstUser": "This is the first account on this instance. It becomes the instance admin.",

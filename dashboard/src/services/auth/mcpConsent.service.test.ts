@@ -16,6 +16,7 @@ vi.mock('@/repositories/postgres/mcpConsentRequest.repository', () => ({
 }));
 vi.mock('@/repositories/postgres/user.repository', () => ({}));
 
+import { verifyOAuthQueryParams } from '@better-auth/oauth-provider';
 import { auth } from '@/lib/better-auth';
 import { findMcpConsentGrant, findOauthClient } from '@/repositories/postgres/mcpGrant.repository';
 import {
@@ -26,7 +27,9 @@ import {
   allowMcpConsent,
   denyMcpConsent,
   getMcpConsentRequest,
+  getMcpSignInRequest,
   signedOAuthQuery,
+  toMcpAuthorizeUrl,
 } from '@/services/auth/mcpConsent.service';
 
 const EXP = 1_900_000_000;
@@ -35,6 +38,7 @@ const ALL = { allDashboards: true, dashboardIds: [] };
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(verifyOAuthQueryParams).mockResolvedValue(true);
   vi.mocked(isMcpConsentRequestAnswered).mockResolvedValue(false);
   vi.mocked(findOauthClient).mockResolvedValue({
     clientId: 'c',
@@ -97,5 +101,49 @@ describe('answered consent requests', () => {
 
     await expect(allowMcpConsent('user-1', QUERY, ALL, new Headers())).rejects.toThrow();
     expect(markMcpConsentRequestAnswered).not.toHaveBeenCalled();
+  });
+});
+
+describe('getMcpSignInRequest', () => {
+  const AUTHORIZE = 'https://betterlytics.example/api/auth/oauth2/authorize';
+
+  it('names the app being connected, and resumes at the authorization without the signature', async () => {
+    expect(await getMcpSignInRequest(`${QUERY}&prompt=login+consent&ba_iat=1&ba_param=client_id`)).toEqual({
+      status: 'open',
+      client: { name: 'Agent', verified: false },
+      // prompt=login is dropped, as the provider drops it once the visitor has signed in
+      authorizeUrl: `${AUTHORIZE}?client_id=c&redirect_uri=${encodeURIComponent('http://127.0.0.1:4000/callback')}&prompt=consent`,
+    });
+  });
+
+  it('starts an expired request over, and names no app for one that is gone', async () => {
+    vi.mocked(verifyOAuthQueryParams).mockResolvedValue(false);
+    expect(await getMcpSignInRequest(QUERY)).toMatchObject({ status: 'stale' });
+
+    vi.mocked(verifyOAuthQueryParams).mockResolvedValue(true);
+    vi.mocked(findOauthClient).mockResolvedValue(null);
+    expect(await getMcpSignInRequest(QUERY)).toMatchObject({ status: 'open', client: null });
+  });
+
+  it('is null for a query that is no authorization request', async () => {
+    expect(await getMcpSignInRequest('sig=abc&client_id=c')).toBeNull();
+  });
+});
+
+describe('toMcpAuthorizeUrl', () => {
+  it('accepts only an authorization request at this issuer', () => {
+    const url = 'https://betterlytics.example/api/auth/oauth2/authorize?client_id=c';
+    expect(toMcpAuthorizeUrl(url)).toBe(url);
+    for (const value of [
+      undefined,
+      ['/a'],
+      '/api/auth/oauth2/authorize?client_id=c',
+      'https://evil.example/api/auth/oauth2/authorize?client_id=c',
+      'https://betterlytics.example/api/auth/oauth2/authorize',
+      'https://betterlytics.example/api/auth/sign-out?client_id=c',
+      'https://betterlytics.example@evil.example/api/auth/oauth2/authorize?client_id=c',
+    ]) {
+      expect(toMcpAuthorizeUrl(value)).toBeNull();
+    }
   });
 });
