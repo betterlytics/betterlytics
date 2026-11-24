@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   findMcpConsentGrant: vi.fn(),
   touchMcpGrantLastUsed: vi.fn(),
   findUserMemberships: vi.fn(),
+  updateMcpTokenLastUsed: vi.fn(),
 }));
 
 vi.mock('next-intl/server', () => ({ getTranslations: vi.fn(async () => (key: string) => key) }));
@@ -12,6 +13,9 @@ vi.mock('@/repositories/postgres/user.repository', () => ({ findUserById: mocks.
 vi.mock('@/repositories/postgres/mcpGrant.repository', () => ({
   findMcpConsentGrant: mocks.findMcpConsentGrant,
   touchMcpGrantLastUsed: mocks.touchMcpGrantLastUsed,
+}));
+vi.mock('@/repositories/postgres/mcpToken.repository', () => ({
+  updateMcpTokenLastUsed: mocks.updateMcpTokenLastUsed,
 }));
 vi.mock('@/repositories/postgres/dashboard.repository', () => ({
   findUserMemberships: mocks.findUserMemberships,
@@ -21,6 +25,7 @@ import {
   assertPickedDashboardsAvailable,
   grantedDashboards,
   resolveOAuthMcpContext,
+  resolveTokenMcpContext,
 } from '@/services/auth/mcpAccess.service';
 
 const MEMBERSHIPS = [
@@ -137,6 +142,36 @@ describe('resolveOAuthMcpContext', () => {
       credentialId: 'oauth-consent:consent-1',
       dashboards: MEMBERSHIPS,
     });
+  });
+});
+
+describe('resolveTokenMcpContext', () => {
+  const TOKEN = { id: 'token-1', createdBy: 'user-1', expiresAt: null, dashboardIds: ['dash-a', 'dash-left'] };
+
+  it("reads the picked dashboards the creator is still a member of, with the creator's current role", async () => {
+    expect(await resolveTokenMcpContext(TOKEN)).toEqual({
+      credentialId: 'mcp-token:token-1',
+      dashboards: [{ dashboardId: 'dash-a', siteId: 'site-a', domain: 'a.example.com', role: 'viewer' }],
+    });
+    expect(mocks.findUserMemberships).toHaveBeenCalledWith('user-1');
+    expect(mocks.updateMcpTokenLastUsed).toHaveBeenCalledWith('token-1');
+  });
+
+  it("follows the creator's role on the next call", async () => {
+    mocks.findUserMemberships.mockResolvedValueOnce([{ ...MEMBERSHIPS[1]!, role: 'admin' }]);
+    expect((await resolveTokenMcpContext(TOKEN)).dashboards[0]?.role).toBe('admin');
+
+    expect((await resolveTokenMcpContext(TOKEN)).dashboards[0]?.role).toBe('viewer');
+  });
+
+  it('never reads a dashboard that was not picked, even one the creator owns', async () => {
+    const context = await resolveTokenMcpContext(TOKEN);
+    expect(context.dashboards.map((d) => d.dashboardId)).not.toContain('dash-new');
+  });
+
+  it('reads nothing once the creator has left every picked dashboard', async () => {
+    mocks.findUserMemberships.mockResolvedValue([MEMBERSHIPS[0]]);
+    expect((await resolveTokenMcpContext(TOKEN)).dashboards).toEqual([]);
   });
 });
 

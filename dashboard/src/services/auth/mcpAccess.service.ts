@@ -10,6 +10,8 @@ import { UserException } from '@/lib/exceptions';
 import type { McpContext, McpDashboard } from '@/mcp/context';
 import { findUserMemberships } from '@/repositories/postgres/dashboard.repository';
 import { findMcpConsentGrant, touchMcpGrantLastUsed } from '@/repositories/postgres/mcpGrant.repository';
+import { updateMcpTokenLastUsed } from '@/repositories/postgres/mcpToken.repository';
+import type { McpTokenCredential } from '@/entities/dashboard/mcpToken.entities';
 import { findUserById } from '@/repositories/postgres/user.repository';
 
 /**
@@ -64,6 +66,23 @@ export async function resolveOAuthMcpContext(
   return {
     credentialId: `oauth-consent:${consent.consentId}`,
     dashboards: grantedDashboards(consent.grant, memberships),
+  };
+}
+
+/**
+ * A personal token acts as its creator, like an OAuth connection with picked dashboards: each call reads only the
+ * picked dashboards the creator is still a member of, with their current role. The repository has already refused
+ * a token whose creator is deleted or disabled.
+ */
+export async function resolveTokenMcpContext(token: McpTokenCredential): Promise<McpContext> {
+  const [memberships] = await Promise.all([
+    findUserMemberships(token.createdBy),
+    updateMcpTokenLastUsed(token.id),
+  ]);
+
+  return {
+    credentialId: `mcp-token:${token.id}`,
+    dashboards: grantedDashboards({ allDashboards: false, dashboardIds: token.dashboardIds }, memberships),
   };
 }
 

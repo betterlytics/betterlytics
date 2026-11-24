@@ -229,7 +229,7 @@ model Dashboard {
   statusPages StatusPage[]
   invitations DashboardInvitation[]
   emailReportHistory EmailReportHistory[]
-  mcpTokens McpToken[]
+  mcpTokens McpTokenDashboard[]
   integrations DashboardIntegration[]
   errorGroups ErrorGroup[]
   mcpGrants McpGrantDashboard[]
@@ -704,20 +704,31 @@ model DashboardInvitation {
   @@index([status])
 }
 
+// A personal token acts as its creator: each call reads only the picked dashboards the creator is still a member of,
+// with their current role there.
 model McpToken {
-  id          String    @id @default(cuid())
-  tokenHash   String    @unique
-  name        String
-  dashboardId String
-  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
-  createdBy   String
-  user        User      @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  createdAt   DateTime  @default(now())
-  lastUsedAt  DateTime?
-  expiresAt   DateTime?
-  deletedAt   DateTime?
+  id         String              @id @default(cuid())
+  tokenHash  String              @unique
+  name       String
+  createdBy  String
+  user       User                @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  createdAt  DateTime            @default(now())
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  deletedAt  DateTime?
+  dashboards McpTokenDashboard[]
 
   @@index([tokenHash])
+  @@index([createdBy])
+}
+
+model McpTokenDashboard {
+  tokenId     String
+  token       McpToken  @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  dashboardId String
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+
+  @@id([tokenId, dashboardId])
   @@index([dashboardId])
 }
 
