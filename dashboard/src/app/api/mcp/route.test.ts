@@ -225,6 +225,37 @@ describe('POST /api/mcp authentication', () => {
       expect(mocks.validateOAuthToken).not.toHaveBeenCalled();
     });
 
+    it.each(['bearer btl_personal', 'BEARER btl_personal', 'btl_personal', '  Bearer   btl_personal  '])(
+      'accepts a personal token sent as %j',
+      async (authorization) => {
+        mocks.validateToken.mockResolvedValue({ valid: true, context });
+
+        expect((await post(LIST, authorization)).status).toBe(200);
+        expect(mocks.validateToken).toHaveBeenCalledWith('btl_personal');
+      },
+    );
+
+    it('accepts an OAuth access token with the scheme in any case', async () => {
+      mocks.validateOAuthToken.mockResolvedValue({ valid: true, context });
+
+      expect((await post(LIST, 'bearer eyJ.oauth.token')).status).toBe(200);
+      expect(mocks.validateOAuthToken).toHaveBeenCalledWith('eyJ.oauth.token');
+    });
+
+    it.each(['eyJ.oauth.token', 'Basic dXNlcjpwYXNz', 'btl_a btl_b', 'Bearer', 'Bearer btl_a btl_b'])(
+      'refuses %j without checking it',
+      async (authorization) => {
+        const response = await post(LIST, authorization);
+
+        expect(response.status).toBe(401);
+        expect(response.headers.get('WWW-Authenticate')).toBe(
+          `Bearer realm="betterlytics-mcp", resource_metadata="${RESOURCE_METADATA}"`,
+        );
+        expect(mocks.validateToken).not.toHaveBeenCalled();
+        expect(mocks.validateOAuthToken).not.toHaveBeenCalled();
+      },
+    );
+
     it('answers a revoked OAuth token with an invalid_token challenge', async () => {
       mocks.validateOAuthToken.mockResolvedValue({ valid: false, reason: 'Access has been revoked' });
 
@@ -243,6 +274,21 @@ describe('POST /api/mcp authentication', () => {
 
       expect(response.status).toBe(401);
       expect(response.headers.get('WWW-Authenticate')).toBe('Bearer realm="betterlytics-mcp"');
+    });
+
+    it('accepts a bare personal token', async () => {
+      mocks.validateToken.mockResolvedValue({ valid: true, context });
+
+      expect((await post(LIST, 'btl_personal')).status).toBe(200);
+      expect(mocks.validateToken).toHaveBeenCalledWith('btl_personal');
+    });
+
+    it('refuses a bare value that is not a personal token', async () => {
+      const response = await post(LIST, 'eyJ.oauth.token');
+
+      expect(response.status).toBe(401);
+      expect(response.headers.get('WWW-Authenticate')).toBe('Bearer realm="betterlytics-mcp"');
+      expect(mocks.validateToken).not.toHaveBeenCalled();
     });
 
     it('treats any token as a personal token', async () => {
