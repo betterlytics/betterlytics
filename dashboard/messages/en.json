@@ -4407,7 +4407,7 @@
         },
         "editDialog": {
           "title": "Dashboards for {name}",
-          "description": "Changes apply to the next request from {name}. It does not need to connect again.",
+          "description": "Takes effect on the next request, without reconnecting.",
           "modeAll": "All dashboards",
           "modeSelected": "Only selected",
           "allHint": "Includes dashboards you add later",
@@ -4416,7 +4416,7 @@
           "selected": "{selected} of {total} selected",
           "pickOne": "Pick at least one dashboard",
           "noMatch": "No dashboards match your search.",
-          "empty": "You don't have any dashboards.",
+          "empty": "You don't have any dashboards yet. <link>Add a site</link>",
           "cancel": "Cancel",
           "save": "Save",
           "saving": "Saving..."

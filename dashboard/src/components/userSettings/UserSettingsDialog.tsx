@@ -104,7 +104,7 @@ function UserSettingsDialogContent({ closeDialog, initialTab }: UserSettingsDial
         label: tTabs('aiAccess'),
         icon: Bot,
         disabled: !MCP_OAUTH_ENABLED,
-        render: () => <UserAiAccessSettings />,
+        render: ({ closeDialog }) => <UserAiAccessSettings onCloseDialog={closeDialog} />,
       },
       {
         id: 'billing',

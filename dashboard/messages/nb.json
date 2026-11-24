@@ -4407,7 +4407,7 @@
         },
         "editDialog": {
           "title": "Dashbord for {name}",
-          "description": "Endringene gjelder fra neste forespørsel fra {name}. Den trenger ikke å kobles til på nytt.",
+          "description": "Gjelder fra neste forespørsel, uten å koble til på nytt.",
           "modeAll": "Alle dashbord",
           "modeSelected": "Bare valgte",
           "allHint": "Inkluderer dashbord du legger til senere",
@@ -4416,7 +4416,7 @@
           "selected": "{selected} av {total} valgt",
           "pickOne": "Velg minst ett dashbord",
           "noMatch": "Ingen dashbord samsvarer med søket.",
-          "empty": "Du har ingen dashbord.",
+          "empty": "Du har ingen dashbord ennå. <link>Legg til et nettsted</link>",
           "cancel": "Avbryt",
           "save": "Lagre",
           "saving": "Lagrer..."

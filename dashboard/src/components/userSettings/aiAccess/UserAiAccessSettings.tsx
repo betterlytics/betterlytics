@@ -27,7 +27,11 @@ import { formatLocalDateTime } from '@/utils/dateFormatters';
 const MCP_SETUP_DOCS_URL = 'https://betterlytics.io/docs/dashboard/mcp';
 const MCP_CONNECTIONS_QUERY_KEY = ['mcpConnections'] as const;
 
-export default function UserAiAccessSettings() {
+interface UserAiAccessSettingsProps {
+  onCloseDialog: () => void;
+}
+
+export default function UserAiAccessSettings({ onCloseDialog }: UserAiAccessSettingsProps) {
   const t = useTranslations('components.userSettings.aiAccess');
   const tDialog = useTranslations('components.userSettings.dialog');
   const queryClient = useQueryClient();
@@ -154,6 +158,7 @@ export default function UserAiAccessSettings() {
           dashboards={data.dashboards}
           onSaved={() => queryClient.invalidateQueries({ queryKey: MCP_CONNECTIONS_QUERY_KEY })}
           onClose={() => setEditing(null)}
+          onCloseDialog={onCloseDialog}
         />
       )}
     </UserSettingsSection>

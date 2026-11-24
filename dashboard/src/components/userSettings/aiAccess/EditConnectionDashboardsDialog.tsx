@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useTransition } from 'react';
+import NextLink from 'next/link';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { Search } from 'lucide-react';
@@ -27,6 +28,7 @@ interface EditConnectionDashboardsDialogProps {
   dashboards: McpConnectionsOverview['dashboards'];
   onSaved: () => Promise<unknown>;
   onClose: () => void;
+  onCloseDialog: () => void;
 }
 
 export default function EditConnectionDashboardsDialog({
@@ -34,6 +36,7 @@ export default function EditConnectionDashboardsDialog({
   dashboards,
   onSaved,
   onClose,
+  onCloseDialog,
 }: EditConnectionDashboardsDialogProps) {
   const t = useTranslations('components.userSettings.aiAccess.editDialog');
   const tToast = useTranslations('components.userSettings.aiAccess.toast');
@@ -66,7 +69,7 @@ export default function EditConnectionDashboardsDialog({
       <DialogContent className='sm:max-w-lg'>
         <DialogHeader>
           <DialogTitle>{t('title', { name: connection.name })}</DialogTitle>
-          <DialogDescription>{t('description', { name: connection.name })}</DialogDescription>
+          <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
 
         <fieldset className='min-w-0 space-y-3' disabled={isPending}>
@@ -94,7 +97,19 @@ export default function EditConnectionDashboardsDialog({
           </div>
 
           {picker.total === 0 ? (
-            <p className='text-muted-foreground text-sm'>{t('empty')}</p>
+            <p className='text-muted-foreground text-sm'>
+              {t.rich('empty', {
+                link: (chunks) => (
+                  <NextLink
+                    href='/dashboards'
+                    onClick={onCloseDialog}
+                    className='text-primary underline underline-offset-2'
+                  >
+                    {chunks}
+                  </NextLink>
+                ),
+              })}
+            </p>
           ) : (
             <div className={cn('rounded-md border', picker.allDashboards && 'opacity-60')}>
               {picker.searchable && (

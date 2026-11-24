@@ -4407,7 +4407,7 @@
         },
         "editDialog": {
           "title": "Dashboards for {name}",
-          "description": "Ændringerne gælder fra næste forespørgsel fra {name}. Den skal ikke forbindes igen.",
+          "description": "Gælder fra næste forespørgsel, uden at forbinde igen.",
           "modeAll": "Alle dashboards",
           "modeSelected": "Kun valgte",
           "allHint": "Inkluderer dashboards, du tilføjer senere",
@@ -4416,7 +4416,7 @@
           "selected": "{selected} af {total} valgt",
           "pickOne": "Vælg mindst ét dashboard",
           "noMatch": "Ingen dashboards matcher din søgning.",
-          "empty": "Du har ingen dashboards.",
+          "empty": "Du har ingen dashboards endnu. <link>Tilføj et site</link>",
           "cancel": "Annullér",
           "save": "Gem",
           "saving": "Gemmer..."
