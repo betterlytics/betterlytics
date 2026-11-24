@@ -40,7 +40,7 @@ export type McpConsentRequest = {
   redirectIsLoopback: boolean;
   // every registered redirect goes to this device, which is when the page warns about it
   onlyLoopbackRedirects: boolean;
-  dashboards: { id: string; domain: string; role: DashboardRole }[];
+  dashboards: { id: string; domain: string; role: DashboardRole; aiAccessEnabled: boolean }[];
   // the dashboards the current grant still covers, when the client was connected before
   previous: McpGrantSelection | null;
   // the request without its signature, which sends a signed-out visitor through sign-in and back here
@@ -226,7 +226,8 @@ export async function allowMcpConsent(
   const params = await requireOpenRequest(oauthQuery);
   const clientId = params.get('client_id')!;
 
-  await assertPickedDashboardsAvailable(userId, selection);
+  const previous = await findMcpConsentGrant(userId, clientId);
+  await assertPickedDashboardsAvailable(userId, selection, previous?.grant ?? null);
 
   const url = await submitConsent(true, oauthQuery, requestHeaders);
 

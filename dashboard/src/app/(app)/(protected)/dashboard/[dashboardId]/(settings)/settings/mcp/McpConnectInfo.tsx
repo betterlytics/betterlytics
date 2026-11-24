@@ -12,7 +12,7 @@ import UserSettingsDialog from '@/components/userSettings/UserSettingsDialog';
 const MCP_SETUP_DOCS_URL = 'https://betterlytics.io/docs/dashboard/mcp';
 
 interface McpConnectInfoProps {
-  endpointUrl?: string;
+  endpointUrl: string;
 }
 
 export function McpConnectInfo({ endpointUrl }: McpConnectInfoProps) {
@@ -40,24 +40,22 @@ export function McpConnectInfo({ endpointUrl }: McpConnectInfoProps) {
         </Button>
       </div>
 
-      {endpointUrl && (
-        <div className='space-y-1.5'>
-          <Label className='text-muted-foreground'>{t('endpointLabel')}</Label>
-          <div className='flex items-center gap-2'>
-            <p className='border-border bg-background min-w-0 flex-1 rounded-md border px-3 py-2 font-mono text-xs break-all select-all'>
-              {endpointUrl}
-            </p>
-            <CopyButton
-              text={endpointUrl}
-              ariaLabel={t('copyEndpoint')}
-              copiedLabel={t('endpointCopied')}
-              className='text-muted-foreground hover:text-foreground hover:bg-muted flex size-8 flex-none cursor-pointer items-center justify-center rounded-md transition-colors'
-              iconClassName='size-4'
-            />
-          </div>
-          <p className='text-muted-foreground text-xs'>{t('endpointHint')}</p>
+      <div className='space-y-1.5'>
+        <Label className='text-muted-foreground'>{t('endpointLabel')}</Label>
+        <div className='flex items-center gap-2'>
+          <p className='border-border bg-background min-w-0 flex-1 rounded-md border px-3 py-2 font-mono text-xs break-all select-all'>
+            {endpointUrl}
+          </p>
+          <CopyButton
+            text={endpointUrl}
+            ariaLabel={t('copyEndpoint')}
+            copiedLabel={t('endpointCopied')}
+            className='text-muted-foreground hover:text-foreground hover:bg-muted flex size-8 flex-none cursor-pointer items-center justify-center rounded-md transition-colors'
+            iconClassName='size-4'
+          />
         </div>
-      )}
+        <p className='text-muted-foreground text-xs'>{t('endpointHint')}</p>
+      </div>
 
       <UserSettingsDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} initialTab='aiAccess' />
     </div>

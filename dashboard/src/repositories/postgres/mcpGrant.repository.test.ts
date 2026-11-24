@@ -2,13 +2,19 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   deleteAllMcpConnections,
   deleteMcpConnection,
+  findDashboardMcpConnections,
   findMcpConnections,
+  removeDashboardFromMcpGrant,
+  replaceMcpGrant,
 } from '@/repositories/postgres/mcpGrant.repository';
 
 const tx = vi.hoisted(() => ({
   oauthAccessToken: { deleteMany: vi.fn() },
   oauthRefreshToken: { deleteMany: vi.fn() },
   oauthConsent: { deleteMany: vi.fn() },
+  mcpGrant: { upsert: vi.fn(), findFirst: vi.fn() },
+  mcpGrantDashboard: { deleteMany: vi.fn(), createMany: vi.fn() },
+  mcpGrantExcludedDashboard: { deleteMany: vi.fn(), createMany: vi.fn() },
 }));
 const prismaMock = vi.hoisted(() => ({
   oauthConsent: { findMany: vi.fn() },
@@ -52,7 +58,7 @@ describe('findMcpConnections', () => {
     createdAt: new Date('2026-11-01T10:00:00Z'),
     updatedAt: new Date(updatedAt),
     client: { clientId, name: clientId, redirectUris: ['https://agent.example/cb'], clientDiscoveryId: null },
-    grant: { allDashboards: true, lastUsedAt: null, dashboards: [] },
+    grant: { allDashboards: true, lastUsedAt: null, dashboards: [], excludedDashboards: [] },
   });
 
   it("keeps the user's latest consent per enabled client, newest first", async () => {
@@ -69,6 +75,116 @@ describe('findMcpConnections', () => {
       expect.objectContaining({
         where: { userId: 'user-1', client: { OR: [{ disabled: false }, { disabled: null }] } },
         orderBy: { updatedAt: 'desc' },
+      }),
+    );
+  });
+});
+
+describe('replaceMcpGrant', () => {
+  it("clears the dashboards owners or admins removed, as the member's own choice adds them back", async () => {
+    tx.mcpGrant.upsert.mockResolvedValue({ id: 'grant-1' });
+
+    await replaceMcpGrant('consent-1', { allDashboards: true, dashboardIds: [] });
+
+    expect(tx.mcpGrantExcludedDashboard.deleteMany).toHaveBeenCalledWith({ where: { grantId: 'grant-1' } });
+    expect(tx.mcpGrant.upsert).toHaveBeenCalledWith(expect.objectContaining({ update: { allDashboards: true } }));
+  });
+});
+
+describe('findDashboardMcpConnections', () => {
+  const consent = (
+    id: string,
+    userId: string,
+    clientId: string,
+    grant: { allDashboards: boolean; picked?: boolean; excluded?: boolean } | null,
+  ) => ({
+    id,
+    userId,
+    createdAt: new Date('2026-11-01T10:00:00Z'),
+    updatedAt: new Date('2026-11-02T10:00:00Z'),
+    user: { name: null, email: `${userId}@example.com` },
+    client: { clientId, name: clientId, redirectUris: [], clientDiscoveryId: null },
+    grant: grant && {
+      allDashboards: grant.allDashboards,
+      lastUsedAt: null,
+      dashboards: grant.picked ? [{ dashboardId: 'dash-1' }] : [],
+      excludedDashboards: grant.excluded ? [{ dashboardId: 'dash-1' }] : [],
+    },
+  });
+
+  it('lists connections that pick the dashboard or cover it under All dashboards without excluding it', async () => {
+    prismaMock.oauthConsent.findMany.mockResolvedValue([
+      consent('picked', 'user-1', 'client-a', { allDashboards: false, picked: true }),
+      consent('all', 'user-2', 'client-a', { allDashboards: true }),
+      consent('excluded', 'user-3', 'client-a', { allDashboards: true, excluded: true }),
+      consent('other-dashboards', 'user-4', 'client-a', { allDashboards: false }),
+      consent('no-grant', 'user-5', 'client-a', null),
+    ]);
+
+    const connections = await findDashboardMcpConnections('dash-1');
+
+    expect(connections.map((connection) => connection.consentId)).toEqual(['picked', 'all']);
+    expect(connections[0]!.member).toEqual({ name: null, email: 'user-1@example.com' });
+  });
+
+  it("reads only the latest consent per member and client, and only members' with this dashboard", async () => {
+    prismaMock.oauthConsent.findMany.mockResolvedValue([
+      consent('latest', 'user-1', 'client-a', { allDashboards: false }),
+      consent('older', 'user-1', 'client-a', { allDashboards: true }),
+    ]);
+
+    expect(await findDashboardMcpConnections('dash-1')).toEqual([]);
+    expect(prismaMock.oauthConsent.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          client: { OR: [{ disabled: false }, { disabled: null }] },
+          user: {
+            deletedAt: null,
+            disabledAt: null,
+            dashboardAccess: { some: { dashboardId: 'dash-1', deletedAt: null } },
+          },
+        },
+        orderBy: { updatedAt: 'desc' },
+      }),
+    );
+  });
+});
+
+describe('removeDashboardFromMcpGrant', () => {
+  it('excludes the dashboard from an All dashboards grant, which keeps covering the others', async () => {
+    tx.mcpGrant.findFirst.mockResolvedValue({ id: 'grant-1', allDashboards: true });
+    tx.mcpGrantExcludedDashboard.createMany.mockResolvedValue({ count: 1 });
+
+    expect(await removeDashboardFromMcpGrant('consent-1', 'dash-1')).toBe(1);
+    expect(tx.mcpGrantExcludedDashboard.createMany).toHaveBeenCalledWith({
+      data: [{ grantId: 'grant-1', dashboardId: 'dash-1' }],
+      skipDuplicates: true,
+    });
+    expect(tx.mcpGrantDashboard.deleteMany).not.toHaveBeenCalled();
+    expect(tx.oauthConsent.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it('drops the dashboard from a picked grant and leaves the consent, even with no dashboards left', async () => {
+    tx.mcpGrant.findFirst.mockResolvedValue({ id: 'grant-1', allDashboards: false });
+    tx.mcpGrantDashboard.deleteMany.mockResolvedValue({ count: 1 });
+
+    expect(await removeDashboardFromMcpGrant('consent-1', 'dash-1')).toBe(1);
+    expect(tx.mcpGrantDashboard.deleteMany).toHaveBeenCalledWith({
+      where: { grantId: 'grant-1', dashboardId: 'dash-1' },
+    });
+    expect(tx.oauthConsent.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it('only touches a consent of a member of the dashboard', async () => {
+    tx.mcpGrant.findFirst.mockResolvedValue(null);
+
+    expect(await removeDashboardFromMcpGrant('consent-1', 'dash-1')).toBe(0);
+    expect(tx.mcpGrant.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          consentId: 'consent-1',
+          consent: { user: { dashboardAccess: { some: { dashboardId: 'dash-1', deletedAt: null } } } },
+        },
       }),
     );
   });

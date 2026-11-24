@@ -1,10 +1,6 @@
 import 'server-only';
 
-import type {
-  DashboardMembership,
-  McpConsentGrant,
-  McpGrantSelection,
-} from '@/entities/dashboard/mcpOAuth.entities';
+import type { DashboardMembership, McpGrantSelection } from '@/entities/dashboard/mcpOAuth.entities';
 import { getTranslations } from 'next-intl/server';
 import { UserException } from '@/lib/exceptions';
 import type { McpContext, McpDashboard } from '@/mcp/context';
@@ -14,27 +10,44 @@ import { updateMcpTokenLastUsed } from '@/repositories/postgres/mcpToken.reposit
 import type { McpTokenCredential } from '@/entities/dashboard/mcpToken.entities';
 import { findUserById } from '@/repositories/postgres/user.repository';
 
+type Grant = { allDashboards: boolean; dashboardIds: string[]; excludedDashboardIds?: string[] };
+
 /**
- * The granted dashboards the user can still read, with their current role: the picked ones, or all of the
- * user's under All dashboards, which includes the ones joined or created after connecting.
+ * The granted dashboards the user is still a member of, with their current role: the picked ones, or all of the
+ * user's under All dashboards, which includes the ones joined or created after connecting, but not the ones an
+ * owner or admin removed. Includes dashboards whose AI access is off, which the grant keeps for when it is back on.
  */
-export function grantedDashboards(
-  grant: McpConsentGrant['grant'],
-  memberships: DashboardMembership[],
-): McpDashboard[] {
+export function grantedDashboards(grant: Grant | null, memberships: DashboardMembership[]): DashboardMembership[] {
   if (!grant) return [];
   const picked = new Set(grant.dashboardIds);
-  return memberships
-    .filter((membership) => grant.allDashboards || picked.has(membership.dashboardId))
-    .map(({ dashboardId, siteId, domain, role }) => ({ dashboardId, siteId, domain, role }));
+  const excluded = new Set(grant.excludedDashboardIds ?? []);
+  return memberships.filter((membership) =>
+    grant.allDashboards ? !excluded.has(membership.dashboardId) : picked.has(membership.dashboardId),
+  );
+}
+
+/** What a call may read: the granted dashboards with AI access on. The others are named only to refuse them. */
+function mcpContext(credentialId: string, granted: DashboardMembership[]): McpContext {
+  return {
+    credentialId,
+    dashboards: granted
+      .filter((dashboard) => dashboard.aiAccessEnabled)
+      .map(({ dashboardId, siteId, domain, role }): McpDashboard => ({ dashboardId, siteId, domain, role })),
+    aiAccessDisabledDashboardIds: granted
+      .filter((dashboard) => !dashboard.aiAccessEnabled)
+      .map((dashboard) => dashboard.dashboardId),
+  };
 }
 
 /** Every dashboard the user can grant, by domain: what the consent page and the edit dialog pick from. */
-export function grantableDashboards(
-  memberships: DashboardMembership[],
-): { id: string; domain: string; role: DashboardMembership['role'] }[] {
+export function grantableDashboards(memberships: DashboardMembership[]): {
+  id: string;
+  domain: string;
+  role: DashboardMembership['role'];
+  aiAccessEnabled: boolean;
+}[] {
   return memberships
-    .map(({ dashboardId, domain, role }) => ({ id: dashboardId, domain, role }))
+    .map(({ dashboardId, domain, role, aiAccessEnabled }) => ({ id: dashboardId, domain, role, aiAccessEnabled }))
     .sort((a, b) => a.domain.localeCompare(b.domain));
 }
 
@@ -63,10 +76,7 @@ export async function resolveOAuthMcpContext(
     console.error('Failed to record MCP connection use:', { consentId: consent.consentId, error });
   });
 
-  return {
-    credentialId: `oauth-consent:${consent.consentId}`,
-    dashboards: grantedDashboards(consent.grant, memberships),
-  };
+  return mcpContext(`oauth-consent:${consent.consentId}`, grantedDashboards(consent.grant, memberships));
 }
 
 /**
@@ -80,21 +90,35 @@ export async function resolveTokenMcpContext(token: McpTokenCredential): Promise
     updateMcpTokenLastUsed(token.id),
   ]);
 
-  return {
-    credentialId: `mcp-token:${token.id}`,
-    dashboards: grantedDashboards({ allDashboards: false, dashboardIds: token.dashboardIds }, memberships),
-  };
+  return mcpContext(
+    `mcp-token:${token.id}`,
+    grantedDashboards({ allDashboards: false, dashboardIds: token.dashboardIds }, memberships),
+  );
 }
 
-/** Every picked dashboard is checked against the user's memberships now, not as the page showed them. */
+/**
+ * Every picked dashboard is checked against the user's memberships now, not as the page showed them. A dashboard
+ * with AI access off can't be newly picked, but one the credential already grants stays, so turning AI access back
+ * on restores it.
+ */
 export async function assertPickedDashboardsAvailable(
   userId: string,
   selection: McpGrantSelection,
+  current: Grant | null = null,
 ): Promise<void> {
   if (selection.allDashboards) return;
-  const memberOf = new Set((await findUserMemberships(userId)).map((membership) => membership.dashboardId));
-  if (selection.dashboardIds.some((dashboardId) => !memberOf.has(dashboardId))) {
-    const t = await getTranslations('validation.mcpConnections');
-    throw new UserException(t('dashboardUnavailable'));
+  const memberships = await findUserMemberships(userId);
+  const memberOf = new Map(memberships.map((membership) => [membership.dashboardId, membership]));
+  const alreadyGranted = new Set(
+    grantedDashboards(current, memberships).map((dashboard) => dashboard.dashboardId),
+  );
+
+  const t = await getTranslations('validation.mcpConnections');
+  for (const dashboardId of selection.dashboardIds) {
+    const membership = memberOf.get(dashboardId);
+    if (!membership) throw new UserException(t('dashboardUnavailable'));
+    if (!membership.aiAccessEnabled && !alreadyGranted.has(dashboardId)) {
+      throw new UserException(t('aiAccessDisabled', { domain: membership.domain }));
+    }
   }
 }

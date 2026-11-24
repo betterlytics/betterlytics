@@ -103,7 +103,12 @@ const DASHBOARD_TOOLS = [
   { name: 'list_global_properties', args: RANGE, fn: execute.executeListGlobalProperties, ids: ['siteId'] },
   { name: 'list_funnels', args: RANGE, fn: execute.executeListFunnels, ids: ['siteId', 'dashboardId'] },
   { name: 'list_errors', args: RANGE, fn: execute.executeListErrors, ids: ['siteId', 'dashboardId'] },
-  { name: 'get_error', args: { fingerprint: 'fp-1' }, fn: execute.executeGetError, ids: ['siteId', 'dashboardId'] },
+  {
+    name: 'get_error',
+    args: { fingerprint: 'fp-1' },
+    fn: execute.executeGetError,
+    ids: ['siteId', 'dashboardId'],
+  },
   { name: 'list_monitors', args: RANGE, fn: execute.executeListMonitors, ids: ['siteId', 'dashboardId'] },
   {
     name: 'list_monitor_incidents',
@@ -146,8 +151,12 @@ beforeEach(() => {
 });
 
 describe('createMcpServer', () => {
-  const several: McpContext = { credentialId: 'mcp-token:2', dashboards: [SHOP, BLOG] };
-  const single: McpContext = { credentialId: 'mcp-token:1', dashboards: [SHOP] };
+  const several: McpContext = {
+    credentialId: 'mcp-token:2',
+    dashboards: [SHOP, BLOG],
+    aiAccessDisabledDashboardIds: [],
+  };
+  const single: McpContext = { credentialId: 'mcp-token:1', dashboards: [SHOP], aiAccessDisabledDashboardIds: [] };
 
   it('registers every dashboard-scoped tool with an optional dashboardId that points to list_dashboards', async () => {
     const client = await connect(single);

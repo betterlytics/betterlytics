@@ -151,7 +151,12 @@ export async function findAllUserDashboards(userId: string): Promise<DashboardWi
 export async function findUserMemberships(userId: string): Promise<DashboardMembership[]> {
   const rows = await prisma.userDashboard.findMany({
     where: { userId, deletedAt: null, dashboard: { deletedAt: null } },
-    select: { role: true, dashboard: { select: { id: true, siteId: true, domain: true } } },
+    select: {
+      role: true,
+      dashboard: {
+        select: { id: true, siteId: true, domain: true, settings: { select: { aiAccessEnabled: true } } },
+      },
+    },
     orderBy: { createdAt: 'desc' },
   });
 
@@ -161,6 +166,8 @@ export async function findUserMemberships(userId: string): Promise<DashboardMemb
       siteId: row.dashboard.siteId,
       domain: row.dashboard.domain,
       role: row.role,
+      // settings are created on first read, and AI access starts on
+      aiAccessEnabled: row.dashboard.settings?.aiAccessEnabled ?? true,
     }),
   );
 }

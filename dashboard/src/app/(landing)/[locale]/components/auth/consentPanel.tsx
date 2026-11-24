@@ -99,7 +99,8 @@ export function ConsentPanel({
     total,
     searchable,
     visible,
-    visiblePicked,
+    selectAllPicks,
+    isUnavailable,
     canSave: canAllow,
     selection,
   } = useDashboardGrantPicker(request.dashboards, request.previous);
@@ -303,7 +304,7 @@ export function ConsentPanel({
                           className={styles.checkbox}
                           checked={selectAllState}
                           disabled={allDashboards || visible.length === 0}
-                          onCheckedChange={() => toggleVisible(visiblePicked < visible.length)}
+                          onCheckedChange={() => toggleVisible(selectAllPicks)}
                         >
                           <CheckMark />
                         </Checkbox.Root>
@@ -323,6 +324,8 @@ export function ConsentPanel({
                     </div>
                   }
                   onToggle={togglePicked}
+                  isUnavailable={isUnavailable}
+                  aiAccessOffLabel={t('dashboards.aiAccessOff')}
                   roleLabel={(role) => t(`roles.${role}`)}
                   searchLabel={t('dashboards.search')}
                   noMatch={t('dashboards.noMatch')}
@@ -402,6 +405,8 @@ function DashboardList({
   onQuery,
   selectAll,
   onToggle,
+  isUnavailable,
+  aiAccessOffLabel,
   roleLabel,
   searchLabel,
   noMatch,
@@ -414,6 +419,8 @@ function DashboardList({
   onQuery: (query: string) => void;
   selectAll: ReactNode;
   onToggle: (dashboardId: string, on: boolean) => void;
+  isUnavailable: (dashboardId: string) => boolean;
+  aiAccessOffLabel: string;
   roleLabel: (role: DashboardRole) => string;
   searchLabel: string;
   noMatch: string;
@@ -452,20 +459,24 @@ function DashboardList({
         {dashboards.length === 0 ? <p className={styles.empty}>{noMatch}</p> : null}
         {dashboards.map((dashboard) => {
           const [sub, base] = splitHost(dashboard.domain);
+          const unavailable = isUnavailable(dashboard.id);
           return (
-            <label key={dashboard.id} className={styles.dashRow}>
+            <label key={dashboard.id} className={cn(styles.dashRow, unavailable && styles.dashRowUnavailable)}>
               <Checkbox.Root
                 className={styles.checkbox}
                 checked={allDashboards || picked.has(dashboard.id)}
-                disabled={allDashboards}
+                disabled={allDashboards || unavailable}
                 onCheckedChange={(on) => onToggle(dashboard.id, on === true)}
               >
                 <CheckMark />
               </Checkbox.Root>
               <Favicon domain={dashboard.domain} size={18} />
-              <span className={styles.domain} title={dashboard.domain}>
-                <span>{sub}</span>
-                <span>{base}</span>
+              <span className={styles.dashText}>
+                <span className={styles.domain} title={dashboard.domain}>
+                  <span>{sub}</span>
+                  <span>{base}</span>
+                </span>
+                {!dashboard.aiAccessEnabled ? <span className={styles.dashNote}>{aiAccessOffLabel}</span> : null}
               </span>
               <span className={cn(styles.tag, dashboard.role === 'owner' && styles.tagStrong)}>
                 {roleLabel(dashboard.role)}

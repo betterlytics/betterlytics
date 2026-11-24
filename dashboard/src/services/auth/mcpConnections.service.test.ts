@@ -6,6 +6,8 @@ const mocks = vi.hoisted(() => ({
   replaceMcpGrant: vi.fn(),
   deleteMcpConnection: vi.fn(),
   deleteAllMcpConnections: vi.fn(),
+  findDashboardMcpConnections: vi.fn(),
+  removeDashboardFromMcpGrant: vi.fn(),
   findUserMemberships: vi.fn(),
 }));
 
@@ -17,6 +19,8 @@ vi.mock('@/repositories/postgres/mcpGrant.repository', () => ({
   replaceMcpGrant: mocks.replaceMcpGrant,
   deleteMcpConnection: mocks.deleteMcpConnection,
   deleteAllMcpConnections: mocks.deleteAllMcpConnections,
+  findDashboardMcpConnections: mocks.findDashboardMcpConnections,
+  removeDashboardFromMcpGrant: mocks.removeDashboardFromMcpGrant,
   touchMcpGrantLastUsed: vi.fn(),
 }));
 vi.mock('@/repositories/postgres/dashboard.repository', () => ({
@@ -25,15 +29,29 @@ vi.mock('@/repositories/postgres/dashboard.repository', () => ({
 vi.mock('@/repositories/postgres/user.repository', () => ({}));
 
 import {
+  getDashboardMcpConnections,
   listMcpConnections,
+  removeDashboardFromMcpConnection,
   revokeAllMcpConnections,
   revokeMcpConnection,
   updateMcpConnectionDashboards,
 } from '@/services/auth/mcpConnections.service';
 
 const MEMBERSHIPS = [
-  { dashboardId: 'dash-b', siteId: 'site-b', domain: 'b.example.com', role: 'viewer' as const },
-  { dashboardId: 'dash-a', siteId: 'site-a', domain: 'a.example.com', role: 'owner' as const },
+  {
+    dashboardId: 'dash-b',
+    siteId: 'site-b',
+    domain: 'b.example.com',
+    role: 'viewer' as const,
+    aiAccessEnabled: true,
+  },
+  {
+    dashboardId: 'dash-a',
+    siteId: 'site-a',
+    domain: 'a.example.com',
+    role: 'owner' as const,
+    aiAccessEnabled: true,
+  },
 ];
 
 const CONNECTED = new Date('2026-11-01T10:00:00Z');
@@ -132,8 +150,8 @@ describe('listMcpConnections', () => {
     expect(await listMcpConnections('user-1')).toEqual({
       connections: [],
       dashboards: [
-        { id: 'dash-a', domain: 'a.example.com', role: 'owner' },
-        { id: 'dash-b', domain: 'b.example.com', role: 'viewer' },
+        { id: 'dash-a', domain: 'a.example.com', role: 'owner', aiAccessEnabled: true },
+        { id: 'dash-b', domain: 'b.example.com', role: 'viewer', aiAccessEnabled: true },
       ],
     });
   });
@@ -193,5 +211,76 @@ describe('updateMcpConnectionDashboards', () => {
       updateMcpConnectionDashboards('user-1', 'client-1', { allDashboards: false, dashboardIds: ['dash-other'] }),
     ).rejects.toThrow('dashboardUnavailable');
     expect(mocks.replaceMcpGrant).not.toHaveBeenCalled();
+  });
+});
+
+describe('updateMcpConnectionDashboards with AI access off', () => {
+  const offA = () => [MEMBERSHIPS[0], { ...MEMBERSHIPS[1]!, aiAccessEnabled: false }];
+
+  it('refuses newly picking a dashboard whose AI access is off', async () => {
+    mocks.findUserMemberships.mockResolvedValue(offA());
+    mocks.findMcpConsentGrant.mockResolvedValue({
+      consentId: 'consent-1',
+      grant: { allDashboards: false, dashboardIds: ['dash-b'], excludedDashboardIds: [] },
+    });
+
+    await expect(
+      updateMcpConnectionDashboards('user-1', 'client-1', { allDashboards: false, dashboardIds: ['dash-a'] }),
+    ).rejects.toThrow('aiAccessDisabled');
+    expect(mocks.replaceMcpGrant).not.toHaveBeenCalled();
+  });
+
+  it('keeps a dashboard whose AI access is off that the connection already covers', async () => {
+    mocks.findUserMemberships.mockResolvedValue(offA());
+    mocks.findMcpConsentGrant.mockResolvedValue({
+      consentId: 'consent-1',
+      grant: { allDashboards: true, dashboardIds: [], excludedDashboardIds: [] },
+    });
+    const selection = { allDashboards: false, dashboardIds: ['dash-a', 'dash-b'] };
+
+    await updateMcpConnectionDashboards('user-1', 'client-1', selection);
+    expect(mocks.replaceMcpGrant).toHaveBeenCalledWith('consent-1', selection);
+  });
+});
+
+describe('getDashboardMcpConnections', () => {
+  it("names each connection by its client and shows only its member and this dashboard's link", async () => {
+    const connectedAt = new Date('2026-11-20T10:00:00Z');
+    mocks.findDashboardMcpConnections.mockResolvedValue([
+      {
+        consentId: 'consent-1',
+        client: { clientId: 'https://claude.ai/cimd', name: null, redirectUris: [], discovered: true },
+        member: { name: 'Ada', email: 'ada@example.com' },
+        connectedAt,
+        lastUsedAt: null,
+      },
+    ]);
+
+    expect(await getDashboardMcpConnections('dash-1')).toEqual([
+      {
+        consentId: 'consent-1',
+        name: 'claude.ai',
+        member: { name: 'Ada', email: 'ada@example.com' },
+        connectedAt,
+        lastUsedAt: null,
+      },
+    ]);
+    expect(mocks.findDashboardMcpConnections).toHaveBeenCalledWith('dash-1');
+  });
+});
+
+describe('removeDashboardFromMcpConnection', () => {
+  it('takes only this dashboard out of the connection, without revoking it', async () => {
+    mocks.removeDashboardFromMcpGrant.mockResolvedValue(1);
+
+    await removeDashboardFromMcpConnection('dash-1', 'consent-1');
+
+    expect(mocks.removeDashboardFromMcpGrant).toHaveBeenCalledWith('consent-1', 'dash-1');
+    expect(mocks.deleteMcpConnection).not.toHaveBeenCalled();
+  });
+
+  it('reports a connection that no longer covers the dashboard', async () => {
+    mocks.removeDashboardFromMcpGrant.mockResolvedValue(0);
+    await expect(removeDashboardFromMcpConnection('dash-1', 'consent-1')).rejects.toThrow('notFound');
   });
 });

@@ -6,6 +6,8 @@ export const DashboardMembershipSchema = z.object({
   siteId: z.string(),
   domain: z.string(),
   role: z.nativeEnum(DashboardRole),
+  // off when the dashboard's owners or admins turned AI access off: no agent or token reads it
+  aiAccessEnabled: z.boolean(),
 });
 
 export const McpGrantSelectionSchema = z
@@ -26,6 +28,8 @@ export const McpConsentGrantSchema = z.object({
     .object({
       allDashboards: z.boolean(),
       dashboardIds: z.array(z.string()),
+      // removed by an owner or admin from an All dashboards grant, which keeps covering the others
+      excludedDashboardIds: z.array(z.string()),
     })
     .nullable(),
 });
@@ -51,8 +55,21 @@ export const McpConnectionRecordSchema = z.object({
   grant: McpConsentGrantSchema.shape.grant,
 });
 
+// An OAuth connection that can read a dashboard, as its owners and admins see it: only the link to that dashboard
+export const DashboardMcpConnectionRecordSchema = z.object({
+  consentId: z.string(),
+  client: OauthClientDetailsSchema.pick({ clientId: true, name: true, redirectUris: true, discovered: true }),
+  member: z.object({
+    name: z.string().nullable(),
+    email: z.string(),
+  }),
+  connectedAt: z.date().nullable(),
+  lastUsedAt: z.date().nullable(),
+});
+
 export type DashboardMembership = z.infer<typeof DashboardMembershipSchema>;
 export type McpGrantSelection = z.infer<typeof McpGrantSelectionSchema>;
 export type McpConsentGrant = z.infer<typeof McpConsentGrantSchema>;
 export type OauthClientDetails = z.infer<typeof OauthClientDetailsSchema>;
 export type McpConnectionRecord = z.infer<typeof McpConnectionRecordSchema>;
+export type DashboardMcpConnectionRecord = z.infer<typeof DashboardMcpConnectionRecordSchema>;

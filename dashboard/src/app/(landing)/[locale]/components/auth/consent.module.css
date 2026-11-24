@@ -583,6 +583,28 @@
   .dashRow .checkbox {
     margin-top: 0;
   }
+  .dashRowUnavailable,
+  .dashRowUnavailable:hover {
+    cursor: default;
+    background: none;
+  }
+  .dashRowUnavailable .domain {
+    color: var(--color-muted);
+  }
+  .dashText {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .dashNote {
+    overflow: hidden;
+    color: var(--color-muted);
+    font-size: var(--text-caption);
+    line-height: 18px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   .domain {
     display: flex;
     flex: 1;

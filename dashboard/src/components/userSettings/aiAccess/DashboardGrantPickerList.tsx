@@ -57,7 +57,7 @@ export default function DashboardGrantPickerList({ picker, onCloseDialog }: Dash
           <Checkbox
             checked={picker.selectAllState}
             disabled={picker.allDashboards || picker.visible.length === 0}
-            onCheckedChange={() => picker.toggleVisible(picker.visiblePicked < picker.visible.length)}
+            onCheckedChange={() => picker.toggleVisible(picker.selectAllPicks)}
           />
           {t('selectAll')}
         </label>
@@ -73,28 +73,40 @@ export default function DashboardGrantPickerList({ picker, onCloseDialog }: Dash
         {picker.visible.length === 0 && (
           <p className='text-muted-foreground px-3 py-4 text-center text-sm'>{t('noMatch')}</p>
         )}
-        {picker.visible.map((dashboard) => (
-          <label
-            key={dashboard.id}
-            className={cn(
-              'flex items-center gap-3 px-3 py-2 text-sm',
-              picker.allDashboards ? 'cursor-not-allowed' : 'hover:bg-accent/50 cursor-pointer',
-            )}
-          >
-            <Checkbox
-              checked={picker.allDashboards || picker.picked.has(dashboard.id)}
-              disabled={picker.allDashboards}
-              onCheckedChange={(on) => picker.togglePicked(dashboard.id, on === true)}
-            />
-            <DomainFavicon domain={dashboard.domain} size={16} />
-            <span className='min-w-0 flex-1 truncate' title={dashboard.domain}>
-              {dashboard.domain}
-            </span>
-            <Badge variant='outline' className='text-muted-foreground shrink-0'>
-              {tRoles(dashboard.role)}
-            </Badge>
-          </label>
-        ))}
+        {picker.visible.map((dashboard) => {
+          const unavailable = picker.isUnavailable(dashboard.id);
+          const locked = picker.allDashboards || unavailable;
+          return (
+            <label
+              key={dashboard.id}
+              className={cn(
+                'flex items-center gap-3 px-3 py-2 text-sm',
+                locked ? 'cursor-not-allowed' : 'hover:bg-accent/50 cursor-pointer',
+              )}
+            >
+              <Checkbox
+                checked={picker.allDashboards || picker.picked.has(dashboard.id)}
+                disabled={locked}
+                onCheckedChange={(on) => picker.togglePicked(dashboard.id, on === true)}
+              />
+              <DomainFavicon domain={dashboard.domain} size={16} />
+              <span className='min-w-0 flex-1'>
+                <span
+                  className={cn('block truncate', unavailable && 'text-muted-foreground')}
+                  title={dashboard.domain}
+                >
+                  {dashboard.domain}
+                </span>
+                {!dashboard.aiAccessEnabled && (
+                  <span className='text-muted-foreground block truncate text-xs'>{t('aiAccessOff')}</span>
+                )}
+              </span>
+              <Badge variant='outline' className='text-muted-foreground shrink-0'>
+                {tRoles(dashboard.role)}
+              </Badge>
+            </label>
+          );
+        })}
       </div>
     </div>
   );

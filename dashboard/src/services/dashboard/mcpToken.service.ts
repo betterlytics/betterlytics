@@ -26,14 +26,14 @@ import {
 } from '@/entities/dashboard/mcpToken.entities';
 
 export type PersonalMcpToken = McpToken & {
-  // the picked dashboards the creator is still a member of
+  // the picked dashboards the creator is still a member of, including ones with AI access off
   dashboards: { id: string; domain: string }[];
 };
 
 export type PersonalMcpTokensOverview = {
   tokens: PersonalMcpToken[];
   // every dashboard the user can pick, for creating or editing a token
-  dashboards: { id: string; domain: string; role: DashboardRole }[];
+  dashboards: { id: string; domain: string; role: DashboardRole; aiAccessEnabled: boolean }[];
 };
 
 function generateMcpToken(): string {
@@ -91,7 +91,13 @@ export async function updatePersonalMcpTokenDashboards(
   tokenId: string,
   dashboardIds: string[],
 ): Promise<void> {
-  await assertPickedDashboardsAvailable(userId, { allDashboards: false, dashboardIds });
+  const token = (await findPersonalMcpTokens(userId)).find((record) => record.id === tokenId);
+  if (!token) throw await tokenNotFound();
+  await assertPickedDashboardsAvailable(
+    userId,
+    { allDashboards: false, dashboardIds },
+    { allDashboards: false, dashboardIds: token.dashboardIds },
+  );
   if (!(await replaceMcpTokenDashboards(tokenId, userId, dashboardIds))) throw await tokenNotFound();
 }
 

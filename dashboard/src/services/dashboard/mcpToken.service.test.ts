@@ -36,8 +36,20 @@ import {
 } from '@/services/dashboard/mcpToken.service';
 
 const MEMBERSHIPS = [
-  { dashboardId: 'dash-b', siteId: 'site-b', domain: 'b.example.com', role: 'viewer' as const },
-  { dashboardId: 'dash-a', siteId: 'site-a', domain: 'a.example.com', role: 'owner' as const },
+  {
+    dashboardId: 'dash-b',
+    siteId: 'site-b',
+    domain: 'b.example.com',
+    role: 'viewer' as const,
+    aiAccessEnabled: true,
+  },
+  {
+    dashboardId: 'dash-a',
+    siteId: 'site-a',
+    domain: 'a.example.com',
+    role: 'owner' as const,
+    aiAccessEnabled: true,
+  },
 ];
 
 const CREATED = {
@@ -76,6 +88,12 @@ describe('createPersonalMcpToken', () => {
     expect(mocks.createMcpToken.mock.calls[0]![0].expiresAt).toBeNull();
   });
 
+  it('refuses a dashboard whose AI access is off', async () => {
+    mocks.findUserMemberships.mockResolvedValue([{ ...MEMBERSHIPS[0]!, aiAccessEnabled: false }]);
+    await expect(createPersonalMcpToken('user-1', 'CI', ['dash-b'], '90d')).rejects.toThrow('aiAccessDisabled');
+    expect(mocks.createMcpToken).not.toHaveBeenCalled();
+  });
+
   it('refuses a dashboard the user is not a member of', async () => {
     await expect(createPersonalMcpToken('user-1', 'CI', ['dash-a', 'dash-other'], '30d')).rejects.toThrow(
       'dashboardUnavailable',
@@ -101,14 +119,18 @@ describe('listPersonalMcpTokens', () => {
         },
       ],
       dashboards: [
-        { id: 'dash-a', domain: 'a.example.com', role: 'owner' },
-        { id: 'dash-b', domain: 'b.example.com', role: 'viewer' },
+        { id: 'dash-a', domain: 'a.example.com', role: 'owner', aiAccessEnabled: true },
+        { id: 'dash-b', domain: 'b.example.com', role: 'viewer', aiAccessEnabled: true },
       ],
     });
   });
 });
 
 describe('updatePersonalMcpTokenDashboards', () => {
+  beforeEach(() => {
+    mocks.findPersonalMcpTokens.mockResolvedValue([{ ...CREATED, dashboardIds: ['dash-b'] }]);
+  });
+
   it("replaces the token's dashboards", async () => {
     mocks.replaceMcpTokenDashboards.mockResolvedValue(true);
 
@@ -124,9 +146,28 @@ describe('updatePersonalMcpTokenDashboards', () => {
   });
 
   it("refuses another user's token", async () => {
-    mocks.replaceMcpTokenDashboards.mockResolvedValue(false);
+    mocks.findPersonalMcpTokens.mockResolvedValue([]);
 
     await expect(updatePersonalMcpTokenDashboards('user-1', 'token-1', ['dash-a'])).rejects.toThrow('notFound');
+    expect(mocks.replaceMcpTokenDashboards).not.toHaveBeenCalled();
+  });
+
+  it('refuses newly picking a dashboard whose AI access is off', async () => {
+    mocks.findUserMemberships.mockResolvedValue([MEMBERSHIPS[0], { ...MEMBERSHIPS[1]!, aiAccessEnabled: false }]);
+
+    await expect(updatePersonalMcpTokenDashboards('user-1', 'token-1', ['dash-b', 'dash-a'])).rejects.toThrow(
+      'aiAccessDisabled',
+    );
+    expect(mocks.replaceMcpTokenDashboards).not.toHaveBeenCalled();
+  });
+
+  it('keeps a picked dashboard whose AI access is off when the others change', async () => {
+    mocks.findPersonalMcpTokens.mockResolvedValue([{ ...CREATED, dashboardIds: ['dash-a'] }]);
+    mocks.findUserMemberships.mockResolvedValue([MEMBERSHIPS[0], { ...MEMBERSHIPS[1]!, aiAccessEnabled: false }]);
+    mocks.replaceMcpTokenDashboards.mockResolvedValue(true);
+
+    await updatePersonalMcpTokenDashboards('user-1', 'token-1', ['dash-a', 'dash-b']);
+    expect(mocks.replaceMcpTokenDashboards).toHaveBeenCalledWith('token-1', 'user-1', ['dash-a', 'dash-b']);
   });
 });
 
