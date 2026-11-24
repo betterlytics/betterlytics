@@ -1,36 +1,28 @@
 'use server';
 
+import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
-import {
-  createMcpTokenForDashboard,
-  getMcpTokensForDashboard,
-  removeMcpToken,
-} from '@/services/dashboard/mcpToken.service';
-import { McpTokenLifetime, McpTokenLifetimeSchema } from '@/entities/dashboard/mcpToken.entities';
+import type { DashboardMcpToken } from '@/entities/dashboard/mcpToken.entities';
+import { hasPermission } from '@/lib/permissions';
+import { getDashboardMcpTokens, removeDashboardFromToken } from '@/services/dashboard/mcpToken.service';
 
-export const getMcpTokensAction = withDashboardAuthContext(async (ctx: AuthContext) => {
-  return await getMcpTokensForDashboard(ctx.dashboardId);
-});
+const TokenIdSchema = z.string().min(1).max(64);
 
-export const createMcpTokenAction = withDashboardMutationAuthContext(
-  async (ctx: AuthContext, name: string, lifetime: McpTokenLifetime) => {
-    const token = await createMcpTokenForDashboard(
-      ctx.dashboardId,
-      name,
-      ctx.userId,
-      McpTokenLifetimeSchema.parse(lifetime),
-    );
-    revalidatePath(`/dashboard/${ctx.dashboardId}/settings/mcp`);
-    return token;
+export type DashboardMcpTokensView = { canManage: false } | { canManage: true; tokens: DashboardMcpToken[] };
+
+/** Only owners and admins see the tokens that can read the dashboard; other members don't see each other's. */
+export const getDashboardMcpTokensAction = withDashboardAuthContext(
+  async (ctx: AuthContext): Promise<DashboardMcpTokensView> => {
+    if (!hasPermission(ctx.role, 'canManageSettings')) return { canManage: false };
+    return { canManage: true, tokens: await getDashboardMcpTokens(ctx.dashboardId) };
   },
-  { permission: 'canManageSettings' },
 );
 
-export const deleteMcpTokenAction = withDashboardMutationAuthContext(
+export const removeDashboardFromMcpTokenAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, tokenId: string) => {
-    await removeMcpToken(tokenId, ctx.dashboardId);
+    await removeDashboardFromToken(ctx.dashboardId, TokenIdSchema.parse(tokenId));
     revalidatePath(`/dashboard/${ctx.dashboardId}/settings/mcp`);
   },
   { permission: 'canManageSettings' },

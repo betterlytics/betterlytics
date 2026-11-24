@@ -5,14 +5,13 @@ vi.mock('@/auth/api-auth', () => ({
   getCachedSession: vi.fn(),
   getCachedAuthorizedContext: vi.fn(),
   resolveDashboardAuthResult: vi.fn(),
-  executeWithDemoCache: vi.fn(),
+  executeWithDemoCache: vi.fn(async (context, fn, args) => fn(context, ...args)),
   getFnSignature: vi.fn(() => 'mcpToken.action'),
 }));
 
 vi.mock('@/services/dashboard/mcpToken.service', () => ({
-  createMcpTokenForDashboard: vi.fn(),
-  getMcpTokensForDashboard: vi.fn(),
-  removeMcpToken: vi.fn(),
+  getDashboardMcpTokens: vi.fn(),
+  removeDashboardFromToken: vi.fn(),
 }));
 
 vi.mock('next/cache', () => ({
@@ -24,84 +23,71 @@ vi.mock('next/navigation', () => ({
   unstable_rethrow: vi.fn(),
 }));
 
-import { getCachedSession, getCachedAuthorizedContext } from '@/auth/api-auth';
-import { createMcpTokenForDashboard, removeMcpToken } from '@/services/dashboard/mcpToken.service';
-import { createMcpTokenAction, deleteMcpTokenAction } from '@/app/actions/dashboard/mcpToken.action';
+import { getCachedSession, getCachedAuthorizedContext, resolveDashboardAuthResult } from '@/auth/api-auth';
+import { getDashboardMcpTokens, removeDashboardFromToken } from '@/services/dashboard/mcpToken.service';
+import {
+  getDashboardMcpTokensAction,
+  removeDashboardFromMcpTokenAction,
+} from '@/app/actions/dashboard/mcpToken.action';
 
 const session = vi.mocked(getCachedSession);
 const authorizedContext = vi.mocked(getCachedAuthorizedContext);
-const createToken = vi.mocked(createMcpTokenForDashboard);
-const removeToken = vi.mocked(removeMcpToken);
+const dashboardAuthResult = vi.mocked(resolveDashboardAuthResult);
+const listTokens = vi.mocked(getDashboardMcpTokens);
+const removeToken = vi.mocked(removeDashboardFromToken);
 
 function asMember(role: DashboardRole) {
+  const context = { dashboardId: 'dash-1', siteId: 'site-1', userId: 'user-1', role, isDemo: false };
   session.mockResolvedValue({
     user: { id: 'user-1' },
     session: { token: 'session-token', expiresAt: new Date('2030-01-01') },
   } as Awaited<ReturnType<typeof getCachedSession>>);
-  authorizedContext.mockResolvedValue({
-    dashboardId: 'dash-1',
-    siteId: 'site-1',
-    userId: 'user-1',
-    role,
-    isDemo: false,
-  });
+  authorizedContext.mockResolvedValue(context);
+  dashboardAuthResult.mockResolvedValue({ context } as Awaited<ReturnType<typeof resolveDashboardAuthResult>>);
 }
 
 beforeEach(() => {
   vi.clearAllMocks();
-  createToken.mockResolvedValue({ id: 'token-1', plainToken: 'btl_plain' } as Awaited<
-    ReturnType<typeof createMcpTokenForDashboard>
-  >);
+  listTokens.mockResolvedValue([]);
   removeToken.mockResolvedValue(undefined);
 });
 
-describe('MCP token actions', () => {
-  it.each<DashboardRole>(['viewer', 'editor'])(
-    'rejects creation by role %s before creating a token',
+describe('dashboard MCP token actions', () => {
+  it.each<DashboardRole>(['viewer', 'editor'])("doesn't list other members' tokens to role %s", async (role) => {
+    asMember(role);
+
+    expect(await getDashboardMcpTokensAction('dash-1')).toEqual({ canManage: false });
+    expect(listTokens).not.toHaveBeenCalled();
+  });
+
+  it.each<DashboardRole>(['owner', 'admin'])(
+    'lists the tokens that can read the dashboard to role %s',
     async (role) => {
       asMember(role);
 
-      await expect(createMcpTokenAction('dash-1', 'Claude', '30d')).rejects.toThrow(
-        'You do not have permission to perform this action',
-      );
-      expect(createToken).not.toHaveBeenCalled();
+      expect(await getDashboardMcpTokensAction('dash-1')).toEqual({ canManage: true, tokens: [] });
+      expect(listTokens).toHaveBeenCalledWith('dash-1');
     },
   );
 
   it.each<DashboardRole>(['viewer', 'editor'])(
-    'rejects deletion by role %s before deleting a token',
+    'rejects removing a token by role %s before removing it',
     async (role) => {
       asMember(role);
 
-      await expect(deleteMcpTokenAction('dash-1', 'token-1')).rejects.toThrow(
+      await expect(removeDashboardFromMcpTokenAction('dash-1', 'token-1')).rejects.toThrow(
         'You do not have permission to perform this action',
       );
       expect(removeToken).not.toHaveBeenCalled();
     },
   );
 
-  it.each<DashboardRole>(['owner', 'admin'])(
-    'lets role %s create a token on the selected dashboard',
-    async (role) => {
-      asMember(role);
+  it.each<DashboardRole>(['owner', 'admin'])('lets role %s remove the dashboard from a token', async (role) => {
+    asMember(role);
 
-      await expect(createMcpTokenAction('dash-1', 'Claude', '30d')).resolves.toEqual({
-        id: 'token-1',
-        plainToken: 'btl_plain',
-      });
-      expect(authorizedContext).toHaveBeenCalledWith('user-1', 'dash-1');
-      expect(createToken).toHaveBeenCalledWith('dash-1', 'Claude', 'user-1', '30d');
-    },
-  );
+    await removeDashboardFromMcpTokenAction('dash-1', 'token-1');
 
-  it.each<DashboardRole>(['owner', 'admin'])(
-    'lets role %s delete a token on the selected dashboard',
-    async (role) => {
-      asMember(role);
-
-      await deleteMcpTokenAction('dash-1', 'token-1');
-
-      expect(removeToken).toHaveBeenCalledWith('token-1', 'dash-1');
-    },
-  );
+    expect(authorizedContext).toHaveBeenCalledWith('user-1', 'dash-1');
+    expect(removeToken).toHaveBeenCalledWith('dash-1', 'token-1');
+  });
 });
