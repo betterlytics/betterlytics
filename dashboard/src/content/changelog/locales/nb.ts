@@ -1,5 +1,105 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v154ChangelogEntryNb: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.4',
+    releasedAt: '2026-11-25',
+    title: 'Renere data og rettelser i kartet',
+    summary:
+      'Færre besøk fra bots havner i statistikken din, og ugyldige egenskaper på egendefinerte hendelser håndteres nå bedre. Denne utgivelsen gjør det også enklere å trekke tilbake samtykke til session replay og retter feil på verdenskartet og i nøkkeltallene under Henvisere.',
+  },
+  sections: [
+    {
+      id: 'v154-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Bot-filteret fanger nå opp flere automatiserte besøk.',
+            'Ugyldige egenskaper på egendefinerte hendelser håndteres nå bedre.',
+            'Når en besøkende trekker tilbake samtykket til session replay, stopper opptaket nå med en gang, også i andre åpne faner.',
+            'Når du sletter et dashbord, blir adresser og egne domener for statussidene nå frigjort, slik at de kan brukes på nytt.',
+            'Diverse forbedringer i brukervennlighet på tvers av dashbordet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Rettet et problem der land med besøkende av og til kunne vises i svart på verdenskartet.',
+            'Nøkkeltallene under Henvisere teller ikke lenger den samme sesjonen flere ganger.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-security',
+      title: 'Sikkerhet',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Generelle sikkerhets- og avhengighetsoppdateringer for å holde Betterlytics stabilt og sikkert.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v154ChangelogModalNb: ChangelogEntryData = {
+  metadata: v154ChangelogEntryNb.metadata,
+  sections: [
+    {
+      id: 'v154-modal-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Bot-filteret fanger nå opp flere automatiserte besøk.',
+            'Ugyldige egenskaper på egendefinerte hendelser håndteres nå bedre.',
+            'Når en besøkende trekker tilbake samtykket til session replay, stopper opptaket nå med en gang, også i andre åpne faner.',
+            'Når du sletter et dashbord, blir adresser og egne domener for statussidene nå frigjort, slik at de kan brukes på nytt.',
+            'Diverse forbedringer i brukervennlighet på tvers av dashbordet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-modal-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Rettet et problem der land med besøkende av og til kunne vises i svart på verdenskartet.',
+            'Nøkkeltallene under Henvisere teller ikke lenger den samme sesjonen flere ganger.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-modal-security',
+      title: 'Sikkerhet',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Generelle sikkerhets- og avhengighetsoppdateringer for å holde Betterlytics stabilt og sikkert.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v153ChangelogEntryNb: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.3',
@@ -886,9 +986,10 @@ const v144ChangelogEntryNb: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalNb = v153ChangelogModalNb;
+export const latestChangelogModalNb = v154ChangelogModalNb;
 
 export const changelogEntriesNb: readonly ChangelogEntryData[] = [
+  v154ChangelogEntryNb,
   v153ChangelogEntryNb,
   v152ChangelogEntryNb,
   v151ChangelogEntryNb,
