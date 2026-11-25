@@ -23,7 +23,7 @@ An agent connected to several dashboards calls `list_dashboards` to see them, th
 Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Antigravity and Codex are supported. Each client's tab also offers **Use a personal token instead**, for a client that can't sign in.
 
 <Callout type="info">
-Self-hosting? Sign-in is only available on Betterlytics Cloud, so a self-hosted instance connects with a [personal access token](#personal-access-tokens). Your instance serves its own MCP endpoint at `/api/mcp`, for example `https://analytics.example.com/api/mcp`. Create the token on your instance under **Account settings > AI access**: the token is shown together with this address as the **Server URL**, with a copy button. **Dashboard > Settings > AI access** shows the Server URL too. Paste it into the **Server URL** field below, and the setup switches to the token snippets and install links for your instance.
+Self-hosting? Sign-in is only available on Betterlytics Cloud, so a self-hosted instance connects with a [personal access token](#personal-access-tokens). Your instance serves its own MCP endpoint at `/api/mcp`, for example `https://analytics.example.com/api/mcp`. Create the token on your instance under **Account settings > MCP**: the token is shown together with this address as the **Server URL**, with a copy button. **Dashboard > Settings > AI access** shows the Server URL too. Paste it into the **Server URL** field below, and the setup switches to the token snippets and install links for your instance.
 </Callout>
 
 <McpSetup />
@@ -32,7 +32,7 @@ Self-hosting? Sign-in is only available on Betterlytics Cloud, so a self-hosted 
 
 Use a personal access token for scripts and CI, for a client that can't sign in, or on a self-hosted instance. A token acts as you: it reads the dashboards you pick, with your current role on each, for as long as you're a member. Any member can create one, viewers included. Don't share it.
 
-1. Open your **Account settings** and go to the **AI access** tab
+1. Open your **Account settings** and go to the **MCP** tab
 2. Under **Personal access tokens**, click **Create token**
 3. Enter a name for your token (e.g. "CI reports")
 4. Pick the dashboards it can read
@@ -126,14 +126,14 @@ Here are some questions you can try:
 
 ## Managing Connected Agents
 
-On Betterlytics Cloud, agents you connected by signing in are listed under **Account settings > AI access**, in **Connected agents**. Each shows the dashboards it can read, when it connected, and when it was last used.
+On Betterlytics Cloud, agents you connected by signing in are listed under **Account settings > MCP**, in **Connected agents**. Each shows the dashboards it can read, when it connected, and when it was last used.
 
 - **Edit dashboards** changes which dashboards an agent can read. It takes effect on the agent's next request, without reconnecting.
 - **Revoke** ends the agent's access right away. To use it again, connect it again from the client.
 
 ## Managing Tokens
 
-Personal access tokens are listed under **Account settings > AI access**, in **Personal access tokens**. Each token shows the dashboards it can read, its creation date, when it was last used, and when it expires (or that it never does). Use **Edit dashboards** to change which dashboards a token can read without changing the token itself. You can delete tokens at any time. Deleted tokens are immediately revoked.
+Personal access tokens are listed under **Account settings > MCP**, in **Personal access tokens**. Each token shows the dashboards it can read, its creation date, when it was last used, and when it expires (or that it never does). Use **Edit dashboards** to change which dashboards a token can read without changing the token itself. You can delete tokens at any time. Deleted tokens are immediately revoked.
 
 Expired tokens stop authenticating and remain in the list so you can spot and delete them. A token's expiration can't be changed after creation; to extend access, create a new token.
 
@@ -144,7 +144,7 @@ Every dashboard has an **AI access** page under **Dashboard > Settings > AI acce
 - **Off:** no agent connection or token can read the dashboard. Calls to it return an error saying its owners or admins turned AI access off, it's left out of `list_dashboards`, and members can't pick it for a new token or connection. Connections and tokens stay valid for their other dashboards.
 - **On again:** existing connections and tokens read the dashboard again on their next request, without reconnecting.
 
-Owners and admins also see every member's connection and token that can read the dashboard, and can remove the dashboard from any of them. Nothing is revoked: the connection or token keeps its other dashboards, an **All dashboards** connection keeps covering future dashboards, and the member can add this dashboard back by ticking it again under **Account settings > AI access**, where it shows as removed. To stop every agent, turn AI access off instead.
+Owners and admins also see every member's connection and token that can read the dashboard, and can remove the dashboard from any of them. Nothing is revoked: the connection or token keeps its other dashboards, an **All dashboards** connection keeps covering future dashboards, and the member can add this dashboard back by ticking it again under **Account settings > MCP**, where it shows as removed. To stop every agent, turn AI access off instead.
 
 ## Security
 

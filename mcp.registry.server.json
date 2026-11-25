@@ -16,7 +16,7 @@
       "headers": [
         {
           "name": "Authorization",
-          "description": "Only needed if your client can't sign in: a personal access token created in Account settings > AI access. Enter the full value including the scheme, e.g. 'Bearer btl_...'",
+          "description": "Only needed if your client can't sign in: a personal access token created in Account settings > MCP. Enter the full value including the scheme, e.g. 'Bearer btl_...'",
           "isRequired": false,
           "isSecret": true
         }

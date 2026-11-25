@@ -185,13 +185,13 @@ export function McpSetup() {
             <>
               Self-hosted instances connect with a personal token. Create one on
               your instance under{" "}
-              <strong>Account settings &gt; AI access</strong>.
+              <strong>Account settings &gt; MCP</strong>.
             </>
           ) : (
             <>
               Leave empty for Betterlytics Cloud. Self-hosting? Paste the server
               URL shown when you create a token under{" "}
-              <strong>Account settings &gt; AI access</strong>.
+              <strong>Account settings &gt; MCP</strong>.
             </>
           )}
         </p>
