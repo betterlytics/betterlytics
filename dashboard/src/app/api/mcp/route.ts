@@ -12,10 +12,18 @@ export const runtime = 'nodejs';
 const MCP_REALM = 'betterlytics-mcp';
 const PERSONAL_TOKEN_PREFIX = 'btl_';
 
-function extractBearerToken(req: NextRequest): string | null {
-  const auth = req.headers.get('authorization');
-  if (!auth?.startsWith('Bearer ')) return null;
-  return auth.slice(7);
+const BEARER_CREDENTIALS = /^bearer\s+(\S+)\s*$/i;
+
+/**
+ * The `Bearer` scheme in any case, as HTTP and the MCP SDKs allow. A personal token may also come bare, since some
+ * clients send the header value exactly as the user typed it; an OAuth access token always needs the scheme.
+ */
+function extractToken(req: NextRequest): string | null {
+  const auth = req.headers.get('authorization')?.trim();
+  if (!auth) return null;
+  const bearer = BEARER_CREDENTIALS.exec(auth);
+  if (bearer) return bearer[1]!;
+  return auth.startsWith(PERSONAL_TOKEN_PREFIX) && !/\s/.test(auth) ? auth : null;
 }
 
 function challenge(error?: string) {
@@ -33,9 +41,13 @@ function unauthorized(message: string, error?: string) {
 }
 
 export async function POST(req: NextRequest) {
-  const token = extractBearerToken(req);
+  const token = extractToken(req);
   if (!token) {
-    return unauthorized('Missing Authorization header');
+    return unauthorized(
+      req.headers.has('authorization')
+        ? 'Authorization header must use the Bearer scheme'
+        : 'Missing Authorization header',
+    );
   }
 
   const result =

@@ -690,6 +690,8 @@
         },
         "title": "Bentornato",
         "lede": "Un solo account per analytics, session replay, errori e uptime.",
+        "connectTitle": "Accedi per connettere {client}",
+        "connectLede": "Poi scegli quali dashboard {client} può leggere.",
         "forgotPassword": "Password dimenticata?",
         "submit": "Accedi",
         "submitting": "Accesso in corso…",
@@ -752,7 +754,9 @@
           "selected": "<b>{selected}</b> di {total} selezionate",
           "pickOne": "Scegli almeno una dashboard",
           "noMatch": "Nessuna dashboard corrisponde alla ricerca.",
-          "empty": "Non hai ancora nessuna dashboard. <link>Aggiungi un sito</link>"
+          "empty": "Non hai ancora nessuna dashboard. Connetti con Tutte le dashboard, incluse quelle future, oppure <link>aggiungi il tuo primo sito</link> prima di connetterti.",
+          "aiAccessOff": "Accesso AI disattivato da proprietari o amministratori",
+          "removedByAdmins": "Rimossa da proprietari o amministratori"
         },
         "roles": {
           "owner": "Proprietario",
@@ -784,6 +788,7 @@
           "description": "Crea il tuo account su questa istanza di Betterlytics."
         },
         "title": "Crea il tuo account",
+        "connectTitle": "Crea un account per connettere {client}",
         "lede": "Gratis per iniziare, nessuna carta di credito richiesta.",
         "ledeSelfHosted": "Un solo account per analytics, session replay, errori e uptime.",
         "ledeFirstUser": "Questo è il primo account su questa istanza. Diventerà l'amministratore dell'istanza.",
@@ -2913,7 +2918,7 @@
         "rules": "Regole",
         "members": "Membri",
         "reports": "Report Email",
-        "mcp": "MCP",
+        "mcp": "Accesso AI",
         "integrations": "Integrazioni",
         "dangerZone": "Zona pericolosa"
       }
@@ -4388,6 +4393,8 @@
           "readAnalytics": "Leggere le statistiche"
         },
         "allDashboards": "Tutte le dashboard",
+        "allDashboardsExcept": "Tutte tranne {count, plural, one {# dashboard} other {# dashboard}}",
+        "removedDashboards": "Rimosse da proprietari o amministratori: {domains}",
         "noDashboards": "Nessuna dashboard",
         "moreDashboards": "+{count} altre",
         "connected": "Collegato il {date}",
@@ -4419,7 +4426,69 @@
           "empty": "Non hai ancora nessuna dashboard. <link>Aggiungi un sito</link>",
           "cancel": "Annulla",
           "save": "Salva",
-          "saving": "Salvataggio..."
+          "saving": "Salvataggio...",
+          "aiAccessOff": "Accesso AI disattivato da proprietari o amministratori",
+          "removedByAdmins": "Rimossa da proprietari o amministratori"
+        },
+        "tokens": {
+          "title": "Token di accesso personali",
+          "description": "I token agiscono come te sulle dashboard che scegli. Usali per script, CI e client che non possono effettuare l'accesso.",
+          "create": "Crea token",
+          "loadError": "Impossibile caricare i tuoi token.",
+          "empty": "Ancora nessun token. <link>Leggi la guida di configurazione</link>",
+          "columns": {
+            "token": "Token",
+            "dashboards": "Dashboard",
+            "lastUsed": "Ultimo utilizzo"
+          },
+          "actions": "Azioni per {name}",
+          "created": "Creato il {date}",
+          "lastUsed": "Ultimo utilizzo {date}",
+          "neverUsed": "Mai utilizzato",
+          "expires": "Scade il {date}",
+          "expired": "Scaduto il {date}",
+          "neverExpires": "Non scade mai",
+          "editDashboards": "Modifica dashboard",
+          "editDescription": "Vale dalla prossima richiesta del token. Il token stesso non cambia.",
+          "delete": "Elimina",
+          "deleteDialog": {
+            "title": "Eliminare {name}?",
+            "description": "{name} smette subito di funzionare. Gli script e gli agenti che lo usano perdono l'accesso.",
+            "cancel": "Annulla",
+            "confirm": "Elimina token"
+          },
+          "toast": {
+            "created": "{name} creato.",
+            "deleted": "{name} eliminato."
+          },
+          "createDialog": {
+            "title": "Crea un token di accesso personale",
+            "description": "Scegli le dashboard che il token può leggere. Puoi modificarle in seguito.",
+            "nameLabel": "Nome",
+            "namePlaceholder": "es. Claude Desktop",
+            "dashboardsLabel": "Dashboard",
+            "expirationLabel": "Scadenza",
+            "lifetime": {
+              "30d": "30 giorni",
+              "90d": "90 giorni",
+              "180d": "180 giorni",
+              "never": "Nessuna scadenza"
+            },
+            "actsAsYou": "Questo token agisce come te: legge le dashboard scelte con il tuo ruolo su ciascuna, finché ne sei membro. Non condividerlo.",
+            "readOnly": "Sola lettura: può leggere le statistiche ma non modificare nulla.",
+            "cancel": "Annulla",
+            "create": "Crea token",
+            "creating": "Creazione...",
+            "createdTitle": "Copia il tuo token",
+            "createdNotice": "Copia questo token adesso. Non potrai vederlo di nuovo.",
+            "copyToken": "Copia token",
+            "tokenCopied": "Token copiato",
+            "endpointLabel": "URL del server",
+            "endpointHint": "Configura il tuo client MCP con l'URL del server e invia il token come bearer token. <link>Guide di configurazione per ogni client</link>",
+            "copyEndpoint": "Copia URL del server",
+            "endpointCopied": "URL del server copiato",
+            "done": "Fatto"
+          }
         }
       },
       "danger": {
@@ -4680,7 +4749,11 @@
     "mcpConnections": {
       "notFound": "Questo collegamento non esiste più.",
       "unavailable": "L'accesso AI non è disponibile.",
-      "dashboardUnavailable": "Una delle dashboard selezionate non è più disponibile."
+      "dashboardUnavailable": "Una delle dashboard selezionate non è più disponibile.",
+      "aiAccessDisabled": "L'accesso AI a {domain} è stato disattivato dai suoi proprietari o amministratori."
+    },
+    "mcpTokens": {
+      "notFound": "Questo token non esiste più."
     }
   },
   "banners": {
@@ -5114,40 +5187,63 @@
     }
   },
   "mcp": {
-    "settings": {
-      "title": "Token API",
-      "description": "Crea token per connettere agenti AI ai tuoi dati analitici tramite il Model Context Protocol.",
-      "tokenNameLabel": "Nome token",
-      "tokenNamePlaceholder": "es. Claude Desktop",
-      "createButton": "Crea token",
-      "creating": "Creazione...",
-      "newTokenNotice": "Copia questo token adesso. Non potrai vederlo di nuovo.",
-      "created": "Creato {date}",
-      "lastUsed": "Ultimo utilizzo {date}",
-      "expirationLabel": "Scadenza",
-      "lifetime": {
-        "30d": "30 giorni",
-        "90d": "90 giorni",
-        "180d": "180 giorni",
-        "never": "Nessuna scadenza"
-      },
-      "expires": "Scade {date}",
-      "expired": "Scaduto {date}",
-      "neverExpires": "Non scade mai",
+    "connect": {
+      "title": "Collega un agente AI",
+      "description": "Fai domande agli agenti AI sulle statistiche di questa dashboard tramite il Model Context Protocol (MCP).",
+      "body": "Configura il tuo agente con l'URL del server e accedi quando lo chiede, oppure usa un token di accesso personale dalle impostazioni dell'account. Gli agenti leggono solo ciò che puoi leggere tu. <link>Guide di configurazione per ogni client</link>",
+      "manageTokens": "Gestisci i tuoi token",
       "endpointLabel": "URL del server",
-      "endpointHint": "Configura il tuo client MCP con questo URL e invia il token come bearer token. <link>Guide di configurazione per ogni client</link>",
+      "endpointHint": "Se il tuo client MCP chiede un token, invia un token di accesso personale come bearer token.",
       "copyEndpoint": "Copia URL del server",
       "endpointCopied": "URL del server copiato"
     },
-    "toast": {
-      "created": "Token creato",
-      "createError": "Impossibile creare il token",
-      "deleted": "Token eliminato",
-      "deleteError": "Impossibile eliminare il token"
+    "aiAccess": {
+      "title": "Consenti l'accesso agli agenti AI",
+      "on": "I membri possono collegare agenti e token a questa dashboard.",
+      "off": "Disattivato: nessun agente o token può leggere questa dashboard.",
+      "toast": {
+        "on": "Accesso AI attivato.",
+        "off": "Accesso AI disattivato.",
+        "error": "Impossibile aggiornare l'accesso AI."
+      },
+      "turnOffDialog": {
+        "title": "Disattivare l'accesso AI?",
+        "description": "{connections, plural, one {# collegamento} other {# collegamenti}} e {tokens, plural, one {# token} other {# token}} perdono l'accesso a questa dashboard finché non lo riattivi. Non viene eliminato nulla.",
+        "cancel": "Annulla",
+        "confirm": "Disattiva",
+        "pending": "Disattivazione..."
+      }
     },
-    "deleteDialog": {
-      "title": "Elimina {name}",
-      "description": "Questo token verrà revocato permanentemente. Tutti i client MCP che lo utilizzano perderanno immediatamente l'accesso."
+    "access": {
+      "title": "Chi ha accesso",
+      "description": "I collegamenti agli agenti e i token dei membri che possono leggere questa dashboard.",
+      "descriptionOff": "L'accesso AI è disattivato, quindi nessuno di questi può leggere questa dashboard finché non viene riattivato.",
+      "empty": "Nessun collegamento o token può leggere questa dashboard.",
+      "kind": {
+        "connection": "Collegamento",
+        "token": "Token"
+      },
+      "member": "Di {name}",
+      "connected": "Collegato il {date}",
+      "created": "Creato il {date}",
+      "lastUsed": "Ultimo utilizzo {date}",
+      "neverUsed": "Mai utilizzato",
+      "expires": "Scade il {date}",
+      "expired": "Scaduto il {date}",
+      "neverExpires": "Non scade mai",
+      "remove": "Rimuovi da questa dashboard",
+      "removeAria": "Rimuovi {name} da questa dashboard"
+    },
+    "removeDialog": {
+      "title": "Rimuovere {name} da questa dashboard?",
+      "connectionDescription": "{name} smette di leggere questa dashboard dalla prossima richiesta. Resta collegato alle altre dashboard del membro, che può aggiungere di nuovo questa nelle impostazioni dell'account.",
+      "tokenDescription": "{name} smette di leggere questa dashboard dalla prossima richiesta. Continua a funzionare sulle altre dashboard, e chi l'ha creato può aggiungere di nuovo questa nelle impostazioni dell'account.",
+      "cancel": "Annulla",
+      "confirm": "Rimuovi"
+    },
+    "toast": {
+      "removed": "{name} rimosso da questa dashboard.",
+      "removeError": "Impossibile rimuovere l'accesso."
     }
   },
   "integrationsSettings": {

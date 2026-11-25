@@ -81,6 +81,7 @@ function tokenizeBash(code: string): Piece[] {
 }
 
 const TOKENIZERS: Record<SnippetLang, (code: string) => Piece[]> = {
+  text: (code) => [{ text: code, kind: "plain" }],
   json: tokenizeJson,
   toml: tokenizeToml,
   bash: tokenizeBash,

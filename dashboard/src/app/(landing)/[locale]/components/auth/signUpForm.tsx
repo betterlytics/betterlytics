@@ -6,7 +6,7 @@ import { acceptPendingInvitationsAction } from '@/app/actions/dashboard/invitati
 import { RegisterUserSchema } from '@/entities/auth/user.entities';
 import { useAuthErrorMessage } from '@/hooks/use-auth-error-message';
 import { Link } from '@/i18n/navigation';
-import { signUpPath } from '@/lib/auth/auth-page-state';
+import { continuesAuthorization, signUpPath } from '@/lib/auth/auth-page-state';
 import { authClient } from '@/lib/auth-client';
 import { baEvent } from '@/lib/ba-event';
 import { FINE_LINK } from '@/landing/components/ui/text';
@@ -31,8 +31,10 @@ type SignUpFormProps = {
   /** The account must use this address. */
   invitedEmail?: string;
   inviteToken?: string;
-  /** An invitation's accept page; without one, sign-up goes on to onboarding. */
+  /** An invitation's accept page, or an MCP client's authorization to resume; without one, sign-up goes on to onboarding. */
   redirectTo?: string;
+  /** Signing up for an MCP client: this page with its authorization request, which redirectTo resumes. */
+  connectPath?: string;
   /** Cloud only; self-host is not bound by our terms. */
   requireTerms: boolean;
   initialError?: string | null;
@@ -45,6 +47,7 @@ export function SignUpForm({
   invitedEmail,
   inviteToken,
   redirectTo,
+  connectPath,
   requireTerms,
   initialError,
 }: SignUpFormProps) {
@@ -97,8 +100,8 @@ export function SignUpForm({
         provider,
         callbackURL: redirectTo ?? '/dashboards',
         newUserCallbackURL: redirectTo ?? '/onboarding?newUser=true',
-        // back here, invite and all, so a cancel or a refusal leaves the visitor where they started
-        errorCallbackURL: signUpPath(inviteToken),
+        // back here, invite or connection and all, so a cancel or a refusal leaves the visitor where they started
+        errorCallbackURL: connectPath ?? signUpPath(inviteToken),
       });
       if (socialError) fail(authErrorMessage(socialError) ?? t('errors.generic'));
     } catch {
@@ -138,7 +141,11 @@ export function SignUpForm({
         language: parsed.data.language,
         ...(inviteToken && { invite: inviteToken }),
       };
-      const { error: signUpError } = await authClient.signUp.email(signUpBody);
+      const { data, error: signUpError } = await authClient.signUp.email(signUpBody);
+      if (continuesAuthorization(data)) {
+        baEvent('onboarding-account-created');
+        return;
+      }
       if (signUpError) {
         const shared = authErrorMessage(signUpError);
         if (shared) fail(shared);

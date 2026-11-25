@@ -1,5 +1,7 @@
 import prisma from '@/lib/postgres';
 import {
+  DashboardMcpConnectionRecord,
+  DashboardMcpConnectionRecordSchema,
   McpConnectionRecord,
   McpConnectionRecordSchema,
   McpConsentGrant,
@@ -36,6 +38,24 @@ export async function findOauthClient(clientId: string): Promise<OauthClientDeta
 
 const ENABLED_CLIENT = { OR: [{ disabled: false }, { disabled: null }] };
 
+const GRANT_FIELDS = {
+  allDashboards: true,
+  dashboards: { select: { dashboardId: true } },
+  excludedDashboards: { select: { dashboardId: true } },
+} as const;
+
+function grantRecord(grant: {
+  allDashboards: boolean;
+  dashboards: { dashboardId: string }[];
+  excludedDashboards: { dashboardId: string }[];
+}) {
+  return {
+    allDashboards: grant.allDashboards,
+    dashboardIds: grant.dashboards.map((row) => row.dashboardId),
+    excludedDashboardIds: grant.excludedDashboards.map((row) => row.dashboardId),
+  };
+}
+
 export async function findMcpConsentGrant(userId: string, clientId: string): Promise<McpConsentGrant | null> {
   const consent = await prisma.oauthConsent.findFirst({
     where: { userId, clientId, client: ENABLED_CLIENT },
@@ -43,7 +63,7 @@ export async function findMcpConsentGrant(userId: string, clientId: string): Pro
     select: {
       id: true,
       createdAt: true,
-      grant: { select: { allDashboards: true, dashboards: { select: { dashboardId: true } } } },
+      grant: { select: GRANT_FIELDS },
     },
   });
   if (!consent) return null;
@@ -51,16 +71,15 @@ export async function findMcpConsentGrant(userId: string, clientId: string): Pro
   return McpConsentGrantSchema.parse({
     consentId: consent.id,
     createdAt: consent.createdAt,
-    grant: consent.grant && {
-      allDashboards: consent.grant.allDashboards,
-      dashboardIds: consent.grant.dashboards.map((row) => row.dashboardId),
-    },
+    grant: consent.grant && grantRecord(consent.grant),
   });
 }
 
+/** Under All dashboards, the selection's excluded dashboards replace the stored ones; otherwise there are none. */
 export async function replaceMcpGrant(consentId: string, selection: McpGrantSelection): Promise<void> {
-  const { allDashboards, dashboardIds } = McpGrantSelectionSchema.parse(selection);
+  const { allDashboards, dashboardIds, excludedDashboardIds = [] } = McpGrantSelectionSchema.parse(selection);
   const picked = allDashboards ? [] : [...new Set(dashboardIds)];
+  const excluded = allDashboards ? [...new Set(excludedDashboardIds)] : [];
 
   await prisma.$transaction(async (tx) => {
     const grant = await tx.mcpGrant.upsert({
@@ -70,9 +89,15 @@ export async function replaceMcpGrant(consentId: string, selection: McpGrantSele
       select: { id: true },
     });
     await tx.mcpGrantDashboard.deleteMany({ where: { grantId: grant.id } });
+    await tx.mcpGrantExcludedDashboard.deleteMany({ where: { grantId: grant.id } });
     if (picked.length > 0) {
       await tx.mcpGrantDashboard.createMany({
         data: picked.map((dashboardId) => ({ grantId: grant.id, dashboardId })),
+      });
+    }
+    if (excluded.length > 0) {
+      await tx.mcpGrantExcludedDashboard.createMany({
+        data: excluded.map((dashboardId) => ({ grantId: grant.id, dashboardId })),
       });
     }
   });
@@ -90,9 +115,7 @@ export async function findMcpConnections(userId: string): Promise<McpConnectionR
       createdAt: true,
       updatedAt: true,
       client: { select: { clientId: true, name: true, redirectUris: true, clientDiscoveryId: true } },
-      grant: {
-        select: { allDashboards: true, lastUsedAt: true, dashboards: { select: { dashboardId: true } } },
-      },
+      grant: { select: { ...GRANT_FIELDS, lastUsedAt: true } },
     },
   });
 
@@ -112,11 +135,93 @@ export async function findMcpConnections(userId: string): Promise<McpConnectionR
       scopes: consent.scopes,
       connectedAt: consent.updatedAt ?? consent.createdAt,
       lastUsedAt: consent.grant?.lastUsedAt ?? null,
-      grant: consent.grant && {
-        allDashboards: consent.grant.allDashboards,
-        dashboardIds: consent.grant.dashboards.map((row) => row.dashboardId),
-      },
+      grant: consent.grant && grantRecord(consent.grant),
     });
+  });
+}
+
+/**
+ * The OAuth connections that can read the dashboard: the latest consent per member and client, as calls are checked
+ * against, whose grant picks the dashboard or covers it under All dashboards without excluding it. The member is
+ * enabled and still a member of the dashboard. Only the link to this dashboard is read, never the member's others.
+ */
+export async function findDashboardMcpConnections(dashboardId: string): Promise<DashboardMcpConnectionRecord[]> {
+  const consents = await prisma.oauthConsent.findMany({
+    where: {
+      client: ENABLED_CLIENT,
+      user: { deletedAt: null, disabledAt: null, dashboardAccess: { some: { dashboardId, deletedAt: null } } },
+    },
+    orderBy: { updatedAt: 'desc' },
+    select: {
+      id: true,
+      userId: true,
+      createdAt: true,
+      updatedAt: true,
+      user: { select: { name: true, email: true } },
+      client: { select: { clientId: true, name: true, redirectUris: true, clientDiscoveryId: true } },
+      grant: {
+        select: {
+          allDashboards: true,
+          lastUsedAt: true,
+          dashboards: { where: { dashboardId }, select: { dashboardId: true } },
+          excludedDashboards: { where: { dashboardId }, select: { dashboardId: true } },
+        },
+      },
+    },
+  });
+
+  const seen = new Set<string>();
+  return consents.flatMap((consent) => {
+    const key = `${consent.userId}:${consent.client.clientId}`;
+    if (seen.has(key)) return [];
+    seen.add(key);
+
+    const grant = consent.grant;
+    const covers = grant?.allDashboards
+      ? grant.excludedDashboards.length === 0
+      : (grant?.dashboards.length ?? 0) > 0;
+    if (!covers) return [];
+
+    return DashboardMcpConnectionRecordSchema.parse({
+      consentId: consent.id,
+      client: {
+        clientId: consent.client.clientId,
+        name: consent.client.name,
+        redirectUris: consent.client.redirectUris,
+        discovered: consent.client.clientDiscoveryId !== null,
+      },
+      member: consent.user,
+      connectedAt: consent.updatedAt ?? consent.createdAt,
+      lastUsedAt: grant?.lastUsedAt ?? null,
+    });
+  });
+}
+
+/**
+ * Takes the dashboard out of the connection's grant, leaving the consent and its other dashboards: an All
+ * dashboards grant excludes it and keeps covering the rest, a picked one drops it. Only for a consent of a member
+ * of the dashboard. Returns how many grants lost the dashboard: 0 when none covered it.
+ */
+export async function removeDashboardFromMcpGrant(consentId: string, dashboardId: string): Promise<number> {
+  return prisma.$transaction(async (tx) => {
+    const grant = await tx.mcpGrant.findFirst({
+      where: {
+        consentId,
+        consent: { user: { dashboardAccess: { some: { dashboardId, deletedAt: null } } } },
+      },
+      select: { id: true, allDashboards: true },
+    });
+    if (!grant) return 0;
+
+    if (!grant.allDashboards) {
+      const { count } = await tx.mcpGrantDashboard.deleteMany({ where: { grantId: grant.id, dashboardId } });
+      return count;
+    }
+    const { count } = await tx.mcpGrantExcludedDashboard.createMany({
+      data: [{ grantId: grant.id, dashboardId }],
+      skipDuplicates: true,
+    });
+    return count;
   });
 }
 

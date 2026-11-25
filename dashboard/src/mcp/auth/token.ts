@@ -1,6 +1,6 @@
-import { findMcpTokenByHash, updateMcpTokenLastUsed } from '@/repositories/postgres/mcpToken.repository';
-import { findUserDashboardOrNull } from '@/repositories/postgres/dashboard.repository';
+import { findMcpTokenByHash } from '@/repositories/postgres/mcpToken.repository';
 import { hashToken as hashMcpToken } from '@/services/dashboard/mcpToken.service';
+import { resolveTokenMcpContext } from '@/services/auth/mcpAccess.service';
 import type { McpContext } from '@/mcp/context';
 
 type ValidateTokenResult = { valid: true; context: McpContext } | { valid: false; reason: string };
@@ -17,23 +17,5 @@ export async function validateToken(token: string): Promise<ValidateTokenResult>
     return { valid: false, reason: 'MCP token has expired' };
   }
 
-  const [membership] = await Promise.all([
-    findUserDashboardOrNull({ userId: mcpToken.createdBy, dashboardId: mcpToken.dashboardId }),
-    updateMcpTokenLastUsed(mcpToken.id),
-  ]);
-
-  return {
-    valid: true,
-    context: {
-      credentialId: `mcp-token:${mcpToken.id}`,
-      dashboards: [
-        {
-          dashboardId: mcpToken.dashboardId,
-          siteId: mcpToken.dashboard.siteId,
-          domain: mcpToken.dashboard.domain,
-          role: membership?.role ?? null,
-        },
-      ],
-    },
-  };
+  return { valid: true, context: await resolveTokenMcpContext(mcpToken) };
 }

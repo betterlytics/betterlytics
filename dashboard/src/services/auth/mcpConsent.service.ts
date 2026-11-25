@@ -25,6 +25,7 @@ import {
   assertPickedDashboardsAvailable,
   grantableDashboards,
   grantedDashboards,
+  selectionKeepingExclusions,
 } from '@/services/auth/mcpAccess.service';
 
 // What the OAuth provider adds to the authorization request it signs for the consent page
@@ -40,7 +41,7 @@ export type McpConsentRequest = {
   redirectIsLoopback: boolean;
   // every registered redirect goes to this device, which is when the page warns about it
   onlyLoopbackRedirects: boolean;
-  dashboards: { id: string; domain: string; role: DashboardRole }[];
+  dashboards: { id: string; domain: string; role: DashboardRole; aiAccessEnabled: boolean }[];
   // the dashboards the current grant still covers, when the client was connected before
   previous: McpGrantSelection | null;
   // the request without its signature, which sends a signed-out visitor through sign-in and back here
@@ -81,6 +82,74 @@ async function verifiedRequest(oauthQuery: string): Promise<URLSearchParams | nu
   return (await isMcpConsentRequestAnswered(requestKey(params))) ? null : params;
 }
 
+const AUTHORIZE_URL = `${MCP_OAUTH_ISSUER}/oauth2/authorize`;
+
+function promptsOf(params: URLSearchParams): string[] {
+  return (params.get('prompt') ?? '').split(' ').filter(Boolean);
+}
+
+/**
+ * The request without its signature (and without the prompts left out), at the authorization endpoint, which signs
+ * it afresh and sends the browser on: to sign-in when signed out or asked to sign in again, else to consent.
+ */
+function authorizeUrl(params: URLSearchParams, leaveOut: string[] = []): string {
+  const unsigned = new URLSearchParams(params);
+  for (const name of SIGNATURE_PARAMS) unsigned.delete(name);
+  const prompt = promptsOf(params).filter((value) => !leaveOut.includes(value));
+  if (prompt.length) unsigned.set('prompt', prompt.join(' '));
+  else unsigned.delete('prompt');
+  return `${AUTHORIZE_URL}?${unsigned}`;
+}
+
+/** The value when it is an authorization URL as {@link authorizeUrl} builds it, for a page that returns to consent. */
+export function toMcpAuthorizeUrl(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  try {
+    const url = new URL(value);
+    return `${url.origin}${url.pathname}` === AUTHORIZE_URL && url.searchParams.has('client_id') && !url.hash
+      ? url.toString()
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+export type McpSignInRequest =
+  | {
+      status: 'open';
+      // the app being connected, unless the client is gone or disabled
+      client: { name: string; verified: boolean } | null;
+      authorizeUrl: string;
+      // where a signed-in visitor goes on, or null when the request asks them to sign in again (prompt=login or
+      // max_age), which signing in here does: the provider then drops both. Already having an account answers
+      // prompt=create, which the provider would otherwise keep sending back here.
+      signedInUrl: string | null;
+    }
+  // the signature expired (10 minutes) or doesn't match: the authorization starts over
+  | { status: 'stale'; authorizeUrl: string };
+
+/** The authorization request a sign-in or sign-up page carries, or null when the query isn't one. */
+export async function getMcpSignInRequest(oauthQuery: string): Promise<McpSignInRequest | null> {
+  const params = new URLSearchParams(oauthQuery);
+  const clientId = params.get('client_id');
+  const redirectHost = urlHost(params.get('redirect_uri') ?? '');
+  if (!clientId || !redirectHost) return null;
+  if (!(await verifyOAuthQueryParams(oauthQuery, env.AUTH_SECRET))) {
+    return { status: 'stale', authorizeUrl: authorizeUrl(params) };
+  }
+
+  const open = {
+    status: 'open' as const,
+    authorizeUrl: authorizeUrl(params),
+    signedInUrl:
+      promptsOf(params).includes('login') || params.has('max_age') ? null : authorizeUrl(params, ['create']),
+  };
+  const client = await findOauthClient(clientId);
+  if (!client || client.disabled) return { ...open, client: null };
+  const name = clientDisplayName(client.name, clientIdentityHost(client), redirectHost) ?? redirectHost;
+  return { ...open, client: { name, verified: client.discovered } };
+}
+
 async function requireOpenRequest(oauthQuery: string): Promise<URLSearchParams> {
   const params = await verifiedRequest(oauthQuery);
   if (!params) throw new UserException('This connection request is no longer valid', MCP_CONSENT_REQUEST_INVALID);
@@ -109,13 +178,15 @@ export async function getMcpConsentRequest(userId: string, oauthQuery: string): 
   const identityHost = clientIdentityHost(client);
   const logoUrl = client.discovered && client.icon?.startsWith('https://') ? client.icon : null;
 
-  const unsigned = new URLSearchParams(params);
-  for (const name of SIGNATURE_PARAMS) unsigned.delete(name);
-
   const previous = consent?.grant
     ? {
         allDashboards: consent.grant.allDashboards,
         dashboardIds: grantedDashboards(consent.grant, memberships).map((dashboard) => dashboard.dashboardId),
+        excludedDashboardIds: consent.grant.allDashboards
+          ? consent.grant.excludedDashboardIds.filter((dashboardId) =>
+              memberships.some((membership) => membership.dashboardId === dashboardId),
+            )
+          : [],
       }
     : null;
 
@@ -129,7 +200,7 @@ export async function getMcpConsentRequest(userId: string, oauthQuery: string): 
     onlyLoopbackRedirects: client.redirectUris.length > 0 && client.redirectUris.every(isLoopbackRedirect),
     dashboards: grantableDashboards(memberships),
     previous,
-    authorizeUrl: `${MCP_OAUTH_ISSUER}/oauth2/authorize?${unsigned}`,
+    authorizeUrl: authorizeUrl(params),
   };
 }
 
@@ -161,13 +232,14 @@ export async function allowMcpConsent(
   const params = await requireOpenRequest(oauthQuery);
   const clientId = params.get('client_id')!;
 
-  await assertPickedDashboardsAvailable(userId, selection);
+  const previous = await findMcpConsentGrant(userId, clientId);
+  await assertPickedDashboardsAvailable(userId, selection, previous?.grant ?? null);
 
   const url = await submitConsent(true, oauthQuery, requestHeaders);
 
   const consent = await findMcpConsentGrant(userId, clientId);
   if (!consent) throw new Error('The OAuth provider stored no consent');
-  await replaceMcpGrant(consent.consentId, selection);
+  await replaceMcpGrant(consent.consentId, selectionKeepingExclusions(selection, previous?.grant ?? null));
   await markAnswered(params);
 
   return url;

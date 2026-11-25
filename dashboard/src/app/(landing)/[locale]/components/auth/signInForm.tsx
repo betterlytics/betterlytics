@@ -6,7 +6,12 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuthErrorMessage } from '@/hooks/use-auth-error-message';
 import { isWrongPasswordError } from '@/lib/auth/auth-error';
-import { inviteTokenFromCallback, signInPath, twoFactorAttemptEnded } from '@/lib/auth/auth-page-state';
+import {
+  continuesAuthorization,
+  inviteTokenFromCallback,
+  signInPath,
+  twoFactorAttemptEnded,
+} from '@/lib/auth/auth-page-state';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/landing/lib/cn';
 import {
@@ -29,15 +34,6 @@ const OTP_LENGTH = 6;
 // Backup codes are `xxxxx-xxxxx`: ten characters plus the hyphen.
 const BACKUP_CODE_LENGTH = 11;
 
-/**
- * Signing in on behalf of an MCP client's authorization request continues it: better-auth answers with the next
- * page (consent, or back to the client) and its client is already on the way there.
- */
-function continuesAuthorization(data: unknown): boolean {
-  const next = data as { redirect?: unknown; url?: unknown } | null;
-  return next?.redirect === true && typeof next.url === 'string';
-}
-
 /** Case is kept: backup codes are mixed case and compared exactly. */
 function formatBackupCode(value: string) {
   const chars = value.replace(/[^A-Za-z0-9]/g, '').slice(0, 10);
@@ -48,11 +44,20 @@ type SignInFormProps = {
   providers: Providers;
   forgotPassword: boolean;
   redirectTo: string;
+  /** Signing in for an MCP client: this page with its authorization request, which redirectTo resumes. */
+  connectPath?: string;
   initialError: string | null;
   notice: string | null;
 };
 
-export function SignInForm({ providers, forgotPassword, redirectTo, initialError, notice }: SignInFormProps) {
+export function SignInForm({
+  providers,
+  forgotPassword,
+  redirectTo,
+  connectPath,
+  initialError,
+  notice,
+}: SignInFormProps) {
   const t = useTranslations('public.auth.signin');
   const tFields = useTranslations('public.auth.fields');
   const authErrorMessage = useAuthErrorMessage();
@@ -128,9 +133,10 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
       const { error: socialError } = await authClient.signIn.social({
         provider,
         callbackURL: redirectTo,
-        // a first-time account headed for an invitation goes to it, not to onboarding
-        newUserCallbackURL: inviteTokenFromCallback(redirectTo) ? redirectTo : '/onboarding?newUser=true',
-        errorCallbackURL: signInPath(redirectTo),
+        // a first-time account headed for an invitation or a connection goes to it, not to onboarding
+        newUserCallbackURL:
+          connectPath || inviteTokenFromCallback(redirectTo) ? redirectTo : '/onboarding?newUser=true',
+        errorCallbackURL: connectPath ?? signInPath(redirectTo),
       });
       if (socialError) {
         setPending(null);
