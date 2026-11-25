@@ -9,7 +9,8 @@ import { UsageRow, type UsageSegment } from '@/components/billing/UsageRow';
 import { useUsageBreakdown } from '@/hooks/useUsageBreakdown';
 import { useToggle } from '@/hooks/use-toggle';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
-import type { BillableEventType, UsageData } from '@/entities/billing/billing.entities';
+import { isUnlimitedCount } from '@/lib/billing/capabilities';
+import type { BillableEventType, ReplayUsageData, UsageData } from '@/entities/billing/billing.entities';
 import UserSettingsSection from '../shared/UserSettingsSection';
 
 const SITE_SEGMENT_COUNT = 5;
@@ -65,7 +66,13 @@ function LegendList({ entries }: { entries: LegendEntry[] }) {
   );
 }
 
-export default function UserBillingUsageSettings({ usage }: { usage: UsageData }) {
+export default function UserBillingUsageSettings({
+  usage,
+  replayUsage,
+}: {
+  usage: UsageData;
+  replayUsage: ReplayUsageData;
+}) {
   const t = useTranslations('components.userSettings.billing.usage');
   const tb = useTranslations('components.userSettings.billing.usage.breakdown');
   const locale = useLocale();
@@ -150,6 +157,33 @@ export default function UserBillingUsageSettings({ usage }: { usage: UsageData }
     />
   );
 
+  const replayMeter = (
+    <div className='border-t pt-4'>
+      <UsageRow
+        percentageOfLimit={replayUsage.usagePercentage}
+        label={
+          <div className='space-y-1'>
+            <div className='text-sm font-medium'>{t('replaysLabel')}</div>
+            <p className='text-muted-foreground text-xs'>{t('replaysDescription')}</p>
+          </div>
+        }
+        value={
+          isUnlimitedCount(replayUsage.limit)
+            ? t.rich('replaysUsedUnlimited', {
+                current: formatNumber(replayUsage.current, locale),
+                muted: (chunks) => <span className='text-muted-foreground'>{chunks}</span>,
+              })
+            : t.rich('replaysUsed', {
+                current: formatNumber(replayUsage.current, locale),
+                limit: formatNumber(replayUsage.limit, locale),
+                percentage: formatPercentage(replayUsage.usagePercentage, locale),
+                muted: (chunks) => <span className='text-muted-foreground'>{chunks}</span>,
+              })
+        }
+      />
+    </div>
+  );
+
   const note = (
     <div className='bg-muted/40 text-muted-foreground mt-2 flex items-start gap-2 rounded-lg px-3 py-2.5 text-xs'>
       <Info className='mt-px size-3.5 shrink-0' aria-hidden='true' />
@@ -181,6 +215,7 @@ export default function UserBillingUsageSettings({ usage }: { usage: UsageData }
           ) : (
             <p className='text-muted-foreground text-xs'>{error ? tb('loadError') : tb('empty')}</p>
           )}
+          {replayMeter}
         </div>
       </UserSettingsSection>
     );
@@ -193,6 +228,7 @@ export default function UserBillingUsageSettings({ usage }: { usage: UsageData }
           {meter}
           <LegendList entries={typeEntries} />
           {note}
+          {replayMeter}
         </div>
       </UserSettingsSection>
     );
@@ -229,6 +265,7 @@ export default function UserBillingUsageSettings({ usage }: { usage: UsageData }
             </div>
           </TabsContent>
           {note}
+          {replayMeter}
         </div>
       </UserSettingsSection>
     </Tabs>
