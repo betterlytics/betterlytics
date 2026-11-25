@@ -12,31 +12,35 @@ type Level = 'info' | 'warning' | 'error' | 'success';
 const STORAGE_KEY = 'banner:dismissed:v1';
 type DismissedSet = string[];
 
-function readDismissed(): DismissedSet {
+function dismissalStorage(persist: boolean): Storage {
+  return persist ? window.localStorage : window.sessionStorage;
+}
+
+function readDismissed(persist: boolean): DismissedSet {
   if (typeof window === 'undefined') return [];
   try {
-    const raw = window.sessionStorage.getItem(STORAGE_KEY);
+    const raw = dismissalStorage(persist).getItem(STORAGE_KEY);
     return raw ? (JSON.parse(raw) as DismissedSet) : [];
   } catch {
     return [];
   }
 }
 
-function writeDismissed(list: DismissedSet): void {
+function writeDismissed(list: DismissedSet, persist: boolean): void {
   if (typeof window === 'undefined') return;
   try {
-    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    dismissalStorage(persist).setItem(STORAGE_KEY, JSON.stringify(list));
   } catch {}
 }
 
-function markDismissed(id: string): void {
-  const existing = new Set(readDismissed());
+function markDismissed(id: string, persist: boolean): void {
+  const existing = new Set(readDismissed(persist));
   existing.add(id);
-  writeDismissed(Array.from(existing));
+  writeDismissed(Array.from(existing), persist);
 }
 
 function isDismissed(id: string): boolean {
-  return readDismissed().includes(id);
+  return readDismissed(false).includes(id) || readDismissed(true).includes(id);
 }
 
 const firedShownOnce = new Set<string>();
@@ -48,6 +52,8 @@ type Banner = {
   description?: React.ReactNode;
   action?: React.ReactNode;
   dismissible?: boolean;
+  /** Keeps the banner dismissed across browser sessions instead of only this one. */
+  persistDismissal?: boolean;
   showIcon?: boolean;
   custom?: React.ReactNode;
   scope?: 'route' | 'global';
@@ -108,7 +114,7 @@ export function BannerProvider({ children }: BannerProviderProps) {
         const toDismiss = prev.find((bann) => bann.id === id);
         if (toDismiss) {
           baEvent('banner-dismiss', { id });
-          markDismissed(id);
+          markDismissed(id, Boolean(toDismiss.persistDismissal));
         }
         return prev.filter((bann) => bann.id !== id);
       });
