@@ -3803,10 +3803,14 @@
       "toastFiltersUpdated": "Filters updated",
       "toastFilterAdded": "Added",
       "toastFilterRemoved": "Removed",
+      "toastFiltersRemoved": "{count, plural, one {Removed # filter} other {Removed # filters}}",
       "removeFilter": "Remove filter",
       "pillMoreValues": "+{count, number} more",
       "notAvailableOnPage": "Not available on this page",
       "activeFilters": "Active filters",
+      "toggleFilters": "Toggle filters",
+      "editFilters": "Edit filters",
+      "editFiltersCount": "Edit filters ({count} active)",
       "clearAll": "Clear all"
     },
     "funnels": {

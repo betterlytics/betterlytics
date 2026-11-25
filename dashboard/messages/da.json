@@ -3803,10 +3803,14 @@
       "toastFiltersUpdated": "Filtre opdateret",
       "toastFilterAdded": "Tilføjet",
       "toastFilterRemoved": "Fjernet",
+      "toastFiltersRemoved": "{count, plural, one {# filter fjernet} other {# filtre fjernet}}",
       "removeFilter": "Fjern filter",
       "pillMoreValues": "{count, plural, one {+# mere} other {+# flere}}",
       "notAvailableOnPage": "Ikke tilgængelig på denne side",
       "activeFilters": "Aktive filtre",
+      "toggleFilters": "Vis/skjul filtre",
+      "editFilters": "Rediger filtre",
+      "editFiltersCount": "Rediger filtre ({count, plural, one {# aktivt} other {# aktive}})",
       "clearAll": "Fjern alle"
     },
     "funnels": {

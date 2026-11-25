@@ -2,9 +2,11 @@
 
 import { useRef, useState, type FocusEvent, type PointerEvent, type ReactNode, type SyntheticEvent } from 'react';
 import { useTranslations } from 'next-intl';
+import { useQueryFiltersEditor } from '@/contexts/QueryFiltersEditorProvider';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui-extended/tooltip';
 import { FilterColumnLabel } from '@/components/filters/FilterColumnLabel';
 import { FilterValueLabel } from '@/components/filters/FilterValueLabel';
+import { cn } from '@/lib/utils';
 import { pillHidesValues } from '@/components/filters/pillValuesOverflow';
 import { useFilterValueNames } from '@/components/filters/use-filter-value-names';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
@@ -27,6 +29,7 @@ const overRemoveButton = (e: SyntheticEvent) =>
  */
 export function FilterPillTooltip({ filter, disabled, children }: FilterPillTooltipProps) {
   const t = useTranslations('components.filters');
+  const { isOpen: editorOpen } = useQueryFiltersEditor();
   const [open, setOpen] = useState(false);
   // Set once the pointer or focus first arrives, so value names load during the open delay rather than on mount.
   const [engaged, setEngaged] = useState(false);
@@ -93,7 +96,10 @@ export function FilterPillTooltip({ filter, disabled, children }: FilterPillTool
       >
         {children}
       </TooltipTrigger>
-      <TooltipContent side='bottom' className='z-40 max-w-xs'>
+      <TooltipContent
+        side='bottom'
+        className={cn('z-40 max-w-xs in-[body:has([data-filter-pill]:active)]:hidden', editorOpen && 'hidden')}
+      >
         {filter.values.length > 1 ? (
           <div className='flex flex-col gap-1.5 text-xs'>
             <div className='flex items-center gap-1 font-medium'>

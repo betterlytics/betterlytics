@@ -17,6 +17,8 @@ let currentToastId: string | undefined;
 type FilterChanges = {
   added: QueryFilter[];
   removed: QueryFilter[];
+  // Counts the removed filters instead of listing them
+  summarised?: boolean;
 };
 
 export function showFiltersUpdatedToast(props: FilterChanges & { onUndo: () => void }) {
@@ -27,7 +29,7 @@ export function showFiltersUpdatedToast(props: FilterChanges & { onUndo: () => v
     props.onUndo();
     toast.dismiss(id);
   };
-  toast(<FiltersUpdatedToast added={props.added} removed={props.removed} onUndo={onUndo} />, {
+  toast(<FiltersUpdatedToast {...props} onUndo={onUndo} />, {
     id,
     duration: FILTER_TOAST_DURATION_MS,
     // use the toast's full width.
@@ -38,12 +40,13 @@ export function showFiltersUpdatedToast(props: FilterChanges & { onUndo: () => v
 export function useNotifyFiltersUpdated() {
   const { setQueryFilters } = useQueryFiltersContext();
   return useCallback(
-    (prev: QueryFilter[], next: QueryFilter[]) => {
+    (prev: QueryFilter[], next: QueryFilter[], options?: Pick<FilterChanges, 'summarised'>) => {
       const { added, removed } = diffQueryFilters(prev, next);
       if (added.length === 0 && removed.length === 0) return;
       showFiltersUpdatedToast({
         added,
         removed,
+        summarised: options?.summarised,
         onUndo: () => setQueryFilters((fs) => undoQueryFilterDiff(fs, { added, removed })),
       });
     },
@@ -61,7 +64,7 @@ export function useDismissFilterToastOnUnmount() {
   }, []);
 }
 
-function FiltersUpdatedToast({ added, removed, onUndo }: FilterChanges & { onUndo: () => void }) {
+function FiltersUpdatedToast({ added, removed, summarised, onUndo }: FilterChanges & { onUndo: () => void }) {
   const t = useTranslations('components.filters');
 
   // A same-column replacement reads as the pill changing value; only real disappearances get a minus row.
@@ -77,20 +80,29 @@ function FiltersUpdatedToast({ added, removed, onUndo }: FilterChanges & { onUnd
         </Button>
       </div>
       <div className='flex min-w-0 flex-col gap-0.5'>
-        {added.map((filter) => (
-          <span key={filter.id} className='flex min-w-0 items-center gap-1'>
-            <PlusIcon aria-hidden className='size-3 shrink-0' />
-            <span className='sr-only'>{t('toastFilterAdded')}</span>
-            <FilterDescription filter={filter} className='max-w-full' />
-          </span>
-        ))}
-        {visibleRemoved.map((filter) => (
-          <span key={filter.id} className='flex min-w-0 items-center gap-1'>
+        {summarised ? (
+          <span className='flex min-w-0 items-center gap-1'>
             <MinusIcon aria-hidden className='size-3 shrink-0' />
-            <span className='sr-only'>{t('toastFilterRemoved')}</span>
-            <FilterDescription filter={filter} className='max-w-full' />
+            <span className='truncate font-sans'>{t('toastFiltersRemoved', { count: removed.length })}</span>
           </span>
-        ))}
+        ) : (
+          <>
+            {added.map((filter) => (
+              <span key={filter.id} className='flex min-w-0 items-center gap-1'>
+                <PlusIcon aria-hidden className='size-3 shrink-0' />
+                <span className='sr-only'>{t('toastFilterAdded')}</span>
+                <FilterDescription filter={filter} className='max-w-full' />
+              </span>
+            ))}
+            {visibleRemoved.map((filter) => (
+              <span key={filter.id} className='flex min-w-0 items-center gap-1'>
+                <MinusIcon aria-hidden className='size-3 shrink-0' />
+                <span className='sr-only'>{t('toastFilterRemoved')}</span>
+                <FilterDescription filter={filter} className='max-w-full' />
+              </span>
+            ))}
+          </>
+        )}
       </div>
     </div>
   );
