@@ -18,6 +18,31 @@ const PROSE = cn(
   "[&_code]:rounded-md [&_code]:border [&_code]:border-[color:var(--border)] [&_code]:bg-[color:var(--muted)] [&_code]:px-[.25em] [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[.9em]",
 );
 
+const INSTALL_BUTTON =
+  "inline-flex items-center gap-2 rounded-lg bg-[color:var(--primary)] px-4 py-2.5 text-sm font-semibold text-[color:var(--primary-foreground)] no-underline transition-opacity hover:opacity-90";
+
+const TOGGLE_LINK =
+  "mt-3 cursor-pointer text-sm font-medium text-[color:var(--primary)] underline underline-offset-2 hover:opacity-80";
+
+function DownloadIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4"
+      aria-hidden="true"
+    >
+      <path d="M12 3v12" />
+      <path d="m7 11 5 5 5-5" />
+      <path d="M5 21h14" />
+    </svg>
+  );
+}
+
 function clientIdFromHash(): string | null {
   const hash = window.location.hash.replace(/^#/, "");
   return isClientId(hash) ? hash : null;
@@ -28,13 +53,15 @@ export function McpSetup() {
   const [variantIndex, setVariantIndex] = useState(0);
   const [token, setToken] = useState("");
   const [serverUrlInput, setServerUrlInput] = useState("");
+  const [preferToken, setPreferToken] = useState(false);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const selected = useMemo(
     () => CLIENTS.find((client) => client.id === selectedId) ?? CLIENTS[0],
     [selectedId],
   );
-  const variant = selected.variants[variantIndex] ?? selected.variants[0];
+  const { signIn, token: tokenSetup } = selected;
+  const variant = tokenSetup.variants[variantIndex] ?? tokenSetup.variants[0];
 
   const trimmedToken = token.trim();
   const hasToken = trimmedToken.length > 0;
@@ -43,6 +70,9 @@ export function McpSetup() {
     token: effectiveToken,
     serverUrl: resolveServerUrl(serverUrlInput),
   };
+  // Sign-in is cloud only, so any other instance connects with a personal token.
+  const isSelfHosted = snippetInput.serverUrl !== CLOUD_MCP_SERVER_URL;
+  const useToken = preferToken || isSelfHosted;
 
   const select = useCallback((id: string, fromUser = true) => {
     setSelectedId(id);
@@ -151,47 +181,79 @@ export function McpSetup() {
           className="mt-2 w-full min-w-0 rounded-lg border border-[color:var(--border)] bg-[color:var(--background)] px-3 py-2 font-mono text-sm text-[color:var(--foreground)] placeholder:text-[color:var(--muted-foreground)] focus:border-[color:var(--primary)] focus:outline-none"
         />
         <p className="mt-2 text-xs leading-relaxed text-[color:var(--muted-foreground)]">
-          Leave empty for Betterlytics Cloud. Self-hosting? Paste the server URL
-          shown when you create a token under{" "}
-          <strong>Account settings &gt; AI access</strong>.
+          {isSelfHosted ? (
+            <>
+              Self-hosted instances connect with a personal token. Create one on
+              your instance under{" "}
+              <strong>Account settings &gt; MCP</strong>.
+            </>
+          ) : (
+            <>
+              Leave empty for Betterlytics Cloud. Self-hosting? Paste the server
+              URL shown when you create a token under{" "}
+              <strong>Account settings &gt; MCP</strong>.
+            </>
+          )}
         </p>
 
-        <label
-          htmlFor="mcp-token"
-          className="mt-4 block text-sm font-medium text-[color:var(--foreground)]"
-        >
-          Your token{" "}
-          <span className="font-normal text-[color:var(--muted-foreground)]">
-            (optional)
-          </span>
-        </label>
-        <div className="mt-2 flex items-center gap-2">
-          <input
-            id="mcp-token"
-            type="text"
-            value={token}
-            onChange={(event) => setToken(event.target.value)}
-            placeholder={TOKEN_PLACEHOLDER}
-            spellCheck={false}
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="off"
-            className="w-full min-w-0 rounded-lg border border-[color:var(--border)] bg-[color:var(--background)] px-3 py-2 font-mono text-sm text-[color:var(--foreground)] placeholder:text-[color:var(--muted-foreground)] focus:border-[color:var(--primary)] focus:outline-none"
-          />
-          {hasToken && (
-            <button
-              type="button"
-              onClick={() => setToken("")}
-              className="shrink-0 cursor-pointer rounded-lg border border-[color:var(--border)] px-3 py-2 text-sm text-[color:var(--muted-foreground)] transition-colors hover:text-[color:var(--foreground)]"
+        {useToken ? (
+          <>
+            <label
+              htmlFor="mcp-token"
+              className="mt-4 block text-sm font-medium text-[color:var(--foreground)]"
             >
-              Clear
-            </button>
-          )}
-        </div>
-        <p className="mt-2 text-xs leading-relaxed text-[color:var(--muted-foreground)]">
-          Paste it to get ready-to-use snippets and install links. It is
-          substituted in your browser only, never sent to us and never saved.
-        </p>
+              Your token{" "}
+              <span className="font-normal text-[color:var(--muted-foreground)]">
+                (optional)
+              </span>
+            </label>
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                id="mcp-token"
+                type="text"
+                value={token}
+                onChange={(event) => setToken(event.target.value)}
+                placeholder={TOKEN_PLACEHOLDER}
+                spellCheck={false}
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                className="w-full min-w-0 rounded-lg border border-[color:var(--border)] bg-[color:var(--background)] px-3 py-2 font-mono text-sm text-[color:var(--foreground)] placeholder:text-[color:var(--muted-foreground)] focus:border-[color:var(--primary)] focus:outline-none"
+              />
+              {hasToken && (
+                <button
+                  type="button"
+                  onClick={() => setToken("")}
+                  className="shrink-0 cursor-pointer rounded-lg border border-[color:var(--border)] px-3 py-2 text-sm text-[color:var(--muted-foreground)] transition-colors hover:text-[color:var(--foreground)]"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+            <p className="mt-2 text-xs leading-relaxed text-[color:var(--muted-foreground)]">
+              Paste it to get ready-to-use snippets and install links. It is
+              substituted in your browser only, never sent to us and never
+              saved.
+            </p>
+            {!isSelfHosted && (
+              <button
+                type="button"
+                onClick={() => setPreferToken(false)}
+                className={TOGGLE_LINK}
+              >
+                Sign in instead
+              </button>
+            )}
+          </>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setPreferToken(true)}
+            className={TOGGLE_LINK}
+          >
+            Use a personal token instead
+          </button>
+        )}
       </div>
 
       <div
@@ -200,92 +262,122 @@ export function McpSetup() {
         aria-label={`${selected.name} setup`}
         className="mt-6"
       >
-        {selected.intro && (
-          <div className={cn(PROSE, "text-sm")}>
-            {selected.intro(snippetInput.serverUrl)}
-          </div>
-        )}
+        {useToken ? (
+          <>
+            {tokenSetup.intro && (
+              <div className={cn(PROSE, "text-sm")}>
+                {tokenSetup.intro(snippetInput.serverUrl)}
+              </div>
+            )}
 
-        {selected.install && (
-          <div className="mt-4">
-            <a
-              href={selected.install.href(snippetInput)}
-              className="inline-flex items-center gap-2 rounded-lg bg-[color:var(--primary)] px-4 py-2.5 text-sm font-semibold text-[color:var(--primary-foreground)] no-underline transition-opacity hover:opacity-90"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-4 w-4"
-                aria-hidden="true"
-              >
-                <path d="M12 3v12" />
-                <path d="m7 11 5 5 5-5" />
-                <path d="M5 21h14" />
-              </svg>
-              {selected.install.label}
-            </a>
-            <p className="mt-2 text-xs leading-relaxed text-[color:var(--muted-foreground)]">
-              {hasToken
-                ? "Pre-filled with the token above. Click to install."
-                : selected.install.hintWithoutToken}
-            </p>
-          </div>
-        )}
+            {tokenSetup.install && (
+              <div className="mt-4">
+                <a
+                  href={tokenSetup.install.href(snippetInput)}
+                  className={INSTALL_BUTTON}
+                >
+                  <DownloadIcon />
+                  {tokenSetup.install.label}
+                </a>
+                <p className="mt-2 text-xs leading-relaxed text-[color:var(--muted-foreground)]">
+                  {hasToken
+                    ? "Pre-filled with the token above. Click to install."
+                    : tokenSetup.install.hintWithoutToken}
+                </p>
+              </div>
+            )}
 
-        <div className={cn(PROSE, "mt-5 text-sm")}>
-          <p>{selected.snippetLead}</p>
-        </div>
+            <div className={cn(PROSE, "mt-5 text-sm")}>
+              <p>{tokenSetup.snippetLead}</p>
+            </div>
 
-        {selected.variants.length > 1 && (
-          <div className="mt-3 inline-flex rounded-lg bg-[color:var(--muted)] p-0.5">
-            {selected.variants.map((option, index) => (
-              <button
-                key={option.label}
-                type="button"
-                onClick={() => setVariantIndex(index)}
-                className={cn(
-                  "cursor-pointer rounded-md px-3 py-1 text-xs font-medium transition-colors",
-                  index === variantIndex
-                    ? "bg-[color:var(--background)] text-[color:var(--foreground)] shadow-sm"
-                    : "text-[color:var(--muted-foreground)] hover:text-[color:var(--foreground)]",
-                )}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        )}
+            {tokenSetup.variants.length > 1 && (
+              <div className="mt-3 inline-flex rounded-lg bg-[color:var(--muted)] p-0.5">
+                {tokenSetup.variants.map((option, index) => (
+                  <button
+                    key={option.label}
+                    type="button"
+                    onClick={() => setVariantIndex(index)}
+                    className={cn(
+                      "cursor-pointer rounded-md px-3 py-1 text-xs font-medium transition-colors",
+                      index === variantIndex
+                        ? "bg-[color:var(--background)] text-[color:var(--foreground)] shadow-sm"
+                        : "text-[color:var(--muted-foreground)] hover:text-[color:var(--foreground)]",
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
 
-        {variant.note && (
-          <div className={cn(PROSE, "mt-3 text-sm")}>
-            <p>{variant.note}</p>
-          </div>
-        )}
+            {variant.note && (
+              <div className={cn(PROSE, "mt-3 text-sm")}>
+                <p>{variant.note}</p>
+              </div>
+            )}
 
-        <div className="mt-3">
-          <CodeBlock
-            code={variant.code(snippetInput)}
-            lang={variant.lang}
-            mark={hasToken ? trimmedToken : undefined}
-          />
-        </div>
+            <div className="mt-3">
+              <CodeBlock
+                code={variant.code(snippetInput)}
+                lang={variant.lang}
+                mark={hasToken ? trimmedToken : undefined}
+              />
+            </div>
 
-        {!hasToken && (
-          <p className="mt-3 text-xs leading-relaxed text-[color:var(--muted-foreground)]">
-            Replace{" "}
-            <code className="rounded border border-[color:var(--border)] bg-[color:var(--muted)] px-1 py-0.5 font-mono">
-              {TOKEN_PLACEHOLDER}
-            </code>{" "}
-            with the token you copied, or paste it above to fill it in for you.
-          </p>
-        )}
+            {!hasToken && (
+              <p className="mt-3 text-xs leading-relaxed text-[color:var(--muted-foreground)]">
+                Replace{" "}
+                <code className="rounded border border-[color:var(--border)] bg-[color:var(--muted)] px-1 py-0.5 font-mono">
+                  {TOKEN_PLACEHOLDER}
+                </code>{" "}
+                with the token you copied, or paste it above to fill it in for
+                you.
+              </p>
+            )}
 
-        {selected.outro && (
-          <div className={cn(PROSE, "mt-4 text-sm")}>{selected.outro}</div>
+            {tokenSetup.outro && (
+              <div className={cn(PROSE, "mt-4 text-sm")}>
+                {tokenSetup.outro}
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            {signIn.install && (
+              <div className="mb-5">
+                <a
+                  href={signIn.install.href(snippetInput.serverUrl)}
+                  className={INSTALL_BUTTON}
+                >
+                  <DownloadIcon />
+                  {signIn.install.label}
+                </a>
+              </div>
+            )}
+
+            <div className={cn(PROSE, "text-sm")}>
+              <p>{signIn.lead}</p>
+            </div>
+
+            <div className="mt-3">
+              <CodeBlock
+                code={signIn.snippet.code(snippetInput.serverUrl)}
+                lang={signIn.snippet.lang}
+              />
+            </div>
+
+            <div className={cn(PROSE, "mt-4 text-sm")}>
+              {signIn.after && <p>{signIn.after}</p>}
+              <p>
+                Your browser opens Betterlytics. Sign in, or create an account
+                if you&apos;re new, pick the dashboards {selected.name} can read
+                and click <strong>Connect</strong>. {selected.name} is now
+                connected: ask it about your traffic.
+              </p>
+              {signIn.troubleshooting && <p>{signIn.troubleshooting}</p>}
+            </div>
+          </>
         )}
       </div>
     </div>

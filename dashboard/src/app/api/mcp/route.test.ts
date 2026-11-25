@@ -46,6 +46,7 @@ function severalDashboards(name: string): McpContext {
       { dashboardId: 'dash-a', siteId: `site-a-${name}`, domain: 'a.example.com', role: 'owner' },
       { dashboardId: 'dash-b', siteId: `site-b-${name}`, domain: 'b.example.com', role: 'viewer' },
     ],
+    aiAccessDisabledDashboardIds: [],
   };
 }
 
@@ -161,7 +162,11 @@ describe('POST /api/mcp', () => {
     const { dashboards } = severalDashboards('single-invalid');
     mocks.validateToken.mockResolvedValue({
       valid: true,
-      context: { credentialId: 'credential-single-invalid', dashboards: [dashboards[0]!] },
+      context: {
+        credentialId: 'credential-single-invalid',
+        dashboards: [dashboards[0]!],
+        aiAccessDisabledDashboardIds: [],
+      },
     });
     await exhaust('query', { ...QUERY_ARGS, metrics: [] });
 
@@ -172,7 +177,11 @@ describe('POST /api/mcp', () => {
     const { dashboards } = severalDashboards('single');
     mocks.validateToken.mockResolvedValue({
       valid: true,
-      context: { credentialId: 'credential-single', dashboards: [dashboards[0]!] },
+      context: {
+        credentialId: 'credential-single',
+        dashboards: [dashboards[0]!],
+        aiAccessDisabledDashboardIds: [],
+      },
     });
     await exhaust('describe');
 
