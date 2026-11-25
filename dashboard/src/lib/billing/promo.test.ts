@@ -15,8 +15,8 @@ describe('livePromo', () => {
 });
 
 describe('promoLastDay', () => {
-  it('is December 1 in the promo time zone', () => {
+  it('is December 4 in the promo time zone', () => {
     const day = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: PROMO_TIME_ZONE });
-    expect(day.format(promoLastDay(BLACK_FRIDAY_2026))).toBe('Dec 1');
+    expect(day.format(promoLastDay(BLACK_FRIDAY_2026))).toBe('Dec 4');
   });
 });
