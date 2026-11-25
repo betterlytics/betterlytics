@@ -63,7 +63,11 @@ export function FrameworkStrip({ className }: { className?: string }) {
         </ul>
         <ul className={cn(styles.row, styles.shine)} aria-hidden>
           {GLYPHS.map((glyph, i) => (
-            <li key={glyph.name} className={styles.glyph}>
+            <li
+              key={glyph.name}
+              className={styles.glyph}
+              style={vars(glyph.hover ? { '--hover': glyph.hover } : {})}
+            >
               <svg viewBox='0 0 24 24' width='22' height='22'>
                 <use href={`#${symbolId(i)}`} />
               </svg>
