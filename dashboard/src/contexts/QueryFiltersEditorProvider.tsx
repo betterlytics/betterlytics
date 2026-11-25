@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useMemo, useState, type Dispatch, type ReactNode } from 'react';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 
 export type QueryFilterPart = 'column' | 'operator' | 'values';
@@ -16,8 +16,8 @@ type QueryFiltersEditorState = {
 };
 
 type QueryFiltersEditorContextValue = QueryFiltersEditorState & {
-  setIsOpen: (open: boolean) => void;
-  openEditor: (target: QueryFiltersEditorTarget) => void;
+  setIsOpen: Dispatch<boolean>;
+  openEditor: Dispatch<QueryFiltersEditorTarget>;
 };
 
 const QueryFiltersEditorContext = createContext<QueryFiltersEditorContextValue | undefined>(undefined);
@@ -25,7 +25,11 @@ const QueryFiltersEditorContext = createContext<QueryFiltersEditorContextValue |
 export function QueryFiltersEditorProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<QueryFiltersEditorState>({ isOpen: false, target: null });
 
-  const setIsOpen = useCallback((open: boolean) => setState({ isOpen: open, target: null }), []);
+  // The target outlives the close so focus can return to the pill section that opened the editor.
+  const setIsOpen = useCallback(
+    (open: boolean) => setState((current) => ({ isOpen: open, target: open ? null : current.target })),
+    [],
+  );
   const openEditor = useCallback((target: QueryFiltersEditorTarget) => setState({ isOpen: true, target }), []);
 
   const value = useMemo(() => ({ ...state, setIsOpen, openEditor }), [state, setIsOpen, openEditor]);
