@@ -375,6 +375,7 @@ export function McpSetup() {
                 and click <strong>Connect</strong>. {selected.name} is now
                 connected: ask it about your traffic.
               </p>
+              {signIn.troubleshooting && <p>{signIn.troubleshooting}</p>}
             </div>
           </>
         )}

@@ -35,6 +35,7 @@ export type SignInSetup = {
   lead: ReactNode;
   snippet: { lang: SnippetLang; code: (serverUrl: string) => string };
   after?: ReactNode;
+  troubleshooting?: ReactNode;
 };
 
 /** Sending a personal token in a header, for self-hosts and clients that can't sign in. */
@@ -264,6 +265,14 @@ export const CLIENTS: Client[] = [
           You can also sign in from inside Claude Code: run <code>/mcp</code>,
           pick <code>{SERVER_NAME}</code> and choose{" "}
           <strong>Authenticate</strong>.
+        </>
+      ),
+      troubleshooting: (
+        <>
+          If the browser finishes but Claude Code reports &quot;Existing OAuth
+          client information is required&quot;, it couldn&apos;t save the
+          sign-in to your system keychain (for example over SSH). Use a personal
+          token instead.
         </>
       ),
     },
