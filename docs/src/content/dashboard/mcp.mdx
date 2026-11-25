@@ -9,29 +9,38 @@ import { Callout } from "nextra/components";
 
 Betterlytics exposes your analytics data through a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server. This lets you ask AI agents about your website's traffic in natural language, and connect real analytics data to your UI, UX, and code to make data-driven optimizations directly from your development workflow. No dashboards or manual queries needed.
 
-## Creating a Personal Access Token
+## Connecting Your Agent
 
-A personal access token acts as you: it reads the dashboards you pick, with your current role on each, for as long as you're a member. Any member can create one, viewers included. Don't share it.
+On Betterlytics Cloud, you connect an agent by adding the server URL to it and signing in. There's no token to create or paste:
+
+1. Add `https://betterlytics.io/api/mcp` to your agent. Pick your client below for its steps.
+2. Your browser opens Betterlytics. Sign in, or create an account if you don't have one yet.
+3. Pick the dashboards the agent can read: **All dashboards**, which includes dashboards you add later, or **Only selected**.
+4. Click **Connect**. The agent is connected, and reads those dashboards with your role on each.
+
+An agent connected to several dashboards calls `list_dashboards` to see them, then reads the one your question is about.
+
+Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Antigravity and Codex are supported. Each client's tab also offers **Use a personal token instead**, for a client that can't sign in.
+
+<Callout type="info">
+Self-hosting? Sign-in is only available on Betterlytics Cloud, so a self-hosted instance connects with a [personal access token](#personal-access-tokens). Your instance serves its own MCP endpoint at `/api/mcp`, for example `https://analytics.example.com/api/mcp`. Create the token on your instance under **Account settings > AI access**: the token is shown together with this address as the **Server URL**, with a copy button. **Dashboard > Settings > AI access** shows the Server URL too. Paste it into the **Server URL** field below, and the setup switches to the token snippets and install links for your instance.
+</Callout>
+
+<McpSetup />
+
+## Personal Access Tokens
+
+Use a personal access token for scripts and CI, for a client that can't sign in, or on a self-hosted instance. A token acts as you: it reads the dashboards you pick, with your current role on each, for as long as you're a member. Any member can create one, viewers included. Don't share it.
 
 1. Open your **Account settings** and go to the **AI access** tab
 2. Under **Personal access tokens**, click **Create token**
-3. Enter a name for your token (e.g. "Claude Desktop")
+3. Enter a name for your token (e.g. "CI reports")
 4. Pick the dashboards it can read
 5. Choose an expiration: 30, 90, or 180 days (default 90), or no expiry
 6. Click **Create token**
 7. Copy the token immediately, it is only shown once
 
-Tokens are read-only. Send the token as a bearer token (`Authorization: Bearer btl_...`); a token sent without the `Bearer ` prefix works too.
-
-## Setup
-
-Pick your client below to see only its setup steps. Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Antigravity and Codex are supported.
-
-<Callout type="info">
-Self-hosting? Your instance serves its own MCP endpoint at `/api/mcp`, for example `https://analytics.example.com/api/mcp`. Create the token on your instance under **Account settings > AI access**: the token is shown together with this address as the **Server URL**, with a copy button. **Dashboard > Settings > AI access** shows the Server URL too. Paste it into the **Server URL** field below, and every snippet and install link uses your instance instead of Betterlytics Cloud.
-</Callout>
-
-<McpSetup />
+Tokens are read-only. Send the token as a bearer token (`Authorization: Bearer btl_...`); a token sent without the `Bearer ` prefix works too. To get a client's setup with the token filled in, click **Use a personal token instead** on its tab above and paste the token there.
 
 ## What You Can Ask About
 
@@ -115,9 +124,16 @@ Here are some questions you can try:
 - "Show me the hourly traffic pattern for today. When is my peak hour?"
 - "Which referrer sources bring visitors that scroll the deepest on my pages?"
 
+## Managing Connected Agents
+
+On Betterlytics Cloud, agents you connected by signing in are listed under **Account settings > AI access**, in **Connected agents**. Each shows the dashboards it can read, when it connected, and when it was last used.
+
+- **Edit dashboards** changes which dashboards an agent can read. It takes effect on the agent's next request, without reconnecting.
+- **Revoke** ends the agent's access right away. To use it again, connect it again from the client.
+
 ## Managing Tokens
 
-View and manage your tokens under **Account settings > AI access**. Each token shows the dashboards it can read, its creation date, when it was last used, and when it expires (or that it never does). Use **Edit dashboards** to change which dashboards a token can read without changing the token itself. You can delete tokens at any time. Deleted tokens are immediately revoked.
+Personal access tokens are listed under **Account settings > AI access**, in **Personal access tokens**. Each token shows the dashboards it can read, its creation date, when it was last used, and when it expires (or that it never does). Use **Edit dashboards** to change which dashboards a token can read without changing the token itself. You can delete tokens at any time. Deleted tokens are immediately revoked.
 
 Expired tokens stop authenticating and remain in the list so you can spot and delete them. A token's expiration can't be changed after creation; to extend access, create a new token.
 
@@ -132,8 +148,10 @@ Owners and admins also see every member's connection and token that can read the
 
 ## Security
 
-- Each token reads only the dashboards picked for it, with its creator's current role on each, and only while the dashboard's AI access is on
-- A token stops reading a dashboard on its next request once its creator leaves it, and stops working entirely if its creator's account is deleted or disabled
+- Connected agents and tokens are read-only
+- Each connected agent or token reads only the dashboards picked for it, with its owner's current role on each, and only while the dashboard's AI access is on
+- A connected agent or token stops reading a dashboard on its next request once its owner leaves it, and stops working entirely if its owner's account is deleted or disabled
+- Changing or resetting your password disconnects every agent you connected by signing in; connect them again afterwards. Personal access tokens keep working until you delete them or they expire
 - Requests are rate-limited to 60 per minute per site
 
 ---
