@@ -17,6 +17,11 @@ describe('percentDiscountOf', () => {
     expect(percentDiscountOf(sub)).toEqual({ percentOff: 20, endsAt: null });
   });
 
+  it('keeps a fractional percent', () => {
+    const sub = subscriptionWith([{ end: null, source: { coupon: { id: 'X', percent_off: 12.5 } } }]);
+    expect(percentDiscountOf(sub)).toEqual({ percentOff: 12.5, endsAt: null });
+  });
+
   it('ignores amount-off coupons and unexpanded discounts', () => {
     const sub = subscriptionWith(['di_123', { end: null, source: { coupon: { id: 'X', percent_off: null } } }]);
     expect(percentDiscountOf(sub)).toBeNull();
@@ -42,5 +47,7 @@ describe('applyPercentOff', () => {
   it('rounds to whole cents', () => {
     expect(applyPercentOff(1400, 30)).toBe(980);
     expect(applyPercentOff(25400, 30)).toBe(17780);
+    expect(applyPercentOff(1400, 12.5)).toBe(1225);
+    expect(applyPercentOff(999, 12.5)).toBe(874);
   });
 });

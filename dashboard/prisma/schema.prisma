@@ -622,7 +622,7 @@ model Subscription {
   cancelAtPeriodEnd Boolean @default(false)
 
   // Percent-off coupon Stripe applies to every invoice until it ends (null end = forever)
-  discountPercentOff Int?
+  discountPercentOff Float?
   discountEndsAt DateTime?
 
   // Payment provider integration
