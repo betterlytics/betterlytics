@@ -22,6 +22,7 @@ import { useUserSettings } from '@/contexts/UserSettingsProvider';
 import { useUserSettingsMutation } from '@/hooks/use-user-settings-mutation';
 import {
   updateUserAvatarAction,
+  updateUserEmailNotificationsAction,
   updateUserLanguageAction,
   updateUserMarketingEmailsAction,
   updateUserThemeAction,
@@ -48,6 +49,7 @@ export default function UserPreferencesSettings() {
   const { browserTimeZone } = useResolvedTimezone();
   const avatarMutation = useUserSettingsMutation({ action: updateUserAvatarAction });
   const marketingEmailsMutation = useUserSettingsMutation({ action: updateUserMarketingEmailsAction });
+  const emailNotificationsMutation = useUserSettingsMutation({ action: updateUserEmailNotificationsAction });
 
   return (
     <div>
@@ -147,6 +149,19 @@ export default function UserPreferencesSettings() {
 
       {PUBLIC_IS_CLOUD && (
         <UserSettingsSection title={t('notifications.title')}>
+          <SettingRow
+            label={<Label htmlFor='tracking-alerts'>{t('notifications.trackingAlerts')}</Label>}
+            description={t('notifications.trackingAlertsDescription')}
+            action={
+              <Switch
+                id='tracking-alerts'
+                checked={settings.emailNotifications}
+                onCheckedChange={(emailNotifications) => emailNotificationsMutation.mutate({ emailNotifications })}
+                className='cursor-pointer'
+              />
+            }
+          />
+
           <SettingRow
             label={<Label htmlFor='marketing-emails'>{t('notifications.marketingEmails')}</Label>}
             description={t('notifications.marketingEmailsDescription')}

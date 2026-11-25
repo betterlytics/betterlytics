@@ -58,6 +58,13 @@ export const updateUserMarketingEmailsAction = withUserAuth(
   },
 );
 
+export const updateUserEmailNotificationsAction = withUserAuth(
+  async (user: User, input: { emailNotifications: boolean }): Promise<UserSettings> => {
+    const payload = UserSettingsUpdateSchema.required().pick({ emailNotifications: true }).parse(input);
+    return UserSettingsService.updateUserSettings(user.id, payload);
+  },
+);
+
 export const getAccountDeletionBlockerAction = withUserAuth(
   async (user: User): Promise<AccountDeletionBlocker | null> => {
     return UserSettingsService.getAccountDeletionBlocker(user.id);

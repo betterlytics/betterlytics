@@ -4111,6 +4111,8 @@
       "uniqueIdentifier": "Il tuo identificatore univoco",
       "dataReceiving": "Ricezione dati",
       "analyticsDataFlowing": "Flusso dati attivo",
+      "lastEventReceived": "Ultimo evento ricevuto {time}",
+      "noRecentEvents": "Nessun evento nelle ultime 48 ore. Verifica che lo script di tracciamento sia ancora installato.",
       "needHelp": "Serve aiuto?",
       "resourcesToGetStarted": "Risorse per iniziare",
       "documentation": "Documentazione",
@@ -4228,6 +4230,8 @@
         },
         "notifications": {
           "title": "Notifiche",
+          "trackingAlerts": "Avvisi di tracciamento",
+          "trackingAlertsDescription": "Inviami un'email quando uno dei miei siti smette di inviare dati",
           "marketingEmails": "Email marketing",
           "marketingEmailsDescription": "Aggiornamenti sul prodotto, annunci e consigli"
         }

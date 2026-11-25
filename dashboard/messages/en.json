@@ -4111,6 +4111,8 @@
       "uniqueIdentifier": "Your unique identifier",
       "dataReceiving": "Data Receiving",
       "analyticsDataFlowing": "Analytics data flowing",
+      "lastEventReceived": "Last event received {time}",
+      "noRecentEvents": "No events in the last 48 hours. Check that the tracking script is still installed.",
       "needHelp": "Need Help?",
       "resourcesToGetStarted": "Resources to get started",
       "documentation": "Documentation",
@@ -4228,6 +4230,8 @@
         },
         "notifications": {
           "title": "Notifications",
+          "trackingAlerts": "Tracking alerts",
+          "trackingAlertsDescription": "Email me when one of my sites stops sending data",
           "marketingEmails": "Marketing emails",
           "marketingEmailsDescription": "Product updates, announcements, and tips"
         }

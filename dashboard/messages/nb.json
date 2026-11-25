@@ -4111,6 +4111,8 @@
       "uniqueIdentifier": "Din unike identifikator",
       "dataReceiving": "Datamottak",
       "analyticsDataFlowing": "Analysedata strømmer inn",
+      "lastEventReceived": "Siste hendelse mottatt {time}",
+      "noRecentEvents": "Ingen hendelser de siste 48 timene. Sjekk at sporingsskriptet fortsatt er installert.",
       "needHelp": "Trenger du hjelp?",
       "resourcesToGetStarted": "Ressurser for å komme i gang",
       "documentation": "Dokumentasjon",
@@ -4228,6 +4230,8 @@
         },
         "notifications": {
           "title": "Varsler",
+          "trackingAlerts": "Sporingsvarsler",
+          "trackingAlertsDescription": "Send meg en e-post når et av nettstedene mine slutter å sende data",
           "marketingEmails": "Markedsførings-e-poster",
           "marketingEmailsDescription": "Produktoppdateringer, kunngjøringer og tips"
         }
