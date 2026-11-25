@@ -81,8 +81,8 @@ export async function GET(request: NextRequest) {
     return new NextResponse(null, { status: 404 });
   }
 
-  // Gzip is the payload, not a Content-Encoding: Next drops a route's own Content-Encoding and
-  // never compresses route responses itself, so the player inflates the body.
+  // Gzip is the payload, not a Content-Encoding: Next 15.5.29+ drops a route's own Content-Encoding,
+  // and its built-in compression skips route handler responses, so the player inflates the body.
   // zlib with a sync flush per chunk, not CompressionStream: the latter buffers until end of input
   const body = throughNodeTransform(
     opened.stream,
