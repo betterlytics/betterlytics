@@ -13,10 +13,12 @@ Betterlytics exposes your analytics data through a [Model Context Protocol (MCP)
 
 On Betterlytics Cloud, you connect an agent by adding the server URL to it and signing in. There's no token to create or paste:
 
-1. Add `https://betterlytics.io/api/mcp` to your agent. Pick your client below for its steps.
-2. Your browser opens Betterlytics. Sign in, or create an account if you don't have one yet.
-3. Pick the dashboards the agent can read: **All dashboards**, which includes dashboards you add later, or **Only selected**.
-4. Click **Connect**. The agent is connected, and reads those dashboards with your role on each.
+1. Add `https://betterlytics.io/api/mcp` to your agent
+2. Sign in, or create an account if you're new
+3. Pick the dashboards the agent can read
+4. Click **Connect**
+
+Your client's tab below shows how to add the URL, and your browser then opens Betterlytics for the other steps. **All dashboards** also covers dashboards you add later, and the agent reads each dashboard with your role on it.
 
 <div style={{ textAlign: "center", margin: "20px 0" }}>
   ![MCP consent page](/images/dashboard/mcp-consent.webp)
@@ -24,10 +26,10 @@ On Betterlytics Cloud, you connect an agent by adding the server URL to it and s
 
 An agent connected to several dashboards calls `list_dashboards` to see them, then reads the one your question is about.
 
-Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Antigravity and Codex are supported. Each client's tab also offers **Use a personal token instead**, for a client that can't sign in.
+Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Antigravity and Codex are supported. A client that can't sign in can use a [personal access token](#personal-access-tokens) instead.
 
 <Callout type="info">
-Self-hosting? Sign-in is only available on Betterlytics Cloud, so a self-hosted instance connects with a [personal access token](#personal-access-tokens). Your instance serves its own MCP endpoint at `/api/mcp`, for example `https://analytics.example.com/api/mcp`. Create the token on your instance under **Account settings > MCP**: the token is shown together with this address as the **Server URL**, with a copy button. **Dashboard > Settings > AI access** shows the Server URL too. Paste it into the **Server URL** field below, and the setup switches to the token snippets and install links for your instance.
+Self-hosting? Sign-in is only available on Betterlytics Cloud, so a self-hosted instance connects with a [personal access token](#personal-access-tokens). Create one on your instance under **Account settings > MCP**, where it's shown with your instance's **Server URL**. Paste that URL into the **Server URL** field below.
 </Callout>
 
 <McpSetup />
@@ -143,19 +145,20 @@ Expired tokens stop authenticating and remain in the list so you can spot and de
 
 ## Dashboard AI Access
 
-Every dashboard has an **AI access** page under **Dashboard > Settings > AI access**, with the Server URL and the **Allow AI agent access** switch. Every member sees whether it's on; only owners and admins can change it.
+Every dashboard has an **AI access** page under **Dashboard > Settings > AI access**, with the Server URL and an **Allow AI agent access** switch. Every member can see the switch; only owners and admins can change it.
 
-- **Off:** no agent connection or token can read the dashboard. Calls to it return an error saying its owners or admins turned AI access off, it's left out of `list_dashboards`, and members can't pick it for a new token or connection. Connections and tokens stay valid for their other dashboards.
-- **On again:** existing connections and tokens read the dashboard again on their next request, without reconnecting.
+- **Off:** no agent or token can read the dashboard. It's left out of `list_dashboards`, calls to it return an error, and members can't pick it for a new agent or token. Agents and tokens keep their other dashboards.
+- **On again:** agents and tokens can read the dashboard again from their next request, without reconnecting.
 
-Owners and admins also see every member's connection and token that can read the dashboard, and can remove the dashboard from any of them. Nothing is revoked: the connection or token keeps its other dashboards, an **All dashboards** connection keeps covering future dashboards, and the member can add this dashboard back by ticking it again under **Account settings > MCP**, where it shows as removed. To stop every agent, turn AI access off instead.
+Owners and admins also see every member's agents and tokens that can read the dashboard, and can remove the dashboard from any of them. Nothing is revoked: the agent or token keeps its other dashboards, and the member can tick this one again under **Account settings > MCP**, where it shows as removed. To stop every agent, turn AI access off instead.
 
 ## Security
 
 - Connected agents and tokens are read-only
-- Each connected agent or token reads only the dashboards picked for it, with its owner's current role on each, and only while the dashboard's AI access is on
-- A connected agent or token stops reading a dashboard on its next request once its owner leaves it, and stops working entirely if its owner's account is deleted or disabled
-- Changing or resetting your password disconnects every agent you connected by signing in; connect them again afterwards. Personal access tokens keep working until you delete them or they expire
+- An agent or token reads only the dashboards picked for it, with your current role on each
+- No agent or token can read a dashboard while its AI access is off
+- If you leave a dashboard, your agents and tokens lose it on their next request. If your account is deleted or disabled, they stop working
+- Changing or resetting your password disconnects the agents you connected by signing in. Personal access tokens keep working until you delete them or they expire
 - Requests are rate-limited to 60 per minute per site
 
 ---
