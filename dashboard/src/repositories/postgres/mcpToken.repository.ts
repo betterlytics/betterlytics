@@ -1,54 +1,85 @@
 import prisma from '@/lib/postgres';
 import {
-  McpTokenListItem,
-  McpTokenListItemSchema,
-  McpTokenWithDashboard,
-  McpTokenWithDashboardSchema,
   CreateMcpTokenData,
   CreateMcpTokenSchema,
+  DashboardMcpToken,
+  DashboardMcpTokenSchema,
+  McpToken,
+  McpTokenCredential,
+  McpTokenCredentialSchema,
+  McpTokenDashboardIdsSchema,
+  McpTokenSchema,
+  PersonalMcpTokenRecord,
+  PersonalMcpTokenRecordSchema,
 } from '@/entities/dashboard/mcpToken.entities';
 
-export async function createMcpToken(data: CreateMcpTokenData, tokenHash: string): Promise<McpTokenListItem> {
+const TOKEN_FIELDS = { id: true, name: true, createdAt: true, lastUsedAt: true, expiresAt: true } as const;
+
+export async function createMcpToken(data: CreateMcpTokenData, tokenHash: string): Promise<McpToken> {
   const validatedData = CreateMcpTokenSchema.parse(data);
 
   const row = await prisma.mcpToken.create({
     data: {
       tokenHash,
       name: validatedData.name,
-      dashboardId: validatedData.dashboardId,
       createdBy: validatedData.createdBy,
       expiresAt: validatedData.expiresAt,
+      dashboards: {
+        createMany: { data: [...new Set(validatedData.dashboardIds)].map((dashboardId) => ({ dashboardId })) },
+      },
     },
-    omit: { tokenHash: true, createdBy: true, deletedAt: true },
+    select: TOKEN_FIELDS,
   });
 
-  return McpTokenListItemSchema.parse(row);
+  return McpTokenSchema.parse(row);
 }
 
-export async function findMcpTokensByDashboard(dashboardId: string): Promise<McpTokenListItem[]> {
+/** The user's tokens, newest first, with every dashboard picked for them. */
+export async function findPersonalMcpTokens(userId: string): Promise<PersonalMcpTokenRecord[]> {
   const rows = await prisma.mcpToken.findMany({
-    where: { dashboardId, deletedAt: null },
+    where: { createdBy: userId, deletedAt: null },
     orderBy: { createdAt: 'desc' },
-    omit: { tokenHash: true, createdBy: true, deletedAt: true },
+    select: { ...TOKEN_FIELDS, dashboards: { select: { dashboardId: true } } },
   });
 
-  return rows.map((row) => McpTokenListItemSchema.parse(row));
+  return rows.map(({ dashboards, ...row }) =>
+    PersonalMcpTokenRecordSchema.parse({ ...row, dashboardIds: dashboards.map((d) => d.dashboardId) }),
+  );
 }
 
-export async function findMcpTokenByHash(tokenHash: string): Promise<McpTokenWithDashboard | null> {
+/** Tokens that can read the dashboard: their creator is enabled and still a member of it. */
+export async function findDashboardMcpTokens(dashboardId: string): Promise<DashboardMcpToken[]> {
+  const rows = await prisma.mcpToken.findMany({
+    where: {
+      deletedAt: null,
+      dashboards: { some: { dashboardId } },
+      user: {
+        deletedAt: null,
+        disabledAt: null,
+        dashboardAccess: { some: { dashboardId, deletedAt: null } },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+    select: { ...TOKEN_FIELDS, user: { select: { name: true, email: true } } },
+  });
+
+  return rows.map(({ user, ...row }) => DashboardMcpTokenSchema.parse({ ...row, creator: user }));
+}
+
+export async function findMcpTokenByHash(tokenHash: string): Promise<McpTokenCredential | null> {
   const row = await prisma.mcpToken.findFirst({
     where: {
       tokenHash,
       deletedAt: null,
-      dashboard: { deletedAt: null },
       user: { deletedAt: null, disabledAt: null },
     },
-    include: { dashboard: true },
+    select: { id: true, createdBy: true, expiresAt: true, dashboards: { select: { dashboardId: true } } },
   });
 
   if (!row) return null;
 
-  return McpTokenWithDashboardSchema.parse(row);
+  const { dashboards, ...token } = row;
+  return McpTokenCredentialSchema.parse({ ...token, dashboardIds: dashboards.map((d) => d.dashboardId) });
 }
 
 export async function updateMcpTokenLastUsed(id: string): Promise<void> {
@@ -58,9 +89,40 @@ export async function updateMcpTokenLastUsed(id: string): Promise<void> {
   });
 }
 
-export async function deleteMcpToken(id: string, dashboardId: string): Promise<void> {
-  await prisma.mcpToken.update({
-    where: { id, dashboardId },
+/** False when the user has no such token. */
+export async function replaceMcpTokenDashboards(
+  id: string,
+  userId: string,
+  dashboardIds: string[],
+): Promise<boolean> {
+  const picked = [...new Set(McpTokenDashboardIdsSchema.parse(dashboardIds))];
+
+  return prisma.$transaction(async (tx) => {
+    const token = await tx.mcpToken.findFirst({
+      where: { id, createdBy: userId, deletedAt: null },
+      select: { id: true },
+    });
+    if (!token) return false;
+
+    await tx.mcpTokenDashboard.deleteMany({ where: { tokenId: id } });
+    await tx.mcpTokenDashboard.createMany({ data: picked.map((dashboardId) => ({ tokenId: id, dashboardId })) });
+    return true;
+  });
+}
+
+/** Returns how many tokens were deleted: 0 when the user has no such token. */
+export async function deletePersonalMcpToken(id: string, userId: string): Promise<number> {
+  const { count } = await prisma.mcpToken.updateMany({
+    where: { id, createdBy: userId, deletedAt: null },
     data: { deletedAt: new Date() },
   });
+  return count;
+}
+
+/** Returns how many tokens lost the dashboard: 0 when no live token covers it. */
+export async function removeDashboardFromMcpToken(id: string, dashboardId: string): Promise<number> {
+  const { count } = await prisma.mcpTokenDashboard.deleteMany({
+    where: { tokenId: id, dashboardId, token: { deletedAt: null } },
+  });
+  return count;
 }

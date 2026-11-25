@@ -20,7 +20,13 @@ import { DestructiveActionDialog } from '@/components/dialogs';
 import ExternalLink from '@/components/ExternalLink';
 import UserSettingsSection from '@/components/userSettings/shared/UserSettingsSection';
 import EditConnectionDashboardsDialog from '@/components/userSettings/aiAccess/EditConnectionDashboardsDialog';
-import { listMcpConnectionsAction, revokeMcpConnectionAction } from '@/app/actions/account/mcpConnections.action';
+import PersonalMcpTokensSection from '@/components/userSettings/aiAccess/PersonalMcpTokensSection';
+import {
+  listMcpConnectionsAction,
+  revokeMcpConnectionAction,
+  updateMcpConnectionDashboardsAction,
+} from '@/app/actions/account/mcpConnections.action';
+import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import type { McpConnection, McpConnectionsOverview } from '@/services/auth/mcpConnections.service';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 
@@ -32,6 +38,17 @@ interface UserAiAccessSettingsProps {
 }
 
 export default function UserAiAccessSettings({ onCloseDialog }: UserAiAccessSettingsProps) {
+  const { MCP_OAUTH_ENABLED } = usePublicEnvironmentVariablesContext();
+
+  return (
+    <>
+      {MCP_OAUTH_ENABLED && <McpConnectionsSection onCloseDialog={onCloseDialog} />}
+      <PersonalMcpTokensSection onCloseDialog={onCloseDialog} />
+    </>
+  );
+}
+
+function McpConnectionsSection({ onCloseDialog }: UserAiAccessSettingsProps) {
   const t = useTranslations('components.userSettings.aiAccess');
   const tDialog = useTranslations('components.userSettings.dialog');
   const queryClient = useQueryClient();
@@ -154,8 +171,14 @@ export default function UserAiAccessSettings({ onCloseDialog }: UserAiAccessSett
       {editing && data && (
         <EditConnectionDashboardsDialog
           key={editing.clientId}
-          connection={editing}
+          name={editing.name}
+          selection={{
+            allDashboards: editing.allDashboards,
+            dashboardIds: editing.dashboards.map((dashboard) => dashboard.id),
+            excludedDashboardIds: editing.excludedDashboards.map((dashboard) => dashboard.id),
+          }}
           dashboards={data.dashboards}
+          save={(selection) => updateMcpConnectionDashboardsAction(editing.clientId, selection)}
           onSaved={() => queryClient.invalidateQueries({ queryKey: MCP_CONNECTIONS_QUERY_KEY })}
           onClose={() => setEditing(null)}
           onCloseDialog={onCloseDialog}
@@ -181,11 +204,25 @@ function ConnectionRow({ connection, disabled, onEdit, onRevoke }: ConnectionRow
 
   const domains = connection.dashboards.map((dashboard) => dashboard.domain);
   const more = connection.allDashboards ? 0 : domains.length - 1;
+  const excluded = connection.excludedDashboards.map((dashboard) => dashboard.domain);
   // the first name truncates, the count after it doesn't, so the cell never hides how many there are
   const dashboardsLabel = (
-    <div className='flex min-w-0 gap-1' title={connection.allDashboards ? undefined : domains.join(', ')}>
+    <div
+      className='flex min-w-0 gap-1'
+      title={
+        connection.allDashboards
+          ? excluded.length > 0
+            ? t('removedDashboards', { domains: excluded.join(', ') })
+            : undefined
+          : domains.join(', ')
+      }
+    >
       <span className='truncate'>
-        {connection.allDashboards ? t('allDashboards') : (domains[0] ?? t('noDashboards'))}
+        {connection.allDashboards
+          ? excluded.length > 0
+            ? t('allDashboardsExcept', { count: excluded.length })
+            : t('allDashboards')
+          : (domains[0] ?? t('noDashboards'))}
       </span>
       {more > 0 && <span className='shrink-0'>{t('moreDashboards', { count: more })}</span>}
     </div>
@@ -252,7 +289,10 @@ function ConnectionRow({ connection, disabled, onEdit, onRevoke }: ConnectionRow
               {t('editDashboards')}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className='text-destructive focus:text-destructive cursor-pointer' onClick={onRevoke}>
+            <DropdownMenuItem
+              className='text-destructive focus:text-destructive cursor-pointer'
+              onClick={onRevoke}
+            >
               {t('revoke')}
             </DropdownMenuItem>
           </DropdownMenuContent>

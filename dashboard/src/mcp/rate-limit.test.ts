@@ -10,8 +10,12 @@ const BLOG = {
   role: 'viewer' as const,
 };
 
-const single: McpContext = { credentialId: 'mcp-token:1', dashboards: [SHOP] };
-const several: McpContext = { credentialId: 'mcp-token:2', dashboards: [SHOP, BLOG] };
+const single: McpContext = { credentialId: 'mcp-token:1', dashboards: [SHOP], aiAccessDisabledDashboardIds: [] };
+const several: McpContext = {
+  credentialId: 'mcp-token:2',
+  dashboards: [SHOP, BLOG],
+  aiAccessDisabledDashboardIds: [],
+};
 
 const DASHBOARD_TOOLS = new Set(['query']);
 const QUERY_ARGS = { metrics: ['visitors'] };

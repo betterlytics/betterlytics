@@ -754,7 +754,9 @@
           "selected": "<b>{selected}</b> af {total} valgt",
           "pickOne": "Vælg mindst ét dashboard",
           "noMatch": "Ingen dashboards matcher din søgning.",
-          "empty": "Du har ingen dashboards endnu. Forbind med Alle dashboards, også dem du tilføjer senere, eller <link>tilføj dit første site</link>, før du forbinder."
+          "empty": "Du har ingen dashboards endnu. Forbind med Alle dashboards, også dem du tilføjer senere, eller <link>tilføj dit første site</link>, før du forbinder.",
+          "aiAccessOff": "AI-adgang slået fra af ejere eller administratorer",
+          "removedByAdmins": "Fjernet af ejere eller administratorer"
         },
         "roles": {
           "owner": "Ejer",
@@ -2916,7 +2918,7 @@
         "rules": "Regler",
         "members": "Medlemmer",
         "reports": "E-mail-rapporter",
-        "mcp": "MCP",
+        "mcp": "AI-adgang",
         "integrations": "Integrationer",
         "dangerZone": "Farezone"
       }
@@ -4391,6 +4393,8 @@
           "readAnalytics": "Læse statistik"
         },
         "allDashboards": "Alle dashboards",
+        "allDashboardsExcept": "Alle undtagen {count, plural, one {# dashboard} other {# dashboards}}",
+        "removedDashboards": "Fjernet af ejere eller administratorer: {domains}",
         "noDashboards": "Ingen dashboards",
         "moreDashboards": "+{count} mere",
         "connected": "Forbundet {date}",
@@ -4422,7 +4426,69 @@
           "empty": "Du har ingen dashboards endnu. <link>Tilføj et site</link>",
           "cancel": "Annullér",
           "save": "Gem",
-          "saving": "Gemmer..."
+          "saving": "Gemmer...",
+          "aiAccessOff": "AI-adgang slået fra af ejere eller administratorer",
+          "removedByAdmins": "Fjernet af ejere eller administratorer"
+        },
+        "tokens": {
+          "title": "Personlige adgangstokens",
+          "description": "Tokens handler som dig på de dashboards, du vælger. Brug dem til scripts, CI og klienter, der ikke kan logge ind.",
+          "create": "Opret token",
+          "loadError": "Kunne ikke indlæse dine tokens.",
+          "empty": "Ingen tokens endnu. <link>Læs opsætningsguiden</link>",
+          "columns": {
+            "token": "Token",
+            "dashboards": "Dashboards",
+            "lastUsed": "Sidst brugt"
+          },
+          "actions": "Handlinger for {name}",
+          "created": "Oprettet {date}",
+          "lastUsed": "Sidst brugt {date}",
+          "neverUsed": "Aldrig brugt",
+          "expires": "Udløber {date}",
+          "expired": "Udløb {date}",
+          "neverExpires": "Udløber aldrig",
+          "editDashboards": "Rediger dashboards",
+          "editDescription": "Gælder fra tokenens næste forespørgsel. Selve tokenen ændres ikke.",
+          "delete": "Slet",
+          "deleteDialog": {
+            "title": "Slet {name}?",
+            "description": "{name} holder op med at virke med det samme. Scripts og agenter, der bruger den, mister adgang.",
+            "cancel": "Annuller",
+            "confirm": "Slet token"
+          },
+          "toast": {
+            "created": "{name} er oprettet.",
+            "deleted": "{name} er slettet."
+          },
+          "createDialog": {
+            "title": "Opret en personlig adgangstoken",
+            "description": "Vælg de dashboards, tokenen kan læse. Du kan ændre dem senere.",
+            "nameLabel": "Navn",
+            "namePlaceholder": "f.eks. Claude Desktop",
+            "dashboardsLabel": "Dashboards",
+            "expirationLabel": "Udløb",
+            "lifetime": {
+              "30d": "30 dage",
+              "90d": "90 dage",
+              "180d": "180 dage",
+              "never": "Intet udløb"
+            },
+            "actsAsYou": "Denne token handler som dig: den læser de valgte dashboards med din rolle på hvert af dem, så længe du er medlem. Del den ikke.",
+            "readOnly": "Kun læseadgang: den kan læse statistik, men ikke ændre noget.",
+            "cancel": "Annuller",
+            "create": "Opret token",
+            "creating": "Opretter...",
+            "createdTitle": "Kopier din token",
+            "createdNotice": "Kopier denne token nu. Du vil ikke kunne se den igen.",
+            "copyToken": "Kopier token",
+            "tokenCopied": "Token kopieret",
+            "endpointLabel": "Server-URL",
+            "endpointHint": "Peg din MCP-klient mod server-URL'en, og send tokenen som bearer-token. <link>Opsætningsguides til hver klient</link>",
+            "copyEndpoint": "Kopier server-URL",
+            "endpointCopied": "Server-URL kopieret",
+            "done": "Færdig"
+          }
         }
       },
       "danger": {
@@ -4683,7 +4749,11 @@
     "mcpConnections": {
       "notFound": "Denne forbindelse findes ikke længere.",
       "unavailable": "AI-adgang er ikke tilgængelig.",
-      "dashboardUnavailable": "Et af de valgte dashboards er ikke længere tilgængeligt."
+      "dashboardUnavailable": "Et af de valgte dashboards er ikke længere tilgængeligt.",
+      "aiAccessDisabled": "AI-adgang til {domain} er slået fra af dets ejere eller administratorer."
+    },
+    "mcpTokens": {
+      "notFound": "Denne token findes ikke længere."
     }
   },
   "banners": {
@@ -5117,40 +5187,63 @@
     }
   },
   "mcp": {
-    "settings": {
-      "title": "API-tokens",
-      "description": "Opret tokens for at forbinde AI-agenter til dine analysedata via Model Context Protocol.",
-      "tokenNameLabel": "Token-navn",
-      "tokenNamePlaceholder": "f.eks. Claude Desktop",
-      "createButton": "Opret token",
-      "creating": "Opretter...",
-      "newTokenNotice": "Kopier denne token nu. Du vil ikke kunne se den igen.",
-      "created": "Oprettet {date}",
-      "lastUsed": "Sidst brugt {date}",
-      "expirationLabel": "Udløb",
-      "lifetime": {
-        "30d": "30 dage",
-        "90d": "90 dage",
-        "180d": "180 dage",
-        "never": "Uden udløb"
-      },
-      "expires": "Udløber {date}",
-      "expired": "Udløbet {date}",
-      "neverExpires": "Udløber aldrig",
+    "connect": {
+      "title": "Forbind en AI-agent",
+      "description": "Spørg AI-agenter om dette dashboards statistik via Model Context Protocol (MCP).",
+      "body": "Peg din agent mod server-URL'en, og log ind, når den beder om det, eller brug en personlig adgangstoken fra dine kontoindstillinger. Agenter læser kun det, du selv kan. <link>Opsætningsguides til hver klient</link>",
+      "manageTokens": "Administrer dine tokens",
       "endpointLabel": "Server-URL",
-      "endpointHint": "Peg din MCP-klient mod denne URL, og send din token som bearer-token. <link>Opsætningsguides til hver klient</link>",
+      "endpointHint": "Hvis din MCP-klient beder om en token, så send en personlig adgangstoken som bearer-token.",
       "copyEndpoint": "Kopier server-URL",
       "endpointCopied": "Server-URL kopieret"
     },
-    "toast": {
-      "created": "Token oprettet",
-      "createError": "Kunne ikke oprette token",
-      "deleted": "Token slettet",
-      "deleteError": "Kunne ikke slette token"
+    "aiAccess": {
+      "title": "Tillad adgang for AI-agenter",
+      "on": "Medlemmer kan forbinde agenter og tokens til dette dashboard.",
+      "off": "Slået fra: ingen agent eller token kan læse dette dashboard.",
+      "toast": {
+        "on": "AI-adgang slået til.",
+        "off": "AI-adgang slået fra.",
+        "error": "Kunne ikke opdatere AI-adgang."
+      },
+      "turnOffDialog": {
+        "title": "Slå AI-adgang fra?",
+        "description": "{connections, plural, one {# forbindelse} other {# forbindelser}} og {tokens, plural, one {# token} other {# tokens}} mister adgang til dette dashboard, indtil du slår det til igen. Intet bliver slettet.",
+        "cancel": "Annuller",
+        "confirm": "Slå fra",
+        "pending": "Slår fra..."
+      }
     },
-    "deleteDialog": {
-      "title": "Slet {name}",
-      "description": "Denne token vil blive permanent tilbagekaldt. Alle MCP-klienter, der bruger den, mister adgang øjeblikkeligt."
+    "access": {
+      "title": "Hvem har adgang",
+      "description": "Medlemmers agentforbindelser og tokens, der kan læse dette dashboard.",
+      "descriptionOff": "AI-adgang er slået fra, så ingen af disse kan læse dette dashboard, før den er slået til igen.",
+      "empty": "Ingen forbindelser eller tokens kan læse dette dashboard.",
+      "kind": {
+        "connection": "Forbindelse",
+        "token": "Token"
+      },
+      "member": "Af {name}",
+      "connected": "Forbundet {date}",
+      "created": "Oprettet {date}",
+      "lastUsed": "Sidst brugt {date}",
+      "neverUsed": "Aldrig brugt",
+      "expires": "Udløber {date}",
+      "expired": "Udløb {date}",
+      "neverExpires": "Udløber aldrig",
+      "remove": "Fjern fra dette dashboard",
+      "removeAria": "Fjern {name} fra dette dashboard"
+    },
+    "removeDialog": {
+      "title": "Fjern {name} fra dette dashboard?",
+      "connectionDescription": "{name} holder op med at læse dette dashboard fra næste forespørgsel. Den er stadig forbundet til medlemmets andre dashboards, og medlemmet kan tilføje dette igen i kontoindstillingerne.",
+      "tokenDescription": "{name} holder op med at læse dette dashboard fra næste forespørgsel. Den virker stadig på sine andre dashboards, og opretteren kan tilføje dette igen i kontoindstillingerne.",
+      "cancel": "Annuller",
+      "confirm": "Fjern"
+    },
+    "toast": {
+      "removed": "{name} er fjernet fra dette dashboard.",
+      "removeError": "Kunne ikke fjerne adgangen."
     }
   },
   "integrationsSettings": {

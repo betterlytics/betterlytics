@@ -41,6 +41,9 @@ export const DashboardSettingsSchema = z
     alertsEnabled: z.boolean(),
     alertsThreshold: z.number().int().positive(),
 
+    // AI access
+    aiAccessEnabled: z.boolean(),
+
     createdAt: z.date(),
     updatedAt: z.date(),
   })
@@ -61,6 +64,7 @@ export const DashboardSettingsCreateSchema = z
     monthlyReportRecipients: z.array(z.string().email()),
     alertsEnabled: z.boolean(),
     alertsThreshold: z.number().int().positive(),
+    aiAccessEnabled: z.boolean(),
   })
   .strict();
 
@@ -75,6 +79,7 @@ export const DashboardSettingsUpdateSchema = z.object({
   monthlyReportRecipients: z.array(z.string().email()).max(MAX_REPORT_RECIPIENTS).optional(),
   alertsEnabled: z.boolean().optional(),
   alertsThreshold: z.number().int().positive().optional(),
+  aiAccessEnabled: z.boolean().optional(),
 });
 
 export const DashboardSettingsInternalPatchSchema = DashboardSettingsUpdateSchema.extend({
@@ -142,6 +147,7 @@ export const DEFAULT_DASHBOARD_SETTINGS: Omit<
   monthlyReportRecipients: [],
   alertsEnabled: false,
   alertsThreshold: 1000,
+  aiAccessEnabled: true,
 };
 
 export type DashboardSettingsUpdate = z.infer<typeof DashboardSettingsUpdateSchema>;

@@ -754,7 +754,9 @@
           "selected": "<b>{selected}</b> av {total} valgt",
           "pickOne": "Velg minst ett dashbord",
           "noMatch": "Ingen dashbord samsvarer med søket.",
-          "empty": "Du har ingen dashbord ennå. Koble til med Alle dashbord, også de du legger til senere, eller <link>legg til ditt første nettsted</link> før du kobler til."
+          "empty": "Du har ingen dashbord ennå. Koble til med Alle dashbord, også de du legger til senere, eller <link>legg til ditt første nettsted</link> før du kobler til.",
+          "aiAccessOff": "AI-tilgang slått av av eiere eller administratorer",
+          "removedByAdmins": "Fjernet av eiere eller administratorer"
         },
         "roles": {
           "owner": "Eier",
@@ -2916,7 +2918,7 @@
         "rules": "Regler",
         "members": "Medlemmer",
         "reports": "E-postrapporter",
-        "mcp": "MCP",
+        "mcp": "AI-tilgang",
         "integrations": "Integrasjoner",
         "dangerZone": "Faresone"
       }
@@ -4391,6 +4393,8 @@
           "readAnalytics": "Lese statistikk"
         },
         "allDashboards": "Alle dashbord",
+        "allDashboardsExcept": "Alle unntatt {count, plural, one {# dashbord} other {# dashbord}}",
+        "removedDashboards": "Fjernet av eiere eller administratorer: {domains}",
         "noDashboards": "Ingen dashbord",
         "moreDashboards": "+{count} til",
         "connected": "Tilkoblet {date}",
@@ -4422,7 +4426,69 @@
           "empty": "Du har ingen dashbord ennå. <link>Legg til et nettsted</link>",
           "cancel": "Avbryt",
           "save": "Lagre",
-          "saving": "Lagrer..."
+          "saving": "Lagrer...",
+          "aiAccessOff": "AI-tilgang slått av av eiere eller administratorer",
+          "removedByAdmins": "Fjernet av eiere eller administratorer"
+        },
+        "tokens": {
+          "title": "Personlige tilgangsnøkler",
+          "description": "Nøkler handler som deg på dashbordene du velger. Bruk dem til skript, CI og klienter som ikke kan logge inn.",
+          "create": "Opprett nøkkel",
+          "loadError": "Kunne ikke laste inn nøklene dine.",
+          "empty": "Ingen nøkler ennå. <link>Les oppsettsguiden</link>",
+          "columns": {
+            "token": "Nøkkel",
+            "dashboards": "Dashbord",
+            "lastUsed": "Sist brukt"
+          },
+          "actions": "Handlinger for {name}",
+          "created": "Opprettet {date}",
+          "lastUsed": "Sist brukt {date}",
+          "neverUsed": "Aldri brukt",
+          "expires": "Utløper {date}",
+          "expired": "Utløpt {date}",
+          "neverExpires": "Utløper aldri",
+          "editDashboards": "Rediger dashbord",
+          "editDescription": "Gjelder fra nøkkelens neste forespørsel. Selve nøkkelen endres ikke.",
+          "delete": "Slett",
+          "deleteDialog": {
+            "title": "Slette {name}?",
+            "description": "{name} slutter å virke med en gang. Skript og agenter som bruker den, mister tilgangen.",
+            "cancel": "Avbryt",
+            "confirm": "Slett nøkkel"
+          },
+          "toast": {
+            "created": "{name} er opprettet.",
+            "deleted": "{name} er slettet."
+          },
+          "createDialog": {
+            "title": "Opprett en personlig tilgangsnøkkel",
+            "description": "Velg dashbordene nøkkelen kan lese. Du kan endre dem senere.",
+            "nameLabel": "Navn",
+            "namePlaceholder": "f.eks. Claude Desktop",
+            "dashboardsLabel": "Dashbord",
+            "expirationLabel": "Utløp",
+            "lifetime": {
+              "30d": "30 dager",
+              "90d": "90 dager",
+              "180d": "180 dager",
+              "never": "Utløper ikke"
+            },
+            "actsAsYou": "Denne nøkkelen handler som deg: den leser de valgte dashbordene med din rolle på hvert av dem, så lenge du er medlem. Ikke del den.",
+            "readOnly": "Kun lesetilgang: den kan lese statistikk, men ikke endre noe.",
+            "cancel": "Avbryt",
+            "create": "Opprett nøkkel",
+            "creating": "Oppretter...",
+            "createdTitle": "Kopier nøkkelen din",
+            "createdNotice": "Kopier denne nøkkelen nå. Du vil ikke kunne se den igjen.",
+            "copyToken": "Kopier nøkkel",
+            "tokenCopied": "Nøkkel kopiert",
+            "endpointLabel": "Server-URL",
+            "endpointHint": "Pek MCP-klienten din mot server-URL-en og send nøkkelen som bearer-token. <link>Oppsettsguider for hver klient</link>",
+            "copyEndpoint": "Kopier server-URL",
+            "endpointCopied": "Server-URL kopiert",
+            "done": "Ferdig"
+          }
         }
       },
       "danger": {
@@ -4683,7 +4749,11 @@
     "mcpConnections": {
       "notFound": "Denne tilkoblingen finnes ikke lenger.",
       "unavailable": "AI-tilgang er ikke tilgjengelig.",
-      "dashboardUnavailable": "Et av de valgte dashbordene er ikke lenger tilgjengelig."
+      "dashboardUnavailable": "Et av de valgte dashbordene er ikke lenger tilgjengelig.",
+      "aiAccessDisabled": "AI-tilgang til {domain} er slått av av eierne eller administratorene."
+    },
+    "mcpTokens": {
+      "notFound": "Denne nøkkelen finnes ikke lenger."
     }
   },
   "banners": {
@@ -5117,40 +5187,63 @@
     }
   },
   "mcp": {
-    "settings": {
-      "title": "API-nøkler",
-      "description": "Opprett nøkler for å koble AI-agenter til analysedataene dine via Model Context Protocol.",
-      "tokenNameLabel": "Nøkkelnavn",
-      "tokenNamePlaceholder": "f.eks. Claude Desktop",
-      "createButton": "Opprett nøkkel",
-      "creating": "Oppretter...",
-      "newTokenNotice": "Kopier denne nøkkelen nå. Du vil ikke kunne se den igjen.",
-      "created": "Opprettet {date}",
-      "lastUsed": "Sist brukt {date}",
-      "expirationLabel": "Utløp",
-      "lifetime": {
-        "30d": "30 dager",
-        "90d": "90 dager",
-        "180d": "180 dager",
-        "never": "Uten utløp"
-      },
-      "expires": "Utløper {date}",
-      "expired": "Utløpt {date}",
-      "neverExpires": "Utløper aldri",
+    "connect": {
+      "title": "Koble til en AI-agent",
+      "description": "Spør AI-agenter om statistikken for dette dashbordet via Model Context Protocol (MCP).",
+      "body": "Pek agenten din mot server-URL-en og logg inn når den ber om det, eller bruk en personlig tilgangsnøkkel fra kontoinnstillingene. Agenter leser bare det du selv har tilgang til. <link>Oppsettsguider for hver klient</link>",
+      "manageTokens": "Administrer nøklene dine",
       "endpointLabel": "Server-URL",
-      "endpointHint": "Pek MCP-klienten din mot denne URL-en og send nøkkelen som bearer-token. <link>Oppsettsguider for hver klient</link>",
+      "endpointHint": "Hvis MCP-klienten din ber om en nøkkel, send en personlig tilgangsnøkkel som bearer-token.",
       "copyEndpoint": "Kopier server-URL",
       "endpointCopied": "Server-URL kopiert"
     },
-    "toast": {
-      "created": "Nøkkel opprettet",
-      "createError": "Kunne ikke opprette nøkkel",
-      "deleted": "Nøkkel slettet",
-      "deleteError": "Kunne ikke slette nøkkel"
+    "aiAccess": {
+      "title": "Tillat tilgang for AI-agenter",
+      "on": "Medlemmer kan koble agenter og nøkler til dette dashbordet.",
+      "off": "Av: ingen agent eller nøkkel kan lese dette dashbordet.",
+      "toast": {
+        "on": "AI-tilgang slått på.",
+        "off": "AI-tilgang slått av.",
+        "error": "Kunne ikke oppdatere AI-tilgang."
+      },
+      "turnOffDialog": {
+        "title": "Slå av AI-tilgang?",
+        "description": "{connections, plural, one {# tilkobling} other {# tilkoblinger}} og {tokens, plural, one {# nøkkel} other {# nøkler}} mister tilgang til dette dashbordet til du slår det på igjen. Ingenting blir slettet.",
+        "cancel": "Avbryt",
+        "confirm": "Slå av",
+        "pending": "Slår av..."
+      }
     },
-    "deleteDialog": {
-      "title": "Slett {name}",
-      "description": "Denne nøkkelen vil bli permanent tilbakekalt. Alle MCP-klienter som bruker den vil miste tilgang umiddelbart."
+    "access": {
+      "title": "Hvem har tilgang",
+      "description": "Medlemmers agenttilkoblinger og nøkler som kan lese dette dashbordet.",
+      "descriptionOff": "AI-tilgang er slått av, så ingen av disse kan lese dette dashbordet før den er slått på igjen.",
+      "empty": "Ingen tilkoblinger eller nøkler kan lese dette dashbordet.",
+      "kind": {
+        "connection": "Tilkobling",
+        "token": "Nøkkel"
+      },
+      "member": "Av {name}",
+      "connected": "Koblet til {date}",
+      "created": "Opprettet {date}",
+      "lastUsed": "Sist brukt {date}",
+      "neverUsed": "Aldri brukt",
+      "expires": "Utløper {date}",
+      "expired": "Utløpt {date}",
+      "neverExpires": "Utløper aldri",
+      "remove": "Fjern fra dette dashbordet",
+      "removeAria": "Fjern {name} fra dette dashbordet"
+    },
+    "removeDialog": {
+      "title": "Fjerne {name} fra dette dashbordet?",
+      "connectionDescription": "{name} slutter å lese dette dashbordet fra neste forespørsel. Den er fortsatt koblet til medlemmets andre dashbord, og medlemmet kan legge til dette igjen i kontoinnstillingene.",
+      "tokenDescription": "{name} slutter å lese dette dashbordet fra neste forespørsel. Den virker fortsatt på de andre dashbordene sine, og den som opprettet den kan legge til dette igjen i kontoinnstillingene.",
+      "cancel": "Avbryt",
+      "confirm": "Fjern"
+    },
+    "toast": {
+      "removed": "{name} er fjernet fra dette dashbordet.",
+      "removeError": "Kunne ikke fjerne tilgangen."
     }
   },
   "integrationsSettings": {
