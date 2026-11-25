@@ -1,5 +1,105 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v154ChangelogEntryIt: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.4',
+    releasedAt: '2026-11-25',
+    title: 'Dati più puliti e correzioni alla mappa',
+    summary:
+      'Meno visite di bot finiscono nelle tue statistiche e le proprietà non valide degli eventi personalizzati vengono ora gestite meglio. Questa versione corregge anche alcuni problemi legati al consenso nel session replay, alla mappa mondiale e alle metriche di riepilogo del report Siti di riferimento.',
+  },
+  sections: [
+    {
+      id: 'v154-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Il filtro anti-bot ora intercetta più visite automatizzate.',
+            'Le proprietà non valide degli eventi personalizzati vengono ora gestite meglio.',
+            'Quando elimini una dashboard, gli indirizzi e i domini personalizzati delle sue pagine di stato vengono ora liberati, così puoi riutilizzarli.',
+            'Vari miglioramenti di usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Risolto un problema per cui in alcuni casi il session replay poteva continuare a registrare dopo che un visitatore aveva revocato il consenso.',
+            'Risolto un problema per cui i paesi con visitatori a volte potevano apparire neri sulla mappa mondiale.',
+            'Le metriche di riepilogo del report Siti di riferimento ora contano ogni sessione una sola volta.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-security',
+      title: 'Sicurezza',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Aggiornamenti generali di sicurezza e delle dipendenze per mantenere Betterlytics stabile e sicuro.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v154ChangelogModalIt: ChangelogEntryData = {
+  metadata: v154ChangelogEntryIt.metadata,
+  sections: [
+    {
+      id: 'v154-modal-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Il filtro anti-bot ora intercetta più visite automatizzate.',
+            'Le proprietà non valide degli eventi personalizzati vengono ora gestite meglio.',
+            'Quando elimini una dashboard, gli indirizzi e i domini personalizzati delle sue pagine di stato vengono ora liberati, così puoi riutilizzarli.',
+            'Vari miglioramenti di usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-modal-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Risolto un problema per cui in alcuni casi il session replay poteva continuare a registrare dopo che un visitatore aveva revocato il consenso.',
+            'Risolto un problema per cui i paesi con visitatori a volte potevano apparire neri sulla mappa mondiale.',
+            'Le metriche di riepilogo del report Siti di riferimento ora contano ogni sessione una sola volta.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-modal-security',
+      title: 'Sicurezza',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Aggiornamenti generali di sicurezza e delle dipendenze per mantenere Betterlytics stabile e sicuro.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v153ChangelogEntryIt: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.3',
@@ -888,9 +988,10 @@ const v144ChangelogEntryIt: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalIt = v153ChangelogModalIt;
+export const latestChangelogModalIt = v154ChangelogModalIt;
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  v154ChangelogEntryIt,
   v153ChangelogEntryIt,
   v152ChangelogEntryIt,
   v151ChangelogEntryIt,

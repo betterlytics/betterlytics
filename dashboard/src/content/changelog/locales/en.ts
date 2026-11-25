@@ -1,5 +1,101 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v154ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.4',
+    releasedAt: '2026-11-25',
+    title: 'Cleaner Data & Map Fixes',
+    summary:
+      'Fewer bot visits make it into your stats, and invalid custom event properties are handled better. This release also fixes issues with session replay consent, the world map and the referrers summary.',
+  },
+  sections: [
+    {
+      id: 'v154-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'The bot filter now catches more automated visits.',
+            'Invalid custom event properties are now handled better.',
+            'Deleting a dashboard now frees up its status page addresses and custom domains.',
+            'Various usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Fixed an issue where session replay could in some cases keep recording after a visitor withdrew consent.',
+            'Fixed an issue where countries with visitors could sometimes show up black on the world map.',
+            'The referrers summary no longer counts the same session more than once.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-security',
+      title: 'Security',
+      blocks: [
+        {
+          type: 'list',
+          items: ['General security and dependency updates to keep Betterlytics stable and secure.'],
+        },
+      ],
+    },
+  ],
+};
+
+const v154ChangelogModalEn: ChangelogEntryData = {
+  metadata: v154ChangelogEntryEn.metadata,
+  sections: [
+    {
+      id: 'v154-modal-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'The bot filter now catches more automated visits.',
+            'Invalid custom event properties are now handled better.',
+            'Deleting a dashboard now frees up its status page addresses and custom domains.',
+            'Various usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-modal-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Fixed an issue where session replay could in some cases keep recording after a visitor withdrew consent.',
+            'Fixed an issue where countries with visitors could sometimes show up black on the world map.',
+            'The referrers summary no longer counts the same session more than once.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-modal-security',
+      title: 'Security',
+      blocks: [
+        {
+          type: 'list',
+          items: ['General security and dependency updates to keep Betterlytics stable and secure.'],
+        },
+      ],
+    },
+  ],
+};
+
 const v153ChangelogEntryEn: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.3',
@@ -884,9 +980,10 @@ const v144ChangelogEntryEn: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalEn = v153ChangelogModalEn;
+export const latestChangelogModalEn = v154ChangelogModalEn;
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  v154ChangelogEntryEn,
   v153ChangelogEntryEn,
   v152ChangelogEntryEn,
   v151ChangelogEntryEn,
