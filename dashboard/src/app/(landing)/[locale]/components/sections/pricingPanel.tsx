@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import * as Slider from '@radix-ui/react-slider';
 import NumberFlow from '@number-flow/react';
 import { useLocale, useTranslations } from 'next-intl';
@@ -13,6 +13,7 @@ import {
 } from '@/components/pricing/usePlanFeatures';
 import { usePromo } from '@/contexts/PromoProvider';
 import { VOLUME_STOPS, type PlanId } from '@/lib/billing/catalog';
+import { promoCardDiscount } from '@/lib/billing/discount';
 import { formatEventCount } from '@/utils/pricing';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { Panel } from '@/landing/components/ui/frame';
@@ -188,7 +189,8 @@ export function PricingPanel() {
 
   const events = VOLUME_STOPS[rangeIndex];
   const lastIndex = VOLUME_STOPS.length - 1;
-  const cards = usePlanCards(events, CURRENCY, { discount: promo });
+  const discount = useMemo(() => promo && promoCardDiscount(promo), [promo]);
+  const cards = usePlanCards(events, CURRENCY, { discount });
 
   const sales: PlanCta = { label: t('contactCta'), destination: 'contact' };
 

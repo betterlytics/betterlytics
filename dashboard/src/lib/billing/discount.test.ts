@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Stripe } from 'stripe';
-import { activeDiscount, applyPercentOff, percentDiscountOf } from './discount';
+import { activeDiscount, applyPercentOff, cardDiscountNote, percentDiscountOf, promoCardDiscount } from './discount';
+import { BLACK_FRIDAY_2026 } from './promo';
 
 function subscriptionWith(discounts: unknown[]): Stripe.Subscription {
   return { discounts } as unknown as Stripe.Subscription;
@@ -40,6 +41,21 @@ describe('activeDiscount', () => {
 
   it('is null without a discount', () => {
     expect(activeDiscount({ discountPercentOff: null, discountEndsAt: null })).toBeNull();
+  });
+});
+
+describe('cardDiscountNote', () => {
+  it('gives a promo its months, not the end of the sale', () => {
+    expect(cardDiscountNote(promoCardDiscount(BLACK_FRIDAY_2026))).toEqual({ key: 'then', months: 12 });
+  });
+
+  it("gives a subscriber's discount its end date", () => {
+    const endsAt = new Date('2027-11-24T00:00:00Z');
+    expect(cardDiscountNote({ kind: 'subscriber', percentOff: 30, endsAt })).toEqual({ key: 'untilThen', endsAt });
+  });
+
+  it('has no note for a permanent subscriber discount', () => {
+    expect(cardDiscountNote({ kind: 'subscriber', percentOff: 30, endsAt: null })).toBeNull();
   });
 });
 

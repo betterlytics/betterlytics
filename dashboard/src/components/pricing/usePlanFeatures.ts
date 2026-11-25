@@ -12,7 +12,7 @@ import {
   type PlanOffer,
 } from '@/lib/billing/catalog';
 import { checkIntervalMinutes, isUnlimitedCount, retentionYears } from '@/lib/billing/capabilities';
-import { applyPercentOff } from '@/lib/billing/discount';
+import { applyPercentOff, cardDiscountNote, type CardDiscount } from '@/lib/billing/discount';
 import { formatEventCount } from '@/utils/pricing';
 
 export type PlanFeatureLabel = { kind: 'header' | 'feature'; label: string };
@@ -102,9 +102,6 @@ export function useOfferVolumeLabel() {
 
 export type PlanCardPromo = { cents: number; listLabel: string; tag: string; note: string | null };
 
-/** A checkout promo runs for a number of months; a subscriber's own discount runs until a date. */
-export type CardDiscount = { percentOff: number } & ({ months: number } | { endsAt: Date | null });
-
 export type PlanCard = {
   plan: PlanDefinition;
   offer: PlanOffer;
@@ -127,23 +124,19 @@ function useDiscountPricing(discount: CardDiscount | null, currency: PlanCurrenc
         currency,
         maximumFractionDigits: 0,
       }).format(offer.cents / 100);
-      const note =
-        'months' in discount
-          ? t('then', { months: discount.months, price: listLabel })
-          : discount.endsAt &&
-            t('untilThen', {
-              date: discount.endsAt.toLocaleDateString(locale, {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-              }),
-              price: listLabel,
-            });
+      const note = cardDiscountNote(discount);
       return {
         cents: applyPercentOff(offer.cents, discount.percentOff),
         listLabel,
         tag: t('tag', { percent: discount.percentOff }),
-        note,
+        note:
+          note?.key === 'then'
+            ? t('then', { months: note.months, price: listLabel })
+            : note &&
+              t('untilThen', {
+                date: note.endsAt.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' }),
+                price: listLabel,
+              }),
       };
     },
     [discount, currency, priceLocale, locale, t],

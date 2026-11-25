@@ -12,7 +12,8 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import NumberFlow from '@number-flow/react';
 import { EventCountText, FLUSH, QUICK_ROLL } from './EventCountFlow';
-import { usePlanCards, usePlanFeatures, type CardDiscount, type PlanCard } from './usePlanFeatures';
+import { usePlanCards, usePlanFeatures, type PlanCard } from './usePlanFeatures';
+import type { CardDiscount } from '@/lib/billing/discount';
 
 interface PricingCardsProps {
   discount: CardDiscount | null;
