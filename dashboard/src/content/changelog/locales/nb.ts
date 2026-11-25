@@ -6,7 +6,7 @@ const v154ChangelogEntryNb: ChangelogEntryData = {
     releasedAt: '2026-11-25',
     title: 'Renere data og rettelser i kartet',
     summary:
-      'Færre besøk fra bots havner i statistikken din, og ugyldige egenskaper på egendefinerte hendelser håndteres nå bedre. Denne utgivelsen retter også feil i håndteringen av samtykke i session replay, på verdenskartet og i nøkkeltallene under Henvisere.',
+      'Færre besøk fra bots havner i statistikken din, og ugyldige egenskaper på egendefinerte hendelser håndteres nå bedre. Denne utgivelsen gjør det også enklere å trekke tilbake samtykke til session replay og retter feil på verdenskartet og i nøkkeltallene under Henvisere.',
   },
   sections: [
     {
@@ -18,6 +18,7 @@ const v154ChangelogEntryNb: ChangelogEntryData = {
           items: [
             'Bot-filteret fanger nå opp flere automatiserte besøk.',
             'Ugyldige egenskaper på egendefinerte hendelser håndteres nå bedre.',
+            'Når en besøkende trekker tilbake samtykket til session replay, stopper opptaket nå med en gang, også i andre åpne faner.',
             'Når du sletter et dashbord, blir adresser og egne domener for statussidene nå frigjort, slik at de kan brukes på nytt.',
             'Diverse forbedringer i brukervennlighet på tvers av dashbordet.',
           ],
@@ -31,7 +32,6 @@ const v154ChangelogEntryNb: ChangelogEntryData = {
         {
           type: 'list',
           items: [
-            'Rettet et problem der session replay i noen tilfeller kunne fortsette å ta opp etter at en besøkende hadde trukket tilbake samtykket sitt.',
             'Rettet et problem der land med besøkende av og til kunne vises i svart på verdenskartet.',
             'Nøkkeltallene under Henvisere teller ikke lenger den samme sesjonen flere ganger.',
           ],
@@ -65,6 +65,7 @@ const v154ChangelogModalNb: ChangelogEntryData = {
           items: [
             'Bot-filteret fanger nå opp flere automatiserte besøk.',
             'Ugyldige egenskaper på egendefinerte hendelser håndteres nå bedre.',
+            'Når en besøkende trekker tilbake samtykket til session replay, stopper opptaket nå med en gang, også i andre åpne faner.',
             'Når du sletter et dashbord, blir adresser og egne domener for statussidene nå frigjort, slik at de kan brukes på nytt.',
             'Diverse forbedringer i brukervennlighet på tvers av dashbordet.',
           ],
@@ -78,7 +79,6 @@ const v154ChangelogModalNb: ChangelogEntryData = {
         {
           type: 'list',
           items: [
-            'Rettet et problem der session replay i noen tilfeller kunne fortsette å ta opp etter at en besøkende hadde trukket tilbake samtykket sitt.',
             'Rettet et problem der land med besøkende av og til kunne vises i svart på verdenskartet.',
             'Nøkkeltallene under Henvisere teller ikke lenger den samme sesjonen flere ganger.',
           ],

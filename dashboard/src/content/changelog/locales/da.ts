@@ -6,7 +6,7 @@ const v154ChangelogEntryDa: ChangelogEntryData = {
     releasedAt: '2026-11-25',
     title: 'Renere data & rettelser til verdenskortet',
     summary:
-      'Færre besøg fra bots ender i din statistik, og ugyldige egenskaber på brugerdefinerede hændelser håndteres nu bedre. Denne udgivelse retter også fejl i håndteringen af samtykke i session replay, på verdenskortet og i nøgletallene under Henvisninger.',
+      'Færre besøg fra bots ender i din statistik, og ugyldige egenskaber på brugerdefinerede hændelser håndteres nu bedre. Denne udgivelse gør det også nemmere at trække samtykke til session replay tilbage og retter fejl på verdenskortet og i nøgletallene under Henvisninger.',
   },
   sections: [
     {
@@ -18,6 +18,7 @@ const v154ChangelogEntryDa: ChangelogEntryData = {
           items: [
             'Bot-filteret fanger nu flere automatiserede besøg.',
             'Ugyldige egenskaber på brugerdefinerede hændelser håndteres nu bedre.',
+            'Når en besøgende trækker sit samtykke til session replay tilbage, stopper optagelsen nu med det samme, også i andre åbne faner.',
             'Når du sletter et dashboard, bliver adresser og egne domæner til dets statussider nu frigivet, så de kan bruges igen.',
             'Diverse forbedringer af brugervenligheden på tværs af dashboardet.',
           ],
@@ -31,7 +32,6 @@ const v154ChangelogEntryDa: ChangelogEntryData = {
         {
           type: 'list',
           items: [
-            'Rettet et problem, hvor session replay i nogle tilfælde kunne blive ved med at optage, efter at en besøgende havde trukket sit samtykke tilbage.',
             'Rettet et problem, hvor lande med besøgende nogle gange kunne blive vist som sorte på verdenskortet.',
             'Nøgletallene under Henvisninger tæller ikke længere den samme session flere gange.',
           ],
@@ -63,6 +63,7 @@ const v154ChangelogModalDa: ChangelogEntryData = {
           items: [
             'Bot-filteret fanger nu flere automatiserede besøg.',
             'Ugyldige egenskaber på brugerdefinerede hændelser håndteres nu bedre.',
+            'Når en besøgende trækker sit samtykke til session replay tilbage, stopper optagelsen nu med det samme, også i andre åbne faner.',
             'Når du sletter et dashboard, bliver adresser og egne domæner til dets statussider nu frigivet, så de kan bruges igen.',
             'Diverse forbedringer af brugervenligheden på tværs af dashboardet.',
           ],
@@ -76,7 +77,6 @@ const v154ChangelogModalDa: ChangelogEntryData = {
         {
           type: 'list',
           items: [
-            'Rettet et problem, hvor session replay i nogle tilfælde kunne blive ved med at optage, efter at en besøgende havde trukket sit samtykke tilbage.',
             'Rettet et problem, hvor lande med besøgende nogle gange kunne blive vist som sorte på verdenskortet.',
             'Nøgletallene under Henvisninger tæller ikke længere den samme session flere gange.',
           ],

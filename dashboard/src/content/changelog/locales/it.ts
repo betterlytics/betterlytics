@@ -6,7 +6,7 @@ const v154ChangelogEntryIt: ChangelogEntryData = {
     releasedAt: '2026-11-25',
     title: 'Dati più puliti e correzioni alla mappa',
     summary:
-      'Meno visite di bot finiscono nelle tue statistiche e le proprietà non valide degli eventi personalizzati vengono ora gestite meglio. Questa versione corregge anche alcuni problemi legati al consenso nel session replay, alla mappa mondiale e alle metriche di riepilogo del report Siti di riferimento.',
+      'Meno visite di bot finiscono nelle tue statistiche e le proprietà non valide degli eventi personalizzati vengono ora gestite meglio. Questa versione semplifica anche la revoca del consenso al session replay e corregge alcuni problemi relativi alla mappa mondiale e alle metriche di riepilogo del report Siti di riferimento.',
   },
   sections: [
     {
@@ -18,6 +18,7 @@ const v154ChangelogEntryIt: ChangelogEntryData = {
           items: [
             'Il filtro anti-bot ora intercetta più visite automatizzate.',
             'Le proprietà non valide degli eventi personalizzati vengono ora gestite meglio.',
+            'Quando un visitatore revoca il consenso al session replay, la registrazione ora si interrompe subito, anche nelle altre schede aperte.',
             'Quando elimini una dashboard, gli indirizzi e i domini personalizzati delle sue pagine di stato vengono ora liberati, così puoi riutilizzarli.',
             'Vari miglioramenti di usabilità in tutta la dashboard.',
           ],
@@ -31,7 +32,6 @@ const v154ChangelogEntryIt: ChangelogEntryData = {
         {
           type: 'list',
           items: [
-            'Risolto un problema per cui in alcuni casi il session replay poteva continuare a registrare dopo che un visitatore aveva revocato il consenso.',
             'Risolto un problema per cui i paesi con visitatori a volte potevano apparire neri sulla mappa mondiale.',
             'Le metriche di riepilogo del report Siti di riferimento ora contano ogni sessione una sola volta.',
           ],
@@ -65,6 +65,7 @@ const v154ChangelogModalIt: ChangelogEntryData = {
           items: [
             'Il filtro anti-bot ora intercetta più visite automatizzate.',
             'Le proprietà non valide degli eventi personalizzati vengono ora gestite meglio.',
+            'Quando un visitatore revoca il consenso al session replay, la registrazione ora si interrompe subito, anche nelle altre schede aperte.',
             'Quando elimini una dashboard, gli indirizzi e i domini personalizzati delle sue pagine di stato vengono ora liberati, così puoi riutilizzarli.',
             'Vari miglioramenti di usabilità in tutta la dashboard.',
           ],
@@ -78,7 +79,6 @@ const v154ChangelogModalIt: ChangelogEntryData = {
         {
           type: 'list',
           items: [
-            'Risolto un problema per cui in alcuni casi il session replay poteva continuare a registrare dopo che un visitatore aveva revocato il consenso.',
             'Risolto un problema per cui i paesi con visitatori a volte potevano apparire neri sulla mappa mondiale.',
             'Le metriche di riepilogo del report Siti di riferimento ora contano ogni sessione una sola volta.',
           ],
