@@ -15,7 +15,7 @@ export const BLACK_FRIDAY_2026: Promo = {
   couponId: 'BLACKFRIDAY2026',
   percentOff: 30,
   months: 12,
-  endsAt: new Date('2026-12-02T08:00:00Z'),
+  endsAt: new Date('2026-12-05T08:00:00Z'),
 };
 
 export function promoHasEnded(promo: Promo, now: number = Date.now()): boolean {
