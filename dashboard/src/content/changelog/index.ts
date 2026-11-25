@@ -23,6 +23,7 @@ const changelogEntriesByLocale: Record<SupportedLanguages, readonly ChangelogEnt
   en: enEntries,
   da: daEntries,
   it: itEntries,
+  ja: enEntries,
   nb: nbEntries,
 };
 
@@ -30,6 +31,7 @@ const modalEntriesByLocale: Record<SupportedLanguages, ChangelogEntry> = {
   en: createChangelogEntry(latestChangelogModalEn),
   da: createChangelogEntry(latestChangelogModalDa),
   it: createChangelogEntry(latestChangelogModalIt),
+  ja: createChangelogEntry(latestChangelogModalEn),
   nb: createChangelogEntry(latestChangelogModalNb),
 };
 

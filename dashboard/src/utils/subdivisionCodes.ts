@@ -2,6 +2,7 @@ import { SupportedLanguages } from '@/constants/i18n';
 import en from 'cldr-subdivisions-full/subdivisions/en/en.json';
 import da from 'cldr-subdivisions-full/subdivisions/da/da.json';
 import it from 'cldr-subdivisions-full/subdivisions/it/it.json';
+import ja from 'cldr-subdivisions-full/subdivisions/ja/ja.json';
 import no from 'cldr-subdivisions-full/subdivisions/no/no.json';
 
 type SubdivisionData = Record<string, string>;
@@ -10,6 +11,7 @@ const subdivisionsByLocale: Record<SupportedLanguages, SubdivisionData> = {
   en: en.subdivisions.localeDisplayNames.subdivisions,
   da: da.subdivisions.localeDisplayNames.subdivisions,
   it: it.subdivisions.localeDisplayNames.subdivisions,
+  ja: ja.subdivisions.localeDisplayNames.subdivisions,
   nb: no.subdivisions.localeDisplayNames.subdivisions,
 };
 

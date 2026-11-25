@@ -3,11 +3,13 @@ import countries from 'i18n-iso-countries';
 import en from 'i18n-iso-countries/langs/en.json';
 import da from 'i18n-iso-countries/langs/da.json';
 import it from 'i18n-iso-countries/langs/it.json';
+import ja from 'i18n-iso-countries/langs/ja.json';
 import nb from 'i18n-iso-countries/langs/nb.json';
 
 countries.registerLocale(en);
 countries.registerLocale(da);
 countries.registerLocale(it);
+countries.registerLocale(ja);
 countries.registerLocale(nb);
 
 /**
