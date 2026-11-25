@@ -3,7 +3,7 @@
   "name": "io.betterlytics/mcp",
   "title": "Betterlytics",
   "description": "Query your Betterlytics web analytics from AI agents: traffic, funnels, journeys, errors, uptime.",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "websiteUrl": "https://betterlytics.io/docs/dashboard/mcp",
   "repository": {
     "url": "https://github.com/betterlytics/betterlytics",
@@ -16,8 +16,8 @@
       "headers": [
         {
           "name": "Authorization",
-          "description": "Bearer token created in Dashboard > Settings > MCP. Enter the full value including the scheme, e.g. 'Bearer btl_...'",
-          "isRequired": true,
+          "description": "Only needed if your client can't sign in: a personal access token created in Account settings > MCP. Enter the full value including the scheme, e.g. 'Bearer btl_...'",
+          "isRequired": false,
           "isSecret": true
         }
       ]
