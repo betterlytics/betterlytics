@@ -288,8 +288,8 @@
   // A link is only taken up outside frames, on pages tracked for the dashboard that made it, so
   // nobody can have a visitor capture another site's page into their own dashboard.
   function isCaptureMode() {
-    if (pageHash === "#bl-preview") return true;
     var framed = window.top !== window;
+    if (pageHash === "#bl-preview" && framed) return true;
     if (pageHash.indexOf("#bl-capture=") === 0) {
       // The link holds a live token, so it leaves the address right away, taken up or not
       try {
