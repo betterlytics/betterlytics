@@ -4593,6 +4593,7 @@
   },
   "validation": {
     "termsOfServiceRequired": "You must accept the terms of service to continue.",
+    "onboardingAlreadyComplete": "Onboarding is already complete.",
     "urlMustBeOnDomain": "URL must be on {domain} or a subdomain",
     "monitorAlreadyExists": "A monitor for this URL already exists",
     "statusPageSlugTaken": "This URL slug is already in use",

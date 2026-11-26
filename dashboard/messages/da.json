@@ -4593,6 +4593,7 @@
   },
   "validation": {
     "termsOfServiceRequired": "Du skal acceptere servicevilkårene for at fortsætte.",
+    "onboardingAlreadyComplete": "Onboarding er allerede gennemført.",
     "urlMustBeOnDomain": "URL skal være på {domain} eller et underdomæne",
     "monitorAlreadyExists": "En monitor for denne URL eksisterer allerede",
     "statusPageSlugTaken": "Denne URL-slug er allerede i brug",

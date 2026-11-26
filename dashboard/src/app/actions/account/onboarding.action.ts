@@ -10,6 +10,8 @@ import type { User } from '@/entities/auth/session.entities';
 import { getTranslations } from 'next-intl/server';
 import { SupportedLanguages } from '@/constants/i18n';
 import { env } from '@/lib/env';
+import { getUserCapabilities } from '@/lib/billing/capabilityAccess';
+import { dashboardValidator } from '@/lib/billing/validators';
 
 export const completeOnboardingAndCreateDashboardAction = withUserAuth(
   async (
@@ -28,7 +30,12 @@ export const completeOnboardingAndCreateDashboardAction = withUserAuth(
       await acceptUserTerms(user.id, CURRENT_TERMS_VERSION);
     }
 
-    return completeOnboardingAndCreateDashboard(domain, user.id, language);
+    const caps = await getUserCapabilities();
+    const validator = await dashboardValidator(caps.dashboards);
+
+    return completeOnboardingAndCreateDashboard(domain, user.id, language, (ownedCount) =>
+      validator.dashboardLimit(ownedCount).validate(),
+    );
   },
 );
 
