@@ -1,6 +1,7 @@
 import { baEvent } from '@/lib/ba-event';
 
-export type CtaPlacement = 'nav' | 'menu' | 'hero' | 'demo' | 'mcp' | 'privacy' | 'setup' | 'pricing' | 'cta';
+export type CtaPlacement =
+  'nav' | 'menu' | 'hero' | 'demo' | 'mcp' | 'privacy' | 'setup' | 'triage' | 'priority' | 'pricing' | 'cta';
 
 export type CtaDestination = 'signup' | 'contact' | 'docs' | 'mcp-docs' | 'demo';
 
@@ -9,4 +10,5 @@ export const track = {
     baEvent('landing-cta', plan ? { placement, destination, plan } : { placement, destination }),
   demoOpened: () => baEvent('landing-demo-opened'),
   pricingVolume: (events: number) => baEvent('landing-pricing-volume', { events }),
+  promoBar: (promo: string) => baEvent('landing-promo-bar', { promo }),
 };

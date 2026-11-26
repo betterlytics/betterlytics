@@ -1,5 +1,191 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v154ChangelogEntryNb: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.4',
+    releasedAt: '2026-11-25',
+    title: 'Renere data og rettelser i kartet',
+    summary:
+      'Færre besøk fra bots havner i statistikken din, og ugyldige egenskaper på egendefinerte hendelser håndteres nå bedre. Denne utgivelsen gjør det også enklere å trekke tilbake samtykke til session replay og retter feil på verdenskartet og i nøkkeltallene under Henvisere.',
+  },
+  sections: [
+    {
+      id: 'v154-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Bot-filteret fanger nå opp flere automatiserte besøk.',
+            'Ugyldige egenskaper på egendefinerte hendelser håndteres nå bedre.',
+            'Når en besøkende trekker tilbake samtykket til session replay, stopper opptaket nå med en gang, også i andre åpne faner.',
+            'Når du sletter et dashbord, blir adresser og egne domener for statussidene nå frigjort, slik at de kan brukes på nytt.',
+            'Diverse forbedringer i brukervennlighet på tvers av dashbordet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Rettet et problem der land med besøkende av og til kunne vises i svart på verdenskartet.',
+            'Nøkkeltallene under Henvisere teller ikke lenger den samme sesjonen flere ganger.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-security',
+      title: 'Sikkerhet',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Generelle sikkerhets- og avhengighetsoppdateringer for å holde Betterlytics stabilt og sikkert.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v154ChangelogModalNb: ChangelogEntryData = {
+  metadata: v154ChangelogEntryNb.metadata,
+  sections: [
+    {
+      id: 'v154-modal-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Bot-filteret fanger nå opp flere automatiserte besøk.',
+            'Ugyldige egenskaper på egendefinerte hendelser håndteres nå bedre.',
+            'Når en besøkende trekker tilbake samtykket til session replay, stopper opptaket nå med en gang, også i andre åpne faner.',
+            'Når du sletter et dashbord, blir adresser og egne domener for statussidene nå frigjort, slik at de kan brukes på nytt.',
+            'Diverse forbedringer i brukervennlighet på tvers av dashbordet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-modal-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Rettet et problem der land med besøkende av og til kunne vises i svart på verdenskartet.',
+            'Nøkkeltallene under Henvisere teller ikke lenger den samme sesjonen flere ganger.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-modal-security',
+      title: 'Sikkerhet',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Generelle sikkerhets- og avhengighetsoppdateringer for å holde Betterlytics stabilt og sikkert.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v153ChangelogEntryNb: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.3',
+    releasedAt: '2026-11-08',
+    title: 'Bedre overvåking og et finpusset kart',
+    summary:
+      'Sidemenyen viser nå når en oppetidsmonitor er nede, og oppetidsprosentene er mer nøyaktige og like overalt der du ser dem. Denne utgivelsen blokkerer også en bølge av henvisningsspam, finpusser geografikartet og retter en håndfull feil i overvåkingen og under Henvisere.',
+  },
+  sections: [
+    {
+      id: 'v153-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Menypunktet Overvåking i sidemenyen viser nå en rød prikk så lenge en av monitorene dine er nede.',
+            'Perioder der en monitor ikke ble sjekket, telles ikke lenger som oppetid eller nedetid.',
+            'Når du sletter en monitor, får du nå en advarsel hvis den brukes på en statusside.',
+            'Oppetidssjekker er nå mer pålitelige.',
+            'Bot-filteret blokkerer nå en bølge av henvisningsspam som dukket opp som falske besøk blant henvisningene dine.',
+            'Popup-vinduer og filtre på geografikartet skjules ikke lenger bak andre deler av siden.',
+            'Diverse forbedringer i brukervennlighet på tvers av dashbordet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v153-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Rettet et problem der oppetidsprosentene kunne variere litt fra sted til sted.',
+            'Besøkende fra Svalbard telles nå riktig med under Norge.',
+            'Varselinnstillingene for en monitor viser nå riktig hvem e-postvarslene sendes til.',
+            'Filtre på henvisningskilde viser nå riktig kategorinavn, for eksempel «AI» eller «Søk».',
+            'Rader merket «Ukjent» i tabellen under Henvisere viser ikke lenger sammenligningsverdien som hører til direkte trafikk.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v153ChangelogModalNb: ChangelogEntryData = {
+  metadata: v153ChangelogEntryNb.metadata,
+  sections: [
+    {
+      id: 'v153-modal-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'En rød prikk i sidemenyen viser når en monitor er nede.',
+            'Perioder der en monitor ikke ble sjekket, teller ikke lenger med i oppetiden.',
+            'Sletter du en monitor, får du en advarsel hvis den brukes på en statusside.',
+            'Mer pålitelige oppetidssjekker.',
+            'En bølge av henvisningsspam blir nå blokkert.',
+            'Popup-vinduer og filtre på geografikartet skjules ikke lenger.',
+            'Diverse forbedringer i brukervennlighet på tvers av dashbordet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v153-modal-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Oppetidsprosentene er nå like overalt.',
+            'Besøkende fra Svalbard telles riktig med under Norge.',
+            'Varselinnstillingene for monitorer viser riktig e-postmottaker.',
+            'Filtre på henvisningskilde viser riktig kategorinavn.',
+            'Ukjente henvisninger viser ikke lenger sammenligningsverdien for direkte trafikk.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v152ChangelogEntryNb: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.2',
@@ -800,9 +986,11 @@ const v144ChangelogEntryNb: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalNb = v152ChangelogModalNb;
+export const latestChangelogModalNb = v154ChangelogModalNb;
 
 export const changelogEntriesNb: readonly ChangelogEntryData[] = [
+  v154ChangelogEntryNb,
+  v153ChangelogEntryNb,
   v152ChangelogEntryNb,
   v151ChangelogEntryNb,
   v150ChangelogEntryNb,

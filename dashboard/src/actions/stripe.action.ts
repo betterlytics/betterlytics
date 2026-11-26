@@ -14,6 +14,8 @@ import { findActivePriceByLookupKey } from '@/lib/billing/stripe-prices';
 import { LIVE_SUBSCRIPTION_STATUSES } from '@/lib/billing/subscription-status';
 import { handleCheckoutCompleted } from '@/services/system/webhookHandlers.service';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { purchasableLookupKey } from '@/lib/billing/catalog';
+import { livePromo } from '@/lib/billing/promo';
 import { z } from 'zod';
 
 async function getPriceByLookupKey(lookupKey: string): Promise<Stripe.Price> {
@@ -67,19 +69,12 @@ export const createStripeCheckoutSession = withUserAuth(
         throw new Error('Attempting to purchase with unverified email.');
       }
 
-      if (validatedPlan.price_cents === 0 && validatedPlan.tier === 'growth') {
-        throw new Error('Free plans do not require checkout');
+      const lookupKey = purchasableLookupKey(validatedPlan.planId, validatedPlan.eventLimit);
+      if (!lookupKey) {
+        throw new Error(`Plan ${validatedPlan.planId} at ${validatedPlan.eventLimit} events is not for sale`);
       }
 
-      if (validatedPlan.tier === 'enterprise') {
-        throw new Error('Custom plans require manual setup');
-      }
-
-      if (!validatedPlan.lookup_key) {
-        throw new Error('No lookup key provided for plan');
-      }
-
-      const price = await getPriceByLookupKey(validatedPlan.lookup_key);
+      const price = await getPriceByLookupKey(lookupKey);
       const customerId = await getOrCreateStripeCustomer(user);
 
       if (await hasLiveSubscription(customerId)) {
@@ -96,6 +91,8 @@ export const createStripeCheckoutSession = withUserAuth(
         throw new UserException(`This plan is not available in ${effectiveCurrency}. Please contact support.`);
       }
 
+      const promo = livePromo(isFeatureEnabled('isCloud'));
+
       const checkoutSession = await stripe.checkout.sessions.create({
         ui_mode: 'embedded_page',
         line_items: [
@@ -110,15 +107,18 @@ export const createStripeCheckoutSession = withUserAuth(
         expires_at: Math.floor(Date.now() / 1000) + CHECKOUT_SESSION_TTL_SECONDS,
         metadata: {
           userId: user.id,
-          lookupKey: validatedPlan.lookup_key,
+          lookupKey,
           requestedCurrency: validatedPlan.currency,
           effectiveCurrency,
           isInitialSubscription: 'true',
         },
         return_url: `${env.PUBLIC_BASE_URL}/billing?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
         redirect_on_completion: 'if_required',
-        allow_promotion_codes: true,
+        // Stripe rejects a session that sets both
+        ...(promo ? { discounts: [{ coupon: promo.couponId }] } : { allow_promotion_codes: true }),
         billing_address_collection: 'required',
+        tax_id_collection: { enabled: true },
+        customer_update: { name: 'auto', address: 'auto' },
         locale: 'auto',
       });
 
@@ -132,7 +132,14 @@ export const createStripeCheckoutSession = withUserAuth(
       };
     } catch (error) {
       if (error instanceof UserException) throw error;
-      console.error('Failed to create Stripe checkout session:', error);
+      const couponRejected =
+        error instanceof Stripe.errors.StripeInvalidRequestError && Boolean(error.param?.startsWith('discounts'));
+      console.error(
+        couponRejected
+          ? 'Promo coupon rejected by Stripe, every checkout fails until it exists:'
+          : 'Failed to create Stripe checkout session:',
+        error,
+      );
       throw new UserException('Failed to create checkout session. Please try again.');
     }
   },
@@ -224,7 +231,7 @@ export const createStripeCustomerPortalSessionForCancellation = withUserAuth(asy
   }
 });
 
-export const createStripeCustomerPortalSession = withUserAuth(async (user: User, targetPlan?: SelectedPlan) => {
+export const createStripeCustomerPortalSession = withUserAuth(async (user: User) => {
   try {
     if (!user.emailVerified) {
       throw new Error('Attempting to create customer portal session with unverified email.');
@@ -236,58 +243,10 @@ export const createStripeCustomerPortalSession = withUserAuth(async (user: User,
       throw new Error('No Stripe customer found for this user');
     }
 
-    let configurationId: string | undefined;
-
-    if (targetPlan?.lookup_key) {
-      try {
-        const targetPrice = await getPriceByLookupKey(targetPlan.lookup_key);
-
-        const configuration = await stripe.billingPortal.configurations.create({
-          business_profile: {
-            headline: `Switching to ${targetPlan.tier} plan with ${targetPlan.eventLimit.toLocaleString()} events`,
-          },
-          features: {
-            subscription_update: {
-              enabled: true,
-              default_allowed_updates: ['price', 'promotion_code'],
-              proration_behavior: 'always_invoice',
-              products: [
-                {
-                  product: targetPrice.product as string,
-                  prices: [targetPrice.id],
-                },
-              ],
-            },
-            payment_method_update: { enabled: true },
-            invoice_history: { enabled: true },
-            subscription_cancel: { enabled: true },
-          },
-        });
-
-        configurationId = configuration.id;
-      } catch (configError) {
-        console.warn('Failed to create custom configuration, using default:', configError);
-        // Fallback to default configuration
-      }
-    }
-
     const sessionParams: Stripe.BillingPortal.SessionCreateParams = {
       customer: subscription.paymentCustomerId,
       return_url: `${env.PUBLIC_BASE_URL}/billing`,
     };
-
-    if (configurationId) {
-      sessionParams.configuration = configurationId;
-    }
-
-    if (targetPlan && subscription.paymentSubscriptionId) {
-      sessionParams.flow_data = {
-        type: 'subscription_update',
-        subscription_update: {
-          subscription: subscription.paymentSubscriptionId,
-        },
-      };
-    }
 
     const portalSession = await stripe.billingPortal.sessions.create(sessionParams);
 

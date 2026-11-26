@@ -6,9 +6,9 @@ use std::{future::Future, pin::Pin};
 
 use rand::Rng;
 use tokio::sync::Semaphore;
-use tokio::task::JoinSet;
+use tokio::task::{self, JoinError, JoinSet};
 use tokio::time::{Instant, MissedTickBehavior, interval};
-use tracing::{debug, info, warn};
+use tracing::{debug, error, info, warn};
 
 use crate::metrics::MetricsCollector;
 use crate::monitor::{
@@ -16,6 +16,7 @@ use crate::monitor::{
     IncidentContext, IncidentOrchestrator, MonitorCache, MonitorCheck, MonitorProbe,
     MonitorResultRow, MonitorWriter, ProbeOutcome,
 };
+use crate::utils::{panic_message, spawn_supervised};
 
 const BACKOFF_JITTER_RATIO: f64 = 0.10;
 
@@ -182,64 +183,40 @@ impl<S: RunnerStrategy> Runner<S> {
     }
 
     pub fn spawn(self) {
-        let runner_name = S::name();
-        let cache = self.cache;
-        let probe = self.probe;
-        let writer = self.writer;
-        let metrics = self.metrics;
-        let incident_orchestrator = self.incident_orchestrator;
-        let rate_limiter = self.rate_limiter;
-        let runtime = self.runtime;
+        let Self {
+            cache,
+            probe,
+            writer,
+            metrics,
+            incident_orchestrator,
+            rate_limiter,
+            runtime,
+            backoff_seeds,
+            ..
+        } = self;
         // Seeds describe the state at startup only; a restarted loop starts cold.
-        let mut backoff_seeds = Some(self.backoff_seeds);
+        let mut backoff_seeds = Some(backoff_seeds);
 
-        tokio::spawn(async move {
-            let mut restart_count: u32 = 0;
-            const MAX_BACKOFF_SECS: u64 = 60;
-            const BASE_BACKOFF_SECS: u64 = 1;
+        spawn_supervised(S::name(), move || {
+            let config = RunLoopConfig {
+                name: S::name(),
+                scheduler_tick: S::scheduler_tick(&runtime),
+                max_concurrency: S::max_concurrency(&runtime),
+                prune_every_ticks: S::prune_every_ticks(),
+                metrics_kind: S::metrics_kind(),
+            };
+            let scheduler = S::create_scheduler(&runtime, backoff_seeds.take().unwrap_or_default());
 
-            loop {
-                let config = RunLoopConfig {
-                    name: S::name(),
-                    scheduler_tick: S::scheduler_tick(&runtime),
-                    max_concurrency: S::max_concurrency(&runtime),
-                    prune_every_ticks: S::prune_every_ticks(),
-                    metrics_kind: S::metrics_kind(),
-                };
-                let scheduler =
-                    S::create_scheduler(&runtime, backoff_seeds.take().unwrap_or_default());
-
-                info!(
-                    runner = runner_name,
-                    restart_count = restart_count,
-                    "Starting monitor runner"
-                );
-
-                // This should run forever unless something goes wrong
-                run_loop::<S>(
-                    Arc::clone(&cache),
-                    probe.clone(),
-                    Arc::clone(&writer),
-                    metrics.clone(),
-                    incident_orchestrator.clone(),
-                    rate_limiter.clone(),
-                    config,
-                    scheduler,
-                )
-                .await;
-
-                restart_count = restart_count.saturating_add(1);
-                let backoff_secs = (BASE_BACKOFF_SECS << restart_count.min(6)).min(MAX_BACKOFF_SECS);
-
-                tracing::error!(
-                    runner = runner_name,
-                    restart_count = restart_count,
-                    backoff_secs = backoff_secs,
-                    "Monitor runner exited unexpectedly - restarting after backoff"
-                );
-
-                tokio::time::sleep(StdDuration::from_secs(backoff_secs)).await;
-            }
+            run_loop::<S>(
+                Arc::clone(&cache),
+                probe.clone(),
+                Arc::clone(&writer),
+                metrics.clone(),
+                incident_orchestrator.clone(),
+                rate_limiter.clone(),
+                config,
+                scheduler,
+            )
         });
     }
 }
@@ -439,6 +416,7 @@ async fn run_loop<S: RunnerStrategy>(
 
         let now = Instant::now();
         let mut set = JoinSet::new();
+        let mut probe_checks: HashMap<task::Id, String> = HashMap::new();
 
         for check in snapshot {
             if scheduler.check_due(&check, now, &last_run).is_none() {
@@ -461,8 +439,9 @@ async fn run_loop<S: RunnerStrategy>(
             let metrics = metrics.clone();
             let semaphore = Arc::clone(&semaphore);
             let check_for_probe = check.clone();
+            let check_id = check.id.clone();
 
-            set.spawn(async move {
+            let task = set.spawn(async move {
                 let permit = semaphore.acquire_owned().await;
                 if permit.is_err() {
                     warn!(
@@ -488,6 +467,7 @@ async fn run_loop<S: RunnerStrategy>(
 
                 Some((check_for_probe, outcome, finished_at))
             });
+            probe_checks.insert(task.id(), check_id);
         }
 
         if let Some(ref m) = metrics {
@@ -495,8 +475,10 @@ async fn run_loop<S: RunnerStrategy>(
         }
 
         let mut collected: Vec<MonitorResultRow> = Vec::new();
-        while let Some(res) = set.join_next().await {
-            if let Ok(Some((check, outcome, finished_at))) = res {
+        while let Some(res) = set.join_next_with_id().await {
+            if let Some((check, outcome, finished_at)) =
+                settle_probe(runner_name, res, &probe_checks, &mut last_run)
+            {
                 last_run.insert(check.id.clone(), finished_at);
                 let post_snapshot = scheduler.apply_outcome(&check, &outcome, finished_at);
 
@@ -543,6 +525,35 @@ async fn run_loop<S: RunnerStrategy>(
 }
 
 // Helpers
+
+/// Unwraps a finished probe task. A probe that panicked is logged and marked as run,
+/// so it waits its normal interval instead of being retried on every tick.
+fn settle_probe<T>(
+    runner_name: &'static str,
+    res: Result<(task::Id, Option<T>), JoinError>,
+    probe_checks: &HashMap<task::Id, String>,
+    last_run: &mut HashMap<String, Instant>,
+) -> Option<T> {
+    match res {
+        Ok((_, result)) => result,
+        Err(err) => {
+            let check_id = probe_checks.get(&err.id());
+            if err.is_panic() {
+                let panic = panic_message(err.into_panic().as_ref());
+                error!(
+                    runner = runner_name,
+                    check = check_id.map(String::as_str).unwrap_or("unknown"),
+                    panic = %panic,
+                    "probe panicked; skipping until its next interval"
+                );
+            }
+            if let Some(check_id) = check_id {
+                last_run.insert(check_id.clone(), Instant::now());
+            }
+            None
+        }
+    }
+}
 
 fn jitter_duration(base: StdDuration, jitter_ratio: f64) -> StdDuration {
     let mut rng = rand::thread_rng();
@@ -647,5 +658,38 @@ mod tests {
 
         // Only the save makes it due early; afterwards it waits for its base interval.
         assert!(scheduler.check_due(&saved, now, &last_run).is_none());
+    }
+
+    #[tokio::test]
+    async fn panicking_probe_waits_its_interval_and_spares_other_checks() {
+        let mut scheduler = BackoffScheduler::new(BackoffSeeds::new());
+        let panicking = check(Utc::now());
+        let healthy = MonitorCheck {
+            id: "check-2".to_string(),
+            ..check(Utc::now())
+        };
+        let now = Instant::now();
+        let mut last_run = HashMap::new();
+        assert!(scheduler.check_due(&panicking, now, &last_run).is_some());
+
+        let mut set = JoinSet::new();
+        let mut probe_checks = HashMap::new();
+        let task = set.spawn(async { panic!("probe bug") });
+        probe_checks.insert(task.id(), panicking.id.clone());
+        let task = set.spawn(async { Some("ok") });
+        probe_checks.insert(task.id(), healthy.id.clone());
+
+        let mut results = Vec::new();
+        while let Some(res) = set.join_next_with_id().await {
+            results.extend(settle_probe::<&str>("test", res, &probe_checks, &mut last_run));
+        }
+        assert_eq!(results, vec!["ok"]);
+
+        // Not retried on the next ticks, only once its interval (plus jitter) has passed.
+        let next_tick = now + StdDuration::from_secs(1);
+        assert!(scheduler.check_due(&panicking, next_tick, &last_run).is_none());
+        let after_interval =
+            now + panicking.interval.mul_f64(1.0 + BACKOFF_JITTER_RATIO) + StdDuration::from_secs(1);
+        assert!(scheduler.check_due(&panicking, after_interval, &last_run).is_some());
     }
 }

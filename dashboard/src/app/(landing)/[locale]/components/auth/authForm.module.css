@@ -170,6 +170,8 @@
   /* --- buttons --- */
   .primary,
   .secondary {
+    @apply tactile;
+    --tactile-with: background-color, border-color, box-shadow, opacity;
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -186,19 +188,12 @@
     letter-spacing: -0.2px;
     text-decoration: none;
     white-space: nowrap;
-    transition:
-      translate 0.18s var(--ease-out-expo),
-      background-color 0.18s var(--ease-out-expo),
-      border-color 0.18s var(--ease-out-expo),
-      box-shadow 0.18s var(--ease-out-expo),
-      opacity 0.18s var(--ease-out-expo);
   }
   .primary {
     background: var(--color-volt);
     color: var(--color-on-volt);
   }
   .primary:hover:not(:disabled) {
-    translate: 0 -1px;
     background: var(--color-volt-hover);
     box-shadow: 0 0 0 4px rgb(74 92 255 / 0.2);
   }
@@ -208,7 +203,6 @@
     color: var(--color-fg);
   }
   .secondary:hover:not(:disabled) {
-    translate: 0 -1px;
     border-color: rgb(235 232 230 / 0.5);
     background: rgb(235 232 230 / 0.04);
   }
@@ -255,8 +249,11 @@
   }
   /* they fill on hover and ring on focus, so they read as buttons */
   .cells > .secondary:hover:not(:disabled) {
-    translate: none;
+    scale: none;
     background: rgb(235 232 230 / 0.04);
+  }
+  .cells > .secondary:active:not(:disabled) {
+    scale: none;
   }
   .cells > .secondary:focus-visible {
     outline: 2px solid var(--color-volt-lift);

@@ -1,16 +1,21 @@
 import 'server-only';
 
 import Stripe from 'stripe';
-import { STARTER_SUBSCRIPTION_STATIC, type Currency } from '@/entities/billing/billing.entities';
+import { type Currency } from '@/entities/billing/billing.entities';
 import { stripe } from '@/lib/billing/stripe';
-import { getTierConfigFromLookupKey, type TierName } from '@/lib/billing/plans';
-import { getMaxRetentionDaysForTier } from '@/lib/billing/capabilities';
+import { DISCOUNT_EXPAND, percentDiscountOf } from '@/lib/billing/discount';
+import {
+  freePlan,
+  freeSubscriptionDefaults,
+  planForLookupKey,
+  type PlanDefinition,
+  type PlanId,
+} from '@/lib/billing/catalog';
 import { addDays } from 'date-fns';
 import { env } from '@/lib/env';
 import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
-import { capitalizeFirstLetter } from '@/utils/formatters';
-import { applyTierChangeToRetention } from '@/services/dashboard/dashboardSettings.service';
+import { applyPlanChangeToRetention } from '@/services/dashboard/dashboardSettings.service';
 import { findUserById } from '@/repositories/postgres/user.repository';
 import { findOwnedDashboardDomainsWithActiveRetentionGrace } from '@/repositories/postgres/dashboardSettings.repository';
 import {
@@ -28,15 +33,18 @@ import { NonRetryableWebhookError } from '@/lib/exceptions';
 
 const RETENTION_GRACE_DAYS = 30;
 
-function getTierConfigForWebhook(lookupKey: string | null | undefined): { tier: TierName; eventLimit: number } {
+function resolvePlanForWebhook(lookupKey: string | null | undefined): {
+  plan: PlanDefinition;
+  eventLimit: number;
+} {
   if (!lookupKey) {
     throw new NonRetryableWebhookError('Subscription price has no lookup key');
   }
-  try {
-    return getTierConfigFromLookupKey(lookupKey);
-  } catch {
+  const match = planForLookupKey(lookupKey);
+  if (!match) {
     throw new NonRetryableWebhookError(`Unknown price lookup key: ${lookupKey}`);
   }
+  return { plan: match.plan, eventLimit: match.events };
 }
 
 export async function handleCheckoutCompleted(session: Stripe.Checkout.Session, eventId: string) {
@@ -50,7 +58,9 @@ export async function handleCheckoutCompleted(session: Stripe.Checkout.Session, 
     }
 
     const { userId } = session.metadata;
-    const stripeSubscription = await stripe.subscriptions.retrieve(session.subscription as string);
+    const stripeSubscription = await stripe.subscriptions.retrieve(session.subscription as string, {
+      expand: DISCOUNT_EXPAND,
+    });
 
     const verdict = await resolveDuplicateSubscriptions(
       stripeSubscription.customer as string,
@@ -65,15 +75,15 @@ export async function handleCheckoutCompleted(session: Stripe.Checkout.Session, 
 
     const subscriptionItem = stripeSubscription.items.data[0];
 
-    const tierConfig = getTierConfigForWebhook(subscriptionItem.price.lookup_key);
+    const resolved = resolvePlanForWebhook(subscriptionItem.price.lookup_key);
     const paymentCurrency = session.currency || subscriptionItem.price.currency;
     const pricePerMonth = await getPriceAmountByCurrency(subscriptionItem.price.id, paymentCurrency);
 
     await upsertUserSubscription({
       userId,
-      tier: tierConfig.tier,
+      planId: resolved.plan.id,
       status: stripeSubscription.status,
-      eventLimit: tierConfig.eventLimit,
+      eventLimit: resolved.eventLimit,
       pricePerMonth,
       currency: paymentCurrency.toUpperCase() as Currency,
       currencyLocked: true,
@@ -83,9 +93,10 @@ export async function handleCheckoutCompleted(session: Stripe.Checkout.Session, 
       paymentCustomerId: stripeSubscription.customer as string,
       paymentSubscriptionId: session.subscription as string,
       paymentPriceId: subscriptionItem.price.id,
+      ...discountFields(stripeSubscription),
     });
 
-    await syncRetentionToTier(userId, tierConfig.tier, eventId);
+    await syncRetentionToPlan(userId, resolved.plan, eventId);
   } catch (error) {
     console.error('Error handling checkout completed:', error);
     throw error;
@@ -221,8 +232,8 @@ async function sendSubscriptionPaymentCancelledNotification(userId: string, even
         to: user.email,
         userName: user.name,
         billingUrl: `${env.PUBLIC_BASE_URL}/billing`,
-        freeEventLimit: STARTER_SUBSCRIPTION_STATIC.eventLimit,
-        freeRetentionDays: getMaxRetentionDaysForTier(STARTER_SUBSCRIPTION_STATIC.tier),
+        freeEventLimit: freeSubscriptionDefaults().eventLimit,
+        freeRetentionDays: freePlan().capabilities.dataRetention.maxDataRetentionDays,
         affectedDashboards,
       },
     });
@@ -231,13 +242,13 @@ async function sendSubscriptionPaymentCancelledNotification(userId: string, even
   }
 }
 
-// Reset a user to the free Growth plan. Pass `link` to retain the Stripe association so a
+// Reset a user to the free plan. Pass `link` to retain the Stripe association so a
 // revivable subscription restores automatically on the next event
 async function revokePaidEntitlement(
   localSubscription: {
     userId: string;
     currency: Currency;
-    tier: string;
+    planId: PlanId;
     currentPeriodStart: Date;
     currentPeriodEnd: Date;
   },
@@ -245,7 +256,7 @@ async function revokePaidEntitlement(
   eventId: string,
 ): Promise<void> {
   await upsertUserSubscription({
-    ...STARTER_SUBSCRIPTION_STATIC,
+    ...freeSubscriptionDefaults(),
     userId: localSubscription.userId,
     currency: localSubscription.currency,
     currentPeriodStart: localSubscription.currentPeriodStart,
@@ -253,10 +264,12 @@ async function revokePaidEntitlement(
     paymentCustomerId: link?.customerId,
     paymentSubscriptionId: link ? link.subscriptionId : null,
     paymentPriceId: link ? link.priceId : null,
+    discountPercentOff: null,
+    discountEndsAt: null,
   });
 
-  if (localSubscription.tier !== STARTER_SUBSCRIPTION_STATIC.tier) {
-    await syncRetentionToTier(localSubscription.userId, 'growth', eventId);
+  if (localSubscription.planId !== freePlan().id) {
+    await syncRetentionToPlan(localSubscription.userId, freePlan(), eventId);
   }
 }
 
@@ -285,7 +298,7 @@ export async function syncSubscriptionFromStripe(
   eventId: string,
 ): Promise<void> {
   const localSubscription = await findSubscriptionByPaymentId(subscription.id);
-  const fresh = await stripe.subscriptions.retrieve(subscription.id);
+  const fresh = await stripe.subscriptions.retrieve(subscription.id, { expand: DISCOUNT_EXPAND });
 
   if (!localSubscription) {
     if (TERMINAL_STATUSES.has(fresh.status)) {
@@ -308,7 +321,7 @@ export async function syncSubscriptionFromStripe(
     return;
   }
 
-  const tierConfig = getTierConfigForWebhook(subscriptionItem.price.lookup_key);
+  const resolved = resolvePlanForWebhook(subscriptionItem.price.lookup_key);
 
   const pricePerMonth = await getPriceAmountByCurrency(
     subscriptionItem.price.id,
@@ -319,9 +332,9 @@ export async function syncSubscriptionFromStripe(
 
   await upsertUserSubscription({
     userId: localSubscription.userId,
-    tier: tierConfig.tier,
+    planId: resolved.plan.id,
     status: fresh.status,
-    eventLimit: tierConfig.eventLimit,
+    eventLimit: resolved.eventLimit,
     pricePerMonth,
     currency: fresh.currency.toUpperCase() as Currency,
     currencyLocked: true,
@@ -331,18 +344,24 @@ export async function syncSubscriptionFromStripe(
     paymentCustomerId: fresh.customer as string,
     paymentSubscriptionId: fresh.id,
     paymentPriceId: subscriptionItem.price.id,
+    ...discountFields(fresh),
   });
 
-  if (localSubscription.tier !== tierConfig.tier) {
-    await syncRetentionToTier(localSubscription.userId, tierConfig.tier, eventId);
+  if (localSubscription.planId !== resolved.plan.id) {
+    await syncRetentionToPlan(localSubscription.userId, resolved.plan, eventId);
   }
 }
 
-async function syncRetentionToTier(userId: string, newTier: TierName, eventId: string): Promise<void> {
-  const newMaxDays = getMaxRetentionDaysForTier(newTier);
+function discountFields(subscription: Stripe.Subscription) {
+  const discount = percentDiscountOf(subscription);
+  return { discountPercentOff: discount?.percentOff ?? null, discountEndsAt: discount?.endsAt ?? null };
+}
+
+async function syncRetentionToPlan(userId: string, plan: PlanDefinition, eventId: string): Promise<void> {
+  const newMaxDays = plan.capabilities.dataRetention.maxDataRetentionDays;
   const graceUntil = addDays(new Date(), RETENTION_GRACE_DAYS);
 
-  const result = await applyTierChangeToRetention(userId, newMaxDays, graceUntil);
+  const result = await applyPlanChangeToRetention(userId, newMaxDays, graceUntil);
   if (result.previousMaxRetention == null) return;
 
   const user = await findUserById(userId);
@@ -358,7 +377,7 @@ async function syncRetentionToTier(userId: string, newTier: TierName, eventId: s
     data: {
       to: user.email,
       userName: user.name,
-      newPlanName: capitalizeFirstLetter(newTier),
+      newPlanName: plan.name,
       previousRetentionDays: result.previousMaxRetention,
       newRetentionDays: newMaxDays,
       graceUntil,

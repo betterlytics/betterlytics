@@ -6,6 +6,7 @@ import { FILTER_COLUMNS, FILTER_OPERATORS } from '@/entities/analytics/filter.en
 import { getFilterColumnDescription } from '@/mcp/registry/filterColumns';
 import { TIME_RANGE_VALUES } from '@/utils/timeRanges';
 import { MCP_GRANULARITIES } from '@/mcp/entities/mcp.entities';
+import { DASHBOARD_ID_DESCRIPTION } from '@/mcp/context';
 
 type ToolInput = { name: string; type: string; required: boolean; description: string };
 type ToolDescription = { name: string; description: string; inputs: ToolInput[] };
@@ -18,7 +19,22 @@ const TIMEZONE_INPUT: ToolInput = {
   description: 'IANA time zone, e.g. "Europe/Berlin" or "UTC". Unknown time zones are rejected.',
 };
 
+const DASHBOARD_ID_INPUT: ToolInput = {
+  name: 'dashboardId',
+  type: 'string',
+  required: false,
+  description: DASHBOARD_ID_DESCRIPTION,
+};
+
+const LIST_DASHBOARDS_TOOL: ToolDescription = {
+  name: 'list_dashboards',
+  description:
+    "List the dashboards this connection can read, newest membership first, with each dashboard's id, domain and your role on it. Pass an id as dashboardId to the other tools.",
+  inputs: [],
+};
+
 type SchemaDescription = {
+  dashboards: { description: string };
   metrics: { key: string; description: string }[];
   dimensions: { key: string; description: string }[];
   filterColumns: { key: string; description: string; note?: string }[];
@@ -48,6 +64,21 @@ type QuerySessionsDescription = {
 };
 
 export function getSchemaDescription(available: ToolAvailability): SchemaDescription {
+  const schema = describeDashboardSchema(available);
+  return {
+    dashboards: {
+      description:
+        'Every tool except describe and list_dashboards reads one dashboard. Call list_dashboards to see the dashboards this connection can read, then pass the id of the one to read as dashboardId. dashboardId may be left out when the connection can read only one dashboard.',
+    },
+    ...schema,
+    tools: [
+      LIST_DASHBOARDS_TOOL,
+      ...schema.tools.map((tool) => ({ ...tool, inputs: [...tool.inputs, DASHBOARD_ID_INPUT] })),
+    ],
+  };
+}
+
+function describeDashboardSchema(available: ToolAvailability): Omit<SchemaDescription, 'dashboards'> {
   return {
     metrics: METRICS.map((m) => ({ key: m.key, description: m.description })),
     dimensions: DIMENSIONS.map((d) => ({ key: d.key, description: d.description })),
@@ -221,7 +252,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
       },
       {
         name: 'list_funnels',
-        description: 'List saved funnels for this site with conversion data.',
+        description: 'List saved funnels for the dashboard with conversion data.',
         inputs: [
           {
             name: 'timeRange',
@@ -235,7 +266,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
       {
         name: 'list_global_properties',
         description:
-          'Discover the global properties recorded for this dashboard. Without a key, lists the property keys (each as a gp.<key> filter column); with a key, lists that property\'s example values.',
+          "Discover the global properties recorded for the dashboard. Without a key, lists the property keys (each as a gp.<key> filter column); with a key, lists that property's example values.",
         inputs: [
           {
             name: 'timeRange',

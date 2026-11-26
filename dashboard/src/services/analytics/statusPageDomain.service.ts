@@ -34,7 +34,7 @@ export async function getTlsAuthorization(rawDomain: string): Promise<TlsAuthori
   if (isOwnNamespace(domain)) return 'forbidden';
 
   const page = await findStatusPageByCustomDomain(domain);
-  if (!page || !page.isPublished || page.isDashboardDeleted) return 'unauthorized';
+  if (!page || !page.isPublished) return 'unauthorized';
 
   const allowed = await canUseStatusPageCustomDomain(page.dashboardId);
   return allowed ? 'authorized' : 'unauthorized';

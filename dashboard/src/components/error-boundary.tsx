@@ -104,15 +104,15 @@ export function ErrorPage({ error, resetError }: ErrorFallbackProps) {
 
             <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
               <Button onClick={handleRefresh} variant='default'>
-                <RefreshCw className='mr-1 h-4 w-4' />
+                <RefreshCw />
                 {t('refresh')}
               </Button>
               <Button onClick={handleGoHome} variant='outline'>
-                <Home className='mr-1 h-4 w-4' />
+                <Home />
                 {t('goToDashboards')}
               </Button>
               <Button onClick={handleGoBack} variant='outline'>
-                <ArrowLeft className='mr-1 h-4 w-4' />
+                <ArrowLeft />
                 {t('goBack')}
               </Button>
             </div>

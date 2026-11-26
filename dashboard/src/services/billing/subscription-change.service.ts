@@ -11,7 +11,9 @@ import type { SelectedPlan } from '@/types/pricing';
 import { UserException } from '@/lib/exceptions';
 import { syncSubscriptionFromStripe } from '@/services/system/webhookHandlers.service';
 import { findActivePriceByLookupKey } from '@/lib/billing/stripe-prices';
+import { purchasableLookupKey } from '@/lib/billing/catalog';
 import { clearScheduledCancellation } from '@/services/billing/subscription.service';
+import { DISCOUNT_EXPAND, applyPercentOff, percentDiscountOf } from '@/lib/billing/discount';
 
 function isProrationLine(line: Stripe.InvoiceLineItem): boolean {
   const parent = line.parent;
@@ -44,7 +46,8 @@ async function resolvePrice(lookupKey: string): Promise<Stripe.Price> {
 }
 
 async function resolveSubscriptionContext(userId: string, targetPlan: SelectedPlan) {
-  if (!targetPlan.lookup_key) {
+  const lookupKey = purchasableLookupKey(targetPlan.planId, targetPlan.eventLimit);
+  if (!lookupKey) {
     throw new UserException('Selected plan is not available.');
   }
 
@@ -53,7 +56,9 @@ async function resolveSubscriptionContext(userId: string, targetPlan: SelectedPl
     throw new UserException('You do not have an active subscription to change.');
   }
 
-  const stripeSubscription = await stripe.subscriptions.retrieve(localSubscription.paymentSubscriptionId);
+  const stripeSubscription = await stripe.subscriptions.retrieve(localSubscription.paymentSubscriptionId, {
+    expand: DISCOUNT_EXPAND,
+  });
 
   if (stripeSubscription.status !== 'active' && stripeSubscription.status !== 'trialing') {
     throw new UserException('You do not have an active subscription to change.');
@@ -64,7 +69,7 @@ async function resolveSubscriptionContext(userId: string, targetPlan: SelectedPl
     throw new UserException('Subscription is missing a line item.');
   }
 
-  const newPrice = await resolvePrice(targetPlan.lookup_key);
+  const newPrice = await resolvePrice(lookupKey);
 
   const subCurrency = stripeSubscription.currency;
   const priceSupportsSubCurrency =
@@ -86,6 +91,8 @@ async function resolveSubscriptionContext(userId: string, targetPlan: SelectedPl
     itemId: currentItem.id,
     currentPeriodEnd: currentItem.current_period_end,
     newPrice,
+    lookupKey,
+    discount: percentDiscountOf(stripeSubscription),
   };
 }
 
@@ -94,7 +101,7 @@ export async function previewSubscriptionChange(
   targetPlan: SelectedPlan,
 ): Promise<SubscriptionChangePreview> {
   try {
-    const { subscriptionId, itemId, currentPeriodEnd, newPrice } = await resolveSubscriptionContext(
+    const { subscriptionId, itemId, currentPeriodEnd, newPrice, discount } = await resolveSubscriptionContext(
       userId,
       targetPlan,
     );
@@ -112,17 +119,22 @@ export async function previewSubscriptionChange(
       .filter(isProrationLine)
       .reduce((sum, line) => sum + line.amount, 0);
 
+    const nextRenewalDate = new Date(currentPeriodEnd * 1000);
+    const listAmount = priceAmountForCurrency(newPrice, preview.currency);
+    const discountedAtRenewal = discount && (!discount.endsAt || discount.endsAt > nextRenewalDate);
+
     return SubscriptionChangePreviewSchema.parse({
       amountDue: preview.amount_due,
       currency: preview.currency.toUpperCase(),
-      nextRenewalAmount: priceAmountForCurrency(newPrice, preview.currency),
-      nextRenewalDate: new Date(currentPeriodEnd * 1000),
+      nextRenewalAmount: discountedAtRenewal ? applyPercentOff(listAmount, discount.percentOff) : listAmount,
+      nextRenewalDate,
       appliedBalance: Math.max(0, proratedSubtotal - preview.amount_due),
       lines: preview.lines.data.map((line) => ({
         description: line.description,
         amount: line.amount,
         proration: isProrationLine(line),
       })),
+      discount: discountedAtRenewal ? discount : null,
     });
   } catch (error) {
     if (error instanceof UserException) throw error;
@@ -131,9 +143,7 @@ export async function previewSubscriptionChange(
   }
 }
 
-export type ApplyChangeResult =
-  | { status: 'succeeded' }
-  | { status: 'requires_action'; clientSecret: string };
+export type ApplyChangeResult = { status: 'succeeded' } | { status: 'requires_action'; clientSecret: string };
 
 export async function applySubscriptionChange(
   userId: string,
@@ -141,7 +151,7 @@ export async function applySubscriptionChange(
   attemptId: string,
 ): Promise<ApplyChangeResult> {
   try {
-    const { subscriptionId, itemId, newPrice } = await resolveSubscriptionContext(userId, targetPlan);
+    const { subscriptionId, itemId, newPrice, lookupKey } = await resolveSubscriptionContext(userId, targetPlan);
 
     const updated = await stripe.subscriptions.update(
       subscriptionId,
@@ -150,7 +160,7 @@ export async function applySubscriptionChange(
         proration_behavior: PRORATION_BEHAVIOR,
         payment_behavior: 'pending_if_incomplete',
         metadata: {
-          lookupKey: targetPlan.lookup_key ?? '',
+          lookupKey,
         },
       },
       {

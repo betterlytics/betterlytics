@@ -101,6 +101,8 @@ pub const REASON_PREFETCH: &str = "prefetch";
 pub const REASON_VELOCITY: &str = "velocity";
 pub const REASON_MISSING_CLIENT_HINTS: &str = "missing-client-hints";
 pub const REASON_STALE_CHROMIUM_NO_HINTS: &str = "stale-chromium-no-hints";
+pub const REASON_HEADLESS_RESOLUTION_NO_HINTS: &str = "headless-resolution-no-hints";
+pub const REASON_HEADLESS_RESOLUTION_HOSTING: &str = "headless-resolution-hosting";
 pub const REASON_CLIENT_HINTS_MISMATCH: &str = "client-hints-mismatch";
 pub const REASON_STALE_BROWSER: &str = "stale-browser";
 
@@ -109,6 +111,8 @@ const ENFORCING_REASONS: &[&str] = &[
     REASON_UA_BLOCKLIST,
     REASON_CLIENT_AUTOMATION,
     REASON_STALE_CHROMIUM_NO_HINTS,
+    REASON_HEADLESS_RESOLUTION_NO_HINTS,
+    REASON_HEADLESS_RESOLUTION_HOSTING,
 ];
 
 pub struct Detection {
@@ -152,6 +156,17 @@ const CLIENT_HINTS_MIN_CHROMIUM_MAJOR: u32 = 89;
 /// Real desktop Chrome that old still exists (~4% of desktop sessions) but sends
 /// the header, so it is unaffected; the rule only fires when the header is missing too.
 const CLIENT_HINTS_ENFORCE_BELOW_MAJOR: u32 = 130;
+/// Default window sizes of headless Chromium and automation tooling; no desktop display
+/// ships them. A desktop Chromium reporting one without client hints is rejected on any
+/// major, while the same size with hints is accepted unless it comes from a hosting network
+/// (see HOSTING_HEADLESS_RESOLUTIONS).
+const HEADLESS_RESOLUTIONS: &[&str] = &["800x600", "1280x1200"];
+/// Headless sizes rejected from a hosting network even when client hints are present,
+/// since crawlers can spoof hints consistent with the UA. Production bot_events from
+/// 2026-08-09 to 2026-11-18 showed hinted desktop Chromium at 1280x1200 on hosting networks
+/// only from crawlers (~77k events, no engagement). 800x600 is left out: its hosting-network
+/// traffic spans unrelated networks that have not been reviewed.
+const HOSTING_HEADLESS_RESOLUTIONS: &[&str] = &["1280x1200"];
 /// Desktop Chromium auto-updates; majors older than this are suspect. Starts very
 /// generous (~3 years behind); tighten from shadow data.
 const STALE_DESKTOP_CHROMIUM_MAJOR: u32 = 110;
@@ -228,6 +243,8 @@ fn collect_reasons(input: &DetectionInput) -> Vec<&'static str> {
             if input.sec_ch_ua.is_empty() {
                 if major < CLIENT_HINTS_ENFORCE_BELOW_MAJOR && is_desktop_ua(user_agent) {
                     reasons.push(REASON_STALE_CHROMIUM_NO_HINTS);
+                } else if HEADLESS_RESOLUTIONS.contains(&input.screen_resolution) && is_desktop_ua(user_agent) {
+                    reasons.push(REASON_HEADLESS_RESOLUTION_NO_HINTS);
                 } else {
                     reasons.push(REASON_MISSING_CLIENT_HINTS);
                 }
@@ -245,6 +262,15 @@ fn collect_reasons(input: &DetectionInput) -> Vec<&'static str> {
             reasons.push(REASON_BOT_NETWORK);
         } else if HOSTING_ASN_SET.contains(&input.asn) {
             reasons.push(REASON_HOSTING_NETWORK);
+            let rejected_for_missing_hints = reasons.contains(&REASON_STALE_CHROMIUM_NO_HINTS)
+                || reasons.contains(&REASON_HEADLESS_RESOLUTION_NO_HINTS);
+            if !rejected_for_missing_hints
+                && HOSTING_HEADLESS_RESOLUTIONS.contains(&input.screen_resolution)
+                && chromium_major(user_agent).is_some()
+                && is_desktop_ua(user_agent)
+            {
+                reasons.push(REASON_HEADLESS_RESOLUTION_HOSTING);
+            }
         }
     }
 
@@ -681,6 +707,93 @@ mod tests {
         });
         assert_eq!(detection.shadow, vec![REASON_MISSING_CLIENT_HINTS]);
         assert!(!detection.should_reject());
+    }
+
+    #[test]
+    fn headless_resolution_without_client_hints_rejects() {
+        let ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36";
+        let mobile = "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Mobile Safari/537.36";
+        let detect_with = |user_agent: &str, screen_resolution: &str, sec_ch_ua: &str| {
+            detect(&DetectionInput {
+                user_agent,
+                header_user_agent: user_agent,
+                screen_resolution,
+                sec_ch_ua,
+                ..Default::default()
+            })
+        };
+
+        for screen_resolution in ["800x600", "1280x1200"] {
+            let detection = detect_with(ua, screen_resolution, "");
+            assert_eq!(detection.enforcing, vec![REASON_HEADLESS_RESOLUTION_NO_HINTS], "{}", screen_resolution);
+            assert!(detection.should_reject(), "{}", screen_resolution);
+            assert_eq!(detection.tagged_reasons(), vec!["headless-resolution-no-hints"], "{}", screen_resolution);
+
+            // The same UA and screen with consistent hints is accepted
+            assert!(detect_with(ua, screen_resolution, "\"Chromium\";v=\"146\"").is_empty(), "{}", screen_resolution);
+
+            // Mobile Chromium without hints stays shadow at these sizes
+            let detection = detect_with(mobile, screen_resolution, "");
+            assert_eq!(detection.shadow, vec![REASON_MISSING_CLIENT_HINTS], "{}", screen_resolution);
+            assert!(!detection.should_reject(), "{}", screen_resolution);
+        }
+
+        // At any other resolution, missing hints stay shadow
+        for screen_resolution in ["1920x1080", "600x800", "800x601", "1200x1280", "1280x1201", ""] {
+            let detection = detect_with(ua, screen_resolution, "");
+            assert_eq!(detection.shadow, vec![REASON_MISSING_CLIENT_HINTS], "{}", screen_resolution);
+            assert!(!detection.should_reject(), "{}", screen_resolution);
+        }
+    }
+
+    #[test]
+    fn headless_resolution_on_hosting_network_rejects_despite_client_hints() {
+        let ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36";
+        let mobile = "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Mobile Safari/537.36";
+        let hetzner = 24940;
+        let detect_with = |user_agent: &str, screen_resolution: &str, asn: u32| {
+            let sec_ch_ua = hints_for(user_agent);
+            detect(&DetectionInput {
+                user_agent,
+                header_user_agent: user_agent,
+                screen_resolution,
+                sec_ch_ua: &sec_ch_ua,
+                asn,
+                ..Default::default()
+            })
+        };
+
+        let detection = detect_with(ua, "1280x1200", hetzner);
+        assert_eq!(detection.enforcing, vec![REASON_HEADLESS_RESOLUTION_HOSTING]);
+        assert!(detection.should_reject());
+        assert_eq!(detection.tagged_reasons(), vec!["headless-resolution-hosting", "shadow:hosting-network"]);
+
+        let pre_hints = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.0.0 Safari/537.36";
+        assert_eq!(detect_with(pre_hints, "1280x1200", hetzner).enforcing, vec![REASON_HEADLESS_RESOLUTION_HOSTING]);
+
+        let hintless = detect(&DetectionInput {
+            user_agent: ua,
+            header_user_agent: ua,
+            screen_resolution: "1280x1200",
+            asn: hetzner,
+            ..Default::default()
+        });
+        assert_eq!(hintless.enforcing, vec![REASON_HEADLESS_RESOLUTION_NO_HINTS]);
+
+        assert!(detect_with(ua, "1280x1200", 0).is_empty());
+        assert!(detect_with(ua, "1280x1200", 7922).is_empty());
+
+        for (user_agent, screen_resolution) in [
+            (ua, "1920x1080"),
+            (ua, "800x600"),
+            (ua, "1280x1201"),
+            (mobile, "1280x1200"),
+            (HUMAN_USER_AGENTS[4], "1280x1200"),
+        ] {
+            let detection = detect_with(user_agent, screen_resolution, hetzner);
+            assert_eq!(detection.shadow, vec![REASON_HOSTING_NETWORK], "{} {}", user_agent, screen_resolution);
+            assert!(!detection.should_reject(), "{} {}", user_agent, screen_resolution);
+        }
     }
 
     #[test]

@@ -1,16 +1,18 @@
 'use client';
 
-import { Dispatch, useCallback, useState } from 'react';
+import { Dispatch, useCallback, useMemo, useState } from 'react';
 import { NumberFlowGroup } from '@number-flow/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { PricingSlider } from './PricingSlider';
 import { PricingCards } from './PricingCards';
 import { SelectedPlan } from '@/types/pricing';
 import { cn } from '@/lib/utils';
-import { EVENT_RANGES } from '@/lib/billing/plans';
+import { VOLUME_STOPS } from '@/lib/billing/catalog';
 import { formatEventCount } from '@/utils/pricing';
 import { useUsageProjection } from '@/hooks/useUsageProjection';
 import type { Currency, UserBillingData } from '@/entities/billing/billing.entities';
+import { useCheckoutPromo } from '@/contexts/PromoProvider';
+import { activeDiscount, promoCardDiscount, type CardDiscount } from '@/lib/billing/discount';
 import {
   Select,
   SelectContent,
@@ -21,10 +23,9 @@ import {
 } from '@/components/ui/select';
 
 interface PricingComponentProps {
-  onPlanSelect?: Dispatch<SelectedPlan>;
+  onPlanSelect: Dispatch<SelectedPlan>;
   initialRangeIndex?: number;
-  className?: string;
-  billingData?: UserBillingData;
+  billingData: UserBillingData;
   defaultCurrency?: Currency;
   lockedCurrency?: Currency;
   stickyControls?: boolean;
@@ -33,7 +34,6 @@ interface PricingComponentProps {
 export function PricingComponent({
   onPlanSelect,
   initialRangeIndex = 0,
-  className = '',
   billingData,
   defaultCurrency = 'USD',
   lockedCurrency,
@@ -41,11 +41,17 @@ export function PricingComponent({
 }: PricingComponentProps) {
   const t = useTranslations('pricingSlider');
   const locale = useLocale();
+  const checkoutPromo = useCheckoutPromo(billingData.isExistingPaidSubscriber);
+  const discount = useMemo((): CardDiscount | null => {
+    const own = activeDiscount(billingData.subscription);
+    if (own) return { kind: 'subscriber', ...own };
+    return checkoutPromo && promoCardDiscount(checkoutPromo);
+  }, [billingData.subscription, checkoutPromo]);
   const [selectedRangeIndex, setSelectedRangeIndex] = useState(initialRangeIndex);
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>(lockedCurrency ?? defaultCurrency);
-  const currentRange = EVENT_RANGES[selectedRangeIndex];
-  const projection = useUsageProjection(billingData?.usage);
-  const recommendedRange = projection ? EVENT_RANGES[projection.suggestedRangeIndex] : null;
+  const currentVolume = VOLUME_STOPS[selectedRangeIndex];
+  const projection = useUsageProjection(billingData.usage);
+  const recommendedVolume = projection ? VOLUME_STOPS[projection.suggestedRangeIndex] : null;
 
   const handleCurrencyChange = useCallback((currency: string) => {
     setSelectedCurrency(currency as Currency);
@@ -53,7 +59,7 @@ export function PricingComponent({
 
   return (
     <NumberFlowGroup>
-      <div className={className}>
+      <div>
         <div
           className={cn(
             stickyControls
@@ -65,7 +71,7 @@ export function PricingComponent({
           <div className='grid grid-cols-5 items-end justify-center gap-6'>
             <div className='col-span-5 col-start-1 lg:col-span-3 lg:col-start-2'>
               <PricingSlider
-                currentRange={currentRange}
+                currentVolume={currentVolume}
                 selectedRangeIndex={selectedRangeIndex}
                 onSelectIndex={setSelectedRangeIndex}
                 suggestedRangeIndex={projection?.suggestedRangeIndex}
@@ -93,19 +99,19 @@ export function PricingComponent({
           </div>
         </div>
 
-        {recommendedRange && (
+        {recommendedVolume !== null && (
           <p className='text-muted-foreground mb-9 text-center text-sm'>
             {t.rich('recommend', {
-              events: formatEventCount(recommendedRange.value, locale),
+              events: formatEventCount(recommendedVolume, locale),
               emphasis: (chunks) => <span className='text-foreground font-semibold'>{chunks}</span>,
             })}
           </p>
         )}
 
         <PricingCards
-          eventRange={currentRange}
+          discount={discount}
+          volume={currentVolume}
           onPlanSelect={onPlanSelect}
-          mode={onPlanSelect ? 'billing' : 'landing'}
           billingData={billingData}
           currency={selectedCurrency}
         />

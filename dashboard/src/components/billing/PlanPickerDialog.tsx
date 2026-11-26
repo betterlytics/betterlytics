@@ -7,8 +7,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { PricingComponent } from '@/components/pricing/PricingComponent';
+import { useCheckoutPromo, usePromoLastDay } from '@/contexts/PromoProvider';
 import { FeatureComparisonSection } from '@/components/billing/FeatureComparisonSection';
-import { EVENT_RANGES } from '@/lib/billing/plans';
+import { VOLUME_STOPS } from '@/lib/billing/catalog';
 import type { SelectedPlan } from '@/types/pricing';
 import type { UserBillingData } from '@/entities/billing/billing.entities';
 
@@ -18,6 +19,7 @@ interface PlanPickerDialogProps {
   billingData: UserBillingData;
   onPlanSelected: (plan: SelectedPlan) => void;
   initialEventLimit?: number;
+  reason?: string;
 }
 
 export function PlanPickerDialog({
@@ -26,8 +28,12 @@ export function PlanPickerDialog({
   billingData,
   onPlanSelected,
   initialEventLimit,
+  reason,
 }: PlanPickerDialogProps) {
   const t = useTranslations('components.billing.planPicker');
+  const tPromo = useTranslations('promo');
+  const promo = useCheckoutPromo(billingData.isExistingPaidSubscriber);
+  const promoLastDay = usePromoLastDay(promo);
   const [comparisonOpen, setComparisonOpen] = useState(false);
   const comparisonTriggerRef = useRef<HTMLButtonElement>(null);
 
@@ -38,21 +44,33 @@ export function PlanPickerDialog({
 
   const initialRangeIndex = useMemo(() => {
     const eventLimit = initialEventLimit ?? billingData.subscription.eventLimit;
-    const idx = EVENT_RANGES.findIndex((r) => r.value === eventLimit);
+    const idx = VOLUME_STOPS.indexOf(eventLimit);
     return idx >= 0 ? idx : 0;
   }, [initialEventLimit, billingData.subscription.eventLimit]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className='flex h-[97dvh] max-h-[980px] w-[95vw] max-w-[1200px] flex-col gap-0 overflow-hidden rounded-2xl p-0 sm:min-h-[740px] sm:max-w-[1200px] [&>button]:z-50'
+        className='flex h-[97dvh] max-h-[980px] w-[95vw] max-w-[1344px] flex-col gap-0 overflow-hidden rounded-2xl p-0 sm:min-h-[740px] sm:max-w-[1344px] [&>button]:z-50'
         overlayClassName='bg-white/90 dark:bg-black/95 backdrop-blur-xs'
       >
-        <ScrollArea className='min-h-0 flex-1 [&>[data-slot=scroll-area-viewport]>div]:!block [&>[data-slot=scroll-area-scrollbar]]:z-40'>
+        <ScrollArea className='min-h-0 flex-1 [&>[data-slot=scroll-area-scrollbar]]:z-40 [&>[data-slot=scroll-area-viewport]>div]:!block'>
           <div className='px-3 pt-5 pb-6 sm:px-8 sm:pt-8'>
             <DialogHeader className='pb-3 sm:text-center'>
-              <DialogTitle className='text-2xl sm:text-3xl'>{t('title')}</DialogTitle>
-              <DialogDescription className='sr-only'>{t('description')}</DialogDescription>
+              <div className='flex flex-wrap items-center gap-x-3 gap-y-1.5 sm:justify-center'>
+                <DialogTitle className='text-2xl sm:text-3xl'>{t('title')}</DialogTitle>
+                {promo && (
+                  <span className='flex items-center gap-2 text-sm'>
+                    <span className='bg-primary text-primary-foreground rounded-[5px] px-2 leading-6 font-medium'>
+                      {tPromo('barTag')}
+                    </span>
+                    <span className='text-muted-foreground'>{tPromo('until', { date: promoLastDay })}</span>
+                  </span>
+                )}
+              </div>
+              <DialogDescription className={reason ? 'text-sm sm:text-base' : 'sr-only'}>
+                {reason ?? t('description')}
+              </DialogDescription>
             </DialogHeader>
 
             <PricingComponent

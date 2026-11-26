@@ -12,10 +12,11 @@ import { ChangePlanDialog } from '@/components/billing/ChangePlanDialog';
 import { VerificationRequiredModal } from '@/components/accountVerification/VerificationRequiredModal';
 import { createStripeCustomerPortalSession } from '@/actions/stripe.action';
 import type { SelectedPlan } from '@/types/pricing';
+import { getPlan, isFreeBand } from '@/lib/billing/catalog';
 
 interface BillingFlowContextValue {
-  // Open the plan-picker dialog so the user can browse plans.
-  openPlanPicker: () => void;
+  // Open the plan-picker dialog so the user can browse plans, optionally saying why it opened
+  openPlanPicker: (reason?: string) => void;
   // Skip the picker and go straight to the right flow for a specific plan
   selectPlan: (plan: SelectedPlan) => void;
 }
@@ -50,12 +51,16 @@ function BillingFlowProviderInner({ children }: { children: ReactNode }) {
 
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerInitialEventLimit, setPickerInitialEventLimit] = useState<number | undefined>();
+  const [pickerReason, setPickerReason] = useState<string | undefined>();
   const [checkoutPlan, setCheckoutPlan] = useState<SelectedPlan | null>(null);
   const [changePlan, setChangePlan] = useState<SelectedPlan | null>(null);
   const [changePlanFromPicker, setChangePlanFromPicker] = useState(false);
   const [verificationModalOpen, setVerificationModalOpen] = useState(false);
 
-  const openPlanPicker = useCallback(() => setPickerOpen(true), []);
+  const openPlanPicker = useCallback((reason?: string) => {
+    setPickerReason(reason);
+    setPickerOpen(true);
+  }, []);
 
   const openBillingPortal = useCallback(async () => {
     const result = await createStripeCustomerPortalSession();
@@ -70,11 +75,12 @@ function BillingFlowProviderInner({ children }: { children: ReactNode }) {
 
   const selectPlan = useCallback(
     (plan: SelectedPlan) => {
-      if (plan.tier === 'enterprise') {
+      const definition = getPlan(plan.planId);
+      if (!definition.selfServe) {
         toast.info(t('contactForCustomPlan'));
         return;
       }
-      if (plan.price_cents === 0) {
+      if (isFreeBand(definition, plan.eventLimit)) {
         setPickerOpen(false);
         return;
       }
@@ -126,6 +132,7 @@ function BillingFlowProviderInner({ children }: { children: ReactNode }) {
           }}
           billingData={billingData}
           initialEventLimit={pickerInitialEventLimit}
+          reason={pickerReason}
           onPlanSelected={(plan) => {
             setChangePlanFromPicker(true);
             selectPlan(plan);

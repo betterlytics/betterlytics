@@ -123,7 +123,7 @@ export function CreateMonitorForm({ create, domain, onCancel }: CreateMonitorFor
         <Button type='submit' disabled={isPending || hasError} className='min-w-[140px] cursor-pointer'>
           {isPending ? (
             <>
-              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+              <Loader2 className='animate-spin' />
               {t('actions.creating')}
             </>
           ) : (

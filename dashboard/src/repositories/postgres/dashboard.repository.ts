@@ -18,7 +18,8 @@ import {
 import { DEFAULT_DASHBOARD_SETTINGS } from '@/entities/dashboard/dashboardSettings.entities';
 import { DEFAULT_SITE_CONFIG_VALUES } from '@/entities/dashboard/siteConfig.entities';
 import { DashboardMember, DashboardMemberSchema } from '@/entities/dashboard/invitation.entities';
-import { DashboardRole } from '@prisma/client';
+import { DashboardMembership, DashboardMembershipSchema } from '@/entities/dashboard/mcpOAuth.entities';
+import { DashboardRole, type Prisma } from '@prisma/client';
 
 export async function findDashboardById(dashboardId: string): Promise<Dashboard> {
   try {
@@ -144,6 +145,24 @@ export async function findAllUserDashboards(userId: string): Promise<DashboardWi
     console.error("Error while finding user's dashboards:", error);
     throw new Error('Failed to find user dashboards');
   }
+}
+
+/** The user's live memberships on dashboards that aren't deleted, newest membership first. */
+export async function findUserMemberships(userId: string): Promise<DashboardMembership[]> {
+  const rows = await prisma.userDashboard.findMany({
+    where: { userId, deletedAt: null, dashboard: { deletedAt: null } },
+    select: { role: true, dashboard: { select: { id: true, siteId: true, domain: true } } },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return rows.map((row) =>
+    DashboardMembershipSchema.parse({
+      dashboardId: row.dashboard.id,
+      siteId: row.dashboard.siteId,
+      domain: row.dashboard.domain,
+      role: row.role,
+    }),
+  );
 }
 
 export async function findOwnedDashboards(userId: string): Promise<Dashboard[]> {
@@ -292,12 +311,32 @@ export async function getOwnedSitesWithDomain(
   }
 }
 
-export async function deleteDashboard(dashboardId: string): Promise<void> {
+/**
+ * The one place a dashboard is deleted: soft-deletes the dashboards, releases their live status pages'
+ * slugs and custom domains, and cancels pending invitations. The pages share the dashboards' deletedAt
+ * so a restore can tell them from pages the owner deleted earlier. Returns the released slugs.
+ */
+export async function softDeleteDashboardsWith(
+  tx: Prisma.TransactionClient,
+  dashboardIds: string[],
+): Promise<string[]> {
+  const deletedAt = new Date();
+  await tx.dashboard.updateMany({ where: { id: { in: dashboardIds }, deletedAt: null }, data: { deletedAt } });
+  const released = await tx.statusPage.updateManyAndReturn({
+    where: { dashboardId: { in: dashboardIds }, deletedAt: null },
+    data: { deletedAt },
+    select: { slug: true },
+  });
+  await tx.dashboardInvitation.updateMany({
+    where: { dashboardId: { in: dashboardIds }, status: 'pending' },
+    data: { status: 'cancelled' },
+  });
+  return released.map((page) => page.slug);
+}
+
+export async function deleteDashboard(dashboardId: string): Promise<string[]> {
   try {
-    await prisma.dashboard.update({
-      where: { id: dashboardId },
-      data: { deletedAt: new Date() },
-    });
+    return await prisma.$transaction((tx) => softDeleteDashboardsWith(tx, [dashboardId]));
   } catch (error) {
     console.error(`Error deleting dashboard ${dashboardId}:`, error);
     throw new Error(`Failed to delete dashboard ${dashboardId}.`);

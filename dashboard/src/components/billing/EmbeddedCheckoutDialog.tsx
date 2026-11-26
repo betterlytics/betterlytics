@@ -15,6 +15,7 @@ import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironme
 import { getStripeClient } from '@/lib/billing/stripe-client';
 import { createStripeCheckoutSession, syncCheckoutSession } from '@/actions/stripe.action';
 import type { SelectedPlan } from '@/types/pricing';
+import { getPlan } from '@/lib/billing/catalog';
 
 // Minimum DialogContent width at which Stripe embedded_page renders as two-column
 const STRIPE_TWO_COLUMN_MIN_PX = 1060;
@@ -37,10 +38,14 @@ export function EmbeddedCheckoutDialog({ open, onOpenChange, plan }: EmbeddedChe
   const [hasError, setHasError] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  // created on first open, so pages that never open checkout don't load Stripe.js or its cookies
+  const [hasOpened, setHasOpened] = useState(open);
+  if (open && !hasOpened) setHasOpened(true);
+
   const stripePromise = useMemo<Promise<Stripe | null> | null>(() => {
-    if (!PUBLIC_STRIPE_PUBLISHABLE_KEY) return null;
+    if (!hasOpened || !PUBLIC_STRIPE_PUBLISHABLE_KEY) return null;
     return getStripeClient(PUBLIC_STRIPE_PUBLISHABLE_KEY);
-  }, [PUBLIC_STRIPE_PUBLISHABLE_KEY]);
+  }, [hasOpened, PUBLIC_STRIPE_PUBLISHABLE_KEY]);
 
   useEffect(() => {
     if (!open || !plan || clientSecret) {
@@ -123,7 +128,7 @@ export function EmbeddedCheckoutDialog({ open, onOpenChange, plan }: EmbeddedChe
           {showSuccess ? (
             <SuccessCheckmark
               label={t('successTitle')}
-              description={plan ? t('successDescription', { tier: plan.tier }) : undefined}
+              description={plan ? t('successDescription', { tier: getPlan(plan.planId).name }) : undefined}
             />
           ) : hasError || !stripePromise ? (
             <div className='text-muted-foreground p-8 text-center text-sm'>{t('loadError')}</div>

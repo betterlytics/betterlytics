@@ -23,6 +23,7 @@ export const McpTokenWithDashboardSchema = McpTokenSchema.extend({
   tokenHash: z.string(),
   dashboard: z.object({
     siteId: z.string(),
+    domain: z.string(),
   }),
 });
 

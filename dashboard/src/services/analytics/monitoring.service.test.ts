@@ -9,7 +9,6 @@ vi.mock('@/repositories/postgres/monitoring.repository', () => ({
     createdAt: new Date('2026-01-01T00:00:00Z'),
   })),
 }));
-vi.mock('@/repositories/postgres/statusPage.repository', () => ({}));
 vi.mock('@/repositories/clickhouse/monitoring.repository', () => ({
   getUptimeBuckets: vi.fn(async () => new Map()),
   getOpenIncidentsForMonitors: vi.fn(async () => new Map()),

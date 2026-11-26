@@ -1,5 +1,191 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v154ChangelogEntryIt: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.4',
+    releasedAt: '2026-11-25',
+    title: 'Dati più puliti e correzioni alla mappa',
+    summary:
+      'Meno visite di bot finiscono nelle tue statistiche e le proprietà non valide degli eventi personalizzati vengono ora gestite meglio. Questa versione semplifica anche la revoca del consenso al session replay e corregge alcuni problemi relativi alla mappa mondiale e alle metriche di riepilogo del report Siti di riferimento.',
+  },
+  sections: [
+    {
+      id: 'v154-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Il filtro anti-bot ora intercetta più visite automatizzate.',
+            'Le proprietà non valide degli eventi personalizzati vengono ora gestite meglio.',
+            'Quando un visitatore revoca il consenso al session replay, la registrazione ora si interrompe subito, anche nelle altre schede aperte.',
+            'Quando elimini una dashboard, gli indirizzi e i domini personalizzati delle sue pagine di stato vengono ora liberati, così puoi riutilizzarli.',
+            'Vari miglioramenti di usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Risolto un problema per cui i paesi con visitatori a volte potevano apparire neri sulla mappa mondiale.',
+            'Le metriche di riepilogo del report Siti di riferimento ora contano ogni sessione una sola volta.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-security',
+      title: 'Sicurezza',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Aggiornamenti generali di sicurezza e delle dipendenze per mantenere Betterlytics stabile e sicuro.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v154ChangelogModalIt: ChangelogEntryData = {
+  metadata: v154ChangelogEntryIt.metadata,
+  sections: [
+    {
+      id: 'v154-modal-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Il filtro anti-bot ora intercetta più visite automatizzate.',
+            'Le proprietà non valide degli eventi personalizzati vengono ora gestite meglio.',
+            'Quando un visitatore revoca il consenso al session replay, la registrazione ora si interrompe subito, anche nelle altre schede aperte.',
+            'Quando elimini una dashboard, gli indirizzi e i domini personalizzati delle sue pagine di stato vengono ora liberati, così puoi riutilizzarli.',
+            'Vari miglioramenti di usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-modal-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Risolto un problema per cui i paesi con visitatori a volte potevano apparire neri sulla mappa mondiale.',
+            'Le metriche di riepilogo del report Siti di riferimento ora contano ogni sessione una sola volta.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-modal-security',
+      title: 'Sicurezza',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Aggiornamenti generali di sicurezza e delle dipendenze per mantenere Betterlytics stabile e sicuro.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v153ChangelogEntryIt: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.3',
+    releasedAt: '2026-11-08',
+    title: 'Miglioramenti al monitoraggio e alla mappa',
+    summary:
+      "La barra laterale ora segnala quando un monitor è offline, e le percentuali di uptime sono più precise e coincidono ovunque compaiano. Questa versione blocca anche un'ondata di referrer spam, perfeziona la mappa geografica e corregge alcuni problemi nel monitoraggio e nel report Siti di riferimento.",
+  },
+  sections: [
+    {
+      id: 'v153-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'La voce Monitoraggio nella barra laterale ora mostra un pallino rosso finché uno dei tuoi monitor è offline.',
+            'Il tempo in cui un monitor non veniva controllato non conta più né come uptime né come downtime.',
+            'Quando elimini un monitor, ora ricevi un avviso se è usato in una pagina di stato.',
+            'I controlli di uptime sono ora più affidabili.',
+            "Il filtro anti-bot ora blocca un'ondata di referrer spam che compariva come visite false tra i tuoi siti di riferimento.",
+            'I popup e i filtri della mappa geografica non finiscono più nascosti dietro altri elementi della pagina.',
+            'Vari miglioramenti di usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v153-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Risolto un problema per cui le percentuali di uptime potevano differire leggermente da una schermata all'altra.",
+            'I visitatori dalle Svalbard vengono ora attribuiti correttamente alla Norvegia.',
+            'Le impostazioni degli avvisi di un monitor ora mostrano correttamente a chi vengono inviati gli avvisi via email.',
+            'I filtri per sorgente referrer ora mostrano correttamente il nome della categoria, ad esempio "AI" o "Ricerca".',
+            'Nella tabella dei siti di riferimento, le righe "Sconosciuto" non mostrano più il valore di confronto relativo al traffico diretto.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v153ChangelogModalIt: ChangelogEntryData = {
+  metadata: v153ChangelogEntryIt.metadata,
+  sections: [
+    {
+      id: 'v153-modal-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Un pallino rosso nella barra laterale segnala quando un monitor è offline.',
+            "L'uptime non conta più il tempo in cui un monitor non veniva controllato.",
+            'Quando elimini un monitor, ricevi un avviso se è usato in una pagina di stato.',
+            'Controlli di uptime più affidabili.',
+            "Un'ondata di referrer spam ora viene bloccata.",
+            'I popup e i filtri della mappa geografica non finiscono più nascosti.',
+            'Vari miglioramenti di usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v153-modal-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Le percentuali di uptime ora coincidono ovunque.',
+            'I visitatori dalle Svalbard vengono attribuiti correttamente alla Norvegia.',
+            'Le impostazioni degli avvisi dei monitor mostrano il destinatario email corretto.',
+            'I filtri per sorgente referrer mostrano il nome di categoria corretto.',
+            'I referrer sconosciuti non mostrano più il valore di confronto del traffico diretto.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v152ChangelogEntryIt: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.2',
@@ -802,9 +988,11 @@ const v144ChangelogEntryIt: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalIt = v152ChangelogModalIt;
+export const latestChangelogModalIt = v154ChangelogModalIt;
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  v154ChangelogEntryIt,
+  v153ChangelogEntryIt,
   v152ChangelogEntryIt,
   v151ChangelogEntryIt,
   v150ChangelogEntryIt,

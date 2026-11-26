@@ -4,9 +4,8 @@ import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { useCapabilities } from '@/contexts/CapabilitiesProvider';
-import { CapabilityGate } from '@/components/billing/CapabilityGate';
-import { ProBadge } from '@/components/billing/ProBadge';
+import { useUpgrade } from '@/contexts/CapabilitiesProvider';
+import { PlanBadge } from '@/components/billing/PlanBadge';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 import { AccentColorField } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/AccentColorField';
 import { ThemeField } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/ThemeField';
@@ -20,8 +19,7 @@ type BrandingPanelProps = {
 
 export function BrandingPanel({ form }: BrandingPanelProps) {
   const t = useTranslations('statusPagesPage.editor');
-  const { caps } = useCapabilities();
-  const brandingLocked = !caps.statusPages.removeBranding;
+  const brandingUpgrade = useUpgrade((c) => c.statusPages.removeBranding);
 
   return (
     <div className='space-y-8'>
@@ -85,24 +83,20 @@ export function BrandingPanel({ form }: BrandingPanelProps) {
               <Label htmlFor='studio-branding' className='cursor-pointer'>
                 {t('hideBranding')}
               </Label>
-              {brandingLocked && <ProBadge />}
+              <PlanBadge plan={brandingUpgrade.plan} />
             </span>
             <p className='text-muted-foreground text-xs'>{t('hideBrandingHint')}</p>
           </div>
-          <CapabilityGate allowed={!brandingLocked}>
-            {({ locked }) => (
-              <Switch
-                id='studio-branding'
-                checked={form.hideBranding}
-                onCheckedChange={(value) => {
-                  if (locked) return;
-                  form.patch({ hideBranding: value });
-                }}
-                disabled={locked}
-                className='flex-none'
-              />
-            )}
-          </CapabilityGate>
+          <Switch
+            id='studio-branding'
+            checked={form.hideBranding}
+            onCheckedChange={(value) => {
+              if (brandingUpgrade.locked) return;
+              form.patch({ hideBranding: value });
+            }}
+            disabled={brandingUpgrade.locked}
+            className='flex-none'
+          />
         </div>
       </div>
     </div>

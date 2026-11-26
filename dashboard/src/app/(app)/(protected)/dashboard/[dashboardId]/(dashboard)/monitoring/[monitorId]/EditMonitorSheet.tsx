@@ -16,13 +16,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { ConfirmDialog, DestructiveActionDialog } from '@/components/dialogs';
+import { ConfirmDialog } from '@/components/dialogs';
 import { type MonitorCheck } from '@/entities/analytics/monitoring.entities';
 import { isHttpUrl } from '../utils';
 import { useMonitorForm } from '../shared/hooks/useMonitorForm';
 import { useMonitorMutations } from '../shared/hooks/useMonitorMutations';
 import { useOverlayReset } from '@/hooks/use-overlay-reset';
 import { TimingSection, AlertsSection, AdvancedSettingsSection } from '../shared/components';
+import { MonitorDeleteDialog } from '../components/MonitorDeleteDialog';
 
 type EditMonitorSheetProps = {
   dashboardId: string;
@@ -190,17 +191,15 @@ export function EditMonitorSheet({
         onConfirm={handleConfirmDiscard}
       />
 
-      <DestructiveActionDialog
-        open={showDeleteDialog}
-        onOpenChange={setShowDeleteDialog}
-        title={t('delete.title')}
-        description={t('delete.description')}
-        cancelLabel={t('delete.cancel')}
-        confirmLabel={t('delete.confirm')}
-        pendingLabel={t('delete.deleting')}
-        onConfirm={handleDelete}
-        isPending={deleteMutation.isPending}
-      />
+      {showDeleteDialog && (
+        <MonitorDeleteDialog
+          dashboardId={dashboardId}
+          monitorId={monitor.id}
+          onOpenChange={setShowDeleteDialog}
+          onConfirm={handleDelete}
+          isPending={deleteMutation.isPending}
+        />
+      )}
     </>
   );
 }

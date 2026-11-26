@@ -41,7 +41,7 @@ export default function OutboundLinksTableSection() {
               rel='noopener noreferrer'
               className='flex items-center gap-2 font-medium break-all transition-colors hover:text-blue-600'
             >
-              {formatString(row.original.current.outbound_link_url)}
+              <span className='max-w-[50ch] truncate'>{formatString(row.original.current.outbound_link_url)}</span>
             </ExternalLink>
           </div>
         ),
@@ -57,7 +57,9 @@ export default function OutboundLinksTableSection() {
         accessorKey: 'top_source_url',
         header: t('topReferrerPage'),
         cell: ({ row }) => (
-          <span className='text-sm break-all'>{formatString(row.original.current.top_source_url)}</span>
+          <span className='block max-w-[50ch] truncate text-sm break-all'>
+            {formatString(row.original.current.top_source_url)}
+          </span>
         ),
         accessorFn: (row) => row.current.top_source_url,
       },

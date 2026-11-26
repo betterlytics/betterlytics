@@ -169,11 +169,17 @@
   var replayConsentCallbacks = [];
 
   window.betterlytics = {
-    event: (eventName, eventProps = {}) =>
-      sendEvent(eventName, {
-        is_custom_event: true,
-        properties: JSON.stringify(eventProps),
-      }),
+    event: (eventName, eventProps) => {
+      var props = eventProps == null ? {} : eventProps;
+      var json =
+        Object.prototype.toString.call(props) === "[object Object]" &&
+        JSON.stringify(props);
+      if (!json || json[0] !== "{") {
+        console.error("Betterlytics: event properties must be a plain object");
+        json = "{}";
+      }
+      sendEvent(eventName, { is_custom_event: true, properties: json });
+    },
     setGlobalProperties: function (props) {
       if (props == null || typeof props !== "object" || Array.isArray(props)) {
         return console.error(
@@ -203,11 +209,12 @@
         } else {
           localStorage.removeItem(CONSENT_KEY);
         }
-        for (var i = 0; i < replayConsentCallbacks.length; i++) {
-          replayConsentCallbacks[i](consented);
-        }
       } catch (e) {
         console.error("Failed to set replay consent:", e);
+      }
+      // Applies to this page load even when storage is unavailable
+      for (var i = 0; i < replayConsentCallbacks.length; i++) {
+        replayConsentCallbacks[i](!!consented);
       }
     },
   };
@@ -609,14 +616,20 @@
       siteId: siteId,
       serverUrl: serverUrl,
       script: script,
+      hasConsent: checkReplayConsent,
     };
 
     var REPLAY_STORAGE_KEY = "betterlytics:replay_sample";
     var CONSENT_KEY = "betterlytics:replay_consent";
     var THIRTY_MIN_MS = 30 * 60 * 1000;
     var replayLoaded = false;
+    // The latest setReplayConsent call in this page load wins over data-consent-replay and storage
+    var pageReplayConsent = null;
 
     function checkReplayConsent() {
+      if (pageReplayConsent !== null) {
+        return pageReplayConsent;
+      }
       if (consentReplay) {
         return true;
       }
@@ -676,7 +689,8 @@
       }
     }
 
-    replayConsentCallbacks.push(function (consented) {
+    function applyReplayConsent(consented) {
+      pageReplayConsent = consented;
       if (consented && !replayLoaded) {
         var sampled = enableReplay && shouldSample();
         if (sampled || enableReplayOnError) {
@@ -684,8 +698,32 @@
           replayLoaded = true;
           loadScript(replayScriptUrl);
         }
-      } else if (!consented && replayLoaded) {
+      } else if (consented) {
+        window.__betterlytics_replay__?.resume?.();
+      } else if (replayLoaded) {
         window.__betterlytics_replay__?.stop();
+      }
+    }
+
+    // A withdrawal in another tab applies here too; a grant there only applies on the next load
+    var withdrawalChannel = null;
+    try {
+      withdrawalChannel = new BroadcastChannel(CONSENT_KEY);
+      withdrawalChannel.onmessage = function (e) {
+        if (e.data === "withdrawn") applyReplayConsent(false);
+      };
+    } catch (e) {}
+    // Older cached analytics.js in another tab only removes the stored consent
+    window.addEventListener("storage", function (e) {
+      if (e.key === CONSENT_KEY && e.newValue === null) applyReplayConsent(false);
+    });
+
+    replayConsentCallbacks.push(function (consented) {
+      applyReplayConsent(consented);
+      if (!consented && withdrawalChannel) {
+        try {
+          withdrawalChannel.postMessage("withdrawn");
+        } catch (e) {}
       }
     });
 

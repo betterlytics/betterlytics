@@ -1,5 +1,187 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v154ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.4',
+    releasedAt: '2026-11-25',
+    title: 'Cleaner Data & Map Fixes',
+    summary:
+      'Fewer bot visits make it into your stats, and invalid custom event properties are handled better. This release also simplifies session replay consent withdrawal and fixes issues with the world map and the referrers summary.',
+  },
+  sections: [
+    {
+      id: 'v154-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'The bot filter now catches more automated visits.',
+            'Invalid custom event properties are now handled better.',
+            'When a visitor withdraws session replay consent, recording now stops immediately, including in other open tabs.',
+            'Deleting a dashboard now frees up its status page addresses and custom domains.',
+            'Various usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Fixed an issue where countries with visitors could sometimes show up black on the world map.',
+            'The referrers summary no longer counts the same session more than once.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-security',
+      title: 'Security',
+      blocks: [
+        {
+          type: 'list',
+          items: ['General security and dependency updates to keep Betterlytics stable and secure.'],
+        },
+      ],
+    },
+  ],
+};
+
+const v154ChangelogModalEn: ChangelogEntryData = {
+  metadata: v154ChangelogEntryEn.metadata,
+  sections: [
+    {
+      id: 'v154-modal-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'The bot filter now catches more automated visits.',
+            'Invalid custom event properties are now handled better.',
+            'When a visitor withdraws session replay consent, recording now stops immediately, including in other open tabs.',
+            'Deleting a dashboard now frees up its status page addresses and custom domains.',
+            'Various usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-modal-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Fixed an issue where countries with visitors could sometimes show up black on the world map.',
+            'The referrers summary no longer counts the same session more than once.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v154-modal-security',
+      title: 'Security',
+      blocks: [
+        {
+          type: 'list',
+          items: ['General security and dependency updates to keep Betterlytics stable and secure.'],
+        },
+      ],
+    },
+  ],
+};
+
+const v153ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.3',
+    releasedAt: '2026-11-08',
+    title: 'Monitoring Improvements & Map Polish',
+    summary:
+      'The sidebar now shows when a monitor is down, and uptime percentages are more accurate and match everywhere you see them. This release also blocks a wave of referral spam, polishes the geography map and fixes a handful of issues in monitoring and the referrers report.',
+  },
+  sections: [
+    {
+      id: 'v153-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'The Monitoring item in the sidebar now shows a red dot while any of your monitors is down.',
+            'Time when a monitor was not being checked no longer counts as uptime or downtime.',
+            "Deleting a monitor now warns you when it's used on a status page.",
+            'Improved the reliability of uptime checks.',
+            'The bot filter now blocks a wave of referral spam that showed up as fake visits in your referrers.',
+            'Popups and filters on the geography map no longer get hidden behind other parts of the page.',
+            'Various usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v153-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Fixed an issue where uptime percentages could differ slightly from place to place.',
+            'Visitors from Svalbard are now correctly counted as Norway.',
+            'The alert settings on a monitor now properly show who email alerts are sent to.',
+            'Referrer source filters now correctly show the category name, such as "AI" or "Search".',
+            'Unknown rows in the referrers table no longer show the comparison value that belongs to Direct traffic.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v153ChangelogModalEn: ChangelogEntryData = {
+  metadata: v153ChangelogEntryEn.metadata,
+  sections: [
+    {
+      id: 'v153-modal-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'A red dot in the sidebar shows when a monitor is down.',
+            'Uptime no longer counts time when a monitor was not being checked.',
+            "Deleting a monitor warns you when it's used on a status page.",
+            'More reliable uptime checks.',
+            'Blocked a wave of referral spam.',
+            'Geography map popups and filters no longer get hidden.',
+            'Various usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v153-modal-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Uptime percentages now match everywhere.',
+            'Svalbard visitors are correctly counted as Norway.',
+            'Monitor alert settings show the right email recipient.',
+            'Referrer source filters show the right category name.',
+            'Unknown referrers no longer show the Direct comparison value.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v152ChangelogEntryEn: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.2',
@@ -798,9 +980,11 @@ const v144ChangelogEntryEn: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalEn = v152ChangelogModalEn;
+export const latestChangelogModalEn = v154ChangelogModalEn;
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  v154ChangelogEntryEn,
+  v153ChangelogEntryEn,
   v152ChangelogEntryEn,
   v151ChangelogEntryEn,
   v150ChangelogEntryEn,

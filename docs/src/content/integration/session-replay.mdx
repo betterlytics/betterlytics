@@ -141,8 +141,9 @@ Notes:
 
 - Replay loads only when both consent is granted and sampling chooses the session.
 - Sampling decisions are cached client‑side for a short period to avoid resampling each pageview.
+- Withdrawing consent with `setReplayConsent(false)` takes effect immediately: the running recording stops, events not yet uploaded are discarded, and nothing is recorded on later in‑app navigation or in the visitor's other open tabs of your site. Calling `setReplayConsent(true)` again resumes recording on the current page.
 
-Alternatively, set `data-consent-replay="true"` on the analytics script when you render it only after consent is granted (e.g., via your CMP). This attribute bypasses the need to call `setReplayConsent`, and replay will load immediately if the session is sampled.
+Alternatively, set `data-consent-replay="true"` on the analytics script when you render it only after consent is granted (e.g., via your CMP). This attribute bypasses the need to call `setReplayConsent`, and replay will load immediately if the session is sampled. A call to `setReplayConsent(false)` still turns replay off for the rest of the page load.
 
 <Callout type="info">
 Depending on your region or your users’, you may be required to obtain consent before enabling session replay. We recommend integrating it only after your consent banner logic allows analytics tracking.

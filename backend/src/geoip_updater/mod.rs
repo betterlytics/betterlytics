@@ -459,7 +459,7 @@ pub(crate) mod tests {
     #[test]
     fn minimal_mmdb_is_a_valid_database() {
         let reader = Reader::from_source(minimal_mmdb()).unwrap();
-        let found = reader.lookup::<maxminddb::geoip2::Country>("8.8.8.8".parse().unwrap()).unwrap();
+        let found = reader.lookup("8.8.8.8".parse().unwrap()).unwrap().decode::<maxminddb::geoip2::Country>().unwrap();
         assert!(found.is_none());
     }
 

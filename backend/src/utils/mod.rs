@@ -1,3 +1,3 @@
 pub mod tasks;
 
-pub use tasks::spawn_supervised;
+pub use tasks::{panic_message, spawn_supervised};

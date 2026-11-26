@@ -1,45 +1,19 @@
 import type { Metadata, Viewport } from 'next';
-import { IBM_Plex_Mono, Schibsted_Grotesk } from 'next/font/google';
 import { notFound } from 'next/navigation';
-import { hasLocale, NextIntlClientProvider } from 'next-intl';
-import { getMessages, setRequestLocale } from 'next-intl/server';
-import NextTopLoader from 'nextjs-toploader';
+import { hasLocale } from 'next-intl';
+import { setRequestLocale } from 'next-intl/server';
 import { BASE_METADATA } from '@/app/baseMetadata';
-import { StructuredData } from '@/components/StructuredData';
-import { AppTrackingScript } from '@/components/tracking/AppTrackingScript';
-import { GlobalPropertiesUpdater } from '@/components/tracking/GlobalPropertiesUpdater';
 import { routing } from '@/i18n/routing';
-import { env } from '@/lib/env';
-import { isFeatureEnabled } from '@/lib/feature-flags';
-import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
-import { landingClientMessages } from './lib/clientMessages';
-import { LandingProviders } from './providers';
-import './landing.css';
-
-const sans = Schibsted_Grotesk({
-  variable: '--font-landing-sans',
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-});
-
-const mono = IBM_Plex_Mono({
-  variable: '--font-landing-mono',
-  subsets: ['latin'],
-  weight: ['400', '500'],
-});
+import { LANDING_VIEWPORT, LandingDocument } from './components/page/landingDocument';
 
 export const metadata: Metadata = BASE_METADATA;
 
-export const viewport: Viewport = {
-  themeColor: '#151414',
-  colorScheme: 'dark',
-};
+export const viewport: Viewport = LANDING_VIEWPORT;
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-/** Must read nothing from the request (the client fetches the session) so the page can be cached. */
 export default async function LandingLayout({
   children,
   params,
@@ -52,26 +26,5 @@ export default async function LandingLayout({
     notFound();
   }
   setRequestLocale(locale);
-
-  const [messages, seoConfig] = await Promise.all([
-    getMessages(),
-    isFeatureEnabled('isCloud') ? buildSEOConfig(SEO_CONFIGS.root) : null,
-  ]);
-  return (
-    <html lang={locale} className={`${sans.variable} ${mono.variable}`}>
-      <head>
-        <AppTrackingScript globalProperties={{ surface: 'app', locale, theme: 'dark' }} />
-        {seoConfig && <StructuredData config={seoConfig} />}
-      </head>
-      <body>
-        <NextTopLoader color='var(--color-volt-lift)' height={3} showSpinner={false} shadow={false} />
-        <NextIntlClientProvider messages={landingClientMessages(messages)}>
-          <LandingProviders>
-            {env.ENABLE_APP_TRACKING && <GlobalPropertiesUpdater />}
-            {children}
-          </LandingProviders>
-        </NextIntlClientProvider>
-      </body>
-    </html>
-  );
+  return <LandingDocument locale={locale}>{children}</LandingDocument>;
 }

@@ -18,6 +18,7 @@ import {
   type PlanChangePhase,
 } from '@/hooks/useSubscriptionPlanChange';
 import type { SelectedPlan } from '@/types/pricing';
+import { getPlan, priceFor } from '@/lib/billing/catalog';
 import type {
   SubscriptionChangePreview,
   SubscriptionChangePreviewLine,
@@ -52,7 +53,7 @@ export function ChangePlanDialog({
   const { phase, begin, reset } = planChange;
 
   const previewQuery = useQuery({
-    queryKey: ['subscriptionChangePreview', targetPlan?.lookup_key, targetPlan?.currency],
+    queryKey: ['subscriptionChangePreview', targetPlan?.planId, targetPlan?.eventLimit, targetPlan?.currency],
     enabled: open && targetPlan !== null && (phase === 'idle' || phase === 'applying'),
     queryFn: async () => {
       if (!targetPlan) throw new Error('No plan selected');
@@ -101,7 +102,9 @@ export function ChangePlanDialog({
         {phase === 'success' ? (
           <SuccessCheckmark
             label={t('successLabel')}
-            description={targetPlan ? t('successDescription', { tier: targetPlan.tier }) : undefined}
+            description={
+              targetPlan ? t('successDescription', { tier: getPlan(targetPlan.planId).name }) : undefined
+            }
           />
         ) : phase === 'authenticating' ? (
           <PendingBody label={t('authenticatingLabel')} description={t('authenticatingDescription')} />
@@ -138,7 +141,7 @@ export function ChangePlanDialog({
                 disabled={planChange.isPending || previewQuery.isLoading || previewQuery.isError || !targetPlan}
                 className='cursor-pointer'
               >
-                {planChange.isPending && <Spinner size='sm' className='mr-2 border-current' />}
+                {planChange.isPending && <Spinner size='sm' className='border-current' />}
                 {t('confirm')}
               </Button>
             </div>
@@ -209,13 +212,13 @@ function FailureBody({ failure, isAuthRequired, isCardDeclined, isBusy, onRetryA
         </Button>
         {isAuthRequired && (
           <Button onClick={onRetryAuth} disabled={isBusy} className='cursor-pointer'>
-            {isBusy && <Spinner size='sm' className='mr-2 border-current' />}
+            {isBusy && <Spinner size='sm' className='border-current' />}
             {t('tryAgain')}
           </Button>
         )}
         {isCardDeclined && (
           <Button onClick={handleOpenPortal} disabled={openingPortal} className='cursor-pointer'>
-            {openingPortal && <Spinner size='sm' className='mr-2 border-current' />}
+            {openingPortal && <Spinner size='sm' className='border-current' />}
             {t('updatePaymentMethod')}
           </Button>
         )}
@@ -246,32 +249,40 @@ function PreviewBody({ query, targetPlan, locale }: PreviewBodyProps) {
     return <p className='text-destructive py-4 text-sm'>{t('error')}</p>;
   }
 
-  const { amountDue, currency, nextRenewalAmount, nextRenewalDate, appliedBalance, lines } = query.data;
+  const { amountDue, currency, nextRenewalAmount, nextRenewalDate, appliedBalance, lines, discount } = query.data;
   const { charge, credit } = summarizeProration(lines);
   const isCredit = amountDue < 0;
 
   const amountAbs = Math.abs(amountDue);
-  const renewalAmount = nextRenewalAmount || targetPlan.price_cents;
-  const renewalDateText = nextRenewalDate.toLocaleDateString(locale, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
+  const plan = getPlan(targetPlan.planId);
+  const renewalAmount = nextRenewalAmount || (priceFor(plan, targetPlan.eventLimit, targetPlan.currency) ?? 0);
+  const formatDate = (date: Date) =>
+    date.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' });
+  const renewalDateText = formatDate(nextRenewalDate);
 
   const summaryKey = isCredit ? 'summaryCredit' : 'summaryCharge';
   const summary = t(summaryKey, {
-    tier: targetPlan.tier,
+    tier: plan.name,
     events: formatNumber(targetPlan.eventLimit, locale),
     amount: formatPrice(amountAbs, currency, locale),
     date: renewalDateText,
     nextAmount: formatPrice(renewalAmount, currency, locale),
   });
 
+  const discountNote =
+    discount &&
+    (discount.endsAt
+      ? t('discountUntil', { percent: discount.percentOff, date: formatDate(discount.endsAt) })
+      : t('discountForever', { percent: discount.percentOff }));
+
   const hasLineItems = charge > 0 || credit > 0 || appliedBalance > 0;
 
   return (
     <div className='space-y-6 py-1 text-sm'>
-      <p className='text-muted-foreground leading-relaxed'>{summary}</p>
+      <p className='text-muted-foreground leading-relaxed'>
+        {summary}
+        {discountNote && ` ${discountNote}`}
+      </p>
 
       <div className='overflow-hidden rounded-lg border'>
         {hasLineItems && (

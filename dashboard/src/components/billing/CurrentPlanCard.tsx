@@ -14,6 +14,8 @@ import { CancelSubscriptionDialog } from './CancelSubscriptionDialog';
 import { toast } from 'sonner';
 import type { UserBillingData } from '@/entities/billing/billing.entities';
 import { useLocale, useTranslations } from 'next-intl';
+import { getPlan } from '@/lib/billing/catalog';
+import { useSubscriptionDiscount } from '@/hooks/useSubscriptionDiscount';
 
 interface CurrentPlanCardProps {
   billingData: UserBillingData;
@@ -24,6 +26,7 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
   const { subscription, usage } = billingData;
   const t = useTranslations('components.billing.currentPlan');
   const locale = useLocale();
+  const { monthlyPrice, discountLabel } = useSubscriptionDiscount(subscription);
 
   const planStatus = derivePlanStatus(subscription.status, subscription.cancelAtPeriodEnd);
   const isCanceled = planStatus === 'canceling';
@@ -65,15 +68,14 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
         <div className='flex justify-between sm:block sm:space-y-3'>
           <div>
             <div className='text-muted-foreground text-sm'>{t('plan')}</div>
-            <div className='font-semibold capitalize'>{subscription.tier}</div>
+            <div className='font-semibold'>{getPlan(subscription.planId).name}</div>
           </div>
           <div className='text-right sm:text-left'>
             <div className='text-muted-foreground text-sm'>{t('monthlyPrice')}</div>
             <div className='font-semibold'>
-              {subscription.pricePerMonth === 0
-                ? t('free')
-                : formatPrice(subscription.pricePerMonth, subscription.currency, locale)}
+              {monthlyPrice === 0 ? t('free') : formatPrice(monthlyPrice, subscription.currency, locale)}
             </div>
+            {discountLabel && <div className='text-muted-foreground text-xs'>{discountLabel}</div>}
           </div>
         </div>
 
@@ -84,9 +86,7 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
               <span className='text-sm font-medium'>{t('eventUsage')}</span>
             </div>
             {!isCanceled && (
-              <p className='text-muted-foreground text-xs'>
-                {t('resetsInDays', { days: usage.daysUntilReset })}
-              </p>
+              <p className='text-muted-foreground text-xs'>{t('resetsInDays', { days: usage.daysUntilReset })}</p>
             )}
           </div>
 
@@ -112,14 +112,14 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
 
       {showManagementButtons && billingData.isExistingPaidSubscriber && (
         <div className='flex flex-wrap justify-end gap-2'>
-          <Button onClick={handleManageSubscription} size='sm' className='flex items-center gap-2'>
-            <ExternalLink className='mr-2 h-4 w-4' />
+          <Button onClick={handleManageSubscription} size='sm'>
+            <ExternalLink />
             {isCanceled ? t('reactivate') : isPastDue ? t('updatePayment') : t('manage')}
           </Button>
 
           {canCancel && (
-            <CancelSubscriptionDialog tier={subscription.tier} isActive={canCancel}>
-              <Button variant='outline' size='sm' className='flex items-center gap-2'>
+            <CancelSubscriptionDialog planId={subscription.planId} isActive={canCancel}>
+              <Button variant='outline' size='sm'>
                 <AlertTriangle className='h-4 w-4' />
                 {t('cancel')}
               </Button>

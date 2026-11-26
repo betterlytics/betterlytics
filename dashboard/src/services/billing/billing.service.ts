@@ -44,13 +44,11 @@ export async function getUserBillingStats(userId: string): Promise<UserBillingDa
     };
 
     const isExistingPaidSubscriber = subscription.paymentSubscriptionId !== null;
-    const isFreePlanUser = subscription.tier === 'growth' && subscription.pricePerMonth === 0;
 
     return UserBillingDataSchema.parse({
       subscription: { ...subscription },
       usage,
       isExistingPaidSubscriber,
-      isFreePlanUser,
     });
   } catch (error) {
     console.error('Failed to get billing stats:', error);

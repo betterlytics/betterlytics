@@ -62,7 +62,7 @@ impl AsnService {
             }
         };
 
-        let result = match reader.lookup::<geoip2::Asn>(ip) {
+        let result = match reader.lookup(ip).and_then(|found| found.decode::<geoip2::Asn>()) {
             Ok(Some(record)) => AsnInfo {
                 asn: record.autonomous_system_number.unwrap_or(0),
                 org: record

@@ -20,11 +20,11 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { DestructiveActionDialog } from '@/components/dialogs';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { type MonitorCheck, MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
 import { useMonitorMutations } from '../shared/hooks/useMonitorMutations';
 import { EditMonitorSheet } from '../[monitorId]/EditMonitorSheet';
+import { MonitorDeleteDialog } from './MonitorDeleteDialog';
 import { useTranslations } from 'next-intl';
 
 type MonitorActionMenuProps = {
@@ -97,19 +97,19 @@ export function MonitorActionMenu({ monitor, dashboardId, vertical = false }: Mo
               >
                 {monitor.isEnabled ? (
                   <>
-                    <PauseCircle className='mr-2 h-4 w-4' />
+                    <PauseCircle />
                     {statusMutation.isPending ? tMonitorActions('pausing') : tMonitorActions('pause')}
                   </>
                 ) : (
                   <>
-                    <PlayCircle className='mr-2 h-4 w-4' />
+                    <PlayCircle />
                     {statusMutation.isPending ? tMonitorActions('resuming') : tMonitorActions('resume')}
                   </>
                 )}
               </DropdownMenuItem>
 
               <DropdownMenuItem onClick={openRenameDialog} className='cursor-pointer'>
-                <Pencil className='mr-2 h-4 w-4' />
+                <Pencil />
                 {tMisc('rename')}
               </DropdownMenuItem>
 
@@ -118,7 +118,7 @@ export function MonitorActionMenu({ monitor, dashboardId, vertical = false }: Mo
                 monitor={monitor}
                 trigger={
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()} className='cursor-pointer'>
-                    <Settings className='mr-2 h-4 w-4' />
+                    <Settings />
                     {t('settings')}
                   </DropdownMenuItem>
                 }
@@ -131,7 +131,7 @@ export function MonitorActionMenu({ monitor, dashboardId, vertical = false }: Mo
                 variant='destructive'
                 className='cursor-pointer'
               >
-                <Trash2 className='mr-2 h-4 w-4' />
+                <Trash2 />
                 {tMisc('delete')}
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -174,17 +174,15 @@ export function MonitorActionMenu({ monitor, dashboardId, vertical = false }: Mo
         </DialogContent>
       </Dialog>
 
-      <DestructiveActionDialog
-        open={showDeleteDialog}
-        onOpenChange={setShowDeleteDialog}
-        title={t('deleteConfirmTitle')}
-        description={t('deleteConfirmDescription')}
-        cancelLabel={tMisc('cancel')}
-        confirmLabel={tMisc('delete')}
-        pendingLabel={tMisc('deleting')}
-        onConfirm={handleDelete}
-        isPending={deleteMutation.isPending}
-      />
+      {showDeleteDialog && (
+        <MonitorDeleteDialog
+          dashboardId={dashboardId}
+          monitorId={monitor.id}
+          onOpenChange={setShowDeleteDialog}
+          onConfirm={handleDelete}
+          isPending={deleteMutation.isPending}
+        />
+      )}
     </>
   );
 }
