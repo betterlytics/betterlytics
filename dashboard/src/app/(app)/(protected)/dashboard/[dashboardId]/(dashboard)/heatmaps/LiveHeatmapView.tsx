@@ -74,8 +74,9 @@ export function LiveHeatmapView({ pageUrl, pagePath, width, viewportHeight, anch
 
   useEffect(() => {
     let answered = false;
+    const pageOrigin = new URL(pageUrl).origin;
     const onMessage = (event: MessageEvent) => {
-      if (event.source !== frameRef.current?.contentWindow) return;
+      if (event.source !== frameRef.current?.contentWindow || event.origin !== pageOrigin) return;
       const data = event.data as { type?: unknown; height?: unknown; path?: unknown; found?: unknown } | null;
       if (data?.type === 'betterlytics:preview-found') {
         const parsed = FoundElementsSchema.safeParse(data.found);
