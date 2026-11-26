@@ -13,6 +13,7 @@ import { isLoopbackRedirect } from '@/mcp/auth/redirect-uri';
 import { clientDisplayName, clientIdentityHost, urlHost } from '@/mcp/auth/client-identity';
 import { findUserMemberships } from '@/repositories/postgres/dashboard.repository';
 import {
+  deleteOrphanedMcpTokens,
   findMcpConsentGrant,
   findOauthClient,
   replaceMcpGrant,
@@ -239,6 +240,9 @@ export async function allowMcpConsent(
 
   const consent = await findMcpConsentGrant(userId, clientId);
   if (!consent) throw new Error('The OAuth provider stored no consent');
+  // Connecting a client the user had no consent for, after a revoke say: any token it still has stored was minted
+  // for the revoked connection, and goes before this connection's code leaves.
+  if (!previous) await deleteOrphanedMcpTokens(userId, clientId);
   await replaceMcpGrant(consent.consentId, selectionKeepingExclusions(selection, previous?.grant ?? null));
   await markAnswered(params);
 

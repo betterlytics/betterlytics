@@ -6,6 +6,7 @@ vi.mock('@/lib/env', () => ({ env: { AUTH_SECRET: 'secret' } }));
 vi.mock('@/mcp/auth/oauth', () => ({ MCP_OAUTH_ISSUER: 'https://betterlytics.example/api/auth' }));
 vi.mock('@/repositories/postgres/dashboard.repository', () => ({ findUserMemberships: vi.fn(async () => []) }));
 vi.mock('@/repositories/postgres/mcpGrant.repository', () => ({
+  deleteOrphanedMcpTokens: vi.fn(),
   findOauthClient: vi.fn(),
   findMcpConsentGrant: vi.fn(),
   replaceMcpGrant: vi.fn(),
@@ -18,7 +19,12 @@ vi.mock('@/repositories/postgres/user.repository', () => ({}));
 
 import { verifyOAuthQueryParams } from '@better-auth/oauth-provider';
 import { auth } from '@/lib/better-auth';
-import { findMcpConsentGrant, findOauthClient } from '@/repositories/postgres/mcpGrant.repository';
+import {
+  deleteOrphanedMcpTokens,
+  findMcpConsentGrant,
+  findOauthClient,
+  replaceMcpGrant,
+} from '@/repositories/postgres/mcpGrant.repository';
 import {
   isMcpConsentRequestAnswered,
   markMcpConsentRequestAnswered,
@@ -101,6 +107,32 @@ describe('answered consent requests', () => {
 
     await expect(allowMcpConsent('user-1', QUERY, ALL, new Headers())).rejects.toThrow();
     expect(markMcpConsentRequestAnswered).not.toHaveBeenCalled();
+  });
+});
+
+describe('tokens left from a revoked connection', () => {
+  it('deletes them when connecting a client the user had no consent for, before the code leaves', async () => {
+    vi.mocked(findMcpConsentGrant)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ consentId: 'consent-2', createdAt: new Date(), grant: null });
+
+    expect(await allowMcpConsent('user-1', QUERY, ALL, new Headers())).toBe(
+      'http://127.0.0.1:4000/callback?code=x',
+    );
+
+    expect(deleteOrphanedMcpTokens).toHaveBeenCalledWith('user-1', 'c');
+    expect(vi.mocked(deleteOrphanedMcpTokens).mock.invocationCallOrder[0]).toBeGreaterThan(
+      vi.mocked(auth.api.oauth2Consent).mock.invocationCallOrder[0]!,
+    );
+    expect(vi.mocked(deleteOrphanedMcpTokens).mock.invocationCallOrder[0]).toBeLessThan(
+      vi.mocked(replaceMcpGrant).mock.invocationCallOrder[0]!,
+    );
+  });
+
+  it('leaves the tokens of a client that is still connected, which another device may be using', async () => {
+    await allowMcpConsent('user-1', QUERY, ALL, new Headers());
+
+    expect(deleteOrphanedMcpTokens).not.toHaveBeenCalled();
   });
 });
 

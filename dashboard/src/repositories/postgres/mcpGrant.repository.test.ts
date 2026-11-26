@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   deleteAllMcpConnections,
   deleteMcpConnection,
+  deleteOrphanedMcpTokens,
   findDashboardMcpConnections,
   findMcpConnections,
   removeDashboardFromMcpGrant,
@@ -48,6 +49,17 @@ describe('deleteAllMcpConnections', () => {
     expect(tx.oauthAccessToken.deleteMany).toHaveBeenCalledWith({ where });
     expect(tx.oauthRefreshToken.deleteMany).toHaveBeenCalledWith({ where });
     expect(tx.oauthConsent.deleteMany).toHaveBeenCalledWith({ where });
+  });
+});
+
+describe('deleteOrphanedMcpTokens', () => {
+  it("deletes the user's stored tokens for the client and leaves its consents", async () => {
+    await deleteOrphanedMcpTokens('user-1', 'client-1');
+
+    const where = { userId: 'user-1', clientId: 'client-1' };
+    expect(tx.oauthAccessToken.deleteMany).toHaveBeenCalledWith({ where });
+    expect(tx.oauthRefreshToken.deleteMany).toHaveBeenCalledWith({ where });
+    expect(tx.oauthConsent.deleteMany).not.toHaveBeenCalled();
   });
 });
 

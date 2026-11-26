@@ -242,6 +242,21 @@ export async function deleteAllMcpConnections(userId: string): Promise<number> {
   return deleteConsentsWithTokens({ userId });
 }
 
+/**
+ * Deletes the user's stored tokens for the client, leaving its consents. Only for a client the user has no consent
+ * for: every such token then belongs to a revoked connection. The provider doesn't check consent when it redeems a
+ * code or rotates a refresh token, so a code redeemed after the revoke, or a refresh that was mid-rotation, stores a
+ * refresh token the revoke never saw. Its access tokens are issued after any later consent, so nothing else refuses
+ * them once the user connects the client again.
+ */
+export async function deleteOrphanedMcpTokens(userId: string, clientId: string): Promise<void> {
+  const where = { userId, clientId };
+  await prisma.$transaction(async (tx) => {
+    await tx.oauthAccessToken.deleteMany({ where });
+    await tx.oauthRefreshToken.deleteMany({ where });
+  });
+}
+
 async function deleteConsentsWithTokens(where: { userId: string; clientId?: string }): Promise<number> {
   return prisma.$transaction(async (tx) => {
     await tx.oauthAccessToken.deleteMany({ where });
