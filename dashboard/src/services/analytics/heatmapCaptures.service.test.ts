@@ -3,7 +3,7 @@ import type { AuthContext } from '@/entities/auth/authContext.entities';
 
 vi.mock('next-intl/server', () => ({ getTranslations: vi.fn(async () => (key: string) => key) }));
 vi.mock('@/lib/env', () => ({
-  env: { DEMO_DASHBOARD_ID: 'dash-1' },
+  env: { DEMO_DASHBOARD_ID: 'demo-dash' },
   replayStorage: 'clickhouse',
   s3Env: { enabled: false, bucket: undefined },
 }));
@@ -14,6 +14,7 @@ vi.mock('@/repositories/postgres/heatmapCaptures.repository', () => ({
   findHeatmapCaptures: vi.fn(),
 }));
 vi.mock('@/repositories/heatmapCaptureSnapshots.repository', () => ({ captureSnapshotStoreFor: vi.fn() }));
+vi.mock('@/repositories/postgres/dashboard.repository', () => ({ findUserDashboardWithDashboardOrNull: vi.fn() }));
 
 import { createHeatmapCaptureLink } from '@/repositories/postgres/heatmapCaptures.repository';
 import { createCaptureLink, HeatmapCapturesForbiddenError } from '@/services/analytics/heatmapCaptures.service';
@@ -42,8 +43,11 @@ describe('createCaptureLink', () => {
     expect(createLinkRow.mock.calls[0][3]).not.toBe(token);
   });
 
-  it('refuses a public demo view', async () => {
-    const demoCtx: AuthContext = { ...ctx, userId: 'demo', role: 'viewer', isDemo: true };
+  it.each([
+    ['a public demo view', { userId: 'demo', role: 'viewer', isDemo: true }],
+    ['an editor who is a member of the demo dashboard', {}],
+  ] as const)('refuses %s', async (_, overrides) => {
+    const demoCtx: AuthContext = { ...ctx, dashboardId: 'demo-dash', ...overrides };
 
     await expect(createCaptureLink(demoCtx, { path: '/pricing', device: 'desktop' })).rejects.toThrow(
       HeatmapCapturesForbiddenError,
