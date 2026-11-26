@@ -4005,6 +4005,10 @@
         "noCaptureEditor": "Optag siden for at se dens heatmap",
         "noCaptureViewer": "En redaktør kan optage siden for at vise dens heatmap"
       },
+      "loadError": {
+        "title": "Heatmappet kunne ikke indlæses",
+        "retry": "Prøv igen"
+      },
       "source": {
         "capture": "Optaget {date}",
         "replay": "Optaget {date} fra den seneste session replay",

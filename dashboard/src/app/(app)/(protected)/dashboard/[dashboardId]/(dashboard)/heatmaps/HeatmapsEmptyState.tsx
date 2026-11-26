@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Camera, ExternalLink as ExternalLinkIcon, MousePointerClick } from 'lucide-react';
+import { Camera, ExternalLink as ExternalLinkIcon, MousePointerClick, TriangleAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ExternalLink from '@/components/ExternalLink';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
@@ -28,6 +28,19 @@ export function SetUpHeatmapsMessage() {
           <ExternalLinkIcon className='h-4 w-4' />
           {t('setUp')}
         </ExternalLink>
+      </Button>
+    </FrameMessage>
+  );
+}
+
+/** For heatmap data that still failed to load after the query's own retries */
+export function HeatmapLoadError({ onRetry, retrying }: { onRetry: () => void; retrying: boolean }) {
+  const t = useTranslations('components.heatmaps.loadError');
+
+  return (
+    <FrameMessage icon={<TriangleAlert className='h-5 w-5' />} title={t('title')}>
+      <Button size='sm' variant='outline' className='cursor-pointer' disabled={retrying} onClick={onRetry}>
+        {t('retry')}
       </Button>
     </FrameMessage>
   );

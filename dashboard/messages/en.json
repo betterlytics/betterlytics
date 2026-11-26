@@ -4005,6 +4005,10 @@
         "noCaptureEditor": "Capture this page to see its heatmap",
         "noCaptureViewer": "An editor can capture this page to show its heatmap"
       },
+      "loadError": {
+        "title": "Couldn't load the heatmap",
+        "retry": "Try again"
+      },
       "source": {
         "capture": "Captured {date}",
         "replay": "Captured {date} from the latest replay",

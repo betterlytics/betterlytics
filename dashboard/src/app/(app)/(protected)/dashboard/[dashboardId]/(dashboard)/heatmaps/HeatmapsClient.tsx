@@ -17,7 +17,7 @@ import { FrameMessage, FrameSpinner, FrameView, HeatmapFrame } from './HeatmapFr
 import { HeatmapDeviceTabs } from './HeatmapDeviceTabs';
 import { HeatmapPagePicker } from './HeatmapPagePicker';
 import { HeatmapPanel } from './HeatmapPanel';
-import { SetUpHeatmapsMessage } from './HeatmapsEmptyState';
+import { HeatmapLoadError, SetUpHeatmapsMessage } from './HeatmapsEmptyState';
 import { defaultHeatmapDevice, selectHeatmapPage } from './heatmapSelection';
 
 function useHeatmapSelection() {
@@ -71,6 +71,9 @@ export function HeatmapsClient() {
   if (pagesQuery.isPending || (!selectedPath && siteHasClicks === undefined)) {
     contentKey = 'loading';
     content = <FrameSpinner />;
+  } else if (!selectedPath && pagesQuery.isError) {
+    contentKey = 'error';
+    content = <HeatmapLoadError onRetry={() => void pagesQuery.refetch()} retrying={pagesQuery.isFetching} />;
   } else if (!selectedPath) {
     contentKey = siteHasClicks === false ? 'setup' : 'noPages';
     content =

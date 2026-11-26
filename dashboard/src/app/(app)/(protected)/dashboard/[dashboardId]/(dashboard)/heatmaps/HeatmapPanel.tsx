@@ -19,7 +19,7 @@ import type { HeatmapCapture } from '@/entities/analytics/heatmapCaptures.entiti
 import { CaptureButton, CaptureHistoryMenu, useCaptureDetails } from './CaptureActions';
 import { CaptureDialog, useCaptureOrigin } from './CaptureDialog';
 import { FrameContent, FrameLabel, FrameMenuButton, FrameSpinner, FrameView } from './HeatmapFrame';
-import { NoCaptureMessage, SetUpHeatmapsMessage } from './HeatmapsEmptyState';
+import { HeatmapLoadError, NoCaptureMessage, SetUpHeatmapsMessage } from './HeatmapsEmptyState';
 import { LiveHeatmapView } from './LiveHeatmapView';
 import { SnapshotHeatmapView } from './SnapshotHeatmapView';
 
@@ -249,8 +249,10 @@ function LiveHeatmap({ url, device, pageUrl, history, actions, onUnusable }: Liv
           anchors={anchorsQuery.data}
           onUnusable={onUnusable}
         />
+      ) : anchorsQuery.isError ? (
+        <HeatmapLoadError onRetry={() => void anchorsQuery.refetch()} retrying={anchorsQuery.isFetching} />
       ) : (
-        <FrameSpinner failed={anchorsQuery.isError} />
+        <FrameSpinner />
       )}
     </FrameContent>
   );
@@ -305,8 +307,10 @@ function SnapshotBody({ url, device, width, snapshotMs, events, info, actions, o
           anchors={anchorsQuery.data}
           onUnusable={onUnusable}
         />
+      ) : !anchorsQuery.data && anchorsQuery.isError ? (
+        <HeatmapLoadError onRetry={() => void anchorsQuery.refetch()} retrying={anchorsQuery.isFetching} />
       ) : (
-        <FrameSpinner failed={anchorsQuery.isError} />
+        <FrameSpinner />
       )}
     </FrameContent>
   );

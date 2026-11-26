@@ -4005,6 +4005,10 @@
         "noCaptureEditor": "Ta opp siden for å se varmekartet",
         "noCaptureViewer": "En redaktør kan ta opp siden for å vise varmekartet"
       },
+      "loadError": {
+        "title": "Kunne ikke laste inn varmekartet",
+        "retry": "Prøv igjen"
+      },
       "source": {
         "capture": "Tatt opp {date}",
         "replay": "Tatt opp {date} fra den siste sesjonsavspillingen",

@@ -190,9 +190,8 @@ export function FrameMenuButton({ icon, label, className, ...props }: FrameMenuB
   );
 }
 
-/** `failed` for a query that gave up, which a view loading out of sight shouldn't wait for */
-export function FrameSpinner({ failed = false }: { failed?: boolean }) {
-  useFrameLoading(!failed);
+export function FrameSpinner() {
+  useFrameLoading(true);
   return (
     <div className='flex h-full items-center justify-center'>
       <Spinner size='sm' />
