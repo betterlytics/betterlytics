@@ -218,11 +218,17 @@
   var replayConsentCallbacks = [];
 
   window.betterlytics = {
-    event: (eventName, eventProps = {}) =>
-      sendEvent(eventName, {
-        is_custom_event: true,
-        properties: JSON.stringify(eventProps),
-      }),
+    event: (eventName, eventProps) => {
+      var props = eventProps == null ? {} : eventProps;
+      var json =
+        Object.prototype.toString.call(props) === "[object Object]" &&
+        JSON.stringify(props);
+      if (!json || json[0] !== "{") {
+        console.error("Betterlytics: event properties must be a plain object");
+        json = "{}";
+      }
+      sendEvent(eventName, { is_custom_event: true, properties: json });
+    },
     setGlobalProperties: function (props) {
       if (props == null || typeof props !== "object" || Array.isArray(props)) {
         return console.error(

@@ -84,23 +84,20 @@ impl GeoIpService {
         };
 
         let result = if self.geolocation_mode.has_subdivisions() {
-            match reader.lookup::<geoip2::City>(ip) {
+            match reader.lookup(ip).and_then(|found| found.decode::<geoip2::City>()) {
                 Ok(Some(city)) => {
                     let country_code = city.country
-                        .and_then(|c| c.iso_code)
+                        .iso_code
                         .map(normalize_country_code);
 
                     let subdivision_code = city.subdivisions
-                        .as_ref()
-                        .and_then(|subs| subs.first())
+                        .first()
                         .and_then(|sub| sub.iso_code)
                         .and_then(|sub_code| {
                             country_code.as_ref().map(|cc| format!("{}-{}", cc, sub_code))
                         });
 
-                    let city_name = city.city
-                        .and_then(|c| c.names)
-                        .and_then(|names| names.get("en").map(|s| s.to_string()));
+                    let city_name = city.city.names.english.map(|s| s.to_string());
 
                     GeoLocation {
                         country_code,
@@ -115,10 +112,10 @@ impl GeoIpService {
                 }
             }
         } else {
-            match reader.lookup::<geoip2::Country>(ip) {
+            match reader.lookup(ip).and_then(|found| found.decode::<geoip2::Country>()) {
                 Ok(Some(country)) => {
                     let country_code = country.country
-                        .and_then(|c| c.iso_code)
+                        .iso_code
                         .map(normalize_country_code);
 
                     GeoLocation {

@@ -1,13 +1,18 @@
+use once_cell::sync::Lazy;
+use regex::Regex;
 use serde_json::Value;
 use tracing::warn;
 
 use crate::analytics::RawTrackingEvent;
+
+static UNICODE_OTHER: Lazy<Regex> = Lazy::new(|| Regex::new(r"\p{C}").unwrap());
 
 #[derive(Debug, Clone)]
 pub struct SanitizeConfig {
     pub max_global_properties_keys: usize,
     pub max_global_property_key_length: usize,
     pub max_global_property_value_length: usize,
+    pub max_custom_property_key_length: usize,
 }
 
 impl Default for SanitizeConfig {
@@ -16,6 +21,7 @@ impl Default for SanitizeConfig {
             max_global_properties_keys: 30,
             max_global_property_key_length: 64,
             max_global_property_value_length: 128,
+            max_custom_property_key_length: 64,
         }
     }
 }
@@ -23,6 +29,11 @@ impl Default for SanitizeConfig {
 /// Strip/truncate anything in the event that would otherwise cause validation to drop it.
 /// Never errors - a malformed `global_properties` becomes `None` and the event survives.
 pub fn sanitize_event(event: &mut RawTrackingEvent, cfg: &SanitizeConfig) {
+    sanitize_global_properties_of(event, cfg);
+    sanitize_custom_properties_of(event, cfg);
+}
+
+fn sanitize_global_properties_of(event: &mut RawTrackingEvent, cfg: &SanitizeConfig) {
     let Some(gp) = event.global_properties.take() else {
         return;
     };
@@ -117,6 +128,48 @@ fn sanitize_global_properties(value: Value, cfg: &SanitizeConfig) -> (Option<Val
 
 fn contains_control_characters(input: &str) -> bool {
     input.chars().any(|c| c.is_control())
+}
+
+/// Drops the custom event property keys the dashboard's `PROPERTY_KEY_PATTERN`
+/// (`/^[^\p{C}]{1,64}$/u`) rejects, since they could never be filtered on. Values are
+/// stored as sent.
+fn sanitize_custom_properties_of(event: &mut RawTrackingEvent, cfg: &SanitizeConfig) {
+    if event.properties.is_empty() {
+        return;
+    }
+
+    // Invalid JSON is left for validation to reject with a reason; other non-object JSON is
+    // stored as sent.
+    let Ok(Value::Object(obj)) = serde_json::from_str::<Value>(&event.properties) else {
+        return;
+    };
+
+    if obj.keys().all(|key| is_filterable_custom_key(key, cfg)) {
+        return;
+    }
+
+    let kept: serde_json::Map<String, Value> = obj
+        .into_iter()
+        .filter(|(key, _)| is_filterable_custom_key(key, cfg))
+        .collect();
+
+    event.properties = if kept.is_empty() {
+        String::new()
+    } else {
+        Value::Object(kept).to_string()
+    };
+
+    warn!(
+        rejection_reason = "custom_properties_sanitized",
+        site_id = %event.site_id,
+        event_name = %event.event_name,
+        "Event accepted with custom properties sanitization"
+    );
+}
+
+fn is_filterable_custom_key(key: &str, cfg: &SanitizeConfig) -> bool {
+    let length = key.chars().count();
+    (1..=cfg.max_custom_property_key_length).contains(&length) && !UNICODE_OTHER.is_match(key)
 }
 
 fn contains_dangerous_control_characters(input: &str) -> bool {
@@ -296,4 +349,134 @@ mod tests {
         assert_eq!(out_obj.get("a").unwrap(), &json!(true));
         assert_eq!(out_obj.get("b").unwrap(), &json!(false));
     }
+    // ---- custom event properties (#1011) ----
+
+    fn custom_event(properties: &str) -> RawTrackingEvent {
+        RawTrackingEvent {
+            site_id: "test-site".to_string(),
+            event_name: "yessir".to_string(),
+            is_custom_event: true,
+            properties: properties.to_string(),
+            url: "https://example.com/".to_string(),
+            referrer: None,
+            user_agent: "test-agent".to_string(),
+            screen_resolution: "1920x1080".to_string(),
+            timestamp: Some(1_700_000_000),
+            automation: false,
+            outbound_link_url: None,
+            cwv_cls: None,
+            cwv_lcp: None,
+            cwv_inp: None,
+            cwv_fcp: None,
+            cwv_ttfb: None,
+            scroll_depth_percentage: None,
+            scroll_depth_pixels: None,
+            error_exceptions: None,
+            global_properties: None,
+            page_duration_seconds: None,
+        }
+    }
+
+    fn sanitized_properties(properties: &str) -> String {
+        let mut event = custom_event(properties);
+        sanitize_event(&mut event, &cfg());
+        event.properties
+    }
+
+    #[test]
+    fn control_character_key_dropped_from_custom_properties() {
+        // The case from the issue: stored raw, unfilterable forever after.
+        let out = sanitized_properties(r#"{"ran\tdom": "b", "kept": "v"}"#);
+
+        assert_eq!(out, r#"{"kept":"v"}"#);
+    }
+
+    #[test]
+    fn empty_and_oversized_custom_keys_dropped() {
+        let long_key = "k".repeat(65);
+        let out = sanitized_properties(&format!(
+            r#"{{"": "a", "{long_key}": "b", "{}": "c"}}"#,
+            "k".repeat(64)
+        ));
+
+        assert_eq!(out, format!(r#"{{"{}":"c"}}"#, "k".repeat(64)));
+    }
+
+    #[test]
+    fn custom_key_length_counts_characters_not_bytes() {
+        let at_limit = "æ".repeat(64);
+        let over_limit = "æ".repeat(65);
+        let out = sanitized_properties(&format!(r#"{{"{over_limit}": 1, "{at_limit}": 2}}"#));
+
+        assert_eq!(out, format!(r#"{{"{at_limit}":2}}"#));
+    }
+
+    #[test]
+    fn custom_keys_with_invisible_characters_dropped() {
+        let out = sanitized_properties(
+            "{\"a\u{200B}b\": 1, \"a\u{200D}b\": 2, \"\u{FEFF}a\": 3, \"a\u{AD}b\": 4, \"\u{E000}\": 5, \"\u{378}\": 6, \"🎉\": 7}",
+        );
+
+        assert_eq!(out, r#"{"🎉":7}"#);
+    }
+
+    #[test]
+    fn custom_values_of_every_type_are_kept() {
+        let input = r#"{"a":null,"b":[1],"c":{"d":1},"e":1,"f":true,"g":"s","h":""}"#;
+
+        assert_eq!(sanitized_properties(input), input);
+    }
+
+    #[test]
+    fn dropping_a_custom_key_keeps_the_other_values_as_sent() {
+        let out = sanitized_properties(r#"{"ran\tdom": "b", "a": null, "b": [1, "x"], "c": {"d": {"e": 1}}}"#);
+
+        assert_eq!(out, r#"{"a":null,"b":[1,"x"],"c":{"d":{"e":1}}}"#);
+    }
+
+    #[test]
+    fn custom_string_values_are_not_truncated() {
+        // Deliberately unlike global properties: the payload is the data, and its size
+        // is bounded by `max_custom_properties_size` in validation. Nothing here needs
+        // sanitizing, so the string also comes back exactly as it arrived.
+        let long_value = "a".repeat(200);
+        let input = format!(r#"{{"note": "{long_value}"}}"#);
+
+        let out = sanitized_properties(&input);
+
+        assert_eq!(out, input);
+        assert!(out.contains(&long_value));
+    }
+
+    #[test]
+    fn untouched_custom_properties_are_left_byte_for_byte() {
+        let input = r#"{"plan":"pro","count":2}"#;
+
+        assert_eq!(sanitized_properties(input), input);
+    }
+
+    #[test]
+    fn all_custom_keys_sanitized_leaves_no_properties() {
+        let out = sanitized_properties(r#"{"ran\tdom": "b", "": null}"#);
+
+        assert_eq!(out, "");
+    }
+
+    #[test]
+    fn non_object_custom_json_is_left_untouched() {
+        assert_eq!(sanitized_properties("{not json"), "{not json");
+        assert_eq!(sanitized_properties("[1, 2]"), "[1, 2]");
+    }
+
+    #[test]
+    fn global_properties_and_custom_properties_are_both_sanitized() {
+        let mut event = custom_event(r#"{"ran\tdom": "b", "kept": 1}"#);
+        event.global_properties = Some(json!({"": "a", "ok": "v"}));
+
+        sanitize_event(&mut event, &cfg());
+
+        assert_eq!(event.properties, r#"{"kept":1}"#);
+        assert_eq!(event.global_properties, Some(json!({"ok": "v"})));
+    }
+
 }

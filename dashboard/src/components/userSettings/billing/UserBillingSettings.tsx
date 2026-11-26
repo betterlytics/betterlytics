@@ -18,6 +18,7 @@ import UserSettingsSection from '../shared/UserSettingsSection';
 import SettingRow from '../shared/SettingRow';
 import UserBillingInvoicesSettings from './UserBillingInvoicesSettings';
 import { getPlan } from '@/lib/billing/catalog';
+import { useSubscriptionDiscount } from '@/hooks/useSubscriptionDiscount';
 
 interface UserBillingSettingsProps {
   onCloseDialog?: () => void;
@@ -28,6 +29,7 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
   const locale = useLocale();
   const { billingData, isLoading, error } = useBillingData();
   const { openPlanPicker } = useBillingFlow();
+  const { monthlyPrice, discountLabel } = useSubscriptionDiscount(billingData?.subscription);
 
   const handleOpenPortal = async () => {
     const result = await createStripeCustomerPortalSession();
@@ -73,10 +75,10 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
   });
 
   const priceLabel =
-    subscription.pricePerMonth === 0
+    monthlyPrice === 0
       ? t('currentPlan.free')
       : t('currentPlan.pricePerMonth', {
-          price: formatPrice(subscription.pricePerMonth, subscription.currency, locale),
+          price: formatPrice(monthlyPrice, subscription.currency, locale),
         });
 
   let periodLabel: string;
@@ -88,7 +90,13 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
     periodLabel = t('currentPlan.renewsOn', { date: renewalDate });
   }
 
-  const planSummary = isPaid ? `${priceLabel} (${periodLabel})` : priceLabel;
+  const planSummary = isPaid ? (
+    <>
+      {priceLabel} ({periodLabel}){discountLabel && <span className='block'>{discountLabel}</span>}
+    </>
+  ) : (
+    priceLabel
+  );
 
   return (
     <div>
@@ -128,7 +136,7 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
             description={t('payment.description')}
             action={
               <Button variant='outline' size='sm' onClick={handleOpenPortal} className='cursor-pointer'>
-                <ExternalLinkIcon className='mr-2 h-4 w-4' />
+                <ExternalLinkIcon />
                 {t('payment.openPortal')}
               </Button>
             }

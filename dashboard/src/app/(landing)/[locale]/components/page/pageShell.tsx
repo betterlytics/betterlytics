@@ -3,6 +3,7 @@ import { useTranslations } from 'next-intl';
 import { LandingFooter } from '@/landing/components/footer/footer';
 import { Nav } from '@/landing/components/nav/nav';
 import { Band } from '@/landing/components/page/band';
+import { PromoBar } from '@/landing/components/page/promoBar';
 import { BrandMarkDefs } from '@/landing/components/ui/brandMark';
 import { cn } from '@/landing/lib/cn';
 import { IDS } from '@/landing/lib/ids';
@@ -19,6 +20,7 @@ export function PageShell({ hero, children, after }: { hero: ReactNode; children
       >
         {t('skip')}
       </a>
+      <PromoBar />
       <div
         className={cn(
           // a page shorter than the window (the blog's 404) grows its band, so the band's rule stays on the footer

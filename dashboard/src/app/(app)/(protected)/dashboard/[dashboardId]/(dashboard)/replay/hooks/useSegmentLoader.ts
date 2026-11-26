@@ -22,7 +22,8 @@ export function useSegmentLoader(dashboardId: string): UseSegmentLoaderReturn {
       const controller = new AbortController();
       inFlightController.current = controller;
 
-      const url = `/api/replay/segments?${new URLSearchParams({ dashboardId, sessionId })}`;
+      // v skips day-long browser copies cached under the old format, when the gzip went out unlabelled
+      const url = `/api/replay/segments?${new URLSearchParams({ dashboardId, sessionId, v: '2' })}`;
       let response = await fetch(url, { signal: controller.signal });
       if (response.status === 429) {
         await abortableDelay((Number(response.headers.get('Retry-After')) || 1) * 1000, controller.signal);
@@ -34,7 +35,10 @@ export function useSegmentLoader(dashboardId: string): UseSegmentLoaderReturn {
         );
       }
 
-      const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+      // The segments route sends gzip as the payload; the demo fixtures it redirects to are plain NDJSON
+      const gzipped = response.headers.get('Content-Type') === 'application/gzip';
+      const body = gzipped ? response.body.pipeThrough(new DecompressionStream('gzip')) : response.body;
+      const reader = body.pipeThrough(new TextDecoderStream()).getReader();
       try {
         let buffered = '';
         for (;;) {

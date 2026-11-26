@@ -12,6 +12,7 @@ import {
   type PlanOffer,
 } from '@/lib/billing/catalog';
 import { checkIntervalMinutes, isUnlimitedCount, retentionYears } from '@/lib/billing/capabilities';
+import { applyPercentOff, cardDiscountNote, type CardDiscount } from '@/lib/billing/discount';
 import { formatEventCount } from '@/utils/pricing';
 
 export type PlanFeatureLabel = { kind: 'header' | 'feature'; label: string };
@@ -99,6 +100,8 @@ export function useOfferVolumeLabel() {
   );
 }
 
+export type PlanCardPromo = { cents: number; listLabel: string; tag: string; note: string | null };
+
 export type PlanCard = {
   plan: PlanDefinition;
   offer: PlanOffer;
@@ -106,11 +109,48 @@ export type PlanCard = {
   isRecommended: boolean;
   volumeLabel: VolumeLabel;
   features: PlanFeatureLabel[];
+  promo: PlanCardPromo | null;
 };
 
-export function usePlanCards(volume: number, currency: PlanCurrency): PlanCard[] {
+function useDiscountPricing(discount: CardDiscount | null, currency: PlanCurrency, priceLocale?: string) {
+  const t = useTranslations('promo');
+  const locale = useLocale();
+
+  return useCallback(
+    (offer: PlanOffer): PlanCardPromo | null => {
+      if (!discount || offer.kind !== 'paid') return null;
+      const listLabel = new Intl.NumberFormat(priceLocale ?? locale, {
+        style: 'currency',
+        currency,
+        maximumFractionDigits: 0,
+      }).format(offer.cents / 100);
+      const note = cardDiscountNote(discount);
+      return {
+        cents: applyPercentOff(offer.cents, discount.percentOff),
+        listLabel,
+        tag: t('tag', { percent: discount.percentOff }),
+        note:
+          note?.key === 'then'
+            ? t('then', { months: note.months, price: listLabel })
+            : note &&
+              t('untilThen', {
+                date: note.endsAt.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' }),
+                price: listLabel,
+              }),
+      };
+    },
+    [discount, currency, priceLocale, locale, t],
+  );
+}
+
+export function usePlanCards(
+  volume: number,
+  currency: PlanCurrency,
+  { discount = null, priceLocale }: { discount?: CardDiscount | null; priceLocale?: string } = {},
+): PlanCard[] {
   const featuresFor = usePlanFeatures();
   const volumeLabelFor = useOfferVolumeLabel();
+  const promoFor = useDiscountPricing(discount, currency, priceLocale);
 
   return useMemo(() => {
     const recommended = recommendedPlanFor(volume);
@@ -123,7 +163,8 @@ export function usePlanCards(volume: number, currency: PlanCurrency): PlanCard[]
         isRecommended: plan.id === recommended?.id,
         volumeLabel: volumeLabelFor(offer),
         features: featuresFor(plan),
+        promo: promoFor(offer),
       };
     });
-  }, [volume, currency, featuresFor, volumeLabelFor]);
+  }, [volume, currency, featuresFor, volumeLabelFor, promoFor]);
 }

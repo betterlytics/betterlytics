@@ -3552,7 +3552,9 @@
           "cardDeclined": "Vi kunne ikke debitere din betalingsmetode. Opdater dit kort og prøv igen.",
           "authenticationRetry": "Vi kunne ikke bekræfte din betaling. Prøv igen for at fuldføre din opgradering.",
           "unexpected": "Noget gik galt. Prøv igen."
-        }
+        },
+        "discountUntil": "Din rabat på {percent} % fortsætter indtil {date}.",
+        "discountForever": "Din rabat på {percent} % fortsætter."
       },
       "creditBalance": {
         "label": "Kontokredit",
@@ -3583,7 +3585,11 @@
         "pastDue": "Forfalden",
         "inactive": "Inaktiv"
       },
-      "planLabel": "{name}-plan"
+      "planLabel": "{name}-plan",
+      "discount": {
+        "until": "{percent} % rabat indtil {date}",
+        "forever": "{percent} % rabat"
+      }
     },
     "timeRange": {
       "disabled": "Deaktiveret",
@@ -5808,5 +5814,18 @@
     },
     "monitorsEmpty": "Ingen monitorer",
     "monitorsUp": "oppe"
+  },
+  "promo": {
+    "bar": "{percent} % rabat på Plus og Business de første {months} måneder. Slutter {date}",
+    "barCta": "Se priser",
+    "banner": {
+      "short": "{percent} % rabat på Plus og Business",
+      "action": "Se planer"
+    },
+    "then": "De første {months} måneder, derefter {price}/måned",
+    "untilThen": "Indtil {date}, derefter {price}/måned",
+    "barTag": "Black Friday",
+    "tag": "−{percent} %",
+    "until": "til og med {date}"
   }
 }
