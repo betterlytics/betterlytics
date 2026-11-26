@@ -1,10 +1,10 @@
 -- A recognised utm_source decides the channel ahead of the referrer, except for navigation inside the site.
--- utm_source_category is the channel the utm_source names, or '' when it names none (unknown, or only 'other').
+-- utm_source_category is the channel the utm_source names, Other included, or '' when it names none.
 
 ALTER TABLE analytics.events
     ADD COLUMN IF NOT EXISTS utm_source_category String ALIAS
         if(referrer_source = 'internal' OR utm_source = '', '',
-            arrayFirst(medium -> medium IN ('ai', 'search', 'social', 'email'), [
+            arrayFirst(medium -> medium NOT IN ('', 'internal'), [
                 dictGetOrDefault('analytics.referrer_source_categories_dict', 'medium', lowerUTF8(trimBoth(utm_source)), ''),
                 dictGetOrDefault('analytics.referrer_source_categories_dict', 'medium', domainWithoutWWW(concat('http://', replaceRegexpOne(lowerUTF8(trimBoth(utm_source)), '^[a-z][a-z0-9+.-]*://', ''))), '')
             ])
@@ -23,7 +23,7 @@ ALTER TABLE analytics.events
 ALTER TABLE analytics.sessions
     ADD COLUMN IF NOT EXISTS utm_source_category String ALIAS
         if(tupleElement(referrer_source, 2) = 'internal' OR tupleElement(utm_source, 2) = '', '',
-            arrayFirst(medium -> medium IN ('ai', 'search', 'social', 'email'), [
+            arrayFirst(medium -> medium NOT IN ('', 'internal'), [
                 dictGetOrDefault('analytics.referrer_source_categories_dict', 'medium', lowerUTF8(trimBoth(tupleElement(utm_source, 2))), ''),
                 dictGetOrDefault('analytics.referrer_source_categories_dict', 'medium', domainWithoutWWW(concat('http://', replaceRegexpOne(lowerUTF8(trimBoth(tupleElement(utm_source, 2))), '^[a-z][a-z0-9+.-]*://', ''))), '')
             ])
