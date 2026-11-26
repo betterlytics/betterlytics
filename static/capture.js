@@ -214,6 +214,7 @@
           headFavicon: true,
           headWhitespace: true,
           headMetaHttpEquiv: true,
+          headMetaVerification: true,
         },
       });
     } finally {
@@ -231,11 +232,17 @@
     return events;
   }
 
-  // A base tag would point the layout's relative URLs and links somewhere else in the dashboard
+  // A base tag would point the layout's relative URLs and links somewhere else in the dashboard.
+  // maskAllInputs leaves the values of hidden and file fields, such as a CSRF token or a file's
+  // name, which are never shown anyway.
   function cleanNode(node) {
-    if (node.type === 2 && node.tagName === "base" && node.attributes) {
-      delete node.attributes.href;
-      delete node.attributes.target;
+    var attributes = node.type === 2 ? node.attributes : null;
+    if (attributes && node.tagName === "base") {
+      delete attributes.href;
+      delete attributes.target;
+    }
+    if (attributes && node.tagName === "input" && /^(hidden|file)$/i.test(attributes.type)) {
+      delete attributes.value;
     }
     if (node.childNodes) {
       node.childNodes.forEach(cleanNode);
