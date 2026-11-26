@@ -40,6 +40,8 @@
   var FINAL_REASONS = ["link_invalid", "wrong_site", "too_large"];
   // Typed text lives in these as text, which maskAllInputs doesn't reach; site masks are honored
   var TYPED_TEXT = 'textarea, [contenteditable]:not([contenteditable="false"]), [data-rrweb-mask]';
+  // Text the page shows or reads out from attributes, which privacy masking hides like other text
+  var TEXT_ATTRIBUTES = ["alt", "title", "aria-label", "placeholder"];
   var PATH_CHECK_MS = 500;
 
   // "preparing" | "ready" | "capturing" | "finished"
@@ -244,9 +246,25 @@
     if (attributes && node.tagName === "input" && /^(hidden|file)$/i.test(attributes.type)) {
       delete attributes.value;
     }
+    if (attributes && capture.hideText) {
+      maskTextAttributes(node.tagName, attributes);
+    }
     if (node.childNodes) {
       node.childNodes.forEach(cleanNode);
     }
+  }
+
+  // Masked the way rrweb masks text, keeping the length. URLs stay, so the page still renders.
+  function maskTextAttributes(tagName, attributes) {
+    var names = TEXT_ATTRIBUTES;
+    if (tagName === "button" || (tagName === "input" && /^(button|submit|reset)$/i.test(attributes.type))) {
+      names = names.concat("value");
+    }
+    names.forEach(function (name) {
+      if (typeof attributes[name] === "string") {
+        attributes[name] = attributes[name].replace(/\S/g, "*");
+      }
+    });
   }
 
   // The dashboard can't load this site's fonts (font requests need CORS), so the site's own

@@ -48,8 +48,8 @@ The page needs this dashboard's tracking script, the one with its `data-site-id`
 
 ### What a capture keeps
 
-- Text and images as you see them. A capture of a page you're signed in to shows your account details to every member of the dashboard, so turn on **Enable privacy masking** in the capture dialog to mask all text, or capture while signed in to a test account.
-- Form inputs and typed text are always masked, and so are elements marked with `data-rrweb-mask`.
+- Text and images as you see them. A capture of a page you're signed in to shows your account details to every member of the dashboard, so turn on **Enable privacy masking** in the capture dialog, or capture while signed in to a test account. Privacy masking masks all text, including image descriptions, tooltips, accessibility labels, placeholders and button labels. Images and links are kept.
+- Form inputs and typed text are always masked, and so are elements marked with `data-rrweb-mask`. Hidden form fields, file names and CSRF tokens are left out.
 - Images stay links to your site, so an image you later remove from your site disappears from the capture too. Fonts from your own site are stored with the capture.
 
 <Callout type="info">
