@@ -60,8 +60,8 @@ export const SESSION_METRICS = [
     key: 'avg_visit_duration',
     unit: 'seconds (whole)',
     description:
-      'Average visit duration: the total time of the selected sessions divided by the number of sessions with more than one pageview. 0 when every session bounced.',
-    columns: ['session_start', 'session_end', 'pageview_count'],
+      'Average visit duration: the total time of the selected sessions divided by the number of sessions, bounces included. A session with a single event counts as 0 seconds.',
+    columns: ['session_start', 'session_end'],
     expression: safeSql`round(${SessionMetricSql.avgVisitDuration}) AS avg_visit_duration`,
   },
   {
