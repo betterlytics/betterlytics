@@ -37,7 +37,7 @@
   var FONT_FACE = /@font-face\s*{[^}]*}/g;
   var CSS_URL = /url\(\s*(['"]?)([^'")]+)\1\s*\)/g;
   // A link is used up only once a capture is stored, so other refusals can be retried
-  var FINAL_REASONS = ["link_invalid", "wrong_site", "too_large"];
+  var FINAL_REASONS = ["link_invalid", "wrong_site"];
   // Typed text lives in these as text, which maskAllInputs doesn't reach; site masks are honored
   var TYPED_TEXT = 'textarea, [contenteditable]:not([contenteditable="false"]), [data-rrweb-mask]';
   // Text the page shows or reads out from attributes, which privacy masking hides like other text
