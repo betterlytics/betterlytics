@@ -184,6 +184,13 @@ describe('removeDashboardFromMcpGrant', () => {
     expect(tx.oauthConsent.deleteMany).not.toHaveBeenCalled();
   });
 
+  it('succeeds again for an All dashboards grant that already excludes the dashboard', async () => {
+    tx.mcpGrant.findFirst.mockResolvedValue({ id: 'grant-1', allDashboards: true });
+    tx.mcpGrantExcludedDashboard.createMany.mockResolvedValue({ count: 0 });
+
+    expect(await removeDashboardFromMcpGrant('consent-1', 'dash-1')).toBe(1);
+  });
+
   it('drops the dashboard from a picked grant and leaves the consent, even with no dashboards left', async () => {
     tx.mcpGrant.findFirst.mockResolvedValue({ id: 'grant-1', allDashboards: false });
     tx.mcpGrantDashboard.deleteMany.mockResolvedValue({ count: 1 });

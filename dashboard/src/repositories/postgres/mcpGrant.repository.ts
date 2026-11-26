@@ -200,7 +200,8 @@ export async function findDashboardMcpConnections(dashboardId: string): Promise<
 /**
  * Takes the dashboard out of the connection's grant, leaving the consent and its other dashboards: an All
  * dashboards grant excludes it and keeps covering the rest, a picked one drops it. Only for a consent of a member
- * of the dashboard. Returns how many grants lost the dashboard: 0 when none covered it.
+ * of the dashboard. Returns how many grants no longer cover the dashboard: 0 when the consent has none, or a picked
+ * one that didn't name it. An All dashboards grant that already excluded it counts, so a second remove succeeds.
  */
 export async function removeDashboardFromMcpGrant(consentId: string, dashboardId: string): Promise<number> {
   return prisma.$transaction(async (tx) => {
@@ -217,11 +218,11 @@ export async function removeDashboardFromMcpGrant(consentId: string, dashboardId
       const { count } = await tx.mcpGrantDashboard.deleteMany({ where: { grantId: grant.id, dashboardId } });
       return count;
     }
-    const { count } = await tx.mcpGrantExcludedDashboard.createMany({
+    await tx.mcpGrantExcludedDashboard.createMany({
       data: [{ grantId: grant.id, dashboardId }],
       skipDuplicates: true,
     });
-    return count;
+    return 1;
   });
 }
 
