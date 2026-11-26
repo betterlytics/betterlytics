@@ -3,7 +3,7 @@
 import NextLink from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Search } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Checkbox } from '@/components/ui-extended/checkbox';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { DomainFavicon } from '@/components/domain/DomainFavicon';
