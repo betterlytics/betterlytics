@@ -18,6 +18,31 @@ export function classifyUsageThreshold(pct: number): UsageThresholdKind | null {
   return null;
 }
 
+/**
+ * The limit is part of the key so a plan change mid-period re-arms the alerts for the new limit.
+ */
+export function usageAlertCampaignKey(kind: UsageThresholdKind, periodStart: Date, eventLimit: number): string {
+  return `${legacyUsageAlertCampaignKey(kind, periodStart)}:${eventLimit}`;
+}
+
+// Alerts sent before the limit joined the key, which still count as sent for the rest of their period.
+function legacyUsageAlertCampaignKey(kind: UsageThresholdKind, periodStart: Date): string {
+  return `usage-alert:${kind}:${periodStart.toISOString()}`;
+}
+
+export function usageAlertSentKeys(kind: UsageThresholdKind, periodStart: Date, eventLimit: number): string[] {
+  return [usageAlertCampaignKey(kind, periodStart, eventLimit), legacyUsageAlertCampaignKey(kind, periodStart)];
+}
+
+export function isUsageAlertSent(
+  sentCampaignKeys: ReadonlySet<string>,
+  kind: UsageThresholdKind,
+  periodStart: Date,
+  eventLimit: number,
+): boolean {
+  return usageAlertSentKeys(kind, periodStart, eventLimit).some((key) => sentCampaignKeys.has(key));
+}
+
 function isFreeTierAndExpired(sub: SubscriptionWithOwnedSites): boolean {
   return !sub.paymentSubscriptionId && sub.currentPeriodEnd < new Date();
 }
