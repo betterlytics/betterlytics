@@ -14,6 +14,7 @@ export function ReplaySessionPanel({ sessionManager, onSelectSession }: ReplaySe
       <SessionReplayList
         sessions={sessionManager.sessions}
         selectedSessionId={sessionManager.selectedSession?.session_id}
+        linkedSession={sessionManager.linkedSession}
         onSelect={onSelectSession}
         onLoadMore={sessionManager.fetchNextPage}
         isFetchingMore={sessionManager.isFetchingNextPage}

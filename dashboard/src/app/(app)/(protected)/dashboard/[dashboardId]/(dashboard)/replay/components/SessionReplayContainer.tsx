@@ -38,6 +38,7 @@ export function SessionReplayContainer({ dashboardId }: SessionReplayContainerPr
         playerState={playerState}
         session={sessionManager.selectedSession}
         error={combinedError}
+        isSessionNotFound={sessionManager.isLinkedSessionNotFound}
       />
       <ReplayTimelinePanel playerState={playerState} />
     </div>

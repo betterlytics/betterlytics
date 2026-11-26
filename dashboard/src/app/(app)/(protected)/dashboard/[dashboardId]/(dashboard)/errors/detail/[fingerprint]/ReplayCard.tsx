@@ -1,10 +1,9 @@
 'use client';
 
-import Link from 'next/link';
 import { Play } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent } from '@/components/ui/card';
-import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
+import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 
 type ReplayCardProps = {
   replaySessionId: string;
@@ -12,10 +11,9 @@ type ReplayCardProps = {
 
 export function ReplayCard({ replaySessionId }: ReplayCardProps) {
   const t = useTranslations('errors.detail.sidebar');
-  const { resolveHref } = useDashboardNavigation();
 
   return (
-    <Link href={resolveHref(`/replay?sessionId=${replaySessionId}`)}>
+    <FilterPreservingLink href={`/replay?sessionId=${replaySessionId}`}>
       <Card className='border-primary/30 bg-primary/10'>
         <CardContent className='px-4 py-3'>
           <div className='flex flex-col items-center gap-2 text-center'>
@@ -29,6 +27,6 @@ export function ReplayCard({ replaySessionId }: ReplayCardProps) {
           </div>
         </CardContent>
       </Card>
-    </Link>
+    </FilterPreservingLink>
   );
 }

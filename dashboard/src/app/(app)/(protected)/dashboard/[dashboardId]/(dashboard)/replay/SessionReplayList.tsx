@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { SessionReplay } from '@/entities/analytics/sessionReplays.entities';
 import { Spinner } from '@/components/ui/spinner';
-import { Clock, ListVideo, Bug, Angry } from 'lucide-react';
+import { Clock, ListVideo, Bug, Angry, Link2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -19,6 +19,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 type SessionReplayListProps = {
   sessions: SessionReplay[];
   selectedSessionId?: string;
+  linkedSession?: SessionReplay | null;
   onSelect: (session: SessionReplay) => void;
   onLoadMore?: () => void;
   isFetchingMore?: boolean;
@@ -29,6 +30,7 @@ type SessionReplayListProps = {
 export function SessionReplayList({
   sessions,
   selectedSessionId,
+  linkedSession,
   onSelect,
   onLoadMore,
   isFetchingMore,
@@ -60,7 +62,14 @@ export function SessionReplayList({
     }
   };
 
-  const items: ListPanelItem[] = filteredSessions.map((session) => {
+  // A linked session outside the visible list is pinned on top
+  const pinnedSession =
+    linkedSession && !filteredSessions.some((s) => s.session_id === linkedSession.session_id)
+      ? linkedSession
+      : null;
+  const listedSessions = pinnedSession ? [pinnedSession, ...filteredSessions] : filteredSessions;
+
+  const items: ListPanelItem[] = listedSessions.map((session) => {
     const startedAt = new Date(session.started_at);
     const durationLabel = formatDuration(session.duration, locale);
     const country = session?.country_code
@@ -95,8 +104,26 @@ export function SessionReplayList({
         >
           <CardContent className='px-3 py-3'>
             <div className='text-muted-foreground flex w-full items-center justify-between gap-3 text-xs'>
-              <span>{capitalizeFirstLetter(formatRelativeTimeFromNow(startedAt, locale))}</span>
-              <span className='inline-flex items-center gap-1 font-medium'>
+              <span className='inline-flex min-w-0 items-center gap-1.5'>
+                <span className='shrink-0'>
+                  {capitalizeFirstLetter(formatRelativeTimeFromNow(startedAt, locale))}
+                </span>
+                {session === pinnedSession && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span
+                        className='text-primary inline-flex min-w-0 items-center gap-0.5 font-medium'
+                        aria-label={t('linkedSession')}
+                      >
+                        <Link2 className='h-3 w-3 shrink-0' aria-hidden='true' />
+                        <span className='truncate'>{t('linked')}</span>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent side='bottom'>{t('linkedSession')}</TooltipContent>
+                  </Tooltip>
+                )}
+              </span>
+              <span className='inline-flex shrink-0 items-center gap-1 font-medium'>
                 <Clock className='h-3 w-3' aria-hidden='true' />
                 {durationLabel}
               </span>
