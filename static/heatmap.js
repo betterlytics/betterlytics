@@ -24,7 +24,7 @@
   // The backend refuses batches over 200 clicks or 64 KiB
   var MAX_BATCH_CLICKS = 200;
   var MAX_BATCH_BYTES = 56 * 1024;
-  var MAX_CLICKS_PER_PAGE_LOAD = 300;
+  var MAX_CLICKS_PER_PAGE_VIEW = 300;
   var MAX_SELECTOR_CHARS = 500;
   var MAX_PAGE_WIDTH = 16384;
   var MAX_PAGE_HEIGHT = 1000000;
@@ -206,7 +206,7 @@
   }
 
   function recordClick(event) {
-    if (!collecting || clicksTaken >= MAX_CLICKS_PER_PAGE_LOAD) return;
+    if (!collecting || clicksTaken >= MAX_CLICKS_PER_PAGE_VIEW) return;
     // Keyboard and scripted clicks have no pointer position
     if (!event.isTrusted || event.detail === 0) return;
     var target = event.target;
@@ -296,6 +296,7 @@
     pageview: function (sampled) {
       flush();
       collecting = sampled === true;
+      clicksTaken = 0;
     },
   };
 
