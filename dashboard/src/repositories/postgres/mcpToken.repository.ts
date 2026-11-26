@@ -119,6 +119,15 @@ export async function deletePersonalMcpToken(id: string, userId: string): Promis
   return count;
 }
 
+/** Deletes every live token of the user's, and returns how many went. */
+export async function deleteAllPersonalMcpTokens(userId: string): Promise<number> {
+  const { count } = await prisma.mcpToken.updateMany({
+    where: { createdBy: userId, deletedAt: null },
+    data: { deletedAt: new Date() },
+  });
+  return count;
+}
+
 /** Returns how many tokens lost the dashboard: 0 when no live token covers it. */
 export async function removeDashboardFromMcpToken(id: string, dashboardId: string): Promise<number> {
   const { count } = await prisma.mcpTokenDashboard.deleteMany({

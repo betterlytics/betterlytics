@@ -6,6 +6,7 @@ import { getTranslations } from 'next-intl/server';
 import { UserException } from '@/lib/exceptions';
 import {
   createMcpToken,
+  deleteAllPersonalMcpTokens,
   deletePersonalMcpToken,
   findDashboardMcpTokens,
   findPersonalMcpTokens,
@@ -103,6 +104,11 @@ export async function updatePersonalMcpTokenDashboards(
 
 export async function revokePersonalMcpToken(userId: string, tokenId: string): Promise<void> {
   if ((await deletePersonalMcpToken(tokenId, userId)) === 0) throw await tokenNotFound();
+}
+
+/** On a password reset or change: a token made by whoever knew the old password stops working too. */
+export async function revokeAllPersonalMcpTokens(userId: string): Promise<void> {
+  await deleteAllPersonalMcpTokens(userId);
 }
 
 export async function getDashboardMcpTokens(dashboardId: string): Promise<DashboardMcpToken[]> {
