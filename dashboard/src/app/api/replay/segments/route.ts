@@ -1,4 +1,3 @@
-import { PassThrough } from 'node:stream';
 import { constants, createGzip } from 'node:zlib';
 import { type NextRequest, NextResponse } from 'next/server';
 import { resolveDashboardAuthResult } from '@/auth/api-auth';
@@ -82,11 +81,12 @@ export async function GET(request: NextRequest) {
     return new NextResponse(null, { status: 404 });
   }
 
+  // Gzip is the payload, not a Content-Encoding: Next 15.5.29+ drops a route's own Content-Encoding,
+  // and its built-in compression skips route handler responses, so the player inflates the body.
   // zlib with a sync flush per chunk, not CompressionStream: the latter buffers until end of input
-  const gzip = /\bgzip\b/.test(request.headers.get('accept-encoding') ?? '');
   const body = throughNodeTransform(
     opened.stream,
-    gzip ? createGzip({ flush: constants.Z_SYNC_FLUSH }) : new PassThrough(),
+    createGzip({ flush: constants.Z_SYNC_FLUSH }),
     (error) => {
       if (!error) return release('ok');
       // The browser cancelled: the user switched session or closed the tab
@@ -100,10 +100,8 @@ export async function GET(request: NextRequest) {
 
   return new NextResponse(body, {
     headers: {
-      'Content-Type': 'application/x-ndjson',
-      ...(gzip ? { 'Content-Encoding': 'gzip' } : {}),
+      'Content-Type': 'application/gzip',
       'Cache-Control': settled ? SETTLED_CACHE : LIVE_CACHE,
-      Vary: 'Accept-Encoding',
       'X-Accel-Buffering': 'no',
     },
   });

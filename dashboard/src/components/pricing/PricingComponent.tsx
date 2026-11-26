@@ -1,6 +1,6 @@
 'use client';
 
-import { Dispatch, useCallback, useState } from 'react';
+import { Dispatch, useCallback, useMemo, useState } from 'react';
 import { NumberFlowGroup } from '@number-flow/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { PricingSlider } from './PricingSlider';
@@ -11,6 +11,8 @@ import { VOLUME_STOPS } from '@/lib/billing/catalog';
 import { formatEventCount } from '@/utils/pricing';
 import { useUsageProjection } from '@/hooks/useUsageProjection';
 import type { Currency, UserBillingData } from '@/entities/billing/billing.entities';
+import { useCheckoutPromo } from '@/contexts/PromoProvider';
+import { activeDiscount, promoCardDiscount, type CardDiscount } from '@/lib/billing/discount';
 import {
   Select,
   SelectContent,
@@ -39,6 +41,12 @@ export function PricingComponent({
 }: PricingComponentProps) {
   const t = useTranslations('pricingSlider');
   const locale = useLocale();
+  const checkoutPromo = useCheckoutPromo(billingData.isExistingPaidSubscriber);
+  const discount = useMemo((): CardDiscount | null => {
+    const own = activeDiscount(billingData.subscription);
+    if (own) return { kind: 'subscriber', ...own };
+    return checkoutPromo && promoCardDiscount(checkoutPromo);
+  }, [billingData.subscription, checkoutPromo]);
   const [selectedRangeIndex, setSelectedRangeIndex] = useState(initialRangeIndex);
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>(lockedCurrency ?? defaultCurrency);
   const currentVolume = VOLUME_STOPS[selectedRangeIndex];
@@ -101,6 +109,7 @@ export function PricingComponent({
         )}
 
         <PricingCards
+          discount={discount}
           volume={currentVolume}
           onPlanSelect={onPlanSelect}
           billingData={billingData}

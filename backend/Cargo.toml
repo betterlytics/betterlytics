@@ -37,7 +37,7 @@ chrono = { version = "0.4.40", features = ["serde"] }
 uuid = { version = "1.16.0", features = ["v4", "serde"] }
 
 # GeoIP / HTTP client
-maxminddb = "0.26.0"
+maxminddb = "0.33.0"
 reqwest = { version = "0.12.15", default-features = false, features = ["json", "stream", "rustls-tls", "rustls-tls-native-roots"] }
 flate2 = "1.1.1"
 tar = "0.4.44"
