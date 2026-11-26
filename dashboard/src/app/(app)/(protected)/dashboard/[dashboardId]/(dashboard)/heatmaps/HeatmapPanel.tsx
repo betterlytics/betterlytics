@@ -261,8 +261,11 @@ function useSnapshotEvents(queryKey: unknown[], href: string, onUnusable: () => 
     queryKey,
     queryFn: async () => {
       const response = await fetch(href);
-      if (!response.ok) throw new Error(`Snapshot request failed with ${response.status}`);
-      return (await response.json()) as eventWithTime[];
+      if (!response.ok || !response.body) throw new Error(`Snapshot request failed with ${response.status}`);
+      // Captures stored gzipped in S3 come as a gzip payload
+      const gzipped = response.headers.get('Content-Type') === 'application/gzip';
+      const body = gzipped ? response.body.pipeThrough(new DecompressionStream('gzip')) : response.body;
+      return (await new Response(body).json()) as eventWithTime[];
     },
     staleTime: Infinity,
     retry: false,

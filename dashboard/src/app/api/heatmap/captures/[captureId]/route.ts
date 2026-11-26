@@ -26,11 +26,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return new NextResponse(null, { status: 404 });
   }
 
-  // No caching: a deleted capture must stop loading at once, also on the viewer's device
+  // Gzip is the payload, not a Content-Encoding: Next 15.5.29+ drops a route's own Content-Encoding,
+  // so the panel inflates the body. No caching: a deleted capture must stop loading at once.
   return new NextResponse(snapshot.body, {
     headers: {
-      'Content-Type': 'application/json',
-      ...(snapshot.contentEncoding ? { 'Content-Encoding': snapshot.contentEncoding } : {}),
+      'Content-Type': snapshot.contentEncoding === 'gzip' ? 'application/gzip' : 'application/json',
       'Cache-Control': 'private, no-store',
     },
   });
