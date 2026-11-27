@@ -119,7 +119,7 @@
       })
       .then(function (result) {
         if (result.ok) {
-          finish("done", "Captured. You can close this window.");
+          finish("done", "It now shows on the Heatmaps page.");
         } else if (FINAL_REASONS.indexOf(result.reason) === -1) {
           retry(result.message);
         } else {
@@ -459,7 +459,7 @@
       "font:14px/1.45 system-ui,-apple-system,'Segoe UI',sans-serif;box-shadow:0 12px 32px rgba(0,0,0,.35)}" +
       ".title{font-weight:600;margin:0 0 6px}.message{margin:0 0 12px;color:#d1d5db}.warning{margin:0 0 12px;color:#fcd34d}" +
       "button{font:inherit;font-weight:600;border:0;border-radius:8px;padding:8px 14px;cursor:pointer;background:#6366f1;color:#fff}" +
-      "button[hidden],.warning[hidden]{display:none}.done .title{color:#86efac}.failed .title,.final .title{color:#fca5a5}" +
+      "button[hidden],.warning[hidden]{display:none}.failed .title,.final .title{color:#fca5a5}" +
       "</style>" +
       '<div class="panel"><p class="title"></p><p class="message"></p><p class="warning" hidden></p><button type="button"></button></div>';
     var box = root.querySelector(".panel");
