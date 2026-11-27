@@ -1,14 +1,17 @@
 import { z } from 'zod';
-import { METRIC_KEYS } from '@/mcp/registry/metrics';
-import { DIMENSION_KEYS } from '@/mcp/registry/dimensions';
-import { SESSION_METRIC_KEYS } from '@/mcp/registry/sessionMetrics';
-import { SESSION_DIMENSION_KEYS } from '@/mcp/registry/sessionDimensions';
+import { METRIC_KEYS } from '@/lib/analytics-query/registry/metrics';
+import { DIMENSION_KEYS } from '@/lib/analytics-query/registry/dimensions';
+import { SESSION_METRIC_KEYS } from '@/lib/analytics-query/registry/sessionMetrics';
+import { SESSION_DIMENSION_KEYS } from '@/lib/analytics-query/registry/sessionDimensions';
 import { FilterColumnSchema, FILTER_OPERATORS } from '@/entities/analytics/filter.entities';
-import { TIME_RANGE_VALUES, type TimeRangeValue } from '@/utils/timeRanges';
-import type { GranularityRangeValues } from '@/utils/granularityRanges';
-import { isValidDayKey, normalizeTimezone } from '@/utils/timezone';
-
-export const MCP_GRANULARITIES = ['hour', 'day'] as const satisfies readonly GranularityRangeValues[];
+import { TIME_RANGE_VALUES } from '@/utils/timeRanges';
+import {
+  QUERY_GRANULARITIES,
+  SESSION_PAGE_FILTER_COLUMNS,
+  customDateRangeRefinement,
+  dateOrderRefinement,
+  timezoneTransform,
+} from '@/lib/analytics-query/query.entities';
 
 const VALID_ORDER_BY = new Set<string>([...METRIC_KEYS, ...DIMENSION_KEYS, 'date']);
 
@@ -35,17 +38,7 @@ export const McpDateRangeSchema = z.object({
     .describe(
       'IANA time zone identifier, e.g. "Europe/Berlin", "America/New_York" or "UTC". Unknown time zones are rejected.',
     )
-    .transform((tz, ctx) => {
-      const zone = normalizeTimezone(tz);
-      if (!zone) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: `Unknown timezone ${JSON.stringify(tz)}. Use an IANA time zone identifier such as "Europe/Berlin".`,
-        });
-        return z.NEVER;
-      }
-      return zone;
-    }),
+    .transform(timezoneTransform),
 });
 
 export const McpFiltersSchema = z
@@ -64,7 +57,7 @@ const McpQueryInputBaseSchema = McpDateRangeSchema.extend({
   dimensions: z.array(z.enum(DIMENSION_KEYS)).optional().describe('Dimensions to group by, e.g. ["device_type"]'),
   filters: McpFiltersSchema,
   granularity: z
-    .enum(MCP_GRANULARITIES)
+    .enum(QUERY_GRANULARITIES)
     .optional()
     .describe('Time-series granularity. Omit for aggregate totals.'),
   orderBy: z
@@ -87,29 +80,46 @@ const McpQueryInputBaseSchema = McpDateRangeSchema.extend({
     .describe('Max rows to return. Defaults to 100.'),
 });
 
-type DateRangeFields = { timeRange: TimeRangeValue; startDate?: string; endDate?: string };
-
-export const customDateRangeRefinement = {
-  check: (data: DateRangeFields) =>
-    data.timeRange !== 'custom' ||
-    (!!data.startDate && !!data.endDate && isValidDayKey(data.startDate) && isValidDayKey(data.endDate)),
-  message: 'startDate and endDate are required when timeRange is "custom", and must be real calendar dates',
+type OrderFields = {
+  metrics: readonly string[];
+  dimensions?: readonly string[];
+  granularity?: string;
+  orderBy?: string;
 };
 
-export const dateOrderRefinement = {
-  check: (data: DateRangeFields) => !(data.startDate && data.endDate) || data.startDate <= data.endDate,
-  message: 'startDate must be before or equal to endDate',
+const requestedOrderByRefinement = {
+  check: (data: OrderFields) =>
+    data.orderBy === undefined ||
+    data.orderBy === 'date' ||
+    data.metrics.includes(data.orderBy) ||
+    (data.dimensions ?? []).includes(data.orderBy),
+  message: 'orderBy must be "date" or one of the requested metrics or dimensions',
+};
+
+const orderByDateRefinement = {
+  check: (data: OrderFields) => data.orderBy !== 'date' || data.granularity !== undefined,
+  message: 'orderBy "date" needs a granularity; aggregate results have no date',
+};
+
+// Event time series ignore orderBy, and an unknown key already fails on the field itself.
+const eventOrderByRefinement = {
+  check: (data: OrderFields) =>
+    data.granularity !== undefined ||
+    data.orderBy === undefined ||
+    !VALID_ORDER_BY.has(data.orderBy) ||
+    requestedOrderByRefinement.check(data),
+  message: requestedOrderByRefinement.message,
 };
 
 export const McpQueryInputSchema = McpQueryInputBaseSchema.refine(
   customDateRangeRefinement.check,
   customDateRangeRefinement,
-).refine(dateOrderRefinement.check, dateOrderRefinement);
+)
+  .refine(dateOrderRefinement.check, dateOrderRefinement)
+  .refine(eventOrderByRefinement.check, eventOrderByRefinement)
+  .refine(orderByDateRefinement.check, orderByDateRefinement);
 
 export type McpQueryInput = z.infer<typeof McpQueryInputSchema>;
-
-export const SESSION_PAGE_FILTER_COLUMNS = ['entry_page', 'exit_page'] as const;
-export type SessionPageFilterColumn = (typeof SESSION_PAGE_FILTER_COLUMNS)[number];
 
 const McpSessionFiltersSchema = z
   .array(
@@ -133,7 +143,7 @@ const McpQuerySessionsInputBaseSchema = McpDateRangeSchema.extend({
     .describe('Session dimensions to group by, e.g. ["entry_page"]'),
   filters: McpSessionFiltersSchema,
   granularity: z
-    .enum(MCP_GRANULARITIES)
+    .enum(QUERY_GRANULARITIES)
     .optional()
     .describe('Time-series granularity. Omit for aggregate totals.'),
   orderBy: z
@@ -153,42 +163,12 @@ const McpQuerySessionsInputBaseSchema = McpDateRangeSchema.extend({
     .describe('Max rows to return. Defaults to 100.'),
 });
 
-type SessionOrderFields = {
-  metrics: readonly string[];
-  dimensions?: readonly string[];
-  granularity?: string;
-  orderBy?: string;
-};
-
-const sessionOrderByRefinement = {
-  check: (data: SessionOrderFields) =>
-    data.orderBy === undefined ||
-    data.orderBy === 'date' ||
-    data.metrics.includes(data.orderBy) ||
-    (data.dimensions ?? []).includes(data.orderBy),
-  message: 'orderBy must be "date" or one of the requested metrics or dimensions',
-};
-
-const sessionOrderByDateRefinement = {
-  check: (data: SessionOrderFields) => data.orderBy !== 'date' || data.granularity !== undefined,
-  message: 'orderBy "date" needs a granularity; aggregate results have no date',
-};
-
 export const McpQuerySessionsInputSchema = McpQuerySessionsInputBaseSchema.refine(
   customDateRangeRefinement.check,
   customDateRangeRefinement,
 )
   .refine(dateOrderRefinement.check, dateOrderRefinement)
-  .refine(sessionOrderByRefinement.check, sessionOrderByRefinement)
-  .refine(sessionOrderByDateRefinement.check, sessionOrderByDateRefinement);
+  .refine(requestedOrderByRefinement.check, requestedOrderByRefinement)
+  .refine(orderByDateRefinement.check, orderByDateRefinement);
 
 export type McpQuerySessionsInput = z.infer<typeof McpQuerySessionsInputSchema>;
-export type McpSessionFilter = NonNullable<McpQuerySessionsInput['filters']>[number];
-export type McpSessionPageFilter = McpSessionFilter & { column: SessionPageFilterColumn };
-
-export function isSessionPageFilterColumn(column: string): column is SessionPageFilterColumn {
-  return (SESSION_PAGE_FILTER_COLUMNS as readonly string[]).includes(column);
-}
-
-export const McpQueryResultSchema = z.array(z.record(z.string(), z.union([z.string(), z.number(), z.null()])));
-export type McpQueryResult = z.infer<typeof McpQueryResultSchema>;

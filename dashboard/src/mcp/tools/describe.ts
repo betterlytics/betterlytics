@@ -1,11 +1,11 @@
-import { METRICS, METRIC_KEYS } from '@/mcp/registry/metrics';
-import { DIMENSIONS, DIMENSION_KEYS } from '@/mcp/registry/dimensions';
-import { SESSION_METRICS } from '@/mcp/registry/sessionMetrics';
-import { SESSION_DIMENSIONS } from '@/mcp/registry/sessionDimensions';
+import { METRICS, METRIC_KEYS } from '@/lib/analytics-query/registry/metrics';
+import { DIMENSIONS, DIMENSION_KEYS } from '@/lib/analytics-query/registry/dimensions';
+import { SESSION_METRICS } from '@/lib/analytics-query/registry/sessionMetrics';
+import { SESSION_DIMENSIONS } from '@/lib/analytics-query/registry/sessionDimensions';
 import { FILTER_COLUMNS, FILTER_OPERATORS } from '@/entities/analytics/filter.entities';
-import { getFilterColumnDescription } from '@/mcp/registry/filterColumns';
+import { getFilterColumnDescription } from '@/lib/analytics-query/registry/filterColumns';
 import { TIME_RANGE_VALUES } from '@/utils/timeRanges';
-import { MCP_GRANULARITIES } from '@/mcp/entities/mcp.entities';
+import { QUERY_GRANULARITIES } from '@/lib/analytics-query/query.entities';
 import { DASHBOARD_ID_DESCRIPTION } from '@/mcp/context';
 
 type ToolInput = { name: string; type: string; required: boolean; description: string };
@@ -110,7 +110,7 @@ function describeDashboardSchema(available: ToolAvailability): Omit<SchemaDescri
         'Set timeRange to "custom" and provide startDate and endDate (YYYY-MM-DD) for arbitrary date ranges.',
       example: { timeRange: 'custom', startDate: '2026-01-01', endDate: '2026-01-31' },
     },
-    granularities: MCP_GRANULARITIES,
+    granularities: QUERY_GRANULARITIES,
     orderBy: {
       validValues: ['date', ...METRIC_KEYS, ...DIMENSION_KEYS],
       description:

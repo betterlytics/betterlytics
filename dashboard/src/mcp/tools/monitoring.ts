@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import moment from 'moment-timezone';
-import { McpDateRangeSchema, customDateRangeRefinement, dateOrderRefinement } from '@/mcp/entities/mcp.entities';
-import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
+import { McpDateRangeSchema } from '@/mcp/entities/mcp.entities';
+import { customDateRangeRefinement, dateOrderRefinement } from '@/lib/analytics-query/query.entities';
+import { resolveTimeRange } from '@/lib/analytics-query/resolveTimeRange';
 import { floorUptime, round } from '@/mcp/utils/round';
 import {
   IncidentStateSchema,

@@ -1,5 +1,6 @@
-import { McpQueryInputSchema, McpQueryResultSchema } from '@/mcp/entities/mcp.entities';
-import { buildQuery } from '@/mcp/query-builder/builder';
+import { McpQueryInputSchema } from '@/mcp/entities/mcp.entities';
+import { QueryResultSchema } from '@/lib/analytics-query/query.entities';
+import { buildQuery } from '@/lib/analytics-query/query-builder/builder';
 import { clickhouse } from '@/lib/clickhouse';
 
 export async function executeQuery(rawInput: unknown, siteId: string) {
@@ -10,5 +11,5 @@ export async function executeQuery(rawInput: unknown, siteId: string) {
     .query(taggedSql, { params: taggedParams })
     .toPromise();
 
-  return McpQueryResultSchema.parse(result);
+  return QueryResultSchema.parse(result);
 }

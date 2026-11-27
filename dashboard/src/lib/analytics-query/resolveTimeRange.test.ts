@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
+import { resolveTimeRange } from '@/lib/analytics-query/resolveTimeRange';
 
 describe('resolveTimeRange', () => {
   it('resolves a preset time range to start/end DateTimeStrings', () => {

@@ -259,4 +259,39 @@ describe('McpQueryInputSchema', () => {
     });
     expect(result.success).toBe(false);
   });
+
+  describe('orderBy', () => {
+    const base = { metrics: ['visitors'], dimensions: ['referrer_source'], timeRange: '7d', timezone: 'UTC' };
+    const issues = (input: object) => {
+      const result = McpQueryInputSchema.safeParse({ ...base, ...input });
+      return result.success ? [] : result.error.issues.map((issue) => issue.message);
+    };
+
+    it('accepts a requested metric or dimension in an aggregate', () => {
+      expect(issues({ orderBy: 'visitors' })).toEqual([]);
+      expect(issues({ orderBy: 'referrer_source' })).toEqual([]);
+    });
+
+    it('rejects an unrequested key in an aggregate', () => {
+      expect(issues({ orderBy: 'pageviews' })).toEqual([
+        'orderBy must be "date" or one of the requested metrics or dimensions',
+      ]);
+    });
+
+    it('rejects date in an aggregate', () => {
+      expect(issues({ orderBy: 'date' })).toEqual([
+        'orderBy "date" needs a granularity; aggregate results have no date',
+      ]);
+    });
+
+    it('accepts any known key in a time series, which ignores it', () => {
+      expect(issues({ granularity: 'day', orderBy: 'pageviews' })).toEqual([]);
+      expect(issues({ granularity: 'hour', orderBy: 'date' })).toEqual([]);
+    });
+
+    it('reports an unknown key once', () => {
+      expect(issues({ orderBy: 'bounce_rate' })).toHaveLength(1);
+      expect(issues({ orderBy: 'bounce_rate' })[0]).toMatch(/^orderBy must be one of: date, visitors/);
+    });
+  });
 });

@@ -1,20 +1,20 @@
 import { safeSql, SQL, type SQLTaggedExpression } from '@/lib/safe-sql';
 import { BASessionQuery, type SessionsTableSelectableColumn } from '@/lib/ba-session-query';
-import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
+import { resolveTimeRange } from '@/lib/analytics-query/resolveTimeRange';
 import { filterValueToLikePattern, matchAnyValueFilterSql } from '@/lib/filter-sql';
 import type { QueryFilter } from '@/entities/analytics/filter.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { getSessionMetricByKey, SESSION_METRIC_KEYS } from '@/mcp/registry/sessionMetrics';
+import { getSessionMetricByKey, SESSION_METRIC_KEYS } from '@/lib/analytics-query/registry/sessionMetrics';
 import {
   getSessionDimensionByKey,
   SESSION_DIMENSION_COLUMNS,
   SESSION_DIMENSION_KEYS,
-} from '@/mcp/registry/sessionDimensions';
+} from '@/lib/analytics-query/registry/sessionDimensions';
 import {
   isSessionPageFilterColumn,
-  type McpQuerySessionsInput,
-  type McpSessionPageFilter,
-} from '@/mcp/entities/mcp.entities';
+  type SessionQueryInput,
+  type SessionPageFilter,
+} from '@/lib/analytics-query/query.entities';
 import { z } from 'zod';
 
 type BuildResult = {
@@ -30,6 +30,9 @@ const SqlIdentifierSchema = z.enum([
   ...SESSION_METRIC_KEYS,
 ]);
 
+// Sort keys are registry keys only, never the column behind a dimension.
+const SortKeySchema = z.enum([...SESSION_METRIC_KEYS, ...SESSION_DIMENSION_KEYS]);
+
 /** The builder's only raw SQL: the name is parsed against the fixed list above before it is injected. */
 function identifierSql(name: string) {
   return SQL.Unsafe(SqlIdentifierSchema.parse(name));
@@ -40,7 +43,7 @@ function identifierSql(name: string) {
  * started and filtered exactly like the dashboard's session queries; entry and exit page
  * filters apply on top, to the selected sessions.
  */
-export function buildSessionsQuery(input: McpQuerySessionsInput, siteId: string): BuildResult {
+export function buildSessionsQuery(input: SessionQueryInput, siteId: string): BuildResult {
   const timezone = input.timezone;
   const { startDateTime, endDateTime, granularity } = resolveTimeRange(input);
   const isTimeSeries = Boolean(input.granularity);
@@ -59,7 +62,7 @@ export function buildSessionsQuery(input: McpQuerySessionsInput, siteId: string)
     return { column: dim.column, columnSql, selectSql };
   });
 
-  const pageFilters: McpSessionPageFilter[] = [];
+  const pageFilters: SessionPageFilter[] = [];
   const queryFilters: QueryFilter[] = [];
   (input.filters ?? []).forEach((filter, i) => {
     const { column } = filter;
@@ -125,7 +128,7 @@ export function buildSessionsQuery(input: McpQuerySessionsInput, siteId: string)
   }
 
   const orderByKey = input.orderBy ?? metrics[0].key;
-  const orderByColumn = identifierSql(orderByKey);
+  const orderByColumn = identifierSql(SortKeySchema.parse(orderByKey));
   const orderDirection = input.order === 'asc' ? safeSql`ASC` : safeSql`DESC`;
 
   const query = safeSql`
@@ -180,7 +183,7 @@ function buildTimeSeriesQuery(opts: {
 }
 
 /** Entry and exit page filters, with the same pattern and `*` semantics as the other filters. */
-function buildPageFilter(filter: McpSessionPageFilter, index: number) {
+function buildPageFilter(filter: SessionPageFilter, index: number) {
   const column = identifierSql(filter.column);
   const patterns = filter.values.map(filterValueToLikePattern);
   const values = SQL.StringArray({ [`mcp_page_filter_${index}`]: patterns });

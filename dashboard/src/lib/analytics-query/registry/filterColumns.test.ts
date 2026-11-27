@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getFilterColumnDescription } from '@/mcp/registry/filterColumns';
+import { getFilterColumnDescription } from '@/lib/analytics-query/registry/filterColumns';
 import { FILTER_COLUMNS } from '@/entities/analytics/filter.entities';
 
 describe('filterColumns registry', () => {

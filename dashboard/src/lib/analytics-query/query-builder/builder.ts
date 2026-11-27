@@ -1,9 +1,14 @@
+import { z } from 'zod';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BAQuery } from '@/lib/ba-query';
-import { getMetricByKey } from '@/mcp/registry/metrics';
-import { getDimensionByKey, validateDimensionColumn } from '@/mcp/registry/dimensions';
-import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
-import { McpQueryInput } from '@/mcp/entities/mcp.entities';
+import { getMetricByKey, METRIC_KEYS } from '@/lib/analytics-query/registry/metrics';
+import {
+  DIMENSION_KEYS,
+  getDimensionByKey,
+  validateDimensionColumn,
+} from '@/lib/analytics-query/registry/dimensions';
+import { resolveTimeRange } from '@/lib/analytics-query/resolveTimeRange';
+import type { EventQueryInput } from '@/lib/analytics-query/query.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 
 type BuildResult = {
@@ -11,7 +16,11 @@ type BuildResult = {
   taggedParams: Record<string, unknown>;
 };
 
-export function buildQuery(input: McpQueryInput, siteId: string): BuildResult {
+// Aggregate sort keys are registry keys, parsed before they are written into the SQL.
+const SortKeySchema = z.enum([...METRIC_KEYS, ...DIMENSION_KEYS]);
+const DimensionKeySchema = z.enum(DIMENSION_KEYS);
+
+export function buildQuery(input: EventQueryInput, siteId: string): BuildResult {
   const timezone = input.timezone;
   const { startDateTime, endDateTime, granularity } = resolveTimeRange(input);
 
@@ -21,18 +30,19 @@ export function buildQuery(input: McpQueryInput, siteId: string): BuildResult {
     return safeSql`${metric.expression}`;
   });
 
-  const dimensionColumns = (input.dimensions ?? []).map((key) => {
+  const dimensions = (input.dimensions ?? []).map((key) => {
     const dim = getDimensionByKey(key);
     if (!dim) throw new Error(`Unknown dimension: ${key}`);
-    const column = validateDimensionColumn(dim.column);
-    return SQL.Unsafe(column);
+    const column = SQL.Unsafe(validateDimensionColumn(dim.column));
+    // Rows are keyed by the dimension key, also where the column behind it is named differently.
+    const select =
+      dim.column === dim.key ? column : safeSql`${column} AS ${SQL.Unsafe(DimensionKeySchema.parse(dim.key))}`;
+    return { column, select };
   });
+  const dimensionColumns = dimensions.map((d) => d.column);
+  const dimensionSelects = dimensions.map((d) => d.select);
 
   const filters = BAQuery.getFilterQuery((input.filters ?? []).map((f, i) => ({ ...f, id: `mcp_filter_${i}` })));
-
-  const orderByKey = input.orderBy ?? input.metrics[0];
-  const orderByColumn = SQL.Unsafe(orderByKey);
-  const orderDirection = input.order === 'asc' ? safeSql`ASC` : safeSql`DESC`;
 
   if (input.granularity) {
     return buildTimeSeriesQuery({
@@ -42,17 +52,23 @@ export function buildQuery(input: McpQueryInput, siteId: string): BuildResult {
       granularity,
       timezone,
       metricExpressions,
+      dimensionSelects,
       dimensionColumns,
       filters,
       limit: input.limit,
     });
   }
 
+  const orderByKey = input.orderBy ?? input.metrics[0];
+  const orderByColumn = SQL.Unsafe(SortKeySchema.parse(orderByKey));
+  const orderDirection = input.order === 'asc' ? safeSql`ASC` : safeSql`DESC`;
+
   return buildAggregateQuery({
     siteId,
     startDateTime,
     endDateTime,
     metricExpressions,
+    dimensionSelects,
     dimensionColumns,
     filters,
     orderByColumn,
@@ -66,13 +82,14 @@ function buildAggregateQuery(opts: {
   startDateTime: string;
   endDateTime: string;
   metricExpressions: ReturnType<typeof safeSql>[];
+  dimensionSelects: ReturnType<typeof safeSql>[];
   dimensionColumns: ReturnType<typeof safeSql>[];
   filters: ReturnType<typeof safeSql>[];
   orderByColumn: ReturnType<typeof safeSql>;
   orderDirection: ReturnType<typeof safeSql>;
   limit: number;
 }): BuildResult {
-  const selectParts = [...opts.dimensionColumns, ...opts.metricExpressions];
+  const selectParts = [...opts.dimensionSelects, ...opts.metricExpressions];
 
   const hasGroupBy = opts.dimensionColumns.length > 0;
   const groupByParts = opts.dimensionColumns;
@@ -107,6 +124,7 @@ function buildTimeSeriesQuery(opts: {
   granularity: GranularityRangeValues;
   timezone: string;
   metricExpressions: ReturnType<typeof safeSql>[];
+  dimensionSelects: ReturnType<typeof safeSql>[];
   dimensionColumns: ReturnType<typeof safeSql>[];
   filters: ReturnType<typeof safeSql>[];
   limit: number;
@@ -120,7 +138,7 @@ function buildTimeSeriesQuery(opts: {
 
   const selectParts = [
     safeSql`${granularityFunc('timestamp')} as date`,
-    ...opts.dimensionColumns,
+    ...opts.dimensionSelects,
     ...opts.metricExpressions,
   ];
 

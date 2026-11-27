@@ -1,5 +1,6 @@
-import { McpQuerySessionsInputSchema, McpQueryResultSchema } from '@/mcp/entities/mcp.entities';
-import { buildSessionsQuery } from '@/mcp/query-builder/sessionBuilder';
+import { McpQuerySessionsInputSchema } from '@/mcp/entities/mcp.entities';
+import { QueryResultSchema } from '@/lib/analytics-query/query.entities';
+import { buildSessionsQuery } from '@/lib/analytics-query/query-builder/sessionBuilder';
 import { clickhouse } from '@/lib/clickhouse';
 
 export async function executeQuerySessions(rawInput: unknown, siteId: string) {
@@ -8,5 +9,5 @@ export async function executeQuerySessions(rawInput: unknown, siteId: string) {
 
   const result = await clickhouse.query(taggedSql, { params: taggedParams }).toPromise();
 
-  return McpQueryResultSchema.parse(result);
+  return QueryResultSchema.parse(result);
 }
