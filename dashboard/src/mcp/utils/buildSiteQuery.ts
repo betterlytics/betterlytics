@@ -1,5 +1,5 @@
 import type { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
-import type { ResolvedTimeRange } from '@/mcp/utils/resolveTimeRange';
+import type { ResolvedTimeRange } from '@/lib/analytics-query/resolveTimeRange';
 
 type BuildSiteQueryInput = {
   siteId: string;

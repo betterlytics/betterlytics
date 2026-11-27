@@ -1,8 +1,8 @@
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BAQuery } from '@/lib/ba-query';
-import { getMetricByKey } from '@/mcp/registry/metrics';
-import { getDimensionByKey, validateDimensionColumn } from '@/mcp/registry/dimensions';
-import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
+import { getMetricByKey } from '@/lib/analytics-query/registry/metrics';
+import { getDimensionByKey, validateDimensionColumn } from '@/lib/analytics-query/registry/dimensions';
+import { resolveTimeRange } from '@/lib/analytics-query/resolveTimeRange';
 import { McpQueryInput } from '@/mcp/entities/mcp.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 

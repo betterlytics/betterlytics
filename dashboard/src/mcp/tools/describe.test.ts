@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { getSchemaDescription, type ToolAvailability } from '@/mcp/tools/describe';
-import { METRIC_KEYS } from '@/mcp/registry/metrics';
-import { DIMENSION_KEYS } from '@/mcp/registry/dimensions';
-import { SESSION_METRIC_KEYS } from '@/mcp/registry/sessionMetrics';
-import { SESSION_DIMENSION_KEYS } from '@/mcp/registry/sessionDimensions';
+import { METRIC_KEYS } from '@/lib/analytics-query/registry/metrics';
+import { DIMENSION_KEYS } from '@/lib/analytics-query/registry/dimensions';
+import { SESSION_METRIC_KEYS } from '@/lib/analytics-query/registry/sessionMetrics';
+import { SESSION_DIMENSION_KEYS } from '@/lib/analytics-query/registry/sessionDimensions';
 
 const ALL_ENABLED: ToolAvailability = { uptimeMonitoring: true, publicStatusPages: true };
 

@@ -1,15 +1,15 @@
 import { safeSql, SQL, type SQLTaggedExpression } from '@/lib/safe-sql';
 import { BASessionQuery, type SessionsTableSelectableColumn } from '@/lib/ba-session-query';
-import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
+import { resolveTimeRange } from '@/lib/analytics-query/resolveTimeRange';
 import { filterValueToLikePattern, matchAnyValueFilterSql } from '@/lib/filter-sql';
 import type { QueryFilter } from '@/entities/analytics/filter.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { getSessionMetricByKey, SESSION_METRIC_KEYS } from '@/mcp/registry/sessionMetrics';
+import { getSessionMetricByKey, SESSION_METRIC_KEYS } from '@/lib/analytics-query/registry/sessionMetrics';
 import {
   getSessionDimensionByKey,
   SESSION_DIMENSION_COLUMNS,
   SESSION_DIMENSION_KEYS,
-} from '@/mcp/registry/sessionDimensions';
+} from '@/lib/analytics-query/registry/sessionDimensions';
 import {
   isSessionPageFilterColumn,
   type McpQuerySessionsInput,

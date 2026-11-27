@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { buildSiteQuery } from '@/mcp/utils/buildSiteQuery';
-import type { ResolvedTimeRange } from '@/mcp/utils/resolveTimeRange';
+import type { ResolvedTimeRange } from '@/lib/analytics-query/resolveTimeRange';
 import type { QueryFilter } from '@/entities/analytics/filter.entities';
 
 const timeRange: ResolvedTimeRange = {

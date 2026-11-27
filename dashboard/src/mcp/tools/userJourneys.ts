@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { McpDateRangeSchema, McpFiltersSchema, customDateRangeRefinement, dateOrderRefinement } from '@/mcp/entities/mcp.entities';
-import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
+import { resolveTimeRange } from '@/lib/analytics-query/resolveTimeRange';
 import { buildSiteQuery } from '@/mcp/utils/buildSiteQuery';
 import { getUserJourneyForSankeyDiagram } from '@/services/analytics/userJourney.service';
 

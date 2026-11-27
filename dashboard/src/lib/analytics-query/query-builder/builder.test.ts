@@ -16,7 +16,7 @@ vi.mock('@/observability/clickhouse-concurrency', () => ({
   setSiteConcurrencyLimit: vi.fn(),
 }));
 
-import { buildQuery } from '@/mcp/query-builder/builder';
+import { buildQuery } from '@/lib/analytics-query/query-builder/builder';
 import { McpQueryInput } from '@/mcp/entities/mcp.entities';
 
 describe('buildQuery', () => {

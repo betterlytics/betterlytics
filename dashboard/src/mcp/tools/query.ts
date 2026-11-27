@@ -1,5 +1,5 @@
 import { McpQueryInputSchema, McpQueryResultSchema } from '@/mcp/entities/mcp.entities';
-import { buildQuery } from '@/mcp/query-builder/builder';
+import { buildQuery } from '@/lib/analytics-query/query-builder/builder';
 import { clickhouse } from '@/lib/clickhouse';
 
 export async function executeQuery(rawInput: unknown, siteId: string) {

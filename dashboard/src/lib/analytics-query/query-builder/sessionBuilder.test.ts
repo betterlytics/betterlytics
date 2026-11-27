@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildSessionsQuery } from '@/mcp/query-builder/sessionBuilder';
+import { buildSessionsQuery } from '@/lib/analytics-query/query-builder/sessionBuilder';
 import { McpQuerySessionsInput } from '@/mcp/entities/mcp.entities';
 
 const siteId = 'test-site-id';
