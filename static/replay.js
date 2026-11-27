@@ -8213,6 +8213,10 @@ or you can use record.mirror to access the mirror instance during recording.`;
   if (window.__betterlytics_replay_initialized__) {
     return;
   }
+  // A heatmap capture records no visitor; capture.js loads this file only for rrweb
+  if (window.__betterlytics_capture__) {
+    return;
+  }
   var handoff = window.__betterlytics_replay_config__;
   if (!handoff || !handoff.siteId || !handoff.serverUrl || !handoff.script) {
     // A cached analytics.js older than the handoff still writes data-server-url onto its own tag before loading us
@@ -8482,6 +8486,9 @@ or you can use record.mirror to access the mirror instance during recording.`;
       if (payload.format) {
         qs += "&format=" + payload.format;
       }
+      if (payload.snapshots && payload.snapshots.length) {
+        qs += "&snapshots=" + encodeURIComponent(JSON.stringify(payload.snapshots));
+      }
 
       return fetch(apiBase + "/replay/segment?" + qs, {
         method: "POST",
@@ -8545,12 +8552,31 @@ or you can use record.mirror to access the mirror instance during recording.`;
       return count;
     }
 
+    // Full snapshots in the chunk, indexed by the backend so heatmaps can use a page's layout
+    function snapshotsIn(events) {
+      var found = [];
+      for (var i = 0; i + 1 < events.length && found.length < 5; i++) {
+        var e = events[i];
+        if (e.type === 4 && events[i + 1].type === 2 && e.data && typeof e.data.href === "string") {
+          found.push({
+            u: e.data.href,
+            w: e.data.clientWidth || e.data.width,
+            ww: e.data.windowWidth,
+            h: e.data.height,
+            t: e.timestamp,
+          });
+        }
+      }
+      return found;
+    }
+
     function buildChunk(events, lastEventTs, startedAtMs) {
       var seq = state.chunkSeq++;
       var chunkId = pageNonce + "-" + (seq < 10000 ? ("000" + seq).slice(-4) : seq);
       var epoch = state.consentEpoch;
       var errors = collectChunkErrors(events);
       var rageClickCount = countRageClicks(events);
+      var snapshots = snapshotsIn(events);
       return encodeReplayChunk(JSON.stringify(events)).then(function (enc) {
         if (errors.length) {
           var metadata = new TextEncoder().encode(JSON.stringify(errors));
@@ -8565,6 +8591,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
         enc.startedAtMs = startedAtMs || state.startedAt;
         enc.eventCount = events.length;
         enc.rageClickCount = rageClickCount;
+        enc.snapshots = snapshots;
         enc.chunkId = chunkId;
         enc.epoch = epoch;
         return enc;
@@ -9049,6 +9076,19 @@ or you can use record.mirror to access the mirror instance during recording.`;
 
       if (e.type === 4 && e.data && typeof e.data.href === "string") {
         e.data.href = normalizePageUrl(e.data.href);
+        // Heatmaps lay a snapshot out at clientWidth and pick its device by the width CSS
+        // breakpoints see, scrollbar included. On phones pinch zoom moves the meta width
+        // (innerWidth) away from the layout both ways, so a wider one only counts when a media
+        // query confirms it.
+        e.data.clientWidth = document.documentElement.clientWidth || e.data.width;
+        e.data.windowWidth = e.data.clientWidth;
+        if (e.data.width > e.data.clientWidth) {
+          try {
+            if (window.matchMedia("(min-width: " + (e.data.width - 1) + "px)").matches) {
+              e.data.windowWidth = e.data.width;
+            }
+          } catch (err) {}
+        }
       }
 
       state.lastActivity = Math.max(state.lastActivity, e.timestamp);

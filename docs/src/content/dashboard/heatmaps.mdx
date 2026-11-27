@@ -1,0 +1,85 @@
+---
+title: "Heatmaps"
+description: "Read click heatmaps per page and device, learn what is shown behind the clicks, and capture pages for an exact background."
+---
+
+import { Callout } from "nextra/components";
+
+# Heatmaps in Your Dashboard
+
+Heatmaps show where visitors click on a page. Pick a page and a device, and the clicks are drawn over the page's layout: the brighter an area, the more clicks it got. Heatmaps need `data-heatmaps="true"` on your tracking script, see the [Heatmaps integration guide](/integration/heatmaps).
+
+<div style={{ textAlign: "center", margin: "20px 0" }}>
+  ![Click Heatmap On A Captured Page](/images/dashboard/heatmaps-click-heatmap.webp)
+</div>
+
+## Reading a heatmap
+
+- **Page:** the page picker lists the pages visited in the selected period, most visited first, and you can search all of them. A warning sign marks pages without heatmap data in the period. Pages grouped with `data-dynamic-urls` show their pattern, such as `/profile/*/posts`.
+- **Devices:** Desktop, Tablet and Mobile each get their own heatmap, since layouts change with the window width. A warning sign on a device means the page has no data from it in the period; its layout is still shown and can be captured.
+- **Period:** the date range decides which clicks are drawn.
+- **Fixed elements:** clicks on fixed or sticky elements, such as a header that stays on screen, are drawn on that element when a capture or replay layout has it. On the live page they're left out.
+- **Hidden clicks:** on a capture or replay layout, clicks are drawn on the element they were made on. A click isn't drawn when its element isn't on the layout, or when several elements look the same and none is clearly where the click was made; giving the elements a [stable id](/integration/heatmaps#stable-element-ids) helps. The live page draws such a click at its position on the page instead, where it lines up only for visitors whose window was the size of the frame.
+
+Heatmaps aren't available on public dashboards.
+
+## What's behind the clicks
+
+The panel picks a background for each page and device, in this order:
+
+1. **A capture** of the page: the newest one, or one you picked from the capture history. Clicks land on the elements they were made on.
+2. **A capture from the latest replay:** the layout from a [session replay](/dashboard/session-replay) recorded on that device, when Session Replay is on. The panel shows the recording date.
+3. **The live page**, framed at the device's width, when your site allows framing (see [Showing your live page](/integration/heatmaps#showing-your-live-page)). It shows the page as it is now, which may differ from when the clicks happened. Clicks land on the elements they were made on, like on a capture. Pages grouped with `data-dynamic-urls` skip this step.
+4. **No capture:** a prompt to capture the page.
+
+The bar above the heatmap shows which background you're looking at. When a background can't be loaded, for example because the replay has expired, the panel moves on to the next one.
+
+## Capturing pages
+
+A capture is a snapshot of a page, taken in your own browser at the device's width. It becomes the background for that page and device.
+
+**Who can capture:** owners, admins and editors. Viewers see the captures and the capture history, but can't take or delete captures.
+
+To capture a page:
+
+1. Pick the page and device in Heatmaps, then click **Capture page**.
+2. In the dialog, check the **Page** address to open, turn on **Enable privacy masking** if you need it, and click **Open page**. The page opens in a window at the device's width: 768 px for Tablet and 390 px for Mobile. Desktop fills your screen, up to 1920 × 1080 px.
+3. Close cookie banners and set the page up the way visitors see it, then press **Capture page** in the Betterlytics panel on the page.
+
+Keep the window at its size and don't zoom until the capture is done. A capture whose window width falls outside the device's range is refused, and the panel on the page says why.
+
+The page needs this dashboard's tracking script, the one with its `data-site-id`, but not `data-heatmaps` or Session Replay. A capture link works once and expires after 15 minutes. Pages tracked by another dashboard ignore it. Taking a capture doesn't count as a visit.
+
+### What a capture keeps
+
+- Text and images as you see them. A capture of a page you're signed in to shows your account details to every member of the dashboard, so turn on **Enable privacy masking** in the capture dialog, or capture while signed in to a test account. Privacy masking masks all text, including image descriptions, tooltips, accessibility labels, placeholders and button labels. Images and links are kept.
+- Form inputs and typed text are always masked, and so are elements marked with `data-rrweb-mask`. Hidden form fields, file names and CSRF tokens are left out.
+- Images stay links to your site, so an image you later remove from your site disappears from the capture too. Fonts from your own site are stored with the capture.
+
+<Callout type="info">
+Viewers can't capture pages. Ask an owner, admin or editor of the dashboard, or ask an owner or admin to change your role in the dashboard's member settings.
+</Callout>
+
+### Choosing the page to open
+
+The **Page** field holds the full address the window opens. It starts with the address captured last on your dashboard's domain. Otherwise it starts with the page on the host most visitors used on your dashboard's domain, or on another host when your domain has no visits to the page. You can change it to:
+
+- **A page with a query string**, such as `https://www.example.com/search?q=shoes`.
+- **Another host** with this dashboard's tracking script, such as a second domain the dashboard tracks, a staging copy, or `http://localhost:3000`.
+- **A page to start from.** You can go to other pages in the window before you capture, for example to add something to the cart and then go to the checkout. The Betterlytics panel stays with you on the same host, such as from `www.example.com/cart` to `www.example.com/checkout` but not to `checkout.example.com`, and warns you when a page isn't one the heatmap covers. You can still capture that page, for example a mock page on another path.
+
+### Pages with wildcards
+
+A page grouped with `data-dynamic-urls`, such as `/profile/*/posts`, isn't a single real page. Replace the `*` in the **Page** field with a real value, or open another page and go to a real one in the window. The capture is stored under the pattern.
+
+## Capture history
+
+Click the capture's date in the bar above the heatmap to list the captures for the page and device, newest first, with the day and the address each was taken from. Pick an older one to show it instead of the newest. Owners, admins and editors can delete a capture with the trash icon next to it. Betterlytics keeps the 10 newest captures per page and device.
+
+## Troubleshooting
+
+- **Nothing happens on the page you're capturing:** the page needs this dashboard's tracking script, with the same `data-site-id` as the dashboard, and its Content-Security-Policy must allow `capture.js`, `replay.js` and the upload, see [Content-Security-Policy](/integration/heatmaps#content-security-policy).
+- **The capture was refused for the wrong width:** resize the window back to the device's range, reset the zoom, and press the button in the panel again.
+- **The window didn't open:** allow pop-ups for the dashboard in your browser.
+- **The panel is gone after going to another page:** the panel only follows you on the same host, and for 15 minutes. Start a new capture from the dashboard, with the page on the other host as its address.
+- **No live page:** your site doesn't allow framing, the framed page didn't answer in time, or the page is grouped with `data-dynamic-urls`. Capture the page instead.

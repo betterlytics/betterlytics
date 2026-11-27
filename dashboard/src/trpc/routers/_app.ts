@@ -5,6 +5,7 @@ import { devicesRouter } from '@/trpc/routers/devices';
 import { referrersRouter } from '@/trpc/routers/referrers';
 import { eventsRouter } from '@/trpc/routers/events';
 import { weeklyHeatmapRouter } from '@/trpc/routers/weeklyHeatmap';
+import { clickHeatmapRouter } from '@/trpc/routers/clickHeatmap';
 import { pagesRouter } from '@/trpc/routers/pages';
 import { campaignRouter } from '@/trpc/routers/campaign';
 import { outboundLinksRouter } from '@/trpc/routers/outboundLinks';
@@ -19,6 +20,7 @@ import { savedFiltersRouter } from '@/trpc/routers/savedFilters';
 import { annotationsRouter } from '@/trpc/routers/annotations';
 import { systemRouter } from '@/trpc/routers/system';
 import { monitorsRouter } from '@/trpc/routers/monitors';
+import { heatmapCapturesRouter } from '@/trpc/routers/heatmapCaptures';
 
 export const appRouter = createRouter({
   overview: overviewRouter,
@@ -27,6 +29,7 @@ export const appRouter = createRouter({
   referrers: referrersRouter,
   events: eventsRouter,
   weeklyHeatmap: weeklyHeatmapRouter,
+  clickHeatmap: clickHeatmapRouter,
   pages: pagesRouter,
   campaign: campaignRouter,
   outboundLinks: outboundLinksRouter,
@@ -41,6 +44,7 @@ export const appRouter = createRouter({
   annotations: annotationsRouter,
   system: systemRouter,
   monitors: monitorsRouter,
+  heatmapCaptures: heatmapCapturesRouter,
 });
 
 export type AppRouter = typeof appRouter;

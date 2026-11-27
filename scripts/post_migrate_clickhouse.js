@@ -35,13 +35,19 @@ async function main() {
     await client.command({
       query: `GRANT dictGet ON analytics.* TO dashboard_role`,
     });
+    // Deleting a heatmap capture from the dashboard removes its snapshot at once. Granted here
+    // rather than in init-users.sh so existing installs get it on upgrade. Lightweight DELETE
+    // also needs the _row_exists update on newer ClickHouse versions.
+    await client.command({
+      query: `GRANT ALTER DELETE, ALTER UPDATE(_row_exists) ON analytics.heatmap_captures TO dashboard_role`,
+    });
 
     const parseDays = (value) => {
       const days = parseInt(value ?? "", 10);
       return Number.isFinite(days) ? days : undefined;
     };
     const retentionDays = parseDays(process.env.REPLAY_RETENTION_DAYS) ?? 60;
-    const replayTables = ["session_replays", "session_replay_segments"];
+    const replayTables = ["session_replays", "session_replay_segments", "session_replay_snapshots"];
     const retentionMarker = `replay_retention_days=${retentionDays > 0 ? retentionDays : -1}`;
     for (const table of replayTables) {
       const result = await client.query({

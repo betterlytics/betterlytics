@@ -49,6 +49,18 @@
   var replayScriptHash =
     typeof __BL_REPLAY_HASH__ === "string" ? __BL_REPLAY_HASH__ : "dev";
   var replayScriptUrl = `${scriptsBaseUrl}/replay.js?v=${replayScriptHash}`;
+  var heatmapScriptHash =
+    typeof __BL_HEATMAP_HASH__ === "string" ? __BL_HEATMAP_HASH__ : "dev";
+  var heatmapScriptUrl = `${scriptsBaseUrl}/heatmap.js?v=${heatmapScriptHash}`;
+  var captureScriptHash =
+    typeof __BL_CAPTURE_HASH__ === "string" ? __BL_CAPTURE_HASH__ : "dev";
+
+  // Read before isCaptureMode() takes a capture link out of the address
+  var pageHash = window.location.hash;
+  // A capture link from the dashboard, or the Heatmaps page framing the live page: capture.js
+  // takes over and nothing is sent, whatever the replay, heatmap, sampling and consent settings say.
+  // The site's own calls keep working.
+  var capturing = isCaptureMode();
 
   // "off" | "domain" | "full" (defaults to "domain")
   var outboundLinks = script.getAttribute("data-outbound-links") ?? "domain";
@@ -71,6 +83,19 @@
 
   if (isNaN(replaySamplePct) || replaySamplePct < 0 || replaySamplePct > 100) {
     replaySamplePct = 0;
+  }
+
+  var enableHeatmaps = script.getAttribute("data-heatmaps") === "true";
+  var heatmapSamplePct = parseInt(
+    script.getAttribute("data-heatmap-sample") || "100",
+    10,
+  );
+  if (
+    isNaN(heatmapSamplePct) ||
+    heatmapSamplePct < 0 ||
+    heatmapSamplePct > 100
+  ) {
+    heatmapSamplePct = 0;
   }
 
   var initialGlobalProperties = null;
@@ -130,6 +155,7 @@
   }
 
   function sendEvent(eventName, overrides = {}) {
+    if (capturing) return;
     var url = normalize(window.location.href);
     var referrer = document.referrer || null;
     var userAgent = navigator.userAgent;
@@ -232,6 +258,50 @@
 
   for (var i = 0; i < queuedEvents.length; i++) {
     window.betterlytics.event.apply(this, queuedEvents[i]);
+  }
+
+  if (capturing) {
+    window.__betterlytics_capture__ = {
+      hash: pageHash,
+      siteId: siteId,
+      serverUrl: serverUrl,
+      scriptsBaseUrl: scriptsBaseUrl,
+      normalize: normalize,
+      documentHeight: getDocumentHeight,
+    };
+    loadScript(`${scriptsBaseUrl}/capture.js?v=${captureScriptHash}`).catch(
+      function () {},
+    );
+    return;
+  }
+
+  // capture.js keeps a capture link for this tab until it expires, so a reload (a consent
+  // banner's, say) or going on to other pages continues the capture instead of tracking a visit.
+  // A link is only taken up outside frames, on pages tracked for the dashboard that made it, so
+  // nobody can have a visitor capture another site's page into their own dashboard. A token is
+  // "bhc_<site id>.<secret>"; its stored hash covers the site id, so it can't be swapped.
+  function isCaptureMode() {
+    var framed = window.top !== window;
+    var ownToken = "bhc_" + siteId + ".";
+    if (pageHash === "#bl-preview" && framed) return true;
+    if (pageHash.indexOf("#bl-capture=") === 0) {
+      // The link holds a live token, so it leaves the address right away, taken up or not
+      try {
+        history.replaceState(
+          history.state,
+          "",
+          window.location.pathname + window.location.search,
+        );
+      } catch (e) {}
+      var token = new URLSearchParams(pageHash.slice(1)).get("bl-capture");
+      return !framed && !!token && token.indexOf(ownToken) === 0;
+    }
+    try {
+      var stored = JSON.parse(sessionStorage.getItem("betterlytics:capture"));
+      return !framed && stored.expires > Date.now() && stored.token.indexOf(ownToken) === 0;
+    } catch (e) {
+      return false;
+    }
   }
 
   function loadScript(src) {
@@ -407,6 +477,33 @@
   // Send initial page view
   sendEvent("pageview");
 
+  // Sampled per page view; heatmap.js is only downloaded once a page view is sampled
+  var heatmapPageview = function () {};
+  if (enableHeatmaps && !automation) {
+    var heatmapConfig = {
+      siteId: siteId,
+      serverUrl: serverUrl,
+      normalize: normalize,
+      documentHeight: getDocumentHeight,
+      sampled: false,
+    };
+    window.__betterlytics_heatmap_config__ = heatmapConfig;
+    var heatmapRequested = false;
+    heatmapPageview = function () {
+      var sampled = Math.random() * 100 < heatmapSamplePct;
+      if (window.__betterlytics_heatmap__) {
+        window.__betterlytics_heatmap__.pageview(sampled);
+        return;
+      }
+      heatmapConfig.sampled = sampled;
+      if (sampled && !heatmapRequested) {
+        heatmapRequested = true;
+        loadScript(heatmapScriptUrl).catch(function () {});
+      }
+    };
+    heatmapPageview();
+  }
+
   // Detect SPA navigation
   if (window.history.pushState) {
     var originalPushState = history.pushState;
@@ -418,6 +515,7 @@
         resetEngagement();
         monitorContentHeight();
         sendEvent("pageview");
+        heatmapPageview();
       }
     };
 
@@ -428,6 +526,7 @@
         resetEngagement();
         monitorContentHeight();
         sendEvent("pageview");
+        heatmapPageview();
       }
     });
   }

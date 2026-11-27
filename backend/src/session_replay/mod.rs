@@ -21,7 +21,8 @@ use crate::visitor;
 use crate::analytics::{VisitorAttrs, detect_device_type_from_resolution};
 use chrono::{DateTime, NaiveDate, Utc};
 
-use crate::db::{SessionReplayMetaRow, SharedDatabase, SessionReplayRow};
+use crate::db::{SessionReplayMetaRow, SharedDatabase, SessionReplayRow, SessionReplaySnapshotRow};
+use crate::heatmap::{bucket_width, device_from_viewport, MAX_VIEWPORT_WIDTH};
 use crate::processing::EventProcessor;
 use crate::metrics::MetricsCollector;
 use crate::validation::{validate_site_policies, EventValidator};
@@ -54,6 +55,7 @@ const MAX_SEGMENT_SPAN_MS: i64 = 24 * 60 * 60 * 1000;
 const MAX_FILENAME_EPOCH_MS: i64 = 9_999_999_999_999;
 const MAX_START_URL_CHARS: usize = 2048;
 const MAX_CHUNK_ID_CHARS: usize = 32;
+const MAX_SNAPSHOTS_PER_SEGMENT: usize = 5;
 
 // Client event timestamps for one chunk: both required, ordered, positive, and at most a day apart.
 fn client_bounds_ms(started_at_ms: Option<i64>, ended_at_ms: Option<i64>) -> Option<(i64, i64)> {
@@ -124,6 +126,58 @@ pub struct UploadSegmentParams {
     pub encoding: Option<String>,
     pub chunk_id: Option<String>,
     pub format: Option<String>,
+    /// JSON array of the full snapshots in this segment: `[{"u": page URL, "w": viewport
+    /// width without scrollbar, "ww": window width with it, "h": viewport height, "t": client ms}]`
+    pub snapshots: Option<String>,
+}
+
+#[derive(serde::Deserialize)]
+struct SnapshotParam {
+    u: String,
+    w: u32,
+    #[serde(default)]
+    ww: Option<u32>,
+    h: u32,
+    t: i64,
+}
+
+/// Index rows for the segment's full snapshots, so the Heatmaps page can find a page layout
+/// without reading segments. A malformed list or entry is skipped, never the upload.
+fn snapshot_rows(
+    raw: Option<&str>,
+    site_id: &str,
+    session_id: u64,
+    filename: &str,
+    date: NaiveDate,
+    received_at: DateTime<Utc>,
+    client_bounds: (i64, i64),
+) -> Vec<SessionReplaySnapshotRow> {
+    let Some(entries) = raw.and_then(|raw| serde_json::from_str::<Vec<SnapshotParam>>(raw).ok()) else {
+        return Vec::new();
+    };
+    entries
+        .into_iter()
+        .take(MAX_SNAPSHOTS_PER_SEGMENT)
+        .filter(|s| {
+            !s.u.is_empty()
+                && s.u.len() <= MAX_START_URL_CHARS
+                && (1..=MAX_VIEWPORT_WIDTH).contains(&s.w)
+                && (1..=MAX_VIEWPORT_WIDTH).contains(&s.h)
+                && (client_bounds.0..=client_bounds.1).contains(&s.t)
+        })
+        .map(|s| SessionReplaySnapshotRow {
+            site_id: site_id.to_string(),
+            session_id,
+            url: extract_domain_and_path_from_url(&s.u).1,
+            device: device_from_viewport(bucket_width(s.w, s.ww)).to_string(),
+            viewport_width: s.w as u16,
+            viewport_height: s.h as u16,
+            filename: filename.to_string(),
+            snapshot_ms: s.t,
+            timestamp: received_at - chrono::Duration::milliseconds(client_bounds.1 - s.t),
+            date,
+        })
+        .collect()
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -240,7 +294,8 @@ async fn store_segment(
         return Err(Rejection::invalid("url too long"));
     }
 
-    if processor.check_replay_request(
+    if processor.check_header_request(
+        "replay",
         &p.site_id,
         &client.ip,
         &client.user_agent,
@@ -383,6 +438,21 @@ async fn store_segment(
             m.increment_replay_metadata_upsert_failures();
         }
         error!(site_id = %p.site_id, session_id = identity.session_id, "Failed to upsert session replay, segment stored and meta will catch up on the next segment: {}", e);
+    }
+
+    let snapshots = snapshot_rows(
+        p.snapshots.as_deref(),
+        &p.site_id,
+        identity.session_id,
+        &filename,
+        segment_date,
+        received_at,
+        client_bounds,
+    );
+    if !snapshots.is_empty() {
+        if let Err(e) = db.insert_replay_snapshots(&snapshots).await {
+            warn!(site_id = %p.site_id, session_id = identity.session_id, "Failed to index replay snapshots for heatmaps: {}", e);
+        }
     }
 
     Ok(Uploaded::Stored { bytes: stored_len })
@@ -631,5 +701,54 @@ mod tests {
         assert_eq!(replay_duration_seconds(&replay_meta((T + 1, T + 1999))), 1);
         assert_eq!(replay_duration_seconds(&replay_meta((T, T))), 0);
         assert_eq!(replay_duration_seconds(&replay_meta((1, i64::MAX))), u32::MAX);
+    }
+
+    fn snapshots(raw: &str) -> Vec<SessionReplaySnapshotRow> {
+        let received_at = DateTime::from_timestamp_millis(T + 60_000).unwrap();
+        let date = received_at.date_naive();
+        snapshot_rows(Some(raw), "site", 7, "0001-abc.json", date, received_at, (T, T + 20_000))
+    }
+
+    #[test]
+    fn snapshots_are_indexed_by_page_path_and_viewport_device() {
+        let rows = snapshots(
+            r#"[{"u":"https://example.com/pricing","w":1263,"h":900,"t":1755600005000},
+                {"u":"https://example.com/blog/*","w":390,"h":800,"t":1755600010000}]"#,
+        );
+        assert_eq!(rows.len(), 2);
+        assert_eq!((rows[0].url.as_str(), rows[0].device.as_str(), rows[0].viewport_width), ("/pricing", "desktop", 1263));
+        assert_eq!((rows[1].url.as_str(), rows[1].device.as_str()), ("/blog/*", "mobile"));
+        assert_eq!(rows[0].filename, "0001-abc.json");
+        assert_eq!(rows[0].snapshot_ms, T + 5_000);
+        // 15 s before the chunk's last event, which arrived at received_at
+        assert_eq!(rows[0].timestamp.timestamp_millis(), T + 60_000 - 15_000);
+    }
+
+    #[test]
+    fn snapshot_devices_follow_the_window_width_with_its_scrollbar() {
+        let rows = snapshots(r#"[{"u":"https://example.com/pricing","w":983,"ww":1000,"h":900,"t":1755600005000}]"#);
+        assert_eq!((rows[0].device.as_str(), rows[0].viewport_width), ("desktop", 983));
+    }
+
+    #[test]
+    fn bad_snapshot_entries_are_skipped_without_failing() {
+        assert!(snapshot_rows(None, "site", 7, "f", NaiveDate::MIN, Utc::now(), (T, T)).is_empty());
+        assert!(snapshots("not json").is_empty());
+        let rows = snapshots(
+            r#"[{"u":"","w":1280,"h":900,"t":1755600005000},
+                {"u":"https://example.com/a","w":0,"h":900,"t":1755600005000},
+                {"u":"https://example.com/b","w":1280,"h":900,"t":1755500000000},
+                {"u":"https://example.com/c","w":20000,"h":900,"t":1755600005000},
+                {"u":"https://example.com/d","w":800,"h":900,"t":1755600005000}]"#,
+        );
+        assert_eq!(rows.iter().map(|r| r.url.as_str()).collect::<Vec<_>>(), ["/d"]);
+        assert_eq!(rows[0].device, "tablet");
+    }
+
+    #[test]
+    fn at_most_five_snapshots_per_segment() {
+        let entry = r#"{"u":"https://example.com/","w":1280,"h":900,"t":1755600005000}"#;
+        let raw = format!("[{}]", vec![entry; 8].join(","));
+        assert_eq!(snapshots(&raw).len(), MAX_SNAPSHOTS_PER_SEGMENT);
     }
 }

@@ -58,6 +58,9 @@ const prismaMock = vi.hoisted(() => {
     mcpToken: {
       updateMany: vi.fn(),
     },
+    heatmapCaptureLink: {
+      deleteMany: vi.fn(),
+    },
     adminAuditLog: {
       updateMany: vi.fn(),
     },
@@ -241,13 +244,14 @@ describe('deleteUserAccount', () => {
     });
   });
 
-  it('removes accounts (incl. credential), sessions, 2FA rows, and reset tokens, and soft-deletes MCP tokens', async () => {
+  it('removes accounts (incl. credential), sessions, 2FA rows, reset tokens and heatmap capture links, and soft-deletes MCP tokens', async () => {
     await deleteUserAccount('user-1', deleteOwned);
 
     expect(prismaMock.account.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
     expect(prismaMock.session.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
     expect(prismaMock.twoFactor.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
     expect(prismaMock.verification.deleteMany).toHaveBeenCalledWith({ where: { value: 'user-1' } });
+    expect(prismaMock.heatmapCaptureLink.deleteMany).toHaveBeenCalledWith({ where: { createdById: 'user-1' } });
     expect(prismaMock.mcpToken.updateMany).toHaveBeenCalledWith({
       where: { createdBy: 'user-1', deletedAt: null },
       data: { deletedAt: expect.any(Date) },
@@ -403,7 +407,7 @@ describe('deleteUserAccount', () => {
 });
 
 describe('setUserDisabledUnlessBlocked', () => {
-  it('disables the user, ends their sessions and voids their reset links', async () => {
+  it('disables the user, ends their sessions and voids their reset and capture links', async () => {
     prismaMock.user.findUnique.mockResolvedValue({ role: null, deletedAt: null, disabledAt: null });
     mockCounts(1, 2);
 
@@ -416,6 +420,7 @@ describe('setUserDisabledUnlessBlocked', () => {
     expect(prismaMock.verification.deleteMany).toHaveBeenCalledWith({
       where: { value: 'user-1', identifier: { startsWith: 'reset-password:' } },
     });
+    expect(prismaMock.heatmapCaptureLink.deleteMany).toHaveBeenCalledWith({ where: { createdById: 'user-1' } });
   });
 
   it('refuses to disable the last enabled admin', async () => {

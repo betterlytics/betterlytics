@@ -267,7 +267,8 @@ export async function deleteUserAccount(
 
 /**
  * Disabling removes access, so with `guard` it is refused for the last enabled admin or user. Disabling also
- * ends every session and voids pending reset links; re-enabling restores access without touching anything else.
+ * ends every session and voids pending reset and heatmap capture links; re-enabling restores access without touching
+ * anything else.
  */
 export async function setUserDisabledUnlessBlocked(
   userId: string,
@@ -296,6 +297,7 @@ export async function setUserDisabledUnlessBlocked(
       await tx.user.update({ where: { id: userId }, data: { disabledAt: new Date() } });
       await tx.session.deleteMany({ where: { userId } });
       await tx.verification.deleteMany({ where: { value: userId, identifier: { startsWith: 'reset-password:' } } });
+      await tx.heatmapCaptureLink.deleteMany({ where: { createdById: userId } });
       return null;
     });
   } catch (error) {
@@ -367,6 +369,7 @@ async function anonymizeUserWith(tx: Prisma.TransactionClient, userId: string): 
   await tx.session.deleteMany({ where: { userId } });
   await tx.twoFactor.deleteMany({ where: { userId } });
   await tx.verification.deleteMany({ where: { value: userId } });
+  await tx.heatmapCaptureLink.deleteMany({ where: { createdById: userId } });
   await tx.mcpToken.updateMany({
     where: { createdBy: userId, deletedAt: null },
     data: { deletedAt: new Date() },

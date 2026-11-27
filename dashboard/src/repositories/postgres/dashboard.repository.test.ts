@@ -19,6 +19,7 @@ const prismaMock = vi.hoisted(() => ({
   dashboard: { updateMany: vi.fn() },
   statusPage: { updateManyAndReturn: vi.fn() },
   dashboardInvitation: { updateMany: vi.fn() },
+  heatmapCaptureLink: { deleteMany: vi.fn() },
   $transaction: vi.fn(),
 }));
 
@@ -55,10 +56,21 @@ describe('removeMember', () => {
     });
   });
 
+  it("revokes the member's heatmap capture links on the dashboard", async () => {
+    prismaMock.userDashboard.updateMany.mockResolvedValue({ count: 1 });
+
+    await removeMember('dash-1', 'user-2', 'user-1');
+
+    expect(prismaMock.heatmapCaptureLink.deleteMany).toHaveBeenCalledWith({
+      where: { dashboardId: 'dash-1', createdById: 'user-2' },
+    });
+  });
+
   it('fails when there is no live membership to end', async () => {
     prismaMock.userDashboard.updateMany.mockResolvedValue({ count: 0 });
 
     await expect(removeMember('dash-1', 'user-2', 'user-1')).rejects.toThrow('Failed to remove member');
+    expect(prismaMock.heatmapCaptureLink.deleteMany).not.toHaveBeenCalled();
   });
 });
 
@@ -77,6 +89,26 @@ describe('updateMemberRole', () => {
       expect.objectContaining({ where: { id: 'ud-2' }, data: { role: 'viewer' } }),
     );
     expect(member.role).toBe('viewer');
+  });
+
+  it("revokes the member's heatmap capture links on a demotion to viewer", async () => {
+    prismaMock.userDashboard.findFirstOrThrow.mockResolvedValue({ id: 'ud-2' });
+    prismaMock.userDashboard.update.mockResolvedValue({ ...memberRow, role: 'viewer' });
+
+    await updateMemberRole('dash-1', 'user-2', 'viewer');
+
+    expect(prismaMock.heatmapCaptureLink.deleteMany).toHaveBeenCalledWith({
+      where: { dashboardId: 'dash-1', createdById: 'user-2' },
+    });
+  });
+
+  it('keeps the capture links of a member who can still capture', async () => {
+    prismaMock.userDashboard.findFirstOrThrow.mockResolvedValue({ id: 'ud-2' });
+    prismaMock.userDashboard.update.mockResolvedValue({ ...memberRow, role: 'admin' });
+
+    await updateMemberRole('dash-1', 'user-2', 'admin');
+
+    expect(prismaMock.heatmapCaptureLink.deleteMany).not.toHaveBeenCalled();
   });
 });
 

@@ -23,7 +23,10 @@ use crate::error_fingerprint::generate_error_fingerprint;
 
 // Keyed on the full tuple, not a hash: the verdict gates an enforcing 403, so a
 // hash collision must not transfer one visitor's verdict to another
-static REPLAY_VERDICTS: Lazy<Cache<(String, String, String, String, String), bool>> = Lazy::new(|| {
+/// (event name, site id, ip, user agent, sec-ch-ua, screen resolution)
+type HeaderVerdictKey = (&'static str, String, String, String, String, String);
+
+static HEADER_VERDICTS: Lazy<Cache<HeaderVerdictKey, bool>> = Lazy::new(|| {
     Cache::builder()
         .time_to_live(Duration::from_secs(600))
         .max_capacity(100_000)
@@ -189,11 +192,12 @@ impl EventProcessor {
         }
     }
 
-    /// Bot gate for the replay endpoints; only header-derived signals are available
-    /// there. The verdict is cached because the segment upload fires once per chunk
-    /// on inputs that are constant for the session.
-    pub fn check_replay_request(
+    /// Bot gate for the replay and heatmap endpoints; only header-derived signals are
+    /// available there. `event_name` labels detections in bot_events. The verdict is
+    /// cached because those uploads repeat on inputs that are constant for the session.
+    pub fn check_header_request(
         &self,
+        event_name: &'static str,
         site_id: &str,
         ip_address: &str,
         user_agent: &str,
@@ -203,13 +207,14 @@ impl EventProcessor {
         prefetch: bool,
     ) -> bool {
         let key = (
+            event_name,
             site_id.to_string(),
             ip_address.to_string(),
             user_agent.to_string(),
             sec_ch_ua.to_string(),
             screen_resolution.to_string(),
         );
-        if let Some(reject) = REPLAY_VERDICTS.get(&key) {
+        if let Some(reject) = HEADER_VERDICTS.get(&key) {
             return reject;
         }
 
@@ -225,10 +230,10 @@ impl EventProcessor {
         };
         let detection = bot_detection::detect(&input);
         let (domain, path) = extract_domain_and_path_from_url(url);
-        self.record_detection(&detection, &input, site_id, domain.as_deref(), &path, "replay", &asn_info.org);
+        self.record_detection(&detection, &input, site_id, domain.as_deref(), &path, event_name, &asn_info.org);
 
         let reject = detection.should_reject();
-        REPLAY_VERDICTS.insert(key, reject);
+        HEADER_VERDICTS.insert(key, reject);
         reject
     }
 

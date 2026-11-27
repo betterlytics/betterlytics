@@ -19,6 +19,7 @@ import { DEFAULT_DASHBOARD_SETTINGS } from '@/entities/dashboard/dashboardSettin
 import { DEFAULT_SITE_CONFIG_VALUES } from '@/entities/dashboard/siteConfig.entities';
 import { DashboardMember, DashboardMemberSchema } from '@/entities/dashboard/invitation.entities';
 import { DashboardMembership, DashboardMembershipSchema } from '@/entities/dashboard/mcpOAuth.entities';
+import { hasPermission } from '@/lib/permissions';
 import { DashboardRole, type Prisma } from '@prisma/client';
 
 export async function findDashboardById(dashboardId: string): Promise<Dashboard> {
@@ -517,23 +518,30 @@ export async function updateMemberRole(
   role: DashboardRole,
 ): Promise<DashboardMember> {
   try {
-    const liveMember = await prisma.userDashboard.findFirstOrThrow({
-      where: { userId, dashboardId, deletedAt: null },
-      select: { id: true },
-    });
-    const member = await prisma.userDashboard.update({
-      where: { id: liveMember.id },
-      data: { role },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            image: true,
+    const member = await prisma.$transaction(async (tx) => {
+      const liveMember = await tx.userDashboard.findFirstOrThrow({
+        where: { userId, dashboardId, deletedAt: null },
+        select: { id: true },
+      });
+      const updated = await tx.userDashboard.update({
+        where: { id: liveMember.id },
+        data: { role },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+            },
           },
         },
-      },
+      });
+      // Capture links made before the demotion stop working, as on removal
+      if (!hasPermission(role, 'canCaptureHeatmaps')) {
+        await tx.heatmapCaptureLink.deleteMany({ where: { dashboardId, createdById: userId } });
+      }
+      return updated;
     });
 
     return DashboardMemberSchema.parse(member);
@@ -545,11 +553,14 @@ export async function updateMemberRole(
 
 export async function removeMember(dashboardId: string, userId: string, removedById: string): Promise<void> {
   try {
-    const { count } = await prisma.userDashboard.updateMany({
-      where: { userId, dashboardId, deletedAt: null },
-      data: { deletedAt: new Date(), deletedById: removedById },
+    await prisma.$transaction(async (tx) => {
+      const { count } = await tx.userDashboard.updateMany({
+        where: { userId, dashboardId, deletedAt: null },
+        data: { deletedAt: new Date(), deletedById: removedById },
+      });
+      if (count === 0) throw new Error('No live membership to remove');
+      await tx.heatmapCaptureLink.deleteMany({ where: { dashboardId, createdById: userId } });
     });
-    if (count === 0) throw new Error('No live membership to remove');
   } catch (error) {
     console.error('Error removing member:', error);
     throw new Error('Failed to remove member');

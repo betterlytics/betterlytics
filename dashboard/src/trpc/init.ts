@@ -54,6 +54,18 @@ export const dashboardProcedure = t.procedure
     return executeWithDemoCache(ctx.authContext, (_context, _args) => next({ ctx }), [{ input, path, rawInput }]);
   });
 
+// Members only: public views (share links, the demo for non-members) are refused up front,
+// so there is no demo cache either
+export const memberDashboardProcedure = t.procedure
+  .input(z.object({ dashboardId: z.string() }))
+  .use(async ({ ctx, input, next }) => {
+    const authContext = await resolveDashboardAuth(input.dashboardId);
+    if (authContext.isDemo) {
+      throw new TRPCError({ code: 'FORBIDDEN', message: 'Only dashboard members can access this' });
+    }
+    return next({ ctx: { ...ctx, authContext } });
+  });
+
 export const analyticsProcedure = dashboardProcedure
   .input(z.object({ query: BAAnalyticsQuerySchema }))
   .use(({ ctx, input, next }) => {

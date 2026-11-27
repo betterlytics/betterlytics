@@ -2894,6 +2894,7 @@
       "activeUsers": "{count, plural, =0 {utenti attivi} one {utente attivo} other {utenti attivi}}",
       "webVitals": "Web Vitals",
       "sessionReplay": "Replay sessioni",
+      "heatmaps": "Heatmap",
       "monitoring": "Monitoraggio",
       "statusPages": "Pagine di stato",
       "categories": {
@@ -3984,6 +3985,69 @@
         "title": "Distribuzione link in uscita"
       }
     },
+    "heatmaps": {
+      "pagePicker": "Pagina",
+      "pageSearch": "Cerca pagine",
+      "pageSearchEmpty": "Nessuna pagina trovata.",
+      "pageNoData": "Nessun dato per questa pagina nel periodo selezionato",
+      "deviceNoData": "Questa pagina non ha dati dei visitatori da {device, select, desktop {desktop} tablet {tablet} other {mobile}} nel periodo selezionato",
+      "devices": {
+        "desktop": "Desktop",
+        "tablet": "Tablet",
+        "mobile": "Mobile"
+      },
+      "empty": {
+        "title": "Nessun clic per le heatmap",
+        "description": "Aggiungi <code>data-heatmaps=\"true\"</code> allo script di tracciamento per vedere dove cliccano i visitatori su ogni pagina, da desktop, tablet e mobile.",
+        "setUp": "Configura le heatmap",
+        "noPages": "Nessuna pagina visitata in questo periodo",
+        "widenRange": "Prova un intervallo di date più ampio.",
+        "noCaptureEditor": "Cattura questa pagina per vederne la heatmap",
+        "noCaptureViewer": "Un editor può catturare questa pagina per mostrarne la heatmap"
+      },
+      "loadError": {
+        "title": "Impossibile caricare la heatmap",
+        "retry": "Riprova"
+      },
+      "source": {
+        "capture": "Catturata il {date}",
+        "replay": "Catturata il {date} dall'ultimo replay",
+        "live": "Pagina dal vivo",
+        "liveHint": "La tua pagina com'è adesso, che può essere diversa da quando sono avvenuti i clic. I clic sono mostrati sull'elemento su cui sono stati fatti, o nella loro posizione sulla pagina quando quell'elemento non c'è.",
+        "none": "Nessuna cattura di questa pagina"
+      },
+      "capture": {
+        "captureButton": "Cattura pagina",
+        "title": "Cattura il layout {device}",
+        "learnMore": "Scopri di più",
+        "pageLabel": "Pagina",
+        "pagePlaceholder": "https://...",
+        "wildcardHint": "Sostituisci * con un valore reale, oppure apri un'altra pagina e raggiungila nella finestra.",
+        "hideText": "Attiva il mascheramento della privacy",
+        "errors": {
+          "empty": "Inserisci l'indirizzo della pagina da aprire.",
+          "wildcard": "Sostituisci * nel percorso con un valore reale.",
+          "invalidUrl": "Inserisci un indirizzo completo che inizia con https:// o http://.",
+          "originFailed": "Impossibile trovare l'indirizzo del sito. Inserisci l'indirizzo completo della pagina."
+        },
+        "open": "Apri pagina",
+        "cancel": "Annulla",
+        "close": "Chiudi",
+        "waiting": "In attesa della cattura",
+        "waitingHint": "Premi Capture page nel pannello Betterlytics sulla pagina.",
+        "troubleshooting": "Non succede nulla?",
+        "captured": "Cattura salvata",
+        "popupBlocked": "Il browser ha bloccato la finestra di cattura. Consenti i pop-up per questo sito e riprova.",
+        "linkFailed": "Impossibile avviare la cattura. Riprova.",
+        "history": "{count, plural, one {# cattura} other {# catture}}",
+        "deleteCapture": "Elimina cattura",
+        "deleteTitle": "Eliminare questa cattura?",
+        "deleteDescription": "La cattura viene rimossa per tutti i membri di questa dashboard. L'operazione non può essere annullata.",
+        "delete": "Elimina",
+        "deleted": "Cattura eliminata",
+        "deleteFailed": "Impossibile eliminare la cattura."
+      }
+    },
     "webVitals": {
       "metrics": {
         "CLS": "Cumulative Layout Shift",
@@ -4631,6 +4695,9 @@
       "invitationExpired": "Questo invito è scaduto",
       "invitationEmailMismatch": "Questo invito è stato inviato a un indirizzo email diverso",
       "invitationNotFound": "Invito non trovato"
+    },
+    "heatmapCaptures": {
+      "storageNotConfigured": "Le acquisizioni per le heatmap richiedono uno spazio di archiviazione: questo server è impostato per salvare i replay su S3, ma S3 non è configurato. Configura S3 oppure imposta REPLAY_STORAGE=clickhouse."
     }
   },
   "banners": {

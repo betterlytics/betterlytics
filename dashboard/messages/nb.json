@@ -2894,6 +2894,7 @@
       "activeUsers": "{count, plural, =0 {aktive brukere} one {aktiv bruker} other {aktive brukere}}",
       "webVitals": "Web-vitals",
       "sessionReplay": "Sesjonsavspilling",
+      "heatmaps": "Varmekart",
       "monitoring": "Overvåking",
       "statusPages": "Statussider",
       "categories": {
@@ -3984,6 +3985,69 @@
         "title": "Fordeling av utgående lenker"
       }
     },
+    "heatmaps": {
+      "pagePicker": "Side",
+      "pageSearch": "Søk etter sider",
+      "pageSearchEmpty": "Fant ingen sider.",
+      "pageNoData": "Ingen data for denne siden i valgt periode",
+      "deviceNoData": "Denne siden har ingen data fra besøkende på {device, select, desktop {desktop} tablet {nettbrett} other {mobil}} i valgt periode",
+      "devices": {
+        "desktop": "Desktop",
+        "tablet": "Nettbrett",
+        "mobile": "Mobil"
+      },
+      "empty": {
+        "title": "Ingen klikk for varmekart ennå",
+        "description": "Legg til <code>data-heatmaps=\"true\"</code> i sporingsskriptet for å se hvor besøkende klikker på hver side, på desktop, nettbrett og mobil.",
+        "setUp": "Sett opp varmekart",
+        "noPages": "Ingen besøkte sider i denne perioden",
+        "widenRange": "Prøv en lengre periode.",
+        "noCaptureEditor": "Ta opp siden for å se varmekartet",
+        "noCaptureViewer": "En redaktør kan ta opp siden for å vise varmekartet"
+      },
+      "loadError": {
+        "title": "Kunne ikke laste inn varmekartet",
+        "retry": "Prøv igjen"
+      },
+      "source": {
+        "capture": "Tatt opp {date}",
+        "replay": "Tatt opp {date} fra den siste sesjonsavspillingen",
+        "live": "Live side",
+        "liveHint": "Siden din slik den er nå, som kan avvike fra da klikkene skjedde. Klikk vises på elementet det ble klikket på, eller der de skjedde på siden når elementet ikke finnes der.",
+        "none": "Ingen opptak av denne siden"
+      },
+      "capture": {
+        "captureButton": "Ta opp siden",
+        "title": "Ta opp oppsettet for {device}",
+        "learnMore": "Lær mer",
+        "pageLabel": "Side",
+        "pagePlaceholder": "https://...",
+        "wildcardHint": "Erstatt * med en ekte verdi, eller åpne en annen side og gå til den i vinduet.",
+        "hideText": "Slå på personvernmaskering",
+        "errors": {
+          "empty": "Skriv inn adressen til siden som skal åpnes.",
+          "wildcard": "Erstatt * i stien med en ekte verdi.",
+          "invalidUrl": "Skriv inn en full adresse som starter med https:// eller http://.",
+          "originFailed": "Fant ikke adressen til nettstedet. Skriv inn hele adressen til siden."
+        },
+        "open": "Åpne siden",
+        "cancel": "Avbryt",
+        "close": "Lukk",
+        "waiting": "Venter på opptaket",
+        "waitingHint": "Trykk Capture page i Betterlytics-panelet på siden.",
+        "troubleshooting": "Skjer det ingenting?",
+        "captured": "Opptak lagret",
+        "popupBlocked": "Nettleseren blokkerte opptaksvinduet. Tillat popup-vinduer for dette nettstedet og prøv igjen.",
+        "linkFailed": "Opptaket kunne ikke startes. Prøv igjen.",
+        "history": "{count, plural, one {# opptak} other {# opptak}}",
+        "deleteCapture": "Slett opptak",
+        "deleteTitle": "Slette dette opptaket?",
+        "deleteDescription": "Opptaket fjernes for alle medlemmer av dashbordet. Dette kan ikke angres.",
+        "delete": "Slett",
+        "deleted": "Opptak slettet",
+        "deleteFailed": "Opptaket kunne ikke slettes."
+      }
+    },
     "webVitals": {
       "metrics": {
         "CLS": "Kumulativ layoutforskyvning",
@@ -4631,6 +4695,9 @@
       "invitationExpired": "Denne invitasjonen er utløpt",
       "invitationEmailMismatch": "Denne invitasjonen ble sendt til en annen e-postadresse",
       "invitationNotFound": "Invitasjon ikke funnet"
+    },
+    "heatmapCaptures": {
+      "storageNotConfigured": "Heatmap-opptak trenger lagring: serveren er satt til å lagre replays i S3, men S3 er ikke konfigurert. Konfigurer S3, eller sett REPLAY_STORAGE=clickhouse."
     }
   },
   "banners": {

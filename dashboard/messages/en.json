@@ -2894,6 +2894,7 @@
       "activeUsers": "{count, plural, =0 {active users} one {active user} other {active users}}",
       "webVitals": "Web Vitals",
       "sessionReplay": "Session Replay",
+      "heatmaps": "Heatmaps",
       "monitoring": "Monitoring",
       "statusPages": "Status Pages",
       "categories": {
@@ -3984,6 +3985,69 @@
         "title": "Outbound Links Distribution"
       }
     },
+    "heatmaps": {
+      "pagePicker": "Page",
+      "pageSearch": "Search pages",
+      "pageSearchEmpty": "No pages found.",
+      "pageNoData": "No data for this page in the selected period",
+      "deviceNoData": "This page has no data from {device, select, desktop {desktop} tablet {tablet} other {mobile}} visitors in the selected period",
+      "devices": {
+        "desktop": "Desktop",
+        "tablet": "Tablet",
+        "mobile": "Mobile"
+      },
+      "empty": {
+        "title": "No heatmap clicks yet",
+        "description": "Add <code>data-heatmaps=\"true\"</code> to your tracking script to see where visitors click on each page, on desktop, tablet and mobile.",
+        "setUp": "Set up heatmaps",
+        "noPages": "No pages visited in this period",
+        "widenRange": "Try a wider date range.",
+        "noCaptureEditor": "Capture this page to see its heatmap",
+        "noCaptureViewer": "An editor can capture this page to show its heatmap"
+      },
+      "loadError": {
+        "title": "Couldn't load the heatmap",
+        "retry": "Try again"
+      },
+      "source": {
+        "capture": "Captured {date}",
+        "replay": "Captured {date} from the latest replay",
+        "live": "Live page",
+        "liveHint": "Your page as it is now, which may differ from when the clicks happened. Clicks are shown on the element they were made on, or at their position on the page when that element isn't there.",
+        "none": "No capture for this page"
+      },
+      "capture": {
+        "captureButton": "Capture page",
+        "title": "Capture the {device} layout",
+        "learnMore": "Learn more",
+        "pageLabel": "Page",
+        "pagePlaceholder": "https://...",
+        "wildcardHint": "Replace * with a real value, or open another page and go to it in the window.",
+        "hideText": "Enable privacy masking",
+        "errors": {
+          "empty": "Enter the address of the page to open.",
+          "wildcard": "Replace * in the path with a real value.",
+          "invalidUrl": "Enter a full address starting with https:// or http://.",
+          "originFailed": "Couldn't look up the site's address. Enter the page's full address."
+        },
+        "open": "Open page",
+        "cancel": "Cancel",
+        "close": "Close",
+        "waiting": "Waiting for the capture",
+        "waitingHint": "Press Capture page in the Betterlytics panel on the page.",
+        "troubleshooting": "Nothing happening?",
+        "captured": "Capture saved",
+        "popupBlocked": "Your browser blocked the capture window. Allow pop-ups for this site and try again.",
+        "linkFailed": "The capture could not be started. Try again.",
+        "history": "{count, plural, one {# capture} other {# captures}}",
+        "deleteCapture": "Delete capture",
+        "deleteTitle": "Delete this capture?",
+        "deleteDescription": "The capture is removed for every member of this dashboard. This can't be undone.",
+        "delete": "Delete",
+        "deleted": "Capture deleted",
+        "deleteFailed": "The capture could not be deleted."
+      }
+    },
     "webVitals": {
       "metrics": {
         "CLS": "Cumulative Layout Shift",
@@ -4631,6 +4695,9 @@
       "invitationExpired": "This invitation has expired",
       "invitationEmailMismatch": "This invitation was sent to a different email address",
       "invitationNotFound": "Invitation not found"
+    },
+    "heatmapCaptures": {
+      "storageNotConfigured": "Heatmap captures need storage: this server is set to store replays in S3, but S3 is not configured. Configure S3 or set REPLAY_STORAGE=clickhouse."
     }
   },
   "banners": {

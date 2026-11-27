@@ -97,6 +97,24 @@ impl BotEventRow {
     }
 }
 
+// Ensure field order exactly matches ClickHouse table schema
+#[derive(clickhouse::Row, Serialize, Debug, Clone, PartialEq)]
+pub struct HeatmapClickRow {
+    pub site_id: String,
+    pub url: String,
+    pub device: String,
+    pub viewport_width: u16,
+    pub document_height: u32,
+    pub page_x: u32,
+    pub page_y: u32,
+    pub selector: String,
+    pub offset_x: f32,
+    pub offset_y: f32,
+    pub is_fixed: bool,
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub timestamp: DateTime<Utc>,
+}
+
 /// One active session recovered from `analytics.sessions`, used to warm the in-memory
 /// session cache on boot. Field order must match the `SELECT` in `fetch_active_sessions`.
 #[derive(clickhouse::Row, Deserialize)]
@@ -157,6 +175,30 @@ pub struct SessionReplaySegmentRow {
     pub epoch_ms: i64,
     #[serde(with = "clickhouse::serde::chrono::date")]
     pub date: NaiveDate,
+    pub size_bytes: u64,
+    pub data: String,
+}
+
+#[derive(clickhouse::Row, Serialize, Debug, PartialEq)]
+pub struct SessionReplaySnapshotRow {
+    pub site_id: String,
+    pub session_id: u64,
+    pub url: String,
+    pub device: String,
+    pub viewport_width: u16,
+    pub viewport_height: u16,
+    pub filename: String,
+    pub snapshot_ms: i64,
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub timestamp: DateTime<Utc>,
+    #[serde(with = "clickhouse::serde::chrono::date")]
+    pub date: NaiveDate,
+}
+
+#[derive(clickhouse::Row, Serialize, Debug)]
+pub struct HeatmapCaptureRow {
+    pub site_id: String,
+    pub capture_id: String,
     pub size_bytes: u64,
     pub data: String,
 }

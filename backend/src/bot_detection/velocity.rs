@@ -14,6 +14,13 @@ pub const MAX_EVENTS_PER_MINUTE: u32 = 120;
 /// 256KB uncompressed, so mutation-heavy pages upload well above 12/min per visitor.
 pub const MAX_REPLAY_SEGMENTS_PER_MINUTE: u32 = 300;
 
+/// Counted in clicks rather than batches: every click is a stored row that no plan pays for.
+pub const MAX_HEATMAP_CLICKS_PER_MINUTE: u32 = 2_000;
+
+/// Each batch costs at least this much, so small and empty batches still stop at about 125 a
+/// minute, close to the previous 120-batch limit
+const MIN_HEATMAP_BATCH_COST: u32 = 16;
+
 static WINDOWS: Lazy<Cache<u64, Arc<AtomicU32>>> = Lazy::new(|| {
     Cache::builder()
         .time_to_live(Duration::from_secs(60))
@@ -22,6 +29,13 @@ static WINDOWS: Lazy<Cache<u64, Arc<AtomicU32>>> = Lazy::new(|| {
 });
 
 static REPLAY_WINDOWS: Lazy<Cache<u64, Arc<AtomicU32>>> = Lazy::new(|| {
+    Cache::builder()
+        .time_to_live(Duration::from_secs(60))
+        .max_capacity(1_000_000)
+        .build()
+});
+
+static HEATMAP_WINDOWS: Lazy<Cache<u64, Arc<AtomicU32>>> = Lazy::new(|| {
     Cache::builder()
         .time_to_live(Duration::from_secs(60))
         .max_capacity(1_000_000)
@@ -56,6 +70,16 @@ pub fn check_replay(site_id: &str, ip_address: &str) -> bool {
 /// already rejected before this point, so later validation failures still spend budget
 pub fn record_replay(site_id: &str, ip_address: &str) {
     window(&REPLAY_WINDOWS, site_id, ip_address).fetch_add(1, Ordering::Relaxed);
+}
+
+pub fn check_heatmap(site_id: &str, ip_address: &str) -> bool {
+    window(&HEATMAP_WINDOWS, site_id, ip_address).load(Ordering::Relaxed) >= MAX_HEATMAP_CLICKS_PER_MINUTE
+}
+
+/// Counts a batch's submitted clicks, valid or not
+pub fn record_heatmap(site_id: &str, ip_address: &str, clicks: usize) {
+    let cost = clicks.min(MAX_HEATMAP_CLICKS_PER_MINUTE as usize) as u32;
+    window(&HEATMAP_WINDOWS, site_id, ip_address).fetch_add(cost.max(MIN_HEATMAP_BATCH_COST), Ordering::Relaxed);
 }
 
 #[cfg(test)]
@@ -119,5 +143,25 @@ mod tests {
         }
         assert!(check("site-isolated-2", "203.0.113.6"));
         assert!(!check_replay("site-isolated-2", "203.0.113.6"));
+    }
+
+    #[test]
+    fn heatmap_window_counts_clicks_and_flags_at_the_threshold() {
+        for _ in 0..9 {
+            record_heatmap("site-heatmap", "203.0.113.7", 200);
+        }
+        record_heatmap("site-heatmap", "203.0.113.7", 184);
+        assert!(!check_heatmap("site-heatmap", "203.0.113.7"));
+        record_heatmap("site-heatmap", "203.0.113.7", 0);
+        assert!(check_heatmap("site-heatmap", "203.0.113.7"));
+
+        for _ in 0..124 {
+            record_heatmap("site-heatmap-small", "203.0.113.7", 1);
+        }
+        assert!(!check_heatmap("site-heatmap-small", "203.0.113.7"));
+        record_heatmap("site-heatmap-small", "203.0.113.7", 1);
+        assert!(check_heatmap("site-heatmap-small", "203.0.113.7"));
+        assert!(!check("site-heatmap", "203.0.113.7"));
+        assert!(!check_replay("site-heatmap", "203.0.113.7"));
     }
 }

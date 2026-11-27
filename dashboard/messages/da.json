@@ -2894,6 +2894,7 @@
       "activeUsers": "{count, plural, =0 {aktive brugere} one {aktiv bruger} other {aktive brugere}}",
       "webVitals": "Web Vitals",
       "sessionReplay": "Sessionsafspilninger",
+      "heatmaps": "Heatmaps",
       "monitoring": "Overvågning",
       "statusPages": "Statussider",
       "categories": {
@@ -3984,6 +3985,69 @@
         "title": "Udgående links fordeling"
       }
     },
+    "heatmaps": {
+      "pagePicker": "Side",
+      "pageSearch": "Søg efter sider",
+      "pageSearchEmpty": "Ingen sider fundet.",
+      "pageNoData": "Ingen data for denne side i den valgte periode",
+      "deviceNoData": "Denne side har ingen data fra besøgende på {device, select, desktop {computer} tablet {tablet} other {mobil}} i den valgte periode",
+      "devices": {
+        "desktop": "Computer",
+        "tablet": "Tablet",
+        "mobile": "Mobil"
+      },
+      "empty": {
+        "title": "Ingen heatmap-klik endnu",
+        "description": "Tilføj <code>data-heatmaps=\"true\"</code> til dit sporingsscript for at se, hvor besøgende klikker på hver side, på computer, tablet og mobil.",
+        "setUp": "Opsæt heatmaps",
+        "noPages": "Ingen besøgte sider i denne periode",
+        "widenRange": "Prøv en længere periode.",
+        "noCaptureEditor": "Optag siden for at se dens heatmap",
+        "noCaptureViewer": "En redaktør kan optage siden for at vise dens heatmap"
+      },
+      "loadError": {
+        "title": "Heatmappet kunne ikke indlæses",
+        "retry": "Prøv igen"
+      },
+      "source": {
+        "capture": "Optaget {date}",
+        "replay": "Optaget {date} fra den seneste session replay",
+        "live": "Live side",
+        "liveHint": "Din side, som den ser ud nu, og den kan afvige fra da klikkene skete. Klik vises på det element, der blev klikket på, eller på deres position på siden, når elementet ikke er der.",
+        "none": "Ingen optagelse af denne side"
+      },
+      "capture": {
+        "captureButton": "Optag side",
+        "title": "Optag layoutet til {device}",
+        "learnMore": "Læs mere",
+        "pageLabel": "Side",
+        "pagePlaceholder": "https://...",
+        "wildcardHint": "Erstat * med en rigtig værdi, eller åbn en anden side og gå til den i vinduet.",
+        "hideText": "Slå privatlivsmaskering til",
+        "errors": {
+          "empty": "Angiv adressen på den side, der skal åbnes.",
+          "wildcard": "Erstat * i stien med en rigtig værdi.",
+          "invalidUrl": "Angiv en fuld adresse, der starter med https:// eller http://.",
+          "originFailed": "Sidens adresse kunne ikke slås op. Angiv sidens fulde adresse."
+        },
+        "open": "Åbn side",
+        "cancel": "Annuller",
+        "close": "Luk",
+        "waiting": "Venter på optagelsen",
+        "waitingHint": "Tryk på Capture page i Betterlytics-panelet på siden.",
+        "troubleshooting": "Sker der ikke noget?",
+        "captured": "Optagelse gemt",
+        "popupBlocked": "Din browser blokerede optagelsesvinduet. Tillad pop op-vinduer for dette site, og prøv igen.",
+        "linkFailed": "Optagelsen kunne ikke startes. Prøv igen.",
+        "history": "{count, plural, one {# optagelse} other {# optagelser}}",
+        "deleteCapture": "Slet optagelse",
+        "deleteTitle": "Slet denne optagelse?",
+        "deleteDescription": "Optagelsen fjernes for alle medlemmer af dashboardet. Det kan ikke fortrydes.",
+        "delete": "Slet",
+        "deleted": "Optagelse slettet",
+        "deleteFailed": "Optagelsen kunne ikke slettes."
+      }
+    },
     "webVitals": {
       "metrics": {
         "CLS": "Cumulative Layout Shift",
@@ -4631,6 +4695,9 @@
       "invitationExpired": "Denne invitation er udløbet",
       "invitationEmailMismatch": "Denne invitation blev sendt til en anden e-mailadresse",
       "invitationNotFound": "Invitation ikke fundet"
+    },
+    "heatmapCaptures": {
+      "storageNotConfigured": "Heatmap-optagelser kræver lagerplads: serveren er sat til at gemme replays i S3, men S3 er ikke konfigureret. Konfigurer S3, eller sæt REPLAY_STORAGE=clickhouse."
     }
   },
   "banners": {

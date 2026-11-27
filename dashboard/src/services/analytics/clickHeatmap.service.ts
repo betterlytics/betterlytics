@@ -1,0 +1,71 @@
+import 'server-only';
+
+import {
+  getHeatmapClickAnchors,
+  getHeatmapPages,
+  getMostVisitedHost,
+  hasHeatmapClicks,
+} from '@/repositories/clickhouse/clickHeatmap.repository';
+import { env } from '@/lib/env';
+import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
+import { findLatestReplaySnapshot } from '@/repositories/clickhouse/replaySnapshots.repository';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+import {
+  HEATMAP_MAX_PAGE_HEIGHT,
+  HEATMAP_PAGE_LIMIT,
+  HeatmapBackground,
+  HeatmapDevice,
+} from '@/entities/analytics/clickHeatmap.entities';
+
+export async function getHasHeatmapClicks(siteId: string): Promise<boolean> {
+  return hasHeatmapClicks(siteId);
+}
+
+export async function getHeatmapPagesForSite(siteQuery: BASiteQuery) {
+  return getHeatmapPages(siteQuery, HEATMAP_PAGE_LIMIT);
+}
+
+export async function getHeatmapBackground(
+  siteQuery: BASiteQuery,
+  url: string,
+  device: HeatmapDevice,
+): Promise<HeatmapBackground> {
+  const snapshot = await findLatestReplaySnapshot(siteQuery, url, device);
+  return snapshot ? { kind: 'replay', snapshot } : { kind: 'none' };
+}
+
+const LOCAL_HOST = /^(localhost|127\.0\.0\.1|\[::1\])$|\.localhost$/;
+
+/**
+ * Where the capture dialog suggests opening the page: the host most visitors used, preferring
+ * the dashboard's domain, else the domain itself. Pageviews keep no scheme or port, so local
+ * hosts get http and everything else https; the editor can change the address.
+ */
+export async function getCaptureOrigin(siteQuery: BASiteQuery, dashboardId: string, url: string) {
+  const dashboard = await findDashboardById(dashboardId);
+  const host = await getMostVisitedHost(siteQuery, url, dashboard.domain, { anyHost: true });
+  return { origin: originOf(host ?? dashboard.domain), domain: dashboard.domain };
+}
+
+/** The origin on the dashboard's domain that visitors opened a page on most, or null without any */
+export async function getVisitedOrigin(siteQuery: BASiteQuery, dashboardId: string, url: string) {
+  const dashboard = await findDashboardById(dashboardId);
+  const host = await getMostVisitedHost(siteQuery, url, dashboard.domain);
+  return { origin: host ? originOf(host) : null, domain: dashboard.domain };
+}
+
+// In development, pages on the dashboard's own host (dashboard tracking) open on its port
+function originOf(host: string) {
+  const base = new URL(env.PUBLIC_BASE_URL);
+  if (env.IS_DEVELOPMENT && host === base.hostname) return base.origin;
+  return `${LOCAL_HOST.test(host) ? 'http' : 'https'}://${host}`;
+}
+
+export async function getHeatmapClickAnchorsForPage(
+  siteQuery: BASiteQuery,
+  url: string,
+  device: HeatmapDevice,
+  width: number,
+) {
+  return getHeatmapClickAnchors(siteQuery, url, device, width, HEATMAP_MAX_PAGE_HEIGHT);
+}

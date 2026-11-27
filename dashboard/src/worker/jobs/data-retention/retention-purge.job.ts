@@ -32,6 +32,12 @@ const RETENTION_DELETE_STATEMENTS = [
       WHERE site_id IN {siteIds:Array(String)}
       AND hour < toStartOfHour(toDateTime({cutoff:UInt32}))`,
   },
+  {
+    table: 'analytics.heatmap_clicks',
+    query: `DELETE FROM analytics.heatmap_clicks
+      WHERE site_id IN {siteIds:Array(String)}
+      AND timestamp < toDateTime({cutoff:UInt32})`,
+  },
 ] as const;
 
 type RetentionPurgeTarget = {

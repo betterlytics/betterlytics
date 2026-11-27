@@ -1,5 +1,51 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v160ChangelogEntryIt: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.6.0',
+    releasedAt: '2026-12-01',
+    title: 'Heatmap',
+    summary:
+      'Scopri dove cliccano i visitatori su ogni pagina con la nuova pagina Heatmap, divisa tra desktop, tablet e mobile. I clic compaiono sopra una cattura della pagina, un replay di sessione o la pagina dal vivo, e gli editor possono catturare una pagina in pochi clic.',
+  },
+  sections: [
+    {
+      id: 'v160-new-features',
+      title: 'Nuove funzionalità',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Le heatmap mostrano dove cliccano i visitatori su ogni pagina, con una heatmap separata per desktop, tablet e mobile. Attivale con data-heatmaps="true" sullo script di tracciamento.',
+            'Gli editor possono catturare una pagina dalla pagina Heatmap e vedere i clic sopra una copia esatta, con una cronologia delle catture per ogni pagina e dispositivo.',
+            'Le pagine senza cattura mostrano i clic sopra un replay di sessione registrato su quel dispositivo, o sopra la pagina dal vivo quando il sito consente di incorporarla.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v160ChangelogModalIt: ChangelogEntryData = {
+  metadata: v160ChangelogEntryIt.metadata,
+  sections: [
+    {
+      id: 'v160-modal-new-features',
+      title: 'Nuove funzionalità',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Le heatmap mostrano dove cliccano i visitatori, per ogni pagina e dispositivo.',
+            'Cattura una pagina per vedere i clic sopra una sua copia esatta.',
+            'Senza cattura, i clic compaiono sopra un replay di sessione o la pagina dal vivo.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v154ChangelogEntryIt: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.4',
@@ -988,9 +1034,10 @@ const v144ChangelogEntryIt: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalIt = v154ChangelogModalIt;
+export const latestChangelogModalIt = v160ChangelogModalIt;
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  v160ChangelogEntryIt,
   v154ChangelogEntryIt,
   v153ChangelogEntryIt,
   v152ChangelogEntryIt,
