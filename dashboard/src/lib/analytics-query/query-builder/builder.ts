@@ -1,7 +1,12 @@
+import { z } from 'zod';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BAQuery } from '@/lib/ba-query';
-import { getMetricByKey } from '@/lib/analytics-query/registry/metrics';
-import { getDimensionByKey, validateDimensionColumn } from '@/lib/analytics-query/registry/dimensions';
+import { getMetricByKey, METRIC_KEYS } from '@/lib/analytics-query/registry/metrics';
+import {
+  DIMENSION_KEYS,
+  getDimensionByKey,
+  validateDimensionColumn,
+} from '@/lib/analytics-query/registry/dimensions';
 import { resolveTimeRange } from '@/lib/analytics-query/resolveTimeRange';
 import type { EventQueryInput } from '@/lib/analytics-query/query.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
@@ -10,6 +15,9 @@ type BuildResult = {
   taggedSql: string;
   taggedParams: Record<string, unknown>;
 };
+
+// Aggregate sort keys are registry keys, parsed before they are written into the SQL.
+const SortKeySchema = z.enum([...METRIC_KEYS, ...DIMENSION_KEYS]);
 
 export function buildQuery(input: EventQueryInput, siteId: string): BuildResult {
   const timezone = input.timezone;
@@ -30,10 +38,6 @@ export function buildQuery(input: EventQueryInput, siteId: string): BuildResult 
 
   const filters = BAQuery.getFilterQuery((input.filters ?? []).map((f, i) => ({ ...f, id: `mcp_filter_${i}` })));
 
-  const orderByKey = input.orderBy ?? input.metrics[0];
-  const orderByColumn = SQL.Unsafe(orderByKey);
-  const orderDirection = input.order === 'asc' ? safeSql`ASC` : safeSql`DESC`;
-
   if (input.granularity) {
     return buildTimeSeriesQuery({
       siteId,
@@ -47,6 +51,10 @@ export function buildQuery(input: EventQueryInput, siteId: string): BuildResult 
       limit: input.limit,
     });
   }
+
+  const orderByKey = input.orderBy ?? input.metrics[0];
+  const orderByColumn = SQL.Unsafe(SortKeySchema.parse(orderByKey));
+  const orderDirection = input.order === 'asc' ? safeSql`ASC` : safeSql`DESC`;
 
   return buildAggregateQuery({
     siteId,

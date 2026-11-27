@@ -263,4 +263,16 @@ describe('buildSessionsQuery', () => {
       ),
     ).toThrow();
   });
+
+  it('rejects a dimension column as a sort key', () => {
+    expect(() =>
+      buildSessionsQuery(
+        input({
+          dimensions: ['referrer_source'],
+          orderBy: 'referrer_source_effective' as SessionQueryInput['orderBy'],
+        }),
+        siteId,
+      ),
+    ).toThrow();
+  });
 });

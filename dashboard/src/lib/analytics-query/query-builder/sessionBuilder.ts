@@ -30,6 +30,9 @@ const SqlIdentifierSchema = z.enum([
   ...SESSION_METRIC_KEYS,
 ]);
 
+// Sort keys are registry keys only, never the column behind a dimension.
+const SortKeySchema = z.enum([...SESSION_METRIC_KEYS, ...SESSION_DIMENSION_KEYS]);
+
 /** The builder's only raw SQL: the name is parsed against the fixed list above before it is injected. */
 function identifierSql(name: string) {
   return SQL.Unsafe(SqlIdentifierSchema.parse(name));
@@ -125,7 +128,7 @@ export function buildSessionsQuery(input: SessionQueryInput, siteId: string): Bu
   }
 
   const orderByKey = input.orderBy ?? metrics[0].key;
-  const orderByColumn = identifierSql(orderByKey);
+  const orderByColumn = identifierSql(SortKeySchema.parse(orderByKey));
   const orderDirection = input.order === 'asc' ? safeSql`ASC` : safeSql`DESC`;
 
   const query = safeSql`

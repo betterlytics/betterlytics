@@ -200,4 +200,37 @@ describe('buildQuery', () => {
     expect(result.taggedParams.start_date).toBe(startDateTime);
     expect(result.taggedParams.end_date).toBe(endDateTime);
   });
+
+  it.each(['visitors; DROP TABLE analytics.events', 'referrer_source_effective', 'date'])(
+    'rejects the aggregate sort key %s even when the input skipped schema validation',
+    (orderBy) => {
+      const input: EventQueryInput = {
+        metrics: ['visitors'],
+        dimensions: ['referrer_source'],
+        orderBy,
+        timeRange: '7d',
+        timezone: 'UTC',
+        order: 'desc',
+        limit: 100,
+      };
+
+      expect(() => buildQuery(input, siteId)).toThrow();
+    },
+  );
+
+  it('ignores the sort key in a time series', () => {
+    const input: EventQueryInput = {
+      metrics: ['visitors'],
+      granularity: 'day',
+      orderBy: 'date',
+      timeRange: '7d',
+      timezone: 'UTC',
+      order: 'desc',
+      limit: 100,
+    };
+
+    const result = buildQuery(input, siteId);
+
+    expect(result.taggedSql).toContain('ORDER BY date ASC');
+  });
 });
