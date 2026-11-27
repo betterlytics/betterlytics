@@ -80,10 +80,44 @@ const McpQueryInputBaseSchema = McpDateRangeSchema.extend({
     .describe('Max rows to return. Defaults to 100.'),
 });
 
+type OrderFields = {
+  metrics: readonly string[];
+  dimensions?: readonly string[];
+  granularity?: string;
+  orderBy?: string;
+};
+
+const requestedOrderByRefinement = {
+  check: (data: OrderFields) =>
+    data.orderBy === undefined ||
+    data.orderBy === 'date' ||
+    data.metrics.includes(data.orderBy) ||
+    (data.dimensions ?? []).includes(data.orderBy),
+  message: 'orderBy must be "date" or one of the requested metrics or dimensions',
+};
+
+const orderByDateRefinement = {
+  check: (data: OrderFields) => data.orderBy !== 'date' || data.granularity !== undefined,
+  message: 'orderBy "date" needs a granularity; aggregate results have no date',
+};
+
+// Event time series ignore orderBy, and an unknown key already fails on the field itself.
+const eventOrderByRefinement = {
+  check: (data: OrderFields) =>
+    data.granularity !== undefined ||
+    data.orderBy === undefined ||
+    !VALID_ORDER_BY.has(data.orderBy) ||
+    requestedOrderByRefinement.check(data),
+  message: requestedOrderByRefinement.message,
+};
+
 export const McpQueryInputSchema = McpQueryInputBaseSchema.refine(
   customDateRangeRefinement.check,
   customDateRangeRefinement,
-).refine(dateOrderRefinement.check, dateOrderRefinement);
+)
+  .refine(dateOrderRefinement.check, dateOrderRefinement)
+  .refine(eventOrderByRefinement.check, eventOrderByRefinement)
+  .refine(orderByDateRefinement.check, orderByDateRefinement);
 
 export type McpQueryInput = z.infer<typeof McpQueryInputSchema>;
 
@@ -129,33 +163,12 @@ const McpQuerySessionsInputBaseSchema = McpDateRangeSchema.extend({
     .describe('Max rows to return. Defaults to 100.'),
 });
 
-type SessionOrderFields = {
-  metrics: readonly string[];
-  dimensions?: readonly string[];
-  granularity?: string;
-  orderBy?: string;
-};
-
-const sessionOrderByRefinement = {
-  check: (data: SessionOrderFields) =>
-    data.orderBy === undefined ||
-    data.orderBy === 'date' ||
-    data.metrics.includes(data.orderBy) ||
-    (data.dimensions ?? []).includes(data.orderBy),
-  message: 'orderBy must be "date" or one of the requested metrics or dimensions',
-};
-
-const sessionOrderByDateRefinement = {
-  check: (data: SessionOrderFields) => data.orderBy !== 'date' || data.granularity !== undefined,
-  message: 'orderBy "date" needs a granularity; aggregate results have no date',
-};
-
 export const McpQuerySessionsInputSchema = McpQuerySessionsInputBaseSchema.refine(
   customDateRangeRefinement.check,
   customDateRangeRefinement,
 )
   .refine(dateOrderRefinement.check, dateOrderRefinement)
-  .refine(sessionOrderByRefinement.check, sessionOrderByRefinement)
-  .refine(sessionOrderByDateRefinement.check, sessionOrderByDateRefinement);
+  .refine(requestedOrderByRefinement.check, requestedOrderByRefinement)
+  .refine(orderByDateRefinement.check, orderByDateRefinement);
 
 export type McpQuerySessionsInput = z.infer<typeof McpQuerySessionsInputSchema>;

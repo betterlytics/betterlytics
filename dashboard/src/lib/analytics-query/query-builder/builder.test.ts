@@ -143,8 +143,42 @@ describe('buildQuery', () => {
 
     const result = buildQuery(input, siteId);
 
-    expect(result.taggedSql).toContain('referrer_source');
-    expect(result.taggedSql).toContain('GROUP BY');
+    expect(result.taggedSql).toContain('referrer_source_effective AS referrer_source');
+    expect(result.taggedSql).toMatch(/GROUP BY\s+referrer_source_effective\s/);
+  });
+
+  it('keys referrer_source rows by the dimension key and sorts by it', () => {
+    const input: EventQueryInput = {
+      metrics: ['visitors'],
+      dimensions: ['referrer_source'],
+      orderBy: 'referrer_source',
+      timeRange: '7d',
+      timezone: 'UTC',
+      order: 'asc',
+      limit: 100,
+    };
+
+    const result = buildQuery(input, siteId);
+
+    expect(result.taggedSql).toContain('referrer_source_effective AS referrer_source');
+    expect(result.taggedSql).toContain('ORDER BY referrer_source ASC');
+  });
+
+  it('keys referrer_source rows by the dimension key in a time series', () => {
+    const input: EventQueryInput = {
+      metrics: ['visitors'],
+      dimensions: ['referrer_source'],
+      granularity: 'day',
+      timeRange: '7d',
+      timezone: 'UTC',
+      order: 'desc',
+      limit: 100,
+    };
+
+    const result = buildQuery(input, siteId);
+
+    expect(result.taggedSql).toContain('referrer_source_effective AS referrer_source');
+    expect(result.taggedSql).toMatch(/GROUP BY\s+date,\s*referrer_source_effective\s/);
   });
 
   it('supports referrer_source_name dimension', () => {
