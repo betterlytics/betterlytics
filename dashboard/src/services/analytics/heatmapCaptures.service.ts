@@ -17,7 +17,6 @@ import {
   findHeatmapCaptures,
 } from '@/repositories/postgres/heatmapCaptures.repository';
 import { captureSnapshotStoreFor } from '@/repositories/heatmapCaptureSnapshots.repository';
-import { isPublicDashboardId } from '@/services/auth/auth.service';
 
 export class HeatmapCapturesForbiddenError extends Error {}
 
@@ -36,11 +35,8 @@ function hashCaptureToken(token: string): string {
 // The token travels in the capture page's URL fragment; only its hash is stored. It names the
 // dashboard's site, so only pages running this dashboard's tracking script take it up, on any
 // host: the editor may walk to the page from another one, or capture a staging copy.
-// The public demo dashboard takes no captures, also not from its members.
 export async function createCaptureLink(ctx: AuthContext, input: CreateHeatmapCaptureLinkInput) {
-  if (isPublicDashboardId(ctx.dashboardId)) {
-    throw new HeatmapCapturesForbiddenError('The public demo dashboard takes no heatmap captures');
-  }
+  assertMemberContext(ctx);
   if (replayStorage === 's3' && (!s3Env.enabled || !s3Env.bucket)) {
     const t = await getTranslations('validation.heatmapCaptures');
     throw new UserException(t('storageNotConfigured'));
