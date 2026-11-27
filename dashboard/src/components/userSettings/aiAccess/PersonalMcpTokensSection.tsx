@@ -19,7 +19,8 @@ import { DestructiveActionDialog } from '@/components/dialogs';
 import ExternalLink from '@/components/ExternalLink';
 import UserSettingsSection from '@/components/userSettings/shared/UserSettingsSection';
 import CreateMcpTokenDialog from '@/components/userSettings/aiAccess/CreateMcpTokenDialog';
-import DashboardsSummary from '@/components/userSettings/aiAccess/DashboardsSummary';
+import DashboardsSummary, { aiAccessOffDomains } from '@/components/userSettings/aiAccess/DashboardsSummary';
+import RowDetails from '@/components/userSettings/aiAccess/RowDetails';
 import EditConnectionDashboardsDialog from '@/components/userSettings/aiAccess/EditConnectionDashboardsDialog';
 import { MCP_SETUP_DOCS_URL } from '@/constants/mcp';
 import {
@@ -98,7 +99,7 @@ export default function PersonalMcpTokensSection({ onCloseDialog }: PersonalMcpT
       ) : (
         <div className='rounded-md border'>
           <Table className='table-fixed'>
-            <TableHeader>
+            <TableHeader className='hidden lg:table-header-group'>
               <TableRow>
                 <TableHead className='pl-4 lg:w-1/3'>{t('columns.token')}</TableHead>
                 <TableHead className='hidden lg:table-cell'>{t('columns.dashboards')}</TableHead>
@@ -205,8 +206,7 @@ function TokenRow({ token, disabled, onEdit, onDelete }: TokenRowProps) {
   const formatDate = (date: Date) =>
     formatLocalDateTime(date, locale, { year: 'numeric', month: 'short', day: 'numeric' }) ?? '';
 
-  const dashboards = <DashboardsSummary dashboards={token.dashboards} />;
-
+  const aiAccessOff = aiAccessOffDomains(token.dashboards);
   const expired = token.expiresAt !== null && token.expiresAt < new Date();
   const expiry = (
     <p
@@ -226,20 +226,39 @@ function TokenRow({ token, disabled, onEdit, onDelete }: TokenRowProps) {
         <p className='truncate font-medium' title={token.name}>
           {token.name}
         </p>
-        <p className='text-muted-foreground truncate text-xs'>
+        <p className='text-muted-foreground hidden truncate text-xs lg:block'>
           {t('created', { date: formatDate(token.createdAt) })}
         </p>
-        <div className='text-muted-foreground text-xs lg:hidden'>
-          {dashboards}
-          <p className='truncate'>{tAccess('scopes.readAnalytics')}</p>
-          <p className='truncate'>
-            {token.lastUsedAt ? t('lastUsed', { date: formatDate(token.lastUsedAt) }) : t('neverUsed')}
-          </p>
-          {expiry}
-        </div>
+        <RowDetails
+          rows={[
+            {
+              label: tAccess('columns.dashboards'),
+              value: <DashboardsSummary dashboards={token.dashboards} withAiAccessOff={false} />,
+            },
+            ...(aiAccessOff.length > 0
+              ? [{ label: tAccess('details.aiAccessOff'), value: aiAccessOff.join(', ') }]
+              : []),
+            { label: tAccess('details.permissions'), value: tAccess('scopes.readAnalytics') },
+            {
+              label: tAccess('columns.lastUsed'),
+              value: token.lastUsedAt ? formatDate(token.lastUsedAt) : tAccess('details.never'),
+            },
+            {
+              label: tAccess(expired ? 'details.expired' : 'details.expires'),
+              value: token.expiresAt ? (
+                <span className={expired ? 'text-destructive font-medium' : undefined}>
+                  {formatDate(token.expiresAt)}
+                </span>
+              ) : (
+                tAccess('details.never')
+              ),
+            },
+            { label: tAccess('details.created'), value: formatDate(token.createdAt) },
+          ]}
+        />
       </TableCell>
       <TableCell className='hidden py-3 lg:table-cell'>
-        {dashboards}
+        <DashboardsSummary dashboards={token.dashboards} />
         <p className='text-muted-foreground truncate text-xs'>{tAccess('scopes.readAnalytics')}</p>
       </TableCell>
       <TableCell className='hidden py-3 lg:table-cell'>

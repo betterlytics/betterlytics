@@ -19,7 +19,8 @@ import {
 import { DestructiveActionDialog } from '@/components/dialogs';
 import ExternalLink from '@/components/ExternalLink';
 import UserSettingsSection from '@/components/userSettings/shared/UserSettingsSection';
-import DashboardsSummary from '@/components/userSettings/aiAccess/DashboardsSummary';
+import DashboardsSummary, { aiAccessOffDomains } from '@/components/userSettings/aiAccess/DashboardsSummary';
+import RowDetails from '@/components/userSettings/aiAccess/RowDetails';
 import EditConnectionDashboardsDialog from '@/components/userSettings/aiAccess/EditConnectionDashboardsDialog';
 import PersonalMcpTokensSection from '@/components/userSettings/aiAccess/PersonalMcpTokensSection';
 import { MCP_SETUP_DOCS_URL } from '@/constants/mcp';
@@ -104,7 +105,7 @@ function McpConnectionsSection({ onCloseDialog }: UserAiAccessSettingsProps) {
       ) : (
         <div className='rounded-md border'>
           <Table className='table-fixed'>
-            <TableHeader>
+            <TableHeader className='hidden lg:table-header-group'>
               <TableRow>
                 <TableHead className='pl-4 lg:w-1/3'>{t('columns.agent')}</TableHead>
                 <TableHead className='hidden lg:table-cell'>{t('columns.dashboards')}</TableHead>
@@ -203,14 +204,10 @@ function ConnectionRow({ connection, disabled, onEdit, onRevoke }: ConnectionRow
   const formatDate = (date: Date) =>
     formatLocalDateTime(date, locale, { year: 'numeric', month: 'short', day: 'numeric' }) ?? '';
 
-  const dashboards = (
-    <DashboardsSummary
-      dashboards={connection.dashboards}
-      allDashboardsExcept={
-        connection.allDashboards ? connection.excludedDashboards.map((dashboard) => dashboard.domain) : undefined
-      }
-    />
-  );
+  const allDashboardsExcept = connection.allDashboards
+    ? connection.excludedDashboards.map((dashboard) => dashboard.domain)
+    : undefined;
+  const aiAccessOff = aiAccessOffDomains(connection.dashboards);
   const scopes = connection.scopes.map((scope) => t(`scopes.${scope}`)).join(', ');
   const connected = connection.connectedAt && t('connected', { date: formatDate(connection.connectedAt) });
 
@@ -232,17 +229,34 @@ function ConnectionRow({ connection, disabled, onEdit, onRevoke }: ConnectionRow
             {connection.host}
           </p>
         )}
-        <div className='text-muted-foreground text-xs lg:hidden'>
-          {dashboards}
-          <p className='truncate'>{scopes}</p>
-          <p className='truncate'>
-            {connection.lastUsedAt ? t('lastUsed', { date: formatDate(connection.lastUsedAt) }) : t('neverUsed')}
-          </p>
-          {connected && <p className='truncate'>{connected}</p>}
-        </div>
+        <RowDetails
+          rows={[
+            {
+              label: t('columns.dashboards'),
+              value: (
+                <DashboardsSummary
+                  dashboards={connection.dashboards}
+                  allDashboardsExcept={allDashboardsExcept}
+                  withAiAccessOff={false}
+                />
+              ),
+            },
+            ...(aiAccessOff.length > 0
+              ? [{ label: t('details.aiAccessOff'), value: aiAccessOff.join(', ') }]
+              : []),
+            { label: t('details.permissions'), value: scopes },
+            {
+              label: t('columns.lastUsed'),
+              value: connection.lastUsedAt ? formatDate(connection.lastUsedAt) : t('details.never'),
+            },
+            ...(connection.connectedAt
+              ? [{ label: t('details.connected'), value: formatDate(connection.connectedAt) }]
+              : []),
+          ]}
+        />
       </TableCell>
       <TableCell className='hidden py-3 lg:table-cell'>
-        {dashboards}
+        <DashboardsSummary dashboards={connection.dashboards} allDashboardsExcept={allDashboardsExcept} />
         <p className='text-muted-foreground truncate text-xs'>{scopes}</p>
       </TableCell>
       <TableCell className='hidden py-3 lg:table-cell'>

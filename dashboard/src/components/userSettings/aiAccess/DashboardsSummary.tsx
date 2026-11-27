@@ -2,19 +2,29 @@
 
 import { useTranslations } from 'next-intl';
 
+type SummaryDashboard = { domain: string; aiAccessEnabled: boolean };
+
 interface DashboardsSummaryProps {
-  dashboards: { domain: string; aiAccessEnabled: boolean }[];
+  dashboards: SummaryDashboard[];
   // set for a connection with All dashboards: the domains owners or admins removed from it
   allDashboardsExcept?: string[];
+  // off where the caller shows the AI access off domains on a line of its own
+  withAiAccessOff?: boolean;
+}
+
+export function aiAccessOffDomains(dashboards: SummaryDashboard[]): string[] {
+  return dashboards.filter((dashboard) => !dashboard.aiAccessEnabled).map((dashboard) => dashboard.domain);
 }
 
 /** The first dashboard and how many more, then the ones whose AI access is off. */
-export default function DashboardsSummary({ dashboards, allDashboardsExcept }: DashboardsSummaryProps) {
+export default function DashboardsSummary({
+  dashboards,
+  allDashboardsExcept,
+  withAiAccessOff = true,
+}: DashboardsSummaryProps) {
   const t = useTranslations('components.userSettings.aiAccess');
   const domains = dashboards.map((dashboard) => dashboard.domain);
-  const aiAccessOff = dashboards
-    .filter((dashboard) => !dashboard.aiAccessEnabled)
-    .map((dashboard) => dashboard.domain);
+  const aiAccessOff = withAiAccessOff ? aiAccessOffDomains(dashboards) : [];
   const allDashboards = allDashboardsExcept !== undefined;
   const more = allDashboards ? 0 : domains.length - 1;
 
