@@ -2,16 +2,16 @@ import { useMapSelectionState } from '@/contexts/MapSelectionContextProvider';
 import React, { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useMap } from 'react-leaflet/hooks';
-import MapTooltipContent from './MapTooltipContent';
-import MapTooltipTip from './MapTooltipTip';
+import MapTooltipContent from '@/components/map/tooltip/MapTooltipContent';
+import MapTooltipTip from '@/components/map/tooltip/MapTooltipTip';
 import { cn } from '@/lib/utils';
 import { useLocale, useTranslations } from 'next-intl';
 
-export type MapStickyTooltip = {
+export type MapStickyTooltipProps = {
   size?: 'sm' | 'lg';
 };
 
-export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
+export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltipProps) {
   const { hoveredFeature, clickedFeature: selectedFeature } = useMapSelectionState();
   const map = useMap();
   const tooltipId = useId();
@@ -51,7 +51,7 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
 
   if (
     !hoveredFeature ||
-    (selectedFeature && hoveredFeature.geoVisitor.country_code === selectedFeature.geoVisitor.country_code) ||
+    (selectedFeature && hoveredFeature.geoVisitor.code === selectedFeature.geoVisitor.code) ||
     !hasValidPosition
   ) {
     return null;
@@ -68,15 +68,16 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
       style={{ transform: initialTransform }}
       className={cn(
         'map-sticky-tooltip leaflet-popup-content-wrapper',
-        'pointer-events-none fixed top-0 left-0 z-[11] flex flex-col will-change-transform',
+        'pointer-events-none fixed top-0 left-0 z-[31] flex flex-col will-change-transform',
       )}
     >
       <div className='leaflet-popup-content'>
         <MapTooltipContent
-          geoVisitor={hoveredFeature?.geoVisitor}
+          geoVisitor={hoveredFeature.geoVisitor}
           size={size}
           locale={locale}
           label={t('visitors')}
+          display={hoveredFeature.display}
           className={'p-3'}
         />
       </div>

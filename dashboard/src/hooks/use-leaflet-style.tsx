@@ -109,10 +109,26 @@ export function useMapStyle({ maxValue: maxVisitors }: UseMapStyleProps): MapSty
           .leaflet-popup {
             z-index: 11;
           }
+          /* Leaflet sets inline width and transform on the marker div */
+          .map-inset-label span {
+            position: absolute;
+            top: 1px;
+            left: 0;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            color: var(--muted-foreground);
+            font-size: 10px;
+            line-height: 1;
+            pointer-events: none;
+          }
         `}
       </style>
     );
   }, []);
 
-  return { originalStyle, selectedStyle, hoveredStyle, LeafletCSS, fillColorScale, borderColorScale };
+  // Consumers key effects on this object
+  return useMemo(
+    () => ({ originalStyle, selectedStyle, hoveredStyle, LeafletCSS, fillColorScale, borderColorScale }),
+    [originalStyle, selectedStyle, hoveredStyle, LeafletCSS, fillColorScale, borderColorScale],
+  );
 }

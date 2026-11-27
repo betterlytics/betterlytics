@@ -1,13 +1,17 @@
 'use client';
 
-import type { GeoVisitorWithCompare } from '@/entities/analytics/geography.entities';
+import { largestRingCenter } from '@/components/map/feature-anchor';
+import { planConvergence } from '@/components/map/selection-convergence';
+import type { GeoFeatureDisplay } from '@/components/map/types';
+import type { GeoFeatureVisitorWithCompare } from '@/entities/analytics/geography.entities';
 import { MapStyle } from '@/hooks/use-leaflet-style';
 import { useIsMobile } from '@/hooks/use-mobile';
-import React, { createContext, useCallback, useContext } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 export type MapFeatureVisitor = {
-  geoVisitor: GeoVisitorWithCompare;
+  geoVisitor: GeoFeatureVisitorWithCompare;
   layer: L.Polygon;
+  display: GeoFeatureDisplay;
   mousePosition?: { x: number; y: number };
 };
 
@@ -18,9 +22,11 @@ type MapSelectionStateContextType = {
 
 type MapSelectionSetterContextType = {
   setMapSelection: React.Dispatch<Partial<MapFeatureSelection> | null>;
+  registerFeature: (code: string, entry: MapFeatureVisitor | null) => void;
+  markLayersReady: () => void;
 };
 
-type MapSelectionProps = { children: React.ReactNode; style: MapStyle };
+type MapSelectionProps = { children: React.ReactNode; style: MapStyle; selectedFeatureId?: string | null };
 type MapFeatureSelection = {
   hovered: MapFeatureVisitor | undefined;
   clicked: MapFeatureVisitor | undefined;
@@ -45,13 +51,22 @@ export function useMapSelectionSetter() {
   return context;
 }
 
-export function MapSelectionContextProvider({ children, style }: MapSelectionProps) {
+export function MapSelectionContextProvider({ children, style, selectedFeatureId }: MapSelectionProps) {
   const [combined, setCombined] = React.useState({
     clicked: undefined,
     hovered: undefined,
   } as MapFeatureSelection);
+  const featuresRef = useRef(new Map<string, MapFeatureVisitor>());
+  const [layersVersion, setLayersVersion] = useState(0);
 
   const isMobile = useIsMobile();
+
+  const registerFeature = useCallback((code: string, entry: MapFeatureVisitor | null) => {
+    if (entry) featuresRef.current.set(code, entry);
+    else featuresRef.current.delete(code);
+  }, []);
+
+  const markLayersReady = useCallback(() => setLayersVersion((v) => v + 1), []);
 
   /**
    * Updates map selection state and applies corresponding styles.
@@ -70,7 +85,7 @@ export function MapSelectionContextProvider({ children, style }: MapSelectionPro
         }
 
         if (next.clicked) {
-          if (next.clicked.geoVisitor.country_code !== prev.clicked?.geoVisitor.country_code) {
+          if (next.clicked.geoVisitor.code !== prev.clicked?.geoVisitor.code) {
             prev.hovered?.layer.setStyle(style.originalStyle(prev.hovered.geoVisitor.visitors));
           } else {
             next.clicked.layer.closePopup();
@@ -96,15 +111,15 @@ export function MapSelectionContextProvider({ children, style }: MapSelectionPro
           return prev;
         }
 
-        if (prev.hovered?.geoVisitor.country_code === next.hovered?.geoVisitor.country_code) {
+        if (prev.hovered?.geoVisitor.code === next.hovered?.geoVisitor.code) {
           return { ...prev };
         }
 
-        if (prev.hovered && prev.hovered.geoVisitor.country_code !== prev.clicked?.geoVisitor.country_code) {
+        if (prev.hovered && prev.hovered.geoVisitor.code !== prev.clicked?.geoVisitor.code) {
           prev.hovered.layer.setStyle(style.originalStyle(prev.hovered.geoVisitor.visitors));
         }
 
-        if (!prev.clicked || next.hovered?.geoVisitor.country_code !== prev.clicked.geoVisitor.country_code) {
+        if (!prev.clicked || next.hovered?.geoVisitor.code !== prev.clicked.geoVisitor.code) {
           next.hovered?.layer.setStyle(style.hoveredStyle(next.hovered.geoVisitor.visitors));
           next.hovered?.layer.bringToFront();
 
@@ -119,6 +134,20 @@ export function MapSelectionContextProvider({ children, style }: MapSelectionPro
     [style, isMobile],
   );
 
+  useEffect(() => {
+    const clicked = combined.clicked;
+    const entry = selectedFeatureId ? featuresRef.current.get(selectedFeatureId) : undefined;
+    const step = planConvergence(selectedFeatureId, clicked?.layer, entry?.layer, layersVersion > 0);
+    if (step === 'clear') setMapSelection(null);
+    if (step === 'select' && entry) {
+      if (clicked) setMapSelection(null);
+      setMapSelection({ clicked: entry });
+    }
+    if (entry && step !== 'ignore' && !entry.layer.isPopupOpen()) {
+      entry.layer.openPopup(largestRingCenter(entry.layer));
+    }
+  }, [selectedFeatureId, layersVersion, combined.clicked, setMapSelection]);
+
   const stateValue = React.useMemo(
     () => ({
       hoveredFeature: combined.hovered,
@@ -128,10 +157,8 @@ export function MapSelectionContextProvider({ children, style }: MapSelectionPro
   );
 
   const setterValue = React.useMemo(
-    () => ({
-      setMapSelection,
-    }),
-    [setMapSelection],
+    () => ({ setMapSelection, registerFeature, markLayersReady }),
+    [setMapSelection, registerFeature, markLayersReady],
   );
 
   return (

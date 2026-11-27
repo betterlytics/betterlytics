@@ -1,31 +1,35 @@
-import { FlagIconProps } from '@/components/icons';
-import { CountryDisplay } from '@/components/language/CountryDisplay';
+import { MapFeatureTitle } from '@/components/map/tooltip/MapFeatureTitle';
 import { TrendPercentage } from '@/components/TrendPercentage';
 import { SupportedLanguages } from '@/constants/i18n';
-import type { GeoVisitorWithCompare } from '@/entities/analytics/geography.entities';
+import type { GeoFeatureVisitorWithCompare } from '@/entities/analytics/geography.entities';
+import type { GeoFeatureDisplay } from '@/components/map/types';
 import { cn } from '@/lib/utils';
-import { getCountryName } from '@/utils/countryCodes';
 import { formatNumber } from '@/utils/formatters';
+import { calculatePercentageChange } from '@/utils/percentageChange';
 import React from 'react';
 
 export type MapTooltipContentProps = {
-  geoVisitor?: GeoVisitorWithCompare;
+  geoVisitor?: GeoFeatureVisitorWithCompare;
   className?: string;
   label: string;
   locale: SupportedLanguages;
   size: 'sm' | 'lg';
+  display: GeoFeatureDisplay;
   onMouseEnter?: () => void;
 };
 
-function MapTooltipContent({ geoVisitor, size, className, label, locale, onMouseEnter }: MapTooltipContentProps) {
+function MapTooltipContent({
+  geoVisitor,
+  size,
+  className,
+  label,
+  locale,
+  display,
+  onMouseEnter,
+}: MapTooltipContentProps) {
   if (!geoVisitor) return null;
 
-  const percentageChange =
-    geoVisitor.compareVisitors !== undefined
-      ? geoVisitor.compareVisitors === 0 && geoVisitor.visitors > 0
-        ? undefined
-        : ((geoVisitor.visitors - geoVisitor.compareVisitors) / (geoVisitor.compareVisitors || 1)) * 100
-      : undefined;
+  const percentageChange = calculatePercentageChange(geoVisitor.visitors, geoVisitor.compareVisitors);
 
   return (
     <div
@@ -36,18 +40,14 @@ function MapTooltipContent({ geoVisitor, size, className, label, locale, onMouse
         className,
       )}
     >
-      <CountryDisplay
-        className='text-sm font-bold'
-        countryCode={geoVisitor.country_code as FlagIconProps['countryCode']}
-        countryName={getCountryName(geoVisitor.country_code, locale)}
-      />
+      <MapFeatureTitle display={display} />
       <div className='flex flex-col justify-start text-sm whitespace-nowrap'>
         <div className='flex gap-2 text-sm whitespace-nowrap'>
           <span className='text-muted-foreground'>{label}:</span>
           <div className='text-foreground flex flex-row gap-1'>
             <span>{formatNumber(geoVisitor.visitors, locale)}</span>
-            {geoVisitor.compareVisitors !== undefined && percentageChange !== undefined && (
-              <TrendPercentage percentage={percentageChange} withParenthesis={true} withIcon={true} locale={locale} />
+            {percentageChange !== undefined && (
+              <TrendPercentage percentage={percentageChange} withParenthesis withIcon locale={locale} />
             )}
           </div>
         </div>
