@@ -84,19 +84,21 @@ export async function openReplaySegmentStream(
  * The events a heatmap needs to draw one full snapshot, as a JSON array: the snapshot's segment,
  * plus the next one while the moments after the snapshot continue there. A large snapshot gets a
  * segment of its own, and an in-app navigation renders the new page just after its snapshot.
+ * `complete` is false while that next segment is still to be uploaded.
  */
 export async function openReplaySnapshotEvents(
   authContext: AuthContext,
   sessionId: string,
   filename: string,
   untilMs: number,
-): Promise<string | null> {
+): Promise<{ events: string; complete: boolean } | null> {
   const { siteId } = authContext;
   const { reader } = await readerForSession(siteId, sessionId);
   const first = await segmentToText(await reader.getSegment(siteId, sessionId, filename));
   if (first === null) return null;
 
   const texts = [first];
+  let complete = true;
   // Segment filenames start with the client time of their last event
   if (Number(filename.slice(0, 13)) < untilMs) {
     const filenames = (await reader.list(siteId, sessionId)).map((segment) => segment.filename);
@@ -104,9 +106,10 @@ export async function openReplaySnapshotEvents(
     const next = index === -1 ? undefined : filenames[index + 1];
     const text = next ? await segmentToText(await reader.getSegment(siteId, sessionId, next)) : null;
     if (text !== null) texts.push(text);
+    else complete = false;
   }
   const items = texts.map((text) => text.trim().slice(1, -1).trim()).filter(Boolean);
-  return `[${items.join(',')}]`;
+  return { events: `[${items.join(',')}]`, complete };
 }
 
 function toNdjsonStream(lines: AsyncGenerator<string>): ReadableStream<Uint8Array> {

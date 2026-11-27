@@ -53,7 +53,7 @@ export function HeatmapPanel({
   const capturesQuery = trpc.heatmapCaptures.list.useQuery(
     { dashboardId, path: url },
     // A capture finished in its own window shows up once the editor is back here
-    { enabled: !isDemo, refetchOnWindowFocus: true },
+    { enabled: !isDemo, refetchOnWindowFocus: 'always' },
   );
   const backgroundQuery = trpc.clickHeatmap.background.useQuery(
     { ...input, url, device },
@@ -258,19 +258,23 @@ function LiveHeatmap({ url, device, pageUrl, history, actions, onUnusable }: Liv
   );
 }
 
+class SnapshotBusyError extends Error {}
+
 function useSnapshotEvents(queryKey: unknown[], href: string, onUnusable: () => void) {
   const eventsQuery = useQuery({
     queryKey,
     queryFn: async () => {
       const response = await fetch(href);
+      if (response.status === 429) throw new SnapshotBusyError();
       if (!response.ok || !response.body) throw new Error(`Snapshot request failed with ${response.status}`);
-      // Captures stored gzipped in S3 come as a gzip payload
       const gzipped = response.headers.get('Content-Type') === 'application/gzip';
       const body = gzipped ? response.body.pipeThrough(new DecompressionStream('gzip')) : response.body;
       return (await new Response(body).json()) as eventWithTime[];
     },
     staleTime: Infinity,
-    retry: false,
+    // Too many loads at once (quick device switches) is retried; anything else falls back
+    retry: (failureCount, error) => error instanceof SnapshotBusyError && failureCount < 3,
+    retryDelay: 1000,
   });
 
   // An expired, deleted or unreadable snapshot falls back to the next background

@@ -41,13 +41,39 @@ describe('GET /api/heatmap/captures/[captureId]', () => {
     expect(await new Response(response.body!.pipeThrough(new DecompressionStream('gzip'))).text()).toBe(EVENTS);
   });
 
-  it('sends a plain snapshot as JSON', async () => {
+  it('compresses a snapshot stored as text in ClickHouse', async () => {
     openSnapshot.mockResolvedValue({ body: EVENTS });
+
+    const response = await get();
+
+    expect(response.headers.get('Content-Type')).toBe('application/gzip');
+    expect(await new Response(response.body!.pipeThrough(new DecompressionStream('gzip'))).text()).toBe(EVENTS);
+  });
+
+  it('sends a plain S3 snapshot stream as JSON', async () => {
+    openSnapshot.mockResolvedValue({ body: new Blob([EVENTS]).stream() });
 
     const response = await get();
 
     expect(response.headers.get('Content-Type')).toBe('application/json');
     expect(await response.text()).toBe(EVENTS);
+  });
+
+  it('refuses a user loading too many snapshots at once', async () => {
+    let open = () => {};
+    const gate = new Promise<void>((resolve) => (open = resolve));
+    openSnapshot.mockImplementation(async () => {
+      await gate;
+      return { body: EVENTS };
+    });
+
+    const pending = [get(), get(), get()];
+    await vi.waitFor(() => expect(openSnapshot).toHaveBeenCalledTimes(3));
+    expect((await get()).status).toBe(429);
+
+    open();
+    expect((await Promise.all(pending)).map((response) => response.status)).toEqual([200, 200, 200]);
+    expect((await get()).status).toBe(200);
   });
 
   it('returns 404 for a capture that is gone', async () => {

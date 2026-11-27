@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { resolveDashboardAuthResult } from '@/auth/api-auth';
 import { SNAPSHOT_SETTLE_MS } from '@/entities/analytics/clickHeatmap.entities';
+import { gzipJson, withHeatmapSnapshotLoad } from '@/lib/heatmap-snapshot-loads';
 import { openReplaySnapshotEvents } from '@/services/analytics/sessionReplays.service';
 
 const SEGMENT_FILENAME = /^\d{13}-[A-Za-z0-9_-]{1,32}\.json$/;
@@ -33,21 +34,25 @@ export async function GET(request: NextRequest) {
     return new NextResponse(null, { status: 404 });
   }
 
-  const events = await openReplaySnapshotEvents(
-    result.context,
-    sessionId,
-    filename,
-    Number(snapshotMs) + SNAPSHOT_SETTLE_MS,
-  );
-  if (events === null) {
-    return new NextResponse(null, { status: 404 });
-  }
+  const { context } = result;
+  return withHeatmapSnapshotLoad(context.userId, async () => {
+    const snapshot = await openReplaySnapshotEvents(
+      context,
+      sessionId,
+      filename,
+      Number(snapshotMs) + SNAPSHOT_SETTLE_MS,
+    );
+    if (snapshot === null) {
+      return new NextResponse(null, { status: 404 });
+    }
 
-  // Stored segments never change; a day keeps a copy from outliving retention or revoked access
-  return new NextResponse(events, {
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'private, max-age=86400, immutable',
-    },
+    // Stored segments never change; a day keeps a copy from outliving retention or revoked
+    // access. Until the segment after the snapshot is uploaded, the events may still grow.
+    return new NextResponse(new Uint8Array(await gzipJson(snapshot.events)), {
+      headers: {
+        'Content-Type': 'application/gzip',
+        'Cache-Control': snapshot.complete ? 'private, max-age=86400, immutable' : 'private, max-age=60',
+      },
+    });
   });
 }

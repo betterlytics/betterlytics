@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { resolveDashboardAuthResult } from '@/auth/api-auth';
+import { gzipJson, withHeatmapSnapshotLoad } from '@/lib/heatmap-snapshot-loads';
 import { HeatmapCapturesForbiddenError, openCaptureSnapshot } from '@/services/analytics/heatmapCaptures.service';
 
 // Loads one capture's rrweb events (JSON array) for any member of the dashboard
@@ -15,23 +16,29 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return new NextResponse(null, { status: result.error === 'unauthenticated' ? 401 : 403 });
   }
 
-  let snapshot;
-  try {
-    snapshot = await openCaptureSnapshot(result.context, captureId);
-  } catch (error) {
-    if (error instanceof HeatmapCapturesForbiddenError) return new NextResponse(null, { status: 403 });
-    throw error;
-  }
-  if (!snapshot) {
-    return new NextResponse(null, { status: 404 });
-  }
+  const { context } = result;
+  return withHeatmapSnapshotLoad(context.userId, async () => {
+    let snapshot;
+    try {
+      snapshot = await openCaptureSnapshot(context, captureId);
+    } catch (error) {
+      if (error instanceof HeatmapCapturesForbiddenError) return new NextResponse(null, { status: 403 });
+      throw error;
+    }
+    if (!snapshot) {
+      return new NextResponse(null, { status: 404 });
+    }
 
-  // Gzip is the payload, not a Content-Encoding: Next 15.5.29+ drops a route's own Content-Encoding,
-  // so the panel inflates the body. No caching: a deleted capture must stop loading at once.
-  return new NextResponse(snapshot.body, {
-    headers: {
-      'Content-Type': snapshot.contentEncoding === 'gzip' ? 'application/gzip' : 'application/json',
-      'Cache-Control': 'private, no-store',
-    },
+    // Gzip is the payload, not a Content-Encoding: Next 15.5.29+ drops a route's own
+    // Content-Encoding, so the panel inflates the body. Snapshots from ClickHouse arrive as text
+    // and are compressed here. No caching: a deleted capture must stop loading at once.
+    const body = typeof snapshot.body === 'string' ? new Uint8Array(await gzipJson(snapshot.body)) : snapshot.body;
+    const gzipped = typeof snapshot.body === 'string' || snapshot.contentEncoding === 'gzip';
+    return new NextResponse(body, {
+      headers: {
+        'Content-Type': gzipped ? 'application/gzip' : 'application/json',
+        'Cache-Control': 'private, no-store',
+      },
+    });
   });
 }
