@@ -244,13 +244,14 @@ describe('deleteUserAccount', () => {
     });
   });
 
-  it('removes accounts (incl. credential), sessions, 2FA rows, and reset tokens, and soft-deletes MCP tokens', async () => {
+  it('removes accounts (incl. credential), sessions, 2FA rows, reset tokens and heatmap capture links, and soft-deletes MCP tokens', async () => {
     await deleteUserAccount('user-1', deleteOwned);
 
     expect(prismaMock.account.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
     expect(prismaMock.session.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
     expect(prismaMock.twoFactor.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
     expect(prismaMock.verification.deleteMany).toHaveBeenCalledWith({ where: { value: 'user-1' } });
+    expect(prismaMock.heatmapCaptureLink.deleteMany).toHaveBeenCalledWith({ where: { createdById: 'user-1' } });
     expect(prismaMock.mcpToken.updateMany).toHaveBeenCalledWith({
       where: { createdBy: 'user-1', deletedAt: null },
       data: { deletedAt: expect.any(Date) },

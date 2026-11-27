@@ -369,6 +369,7 @@ async function anonymizeUserWith(tx: Prisma.TransactionClient, userId: string): 
   await tx.session.deleteMany({ where: { userId } });
   await tx.twoFactor.deleteMany({ where: { userId } });
   await tx.verification.deleteMany({ where: { value: userId } });
+  await tx.heatmapCaptureLink.deleteMany({ where: { createdById: userId } });
   await tx.mcpToken.updateMany({
     where: { createdBy: userId, deletedAt: null },
     data: { deletedAt: new Date() },
