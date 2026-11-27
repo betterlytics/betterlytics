@@ -269,7 +269,8 @@ function TokenRow({ token, disabled, onEdit, onDelete }: TokenRowProps) {
         )}
         {expiry}
       </TableCell>
-      <TableCell className='py-3'>
+      {/* sized here too: with the header hidden on narrow screens, the fixed layout takes widths from this row */}
+      <TableCell className='w-12 py-3'>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button

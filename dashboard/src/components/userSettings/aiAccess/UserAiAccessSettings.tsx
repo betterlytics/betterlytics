@@ -267,7 +267,8 @@ function ConnectionRow({ connection, disabled, onEdit, onRevoke }: ConnectionRow
         )}
         {connected && <p className='text-muted-foreground truncate text-xs'>{connected}</p>}
       </TableCell>
-      <TableCell className='py-3'>
+      {/* sized here too: with the header hidden on narrow screens, the fixed layout takes widths from this row */}
+      <TableCell className='w-12 py-3'>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
