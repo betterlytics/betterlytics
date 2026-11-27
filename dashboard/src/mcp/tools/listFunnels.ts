@@ -1,4 +1,5 @@
-import { McpDateRangeSchema, customDateRangeRefinement, dateOrderRefinement } from '@/mcp/entities/mcp.entities';
+import { McpDateRangeSchema } from '@/mcp/entities/mcp.entities';
+import { customDateRangeRefinement, dateOrderRefinement } from '@/lib/analytics-query/query.entities';
 import { resolveTimeRange } from '@/lib/analytics-query/resolveTimeRange';
 import { getFunnelsByDashboardId } from '@/services/analytics/funnels.service';
 

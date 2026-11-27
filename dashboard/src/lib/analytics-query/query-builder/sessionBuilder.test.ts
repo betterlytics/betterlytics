@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { buildSessionsQuery } from '@/lib/analytics-query/query-builder/sessionBuilder';
-import { McpQuerySessionsInput } from '@/mcp/entities/mcp.entities';
+import type { SessionQueryInput } from '@/lib/analytics-query/query.entities';
 
 const siteId = 'test-site-id';
 
-function input(overrides: Partial<McpQuerySessionsInput>): McpQuerySessionsInput {
+function input(overrides: Partial<SessionQueryInput>): SessionQueryInput {
   return { metrics: ['sessions'], timeRange: '7d', timezone: 'UTC', order: 'desc', limit: 100, ...overrides };
 }
 
@@ -243,16 +243,13 @@ describe('buildSessionsQuery', () => {
 
   it('throws on unknown metric', () => {
     expect(() =>
-      buildSessionsQuery(
-        input({ metrics: ['custom_events'] as unknown as McpQuerySessionsInput['metrics'] }),
-        siteId,
-      ),
+      buildSessionsQuery(input({ metrics: ['custom_events'] as unknown as SessionQueryInput['metrics'] }), siteId),
     ).toThrow('Unknown metric');
   });
 
   it('throws on unknown dimension', () => {
     expect(() =>
-      buildSessionsQuery(input({ dimensions: ['url'] as unknown as McpQuerySessionsInput['dimensions'] }), siteId),
+      buildSessionsQuery(input({ dimensions: ['url'] as unknown as SessionQueryInput['dimensions'] }), siteId),
     ).toThrow('Unknown dimension');
   });
 
@@ -260,7 +257,7 @@ describe('buildSessionsQuery', () => {
     expect(() =>
       buildSessionsQuery(
         input({
-          orderBy: 'sessions; DROP TABLE analytics.sessions' as unknown as McpQuerySessionsInput['orderBy'],
+          orderBy: 'sessions; DROP TABLE analytics.sessions' as unknown as SessionQueryInput['orderBy'],
         }),
         siteId,
       ),

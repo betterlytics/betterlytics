@@ -17,13 +17,13 @@ vi.mock('@/observability/clickhouse-concurrency', () => ({
 }));
 
 import { buildQuery } from '@/lib/analytics-query/query-builder/builder';
-import { McpQueryInput } from '@/mcp/entities/mcp.entities';
+import type { EventQueryInput } from '@/lib/analytics-query/query.entities';
 
 describe('buildQuery', () => {
   const siteId = 'test-site-id';
 
   it('builds an aggregate query with a single metric and no dimensions', () => {
-    const input: McpQueryInput = {
+    const input: EventQueryInput = {
       metrics: ['visitors'],
       timeRange: '7d',
       timezone: 'UTC',
@@ -40,7 +40,7 @@ describe('buildQuery', () => {
   });
 
   it('builds an aggregate query with metrics and dimensions', () => {
-    const input: McpQueryInput = {
+    const input: EventQueryInput = {
       metrics: ['visitors', 'pageviews'],
       dimensions: ['device_type'],
       timeRange: '28d',
@@ -59,7 +59,7 @@ describe('buildQuery', () => {
   });
 
   it('builds a time-series query when granularity is provided', () => {
-    const input: McpQueryInput = {
+    const input: EventQueryInput = {
       metrics: ['visitors'],
       dimensions: ['country_code'],
       timeRange: '28d',
@@ -77,7 +77,7 @@ describe('buildQuery', () => {
   });
 
   it('includes filters in the query', () => {
-    const input: McpQueryInput = {
+    const input: EventQueryInput = {
       metrics: ['pageviews'],
       filters: [{ column: 'url', operator: '=', values: ['/landing'] }],
       timeRange: '7d',
@@ -92,7 +92,7 @@ describe('buildQuery', () => {
   });
 
   it('throws on unknown metric', () => {
-    const input: McpQueryInput = {
+    const input: EventQueryInput = {
       metrics: ['nonexistent_metric'] as any,
       timeRange: '7d',
       timezone: 'UTC',
@@ -104,7 +104,7 @@ describe('buildQuery', () => {
   });
 
   it('throws on unknown dimension', () => {
-    const input: McpQueryInput = {
+    const input: EventQueryInput = {
       metrics: ['visitors'],
       dimensions: ['nonexistent_dimension'] as any,
       timeRange: '7d',
@@ -117,7 +117,7 @@ describe('buildQuery', () => {
   });
 
   it('defaults orderBy to first metric', () => {
-    const input: McpQueryInput = {
+    const input: EventQueryInput = {
       metrics: ['sessions', 'visitors'],
       dimensions: ['browser'],
       timeRange: '7d',
@@ -132,7 +132,7 @@ describe('buildQuery', () => {
   });
 
   it('supports referrer_source dimension', () => {
-    const input: McpQueryInput = {
+    const input: EventQueryInput = {
       metrics: ['visitors'],
       dimensions: ['referrer_source'],
       timeRange: '7d',
@@ -148,7 +148,7 @@ describe('buildQuery', () => {
   });
 
   it('supports referrer_source_name dimension', () => {
-    const input: McpQueryInput = {
+    const input: EventQueryInput = {
       metrics: ['visitors'],
       dimensions: ['referrer_source_name'],
       timeRange: '7d',
@@ -164,7 +164,7 @@ describe('buildQuery', () => {
   });
 
   it('builds a query with custom date range', () => {
-    const input: McpQueryInput = {
+    const input: EventQueryInput = {
       metrics: ['visitors'],
       timeRange: 'custom',
       startDate: '2026-01-01',
@@ -185,7 +185,7 @@ describe('buildQuery', () => {
     ['Asia/Tokyo', '2026-09-19 15:00:00', '2026-09-22 14:59:59'],
     ['UTC', '2026-09-20 00:00:00', '2026-09-22 23:59:59'],
   ])('reads custom dates as whole days in %s', (timezone, startDateTime, endDateTime) => {
-    const input: McpQueryInput = {
+    const input: EventQueryInput = {
       metrics: ['visitors'],
       timeRange: 'custom',
       startDate: '2026-09-20',

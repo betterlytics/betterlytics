@@ -4,11 +4,14 @@ import { DIMENSION_KEYS } from '@/lib/analytics-query/registry/dimensions';
 import { SESSION_METRIC_KEYS } from '@/lib/analytics-query/registry/sessionMetrics';
 import { SESSION_DIMENSION_KEYS } from '@/lib/analytics-query/registry/sessionDimensions';
 import { FilterColumnSchema, FILTER_OPERATORS } from '@/entities/analytics/filter.entities';
-import { TIME_RANGE_VALUES, type TimeRangeValue } from '@/utils/timeRanges';
-import type { GranularityRangeValues } from '@/utils/granularityRanges';
-import { isValidDayKey, normalizeTimezone } from '@/utils/timezone';
-
-export const MCP_GRANULARITIES = ['hour', 'day'] as const satisfies readonly GranularityRangeValues[];
+import { TIME_RANGE_VALUES } from '@/utils/timeRanges';
+import {
+  QUERY_GRANULARITIES,
+  SESSION_PAGE_FILTER_COLUMNS,
+  customDateRangeRefinement,
+  dateOrderRefinement,
+  timezoneTransform,
+} from '@/lib/analytics-query/query.entities';
 
 const VALID_ORDER_BY = new Set<string>([...METRIC_KEYS, ...DIMENSION_KEYS, 'date']);
 
@@ -35,17 +38,7 @@ export const McpDateRangeSchema = z.object({
     .describe(
       'IANA time zone identifier, e.g. "Europe/Berlin", "America/New_York" or "UTC". Unknown time zones are rejected.',
     )
-    .transform((tz, ctx) => {
-      const zone = normalizeTimezone(tz);
-      if (!zone) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: `Unknown timezone ${JSON.stringify(tz)}. Use an IANA time zone identifier such as "Europe/Berlin".`,
-        });
-        return z.NEVER;
-      }
-      return zone;
-    }),
+    .transform(timezoneTransform),
 });
 
 export const McpFiltersSchema = z
@@ -64,7 +57,7 @@ const McpQueryInputBaseSchema = McpDateRangeSchema.extend({
   dimensions: z.array(z.enum(DIMENSION_KEYS)).optional().describe('Dimensions to group by, e.g. ["device_type"]'),
   filters: McpFiltersSchema,
   granularity: z
-    .enum(MCP_GRANULARITIES)
+    .enum(QUERY_GRANULARITIES)
     .optional()
     .describe('Time-series granularity. Omit for aggregate totals.'),
   orderBy: z
@@ -87,29 +80,12 @@ const McpQueryInputBaseSchema = McpDateRangeSchema.extend({
     .describe('Max rows to return. Defaults to 100.'),
 });
 
-type DateRangeFields = { timeRange: TimeRangeValue; startDate?: string; endDate?: string };
-
-export const customDateRangeRefinement = {
-  check: (data: DateRangeFields) =>
-    data.timeRange !== 'custom' ||
-    (!!data.startDate && !!data.endDate && isValidDayKey(data.startDate) && isValidDayKey(data.endDate)),
-  message: 'startDate and endDate are required when timeRange is "custom", and must be real calendar dates',
-};
-
-export const dateOrderRefinement = {
-  check: (data: DateRangeFields) => !(data.startDate && data.endDate) || data.startDate <= data.endDate,
-  message: 'startDate must be before or equal to endDate',
-};
-
 export const McpQueryInputSchema = McpQueryInputBaseSchema.refine(
   customDateRangeRefinement.check,
   customDateRangeRefinement,
 ).refine(dateOrderRefinement.check, dateOrderRefinement);
 
 export type McpQueryInput = z.infer<typeof McpQueryInputSchema>;
-
-export const SESSION_PAGE_FILTER_COLUMNS = ['entry_page', 'exit_page'] as const;
-export type SessionPageFilterColumn = (typeof SESSION_PAGE_FILTER_COLUMNS)[number];
 
 const McpSessionFiltersSchema = z
   .array(
@@ -133,7 +109,7 @@ const McpQuerySessionsInputBaseSchema = McpDateRangeSchema.extend({
     .describe('Session dimensions to group by, e.g. ["entry_page"]'),
   filters: McpSessionFiltersSchema,
   granularity: z
-    .enum(MCP_GRANULARITIES)
+    .enum(QUERY_GRANULARITIES)
     .optional()
     .describe('Time-series granularity. Omit for aggregate totals.'),
   orderBy: z
@@ -183,12 +159,3 @@ export const McpQuerySessionsInputSchema = McpQuerySessionsInputBaseSchema.refin
   .refine(sessionOrderByDateRefinement.check, sessionOrderByDateRefinement);
 
 export type McpQuerySessionsInput = z.infer<typeof McpQuerySessionsInputSchema>;
-export type McpSessionFilter = NonNullable<McpQuerySessionsInput['filters']>[number];
-export type McpSessionPageFilter = McpSessionFilter & { column: SessionPageFilterColumn };
-
-export function isSessionPageFilterColumn(column: string): column is SessionPageFilterColumn {
-  return (SESSION_PAGE_FILTER_COLUMNS as readonly string[]).includes(column);
-}
-
-export const McpQueryResultSchema = z.array(z.record(z.string(), z.union([z.string(), z.number(), z.null()])));
-export type McpQueryResult = z.infer<typeof McpQueryResultSchema>;

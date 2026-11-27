@@ -12,9 +12,9 @@ import {
 } from '@/lib/analytics-query/registry/sessionDimensions';
 import {
   isSessionPageFilterColumn,
-  type McpQuerySessionsInput,
-  type McpSessionPageFilter,
-} from '@/mcp/entities/mcp.entities';
+  type SessionQueryInput,
+  type SessionPageFilter,
+} from '@/lib/analytics-query/query.entities';
 import { z } from 'zod';
 
 type BuildResult = {
@@ -40,7 +40,7 @@ function identifierSql(name: string) {
  * started and filtered exactly like the dashboard's session queries; entry and exit page
  * filters apply on top, to the selected sessions.
  */
-export function buildSessionsQuery(input: McpQuerySessionsInput, siteId: string): BuildResult {
+export function buildSessionsQuery(input: SessionQueryInput, siteId: string): BuildResult {
   const timezone = input.timezone;
   const { startDateTime, endDateTime, granularity } = resolveTimeRange(input);
   const isTimeSeries = Boolean(input.granularity);
@@ -59,7 +59,7 @@ export function buildSessionsQuery(input: McpQuerySessionsInput, siteId: string)
     return { column: dim.column, columnSql, selectSql };
   });
 
-  const pageFilters: McpSessionPageFilter[] = [];
+  const pageFilters: SessionPageFilter[] = [];
   const queryFilters: QueryFilter[] = [];
   (input.filters ?? []).forEach((filter, i) => {
     const { column } = filter;
@@ -180,7 +180,7 @@ function buildTimeSeriesQuery(opts: {
 }
 
 /** Entry and exit page filters, with the same pattern and `*` semantics as the other filters. */
-function buildPageFilter(filter: McpSessionPageFilter, index: number) {
+function buildPageFilter(filter: SessionPageFilter, index: number) {
   const column = identifierSql(filter.column);
   const patterns = filter.values.map(filterValueToLikePattern);
   const values = SQL.StringArray({ [`mcp_page_filter_${index}`]: patterns });

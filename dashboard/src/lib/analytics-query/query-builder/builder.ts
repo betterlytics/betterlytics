@@ -3,7 +3,7 @@ import { BAQuery } from '@/lib/ba-query';
 import { getMetricByKey } from '@/lib/analytics-query/registry/metrics';
 import { getDimensionByKey, validateDimensionColumn } from '@/lib/analytics-query/registry/dimensions';
 import { resolveTimeRange } from '@/lib/analytics-query/resolveTimeRange';
-import { McpQueryInput } from '@/mcp/entities/mcp.entities';
+import type { EventQueryInput } from '@/lib/analytics-query/query.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 
 type BuildResult = {
@@ -11,7 +11,7 @@ type BuildResult = {
   taggedParams: Record<string, unknown>;
 };
 
-export function buildQuery(input: McpQueryInput, siteId: string): BuildResult {
+export function buildQuery(input: EventQueryInput, siteId: string): BuildResult {
   const timezone = input.timezone;
   const { startDateTime, endDateTime, granularity } = resolveTimeRange(input);
 

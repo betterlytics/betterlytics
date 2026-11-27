@@ -1,10 +1,6 @@
 import { z } from 'zod';
-import {
-  McpDateRangeSchema,
-  McpFiltersSchema,
-  customDateRangeRefinement,
-  dateOrderRefinement,
-} from '@/mcp/entities/mcp.entities';
+import { McpDateRangeSchema, McpFiltersSchema } from '@/mcp/entities/mcp.entities';
+import { customDateRangeRefinement, dateOrderRefinement } from '@/lib/analytics-query/query.entities';
 import { resolveTimeRange } from '@/lib/analytics-query/resolveTimeRange';
 import { buildSiteQuery } from '@/mcp/utils/buildSiteQuery';
 import {
