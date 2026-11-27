@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
-  deleteAllPersonalMcpTokens,
   deletePersonalMcpToken,
   findDashboardMcpTokens,
   findMcpTokenByHash,
@@ -22,18 +21,6 @@ vi.mock('@/lib/postgres', () => ({ default: prismaMock }));
 
 beforeEach(() => {
   vi.clearAllMocks();
-});
-
-describe('deleteAllPersonalMcpTokens', () => {
-  it("soft-deletes every live token of the user's, and nobody else's", async () => {
-    prismaMock.mcpToken.updateMany.mockResolvedValue({ count: 2 });
-
-    expect(await deleteAllPersonalMcpTokens('user-1')).toBe(2);
-    expect(prismaMock.mcpToken.updateMany).toHaveBeenCalledWith({
-      where: { createdBy: 'user-1', deletedAt: null },
-      data: { deletedAt: expect.any(Date) },
-    });
-  });
 });
 
 describe('findMcpTokenByHash', () => {

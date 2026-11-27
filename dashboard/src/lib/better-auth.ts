@@ -15,7 +15,6 @@ import { createFreeSubscriptionForUser } from '@/services/billing/subscription.s
 import { sendVerificationEmail, VERIFICATION_LINK_EXPIRY_SECONDS } from '@/services/account/verification.service';
 import { sendTwoFactorChangedNotification } from '@/services/auth/twoFactorNotification.service';
 import { revokeAllMcpConnections } from '@/services/auth/mcpConnections.service';
-import { revokeAllPersonalMcpTokens } from '@/services/dashboard/mcpToken.service';
 import { setLocaleCookie } from '@/constants/cookies';
 import { getSignupAllowance } from '@/services/auth/signupGate.service';
 import {
@@ -133,7 +132,7 @@ export const auth = betterAuth({
       } catch (error) {
         console.error('Failed to prune reset tokens after password reset:', { userId: user.id, error });
       }
-      await revokeMcpAccessAfterPasswordEvent(user.id);
+      await revokeMcpConnectionsAfterPasswordEvent(user.id);
       await sendPasswordChangedNotification(user.id, user.email, user.name ?? null);
     },
   },
@@ -369,7 +368,7 @@ export const auth = betterAuth({
       update: {
         after: async (account, ctx) => {
           if (ctx?.path === '/change-password') {
-            await revokeMcpAccessAfterPasswordEvent(account.userId);
+            await revokeMcpConnectionsAfterPasswordEvent(account.userId);
             const user = ctx.context.session?.user;
             if (user) {
               await sendPasswordChangedNotification(user.id, user.email, user.name ?? null);
@@ -426,18 +425,12 @@ export const auth = betterAuth({
   ],
 });
 
-// Like the sessions revoked next to it: an agent connected, or a token made, by whoever knew the old password stops
-// working. Each runs on its own, so one failing doesn't leave the other in place.
-async function revokeMcpAccessAfterPasswordEvent(userId: string) {
+// Like the sessions revoked next to it: an agent connected by whoever knew the old password has to connect again
+async function revokeMcpConnectionsAfterPasswordEvent(userId: string) {
   try {
     await revokeAllMcpConnections(userId);
   } catch (error) {
     console.error('Failed to revoke MCP connections after a password change:', { userId, error });
-  }
-  try {
-    await revokeAllPersonalMcpTokens(userId);
-  } catch (error) {
-    console.error('Failed to revoke personal MCP tokens after a password change:', { userId, error });
   }
 }
 

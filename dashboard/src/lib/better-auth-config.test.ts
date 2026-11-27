@@ -24,7 +24,6 @@ import { getSignupAllowance } from '@/services/auth/signupGate.service';
 import { APIError, getSessionFromCtx } from 'better-auth/api';
 import { isMcpOAuthEnabled } from '@/mcp/auth/oauth';
 import { revokeAllMcpConnections } from '@/services/auth/mcpConnections.service';
-import { revokeAllPersonalMcpTokens } from '@/services/dashboard/mcpToken.service';
 
 vi.mock('@/lib/env', () => ({
   env: {
@@ -62,9 +61,6 @@ vi.mock('@/repositories/postgres/resetToken.repository', () => ({
 }));
 vi.mock('@/services/auth/mcpConnections.service', () => ({
   revokeAllMcpConnections: vi.fn(),
-}));
-vi.mock('@/services/dashboard/mcpToken.service', () => ({
-  revokeAllPersonalMcpTokens: vi.fn(),
 }));
 vi.mock('@/services/auth/signupGate.service', () => ({
   getSignupAllowance: vi.fn(),
@@ -725,7 +721,6 @@ describe('password reset (built-in endpoints)', () => {
 
     expect(deleteUserResetTokens).toHaveBeenCalledWith('user-1');
     expect(revokeAllMcpConnections).toHaveBeenCalledWith('user-1');
-    expect(revokeAllPersonalMcpTokens).toHaveBeenCalledWith('user-1');
     expect(enqueueEmail).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'password-changed',
@@ -773,24 +768,12 @@ describe('account update hook (password-changed notification)', () => {
 
     expect(enqueueEmail).not.toHaveBeenCalled();
     expect(revokeAllMcpConnections).not.toHaveBeenCalled();
-    expect(revokeAllPersonalMcpTokens).not.toHaveBeenCalled();
   });
 
-  it("revokes the account's MCP connections and personal tokens after /change-password", async () => {
+  it("revokes the account's MCP connections after /change-password", async () => {
     await runAccountUpdateHook('/change-password');
 
     expect(revokeAllMcpConnections).toHaveBeenCalledWith('user-1');
-    expect(revokeAllPersonalMcpTokens).toHaveBeenCalledWith('user-1');
-  });
-
-  it('still revokes the personal tokens when revoking the MCP connections fails', async () => {
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
-    vi.mocked(revokeAllMcpConnections).mockRejectedValueOnce(new Error('database down'));
-
-    await runAccountUpdateHook('/change-password');
-
-    expect(revokeAllPersonalMcpTokens).toHaveBeenCalledWith('user-1');
-    error.mockRestore();
   });
 
   it('still notifies when revoking the MCP connections fails', async () => {
