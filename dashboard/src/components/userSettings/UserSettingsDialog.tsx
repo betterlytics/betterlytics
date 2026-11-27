@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import {
   ArrowUpCircle,
   ArrowUpRight,
+  Bot,
   Bug,
   BookOpen,
   CreditCard,
@@ -16,6 +17,7 @@ import {
 import UserAccountSettings from '@/components/userSettings/account/UserAccountSettings';
 import UserPreferencesSettings from '@/components/userSettings/preferences/UserPreferencesSettings';
 import UserBillingSettings from '@/components/userSettings/billing/UserBillingSettings';
+import UserAiAccessSettings from '@/components/userSettings/aiAccess/UserAiAccessSettings';
 import { BugReportDialog } from '@/components/bugReport/BugReportDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -83,7 +85,7 @@ function UserSettingsDialogContent({ closeDialog, initialTab }: UserSettingsDial
   const tTabs = useTranslations('components.userSettings.tabs');
   const { PUBLIC_IS_CLOUD } = usePublicEnvironmentVariablesContext();
 
-  const tabs: TabConfig[] = useMemo(
+  const tabs = useMemo<TabConfig[]>(
     () => [
       {
         id: 'account',
@@ -96,6 +98,12 @@ function UserSettingsDialogContent({ closeDialog, initialTab }: UserSettingsDial
         label: tTabs('preferences'),
         icon: Settings,
         render: () => <UserPreferencesSettings />,
+      },
+      {
+        id: 'aiAccess',
+        label: tTabs('aiAccess'),
+        icon: Bot,
+        render: ({ closeDialog }) => <UserAiAccessSettings onCloseDialog={closeDialog} />,
       },
       {
         id: 'billing',
@@ -117,7 +125,7 @@ function UserSettingsDialogContent({ closeDialog, initialTab }: UserSettingsDial
       value={activeTabId}
       onValueChange={setActiveTabId}
       orientation='vertical'
-      className='flex h-full min-h-0 flex-col gap-0 md:flex-row'
+      className='flex h-full min-h-0 min-w-0 flex-col gap-0 md:flex-row'
     >
       {/* Desktop sidebar */}
       <div className='bg-muted/30 hidden h-full w-56 flex-shrink-0 flex-col border-r md:flex'>
@@ -146,7 +154,7 @@ function UserSettingsDialogContent({ closeDialog, initialTab }: UserSettingsDial
         ))}
       </TabsList>
 
-      <ScrollArea className='min-h-0 min-w-0 flex-1'>
+      <ScrollArea className='min-h-0 min-w-0 flex-1 [&>[data-slot=scroll-area-viewport]>div]:!block'>
         <div className='px-5 pt-6 pb-8 md:px-8 md:pt-8 md:pb-10'>
           <h2 className='mb-8 hidden text-2xl font-semibold md:block'>{activeTab.label}</h2>
           {availableTabs.map((tab) => (
@@ -194,7 +202,7 @@ function SidebarUpgradeLink({ closeDialog }: { closeDialog: () => void }) {
       <Button
         variant='ghost'
         onClick={handleUpgrade}
-        className='text-blue-600 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-400 hover:bg-blue-500/10 w-full cursor-pointer justify-start gap-2 font-medium'
+        className='w-full cursor-pointer justify-start gap-2 font-medium text-blue-600 hover:bg-blue-500/10 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-400'
       >
         <ArrowUpCircle className='h-4 w-4 flex-shrink-0' />
         <span>{tDialog('upgradePlan')}</span>

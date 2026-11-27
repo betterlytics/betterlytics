@@ -690,6 +690,8 @@
         },
         "title": "Welcome back",
         "lede": "One account for analytics, session replay, errors and uptime.",
+        "connectTitle": "Sign in to connect {client}",
+        "connectLede": "Next, you choose which dashboards {client} can read.",
         "forgotPassword": "Forgot your password?",
         "submit": "Sign in",
         "submitting": "Signing in…",
@@ -752,7 +754,9 @@
           "selected": "<b>{selected}</b> of {total} selected",
           "pickOne": "Pick at least one dashboard",
           "noMatch": "No dashboards match your search.",
-          "empty": "You don't have any dashboards yet. <link>Add a site</link>"
+          "empty": "You don't have any dashboards yet. Connect with All dashboards, including future ones, or <link>add your first site</link> before you connect.",
+          "aiAccessOff": "AI access turned off by its owners or admins",
+          "removedByAdmins": "Removed by its owners or admins"
         },
         "roles": {
           "owner": "Owner",
@@ -784,6 +788,7 @@
           "description": "Create your account on this Betterlytics instance."
         },
         "title": "Create your account",
+        "connectTitle": "Create an account to connect {client}",
         "lede": "Free to start, no credit card required.",
         "ledeSelfHosted": "One account for analytics, session replay, errors and uptime.",
         "ledeFirstUser": "This is the first account on this instance. It becomes the instance admin.",
@@ -4174,6 +4179,7 @@
       "tabs": {
         "account": "Account",
         "preferences": "Preferences",
+        "aiAccess": "MCP",
         "billing": "Billing"
       },
       "dialog": {
@@ -4375,6 +4381,128 @@
         },
         "toast": {
           "success": "Signed out {count, plural, =0 {no other devices} =1 {1 other device} other {# other devices}}."
+        }
+      },
+      "aiAccess": {
+        "title": "Connected agents",
+        "description": "Agents connected to your account and the dashboards each can read.",
+        "loadError": "Could not load your connected agents.",
+        "empty": "No agents connected. <link>Read the setup guide</link>",
+        "columns": {
+          "agent": "Agent",
+          "dashboards": "Dashboards",
+          "lastUsed": "Last used"
+        },
+        "actions": "Actions for {name}",
+        "unverified": "Unverified",
+        "scopes": {
+          "readAnalytics": "Read analytics"
+        },
+        "allDashboards": "All dashboards",
+        "allDashboardsExcept": "All but {count, plural, one {# dashboard} other {# dashboards}}",
+        "removedDashboards": "Removed by owners or admins: {domains}",
+        "aiAccessOffDashboards": "AI access off: {domains}",
+        "details": {
+          "aiAccessOff": "AI access off",
+          "permissions": "Permissions",
+          "connected": "Connected",
+          "created": "Created",
+          "expires": "Expires",
+          "expired": "Expired",
+          "never": "Never"
+        },
+        "noDashboards": "No dashboards",
+        "moreDashboards": "+{count} more",
+        "connected": "Connected {date}",
+        "neverUsed": "Never used",
+        "editDashboards": "Edit dashboards",
+        "revoke": "Revoke",
+        "revokeDialog": {
+          "title": "Revoke access for {name}?",
+          "description": "{name} loses access right away and has to connect again to read your analytics.",
+          "cancel": "Cancel",
+          "confirm": "Revoke access"
+        },
+        "toast": {
+          "revoked": "Revoked access for {name}.",
+          "dashboardsUpdated": "Updated the dashboards {name} can read."
+        },
+        "editDialog": {
+          "title": "Dashboards for {name}",
+          "description": "Takes effect on the next request, without reconnecting.",
+          "modeAll": "All dashboards",
+          "modeSelected": "Only selected",
+          "allHint": "Includes dashboards you add later",
+          "search": "Search dashboards",
+          "selectAll": "Select all",
+          "selected": "{selected} of {total} selected",
+          "pickOne": "Pick at least one dashboard",
+          "noMatch": "No dashboards match your search.",
+          "empty": "You don't have any dashboards yet. <link>Add a site</link>",
+          "cancel": "Cancel",
+          "save": "Save",
+          "saving": "Saving...",
+          "aiAccessOff": "AI access turned off by its owners or admins",
+          "removedByAdmins": "Removed by its owners or admins"
+        },
+        "tokens": {
+          "title": "Personal access tokens",
+          "description": "Tokens act as you on the dashboards you pick. Use them for scripts, CI and clients that can't sign in.",
+          "create": "Create token",
+          "loadError": "Could not load your tokens.",
+          "empty": "No tokens yet. <link>Read the setup guide</link>",
+          "columns": {
+            "token": "Token",
+            "dashboards": "Dashboards",
+            "lastUsed": "Last used"
+          },
+          "actions": "Actions for {name}",
+          "created": "Created {date}",
+          "neverUsed": "Never used",
+          "expires": "Expires {date}",
+          "expired": "Expired {date}",
+          "neverExpires": "Never expires",
+          "editDashboards": "Edit dashboards",
+          "editDescription": "Takes effect on the token's next request. The token itself doesn't change.",
+          "delete": "Delete",
+          "deleteDialog": {
+            "title": "Delete {name}?",
+            "description": "{name} stops working right away. Any script or agent using it loses access.",
+            "cancel": "Cancel",
+            "confirm": "Delete token"
+          },
+          "toast": {
+            "created": "Created {name}.",
+            "deleted": "Deleted {name}."
+          },
+          "createDialog": {
+            "title": "Create a personal access token",
+            "description": "Pick the dashboards the token can read. You can change them later.",
+            "nameLabel": "Name",
+            "namePlaceholder": "e.g. Claude Desktop",
+            "dashboardsLabel": "Dashboards",
+            "expirationLabel": "Expiration",
+            "lifetime": {
+              "30d": "30 days",
+              "90d": "90 days",
+              "180d": "180 days",
+              "never": "No expiry"
+            },
+            "actsAsYou": "This token acts as you: it reads the picked dashboards with your role on each, for as long as you're a member. Don't share it.",
+            "readOnly": "Read-only: it can read analytics but not change anything.",
+            "cancel": "Cancel",
+            "create": "Create token",
+            "creating": "Creating...",
+            "createdTitle": "Copy your token",
+            "createdNotice": "Copy this token now. You won't be able to see it again.",
+            "copyToken": "Copy token",
+            "tokenCopied": "Token copied",
+            "endpointLabel": "Server URL",
+            "endpointHint": "Point your MCP client at the server URL and send the token as a bearer token. <link>Setup guides for each client</link>",
+            "copyEndpoint": "Copy server URL",
+            "endpointCopied": "Server URL copied",
+            "done": "Done"
+          }
         }
       },
       "danger": {
@@ -4631,6 +4759,15 @@
       "invitationExpired": "This invitation has expired",
       "invitationEmailMismatch": "This invitation was sent to a different email address",
       "invitationNotFound": "Invitation not found"
+    },
+    "mcpConnections": {
+      "notFound": "This connection no longer exists.",
+      "unavailable": "AI access is not available.",
+      "dashboardUnavailable": "One of the picked dashboards is no longer available.",
+      "aiAccessDisabled": "AI access to {domain} is turned off by its owners or admins."
+    },
+    "mcpTokens": {
+      "notFound": "This token no longer exists."
     }
   },
   "banners": {
@@ -5064,40 +5201,62 @@
     }
   },
   "mcp": {
-    "settings": {
-      "title": "API Tokens",
-      "description": "Create tokens to connect AI agents to your analytics data via the Model Context Protocol.",
-      "tokenNameLabel": "Token name",
-      "tokenNamePlaceholder": "e.g. Claude Desktop",
-      "createButton": "Create token",
-      "creating": "Creating...",
-      "newTokenNotice": "Copy this token now. You won't be able to see it again.",
-      "created": "Created {date}",
-      "lastUsed": "Last used {date}",
-      "expirationLabel": "Expiration",
-      "lifetime": {
-        "30d": "30 days",
-        "90d": "90 days",
-        "180d": "180 days",
-        "never": "No expiry"
-      },
-      "expires": "Expires {date}",
-      "expired": "Expired {date}",
-      "neverExpires": "Never expires",
+    "connect": {
+      "title": "Connect an AI agent",
+      "description": "Ask AI agents about this dashboard's analytics over the Model Context Protocol (MCP).",
+      "body": "Point your agent at the server URL and sign in when it asks, or use a personal access token from your account settings. Agents read only what you can. <link>Setup guides for each client</link>",
+      "manageTokens": "Manage your tokens",
       "endpointLabel": "Server URL",
-      "endpointHint": "Point your MCP client at this URL and send your token as a bearer token. <link>Setup guides for each client</link>",
+      "endpointHint": "If your MCP client asks for a token, send a personal access token as a bearer token.",
       "copyEndpoint": "Copy server URL",
       "endpointCopied": "Server URL copied"
     },
-    "toast": {
-      "created": "Token created",
-      "createError": "Failed to create token",
-      "deleted": "Token deleted",
-      "deleteError": "Failed to delete token"
+    "aiAccess": {
+      "title": "Allow AI agent access",
+      "on": "Members can connect agents and tokens to this dashboard.",
+      "off": "Off: no agent or token can read this dashboard.",
+      "toast": {
+        "on": "AI access turned on.",
+        "off": "AI access turned off.",
+        "error": "Failed to update AI access."
+      },
+      "turnOffDialog": {
+        "title": "Turn off AI access?",
+        "description": "{connections, plural, one {# connection} other {# connections}} and {tokens, plural, one {# token} other {# tokens}} lose access to this dashboard until you turn it back on. Nothing is deleted.",
+        "cancel": "Cancel",
+        "confirm": "Turn off",
+        "pending": "Turning off..."
+      }
     },
-    "deleteDialog": {
-      "title": "Delete {name}",
-      "description": "This token will be permanently revoked. Any MCP clients using it will lose access immediately."
+    "access": {
+      "title": "Who has access",
+      "description": "Members' agent connections and tokens that can read this dashboard.",
+      "descriptionOff": "AI access is off, so none of these can read this dashboard until it's back on.",
+      "empty": "No connections or tokens can read this dashboard.",
+      "kind": {
+        "connection": "Connection",
+        "token": "Token"
+      },
+      "member": "By {name}",
+      "connected": "Connected {date}",
+      "created": "Created {date}",
+      "lastUsed": "Last used {date}",
+      "neverUsed": "Never used",
+      "expires": "Expires {date}",
+      "expired": "Expired {date}",
+      "neverExpires": "Never expires",
+      "remove": "Remove from this dashboard"
+    },
+    "removeDialog": {
+      "title": "Remove {name} from this dashboard?",
+      "connectionDescription": "{name} stops reading this dashboard on its next request. It stays connected to the member's other dashboards, and they can add this one back in account settings.",
+      "tokenDescription": "{name} stops reading this dashboard on its next request. It keeps working on its other dashboards, and its creator can add this one back in account settings.",
+      "cancel": "Cancel",
+      "confirm": "Remove"
+    },
+    "toast": {
+      "removed": "Removed {name} from this dashboard.",
+      "removeError": "Failed to remove access."
     }
   },
   "integrationsSettings": {

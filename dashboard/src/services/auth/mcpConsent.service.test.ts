@@ -6,6 +6,7 @@ vi.mock('@/lib/env', () => ({ env: { AUTH_SECRET: 'secret' } }));
 vi.mock('@/mcp/auth/oauth', () => ({ MCP_OAUTH_ISSUER: 'https://betterlytics.example/api/auth' }));
 vi.mock('@/repositories/postgres/dashboard.repository', () => ({ findUserMemberships: vi.fn(async () => []) }));
 vi.mock('@/repositories/postgres/mcpGrant.repository', () => ({
+  deleteOrphanedMcpTokens: vi.fn(),
   findOauthClient: vi.fn(),
   findMcpConsentGrant: vi.fn(),
   replaceMcpGrant: vi.fn(),
@@ -16,8 +17,14 @@ vi.mock('@/repositories/postgres/mcpConsentRequest.repository', () => ({
 }));
 vi.mock('@/repositories/postgres/user.repository', () => ({}));
 
+import { verifyOAuthQueryParams } from '@better-auth/oauth-provider';
 import { auth } from '@/lib/better-auth';
-import { findMcpConsentGrant, findOauthClient } from '@/repositories/postgres/mcpGrant.repository';
+import {
+  deleteOrphanedMcpTokens,
+  findMcpConsentGrant,
+  findOauthClient,
+  replaceMcpGrant,
+} from '@/repositories/postgres/mcpGrant.repository';
 import {
   isMcpConsentRequestAnswered,
   markMcpConsentRequestAnswered,
@@ -26,7 +33,9 @@ import {
   allowMcpConsent,
   denyMcpConsent,
   getMcpConsentRequest,
+  getMcpSignInRequest,
   signedOAuthQuery,
+  toMcpAuthorizeUrl,
 } from '@/services/auth/mcpConsent.service';
 
 const EXP = 1_900_000_000;
@@ -35,6 +44,7 @@ const ALL = { allDashboards: true, dashboardIds: [] };
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(verifyOAuthQueryParams).mockResolvedValue(true);
   vi.mocked(isMcpConsentRequestAnswered).mockResolvedValue(false);
   vi.mocked(findOauthClient).mockResolvedValue({
     clientId: 'c',
@@ -44,7 +54,7 @@ beforeEach(() => {
     discovered: false,
     disabled: false,
   });
-  vi.mocked(findMcpConsentGrant).mockResolvedValue({ consentId: 'consent-1', grant: null });
+  vi.mocked(findMcpConsentGrant).mockResolvedValue({ consentId: 'consent-1', createdAt: null, grant: null });
   vi.mocked(auth.api.oauth2Consent).mockImplementation(
     async () => Response.json({ url: 'http://127.0.0.1:4000/callback?code=x' }) as never,
   );
@@ -97,5 +107,90 @@ describe('answered consent requests', () => {
 
     await expect(allowMcpConsent('user-1', QUERY, ALL, new Headers())).rejects.toThrow();
     expect(markMcpConsentRequestAnswered).not.toHaveBeenCalled();
+  });
+});
+
+describe('tokens left from a revoked connection', () => {
+  it('deletes them when connecting a client the user had no consent for, before the code leaves', async () => {
+    vi.mocked(findMcpConsentGrant)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ consentId: 'consent-2', createdAt: new Date(), grant: null });
+
+    expect(await allowMcpConsent('user-1', QUERY, ALL, new Headers())).toBe(
+      'http://127.0.0.1:4000/callback?code=x',
+    );
+
+    expect(deleteOrphanedMcpTokens).toHaveBeenCalledWith('user-1', 'c');
+    expect(vi.mocked(deleteOrphanedMcpTokens).mock.invocationCallOrder[0]).toBeGreaterThan(
+      vi.mocked(auth.api.oauth2Consent).mock.invocationCallOrder[0]!,
+    );
+    expect(vi.mocked(deleteOrphanedMcpTokens).mock.invocationCallOrder[0]).toBeLessThan(
+      vi.mocked(replaceMcpGrant).mock.invocationCallOrder[0]!,
+    );
+  });
+
+  it('leaves the tokens of a client that is still connected, which another device may be using', async () => {
+    await allowMcpConsent('user-1', QUERY, ALL, new Headers());
+
+    expect(deleteOrphanedMcpTokens).not.toHaveBeenCalled();
+  });
+});
+
+describe('getMcpSignInRequest', () => {
+  const AUTHORIZE = 'https://betterlytics.example/api/auth/oauth2/authorize';
+
+  const REDIRECT = encodeURIComponent('http://127.0.0.1:4000/callback');
+
+  it('names the app being connected, and resumes at the authorization without the signature', async () => {
+    expect(await getMcpSignInRequest(`${QUERY}&prompt=consent&ba_iat=1&ba_param=client_id`)).toEqual({
+      status: 'open',
+      client: { name: 'Agent', verified: false },
+      authorizeUrl: `${AUTHORIZE}?client_id=c&redirect_uri=${REDIRECT}&prompt=consent`,
+      signedInUrl: `${AUTHORIZE}?client_id=c&redirect_uri=${REDIRECT}&prompt=consent`,
+    });
+  });
+
+  it('keeps a signed-in visitor here when the request asks them to sign in again', async () => {
+    for (const asks of ['prompt=login+consent', 'max_age=60']) {
+      expect(await getMcpSignInRequest(`${QUERY}&${asks}`)).toMatchObject({ status: 'open', signedInUrl: null });
+    }
+  });
+
+  it('sends a signed-in visitor on without prompt=create, which their account answers', async () => {
+    expect(await getMcpSignInRequest(`${QUERY}&prompt=create+consent`)).toMatchObject({
+      authorizeUrl: `${AUTHORIZE}?client_id=c&redirect_uri=${REDIRECT}&prompt=create+consent`,
+      signedInUrl: `${AUTHORIZE}?client_id=c&redirect_uri=${REDIRECT}&prompt=consent`,
+    });
+  });
+
+  it('starts an expired request over, and names no app for one that is gone', async () => {
+    vi.mocked(verifyOAuthQueryParams).mockResolvedValue(false);
+    expect(await getMcpSignInRequest(QUERY)).toMatchObject({ status: 'stale' });
+
+    vi.mocked(verifyOAuthQueryParams).mockResolvedValue(true);
+    vi.mocked(findOauthClient).mockResolvedValue(null);
+    expect(await getMcpSignInRequest(QUERY)).toMatchObject({ status: 'open', client: null });
+  });
+
+  it('is null for a query that is no authorization request', async () => {
+    expect(await getMcpSignInRequest('sig=abc&client_id=c')).toBeNull();
+  });
+});
+
+describe('toMcpAuthorizeUrl', () => {
+  it('accepts only an authorization request at this issuer', () => {
+    const url = 'https://betterlytics.example/api/auth/oauth2/authorize?client_id=c';
+    expect(toMcpAuthorizeUrl(url)).toBe(url);
+    for (const value of [
+      undefined,
+      ['/a'],
+      '/api/auth/oauth2/authorize?client_id=c',
+      'https://evil.example/api/auth/oauth2/authorize?client_id=c',
+      'https://betterlytics.example/api/auth/oauth2/authorize',
+      'https://betterlytics.example/api/auth/sign-out?client_id=c',
+      'https://betterlytics.example@evil.example/api/auth/oauth2/authorize?client_id=c',
+    ]) {
+      expect(toMcpAuthorizeUrl(value)).toBeNull();
+    }
   });
 });

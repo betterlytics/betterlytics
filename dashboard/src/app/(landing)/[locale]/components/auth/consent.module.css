@@ -443,6 +443,11 @@
     border: 1px solid var(--color-rule-22);
     border-radius: 7px;
     background: var(--field);
+
+    @media (width < 40rem) {
+      display: flex;
+      width: 100%;
+    }
   }
   .segmented label {
     position: relative;
@@ -456,6 +461,11 @@
     transition:
       background-color 0.15s var(--ease-out-expo),
       color 0.15s var(--ease-out-expo);
+
+    @media (width < 40rem) {
+      flex: 1;
+      text-align: center;
+    }
   }
   .segmented label:has(:checked) {
     background: rgb(235 232 230 / 0.1);
@@ -582,6 +592,32 @@
   }
   .dashRow .checkbox {
     margin-top: 0;
+  }
+  .dashRowUnavailable,
+  .dashRowUnavailable:hover {
+    cursor: default;
+    background: none;
+  }
+  .dashRowUnavailable .domain,
+  .dashRowExcluded .domain {
+    color: var(--color-muted);
+  }
+  .locked .dashRowOpen {
+    cursor: pointer;
+  }
+  .dashText {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .dashNote {
+    overflow: hidden;
+    color: var(--color-muted);
+    font-size: var(--text-caption);
+    line-height: 18px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .domain {
     display: flex;

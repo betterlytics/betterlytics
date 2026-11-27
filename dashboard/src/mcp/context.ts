@@ -13,9 +13,15 @@ export type McpContext = {
   credentialId: string;
   // Ordered like the dashboards page: newest membership first.
   dashboards: McpDashboard[];
+  // Granted, but their owners or admins turned AI access off: named only so calls to them say why they fail.
+  aiAccessDisabledDashboardIds: string[];
 };
 
 export const DASHBOARD_NOT_FOUND = 'Dashboard not found';
+export const AI_ACCESS_DISABLED =
+  "AI access to this dashboard is turned off by the dashboard's owners or admins, so no agent or token can read it. One of them can turn it back on under the dashboard's Settings > MCP.";
+export const AI_ACCESS_DISABLED_ALL =
+  "AI access is turned off by their owners or admins on every dashboard this connection can read. One of them can turn it back on under the dashboard's Settings > MCP.";
 export const DASHBOARD_ID_REQUIRED =
   'This connection can read several dashboards, so pass dashboardId. Call list_dashboards to see their ids.';
 
@@ -25,14 +31,17 @@ export const DASHBOARD_ID_DESCRIPTION =
 export const DashboardIdInputSchema = z.string().optional().describe(DASHBOARD_ID_DESCRIPTION);
 
 export function resolveDashboard(context: McpContext, dashboardId: string | undefined): McpDashboard {
+  const disabled = context.aiAccessDisabledDashboardIds;
   if (dashboardId === undefined) {
     if (context.dashboards.length === 1) return context.dashboards[0]!;
-    throw new Error(context.dashboards.length === 0 ? DASHBOARD_NOT_FOUND : DASHBOARD_ID_REQUIRED);
+    if (context.dashboards.length > 0) throw new Error(DASHBOARD_ID_REQUIRED);
+    if (disabled.length === 0) throw new Error(DASHBOARD_NOT_FOUND);
+    throw new Error(disabled.length === 1 ? AI_ACCESS_DISABLED : AI_ACCESS_DISABLED_ALL);
   }
 
   const dashboard = context.dashboards.find((d) => d.dashboardId === dashboardId);
-  if (!dashboard) throw new Error(DASHBOARD_NOT_FOUND);
-  return dashboard;
+  if (dashboard) return dashboard;
+  throw new Error(disabled.includes(dashboardId) ? AI_ACCESS_DISABLED : DASHBOARD_NOT_FOUND);
 }
 
 export function listDashboards(context: McpContext) {

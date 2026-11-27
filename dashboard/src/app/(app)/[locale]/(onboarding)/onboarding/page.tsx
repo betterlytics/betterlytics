@@ -8,8 +8,14 @@ import { OnboardingProvider } from './OnboardingProvider';
 import { SupportedLanguages } from '@/constants/i18n';
 import { redirect } from 'next/navigation';
 import { getAuthSession } from '@/auth/auth-actions';
+import { isMcpOAuthEnabled } from '@/mcp/auth/oauth';
+import { toMcpAuthorizeUrl } from '@/services/auth/mcpConsent.service';
 
-export default async function Onboarding() {
+type Props = {
+  searchParams: Promise<{ connect?: string | string[] }>;
+};
+
+export default async function Onboarding({ searchParams }: Props) {
   const session = await getAuthSession();
 
   if (!session) {
@@ -42,7 +48,17 @@ export default async function Onboarding() {
   const dashboard = await getFirstDashboard();
   const userInvited = await isUserInvitedMember();
 
+  // adding a first site from an MCP client's consent page, which it goes back to once the site is added
+  const connectUrl = isMcpOAuthEnabled() ? toMcpAuthorizeUrl((await searchParams).connect) : null;
+  if (connectUrl && dashboard) {
+    redirect(connectUrl);
+  }
+
   const getStep = () => {
+    if (connectUrl) {
+      return 'website';
+    }
+
     if (session.user.onboardingCompletedAt || userInvited) {
       redirect('/dashboards');
     }
@@ -63,7 +79,7 @@ export default async function Onboarding() {
     <>
       {isCloud && <StructuredData config={seoConfig} />}
       <OnboardingProvider initialDashboard={dashboard}>
-        <OnboardingPage initialStep={initialStep} />
+        <OnboardingPage initialStep={initialStep} connectUrl={connectUrl} />
       </OnboardingProvider>
     </>
   );

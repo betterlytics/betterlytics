@@ -14,6 +14,8 @@ type Steps = 'website' | 'integration';
 
 type OnboardingPageProps = {
   initialStep: Steps;
+  /** Adding a first site for an MCP client's consent page, which this resumes once the site is added. */
+  connectUrl: string | null;
 };
 
 function useNewUserEvent() {
@@ -30,7 +32,7 @@ function useNewUserEvent() {
   }, []);
 }
 
-export default function OnboardingPage({ initialStep }: OnboardingPageProps) {
+export default function OnboardingPage({ initialStep, connectUrl }: OnboardingPageProps) {
   const [step, setStep] = useState<Steps>(initialStep);
 
   useNewUserEvent();
@@ -53,7 +55,10 @@ export default function OnboardingPage({ initialStep }: OnboardingPageProps) {
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             className='w-full'
           >
-            <WebsiteSetup onNext={() => setStep('integration')} />
+            <WebsiteSetup
+              // the snippet stays a click away on the dashboard
+              onNext={() => (connectUrl ? window.location.assign(connectUrl) : setStep('integration'))}
+            />
           </motion.div>
         )}
         {step === 'integration' && (

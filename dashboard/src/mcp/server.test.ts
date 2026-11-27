@@ -103,7 +103,12 @@ const DASHBOARD_TOOLS = [
   { name: 'list_global_properties', args: RANGE, fn: execute.executeListGlobalProperties, ids: ['siteId'] },
   { name: 'list_funnels', args: RANGE, fn: execute.executeListFunnels, ids: ['siteId', 'dashboardId'] },
   { name: 'list_errors', args: RANGE, fn: execute.executeListErrors, ids: ['siteId', 'dashboardId'] },
-  { name: 'get_error', args: { fingerprint: 'fp-1' }, fn: execute.executeGetError, ids: ['siteId', 'dashboardId'] },
+  {
+    name: 'get_error',
+    args: { fingerprint: 'fp-1' },
+    fn: execute.executeGetError,
+    ids: ['siteId', 'dashboardId'],
+  },
   { name: 'list_monitors', args: RANGE, fn: execute.executeListMonitors, ids: ['siteId', 'dashboardId'] },
   {
     name: 'list_monitor_incidents',
@@ -146,8 +151,12 @@ beforeEach(() => {
 });
 
 describe('createMcpServer', () => {
-  const several: McpContext = { credentialId: 'mcp-token:2', dashboards: [SHOP, BLOG] };
-  const single: McpContext = { credentialId: 'mcp-token:1', dashboards: [SHOP] };
+  const several: McpContext = {
+    credentialId: 'mcp-token:2',
+    dashboards: [SHOP, BLOG],
+    aiAccessDisabledDashboardIds: [],
+  };
+  const single: McpContext = { credentialId: 'mcp-token:1', dashboards: [SHOP], aiAccessDisabledDashboardIds: [] };
 
   it('registers every dashboard-scoped tool with an optional dashboardId that points to list_dashboards', async () => {
     const client = await connect(single);
@@ -177,6 +186,36 @@ describe('createMcpServer', () => {
 
     const scoped = tools.filter((t) => Object.hasOwn(t.inputSchema.properties ?? {}, 'dashboardId'));
     expect([...dashboardToolNames()].sort()).toEqual(scoped.map((t) => t.name).sort());
+  });
+
+  // Clients use these to decide whether to ask before running a tool, so future write tools have to declare them too.
+  it('gives every tool a title and declares every behaviour hint explicitly', async () => {
+    const client = await connect(single);
+    const { tools } = await client.listTools();
+
+    // Includes list_dashboards and the tools only registered when monitoring or status pages are enabled.
+    expect(tools.map((t) => t.name).sort()).toEqual(
+      ['describe', 'list_dashboards', ...DASHBOARD_TOOLS.map((t) => t.name)].sort(),
+    );
+    for (const tool of tools) {
+      expect(tool.title?.trim(), tool.name).toBeTruthy();
+      expect(typeof tool.annotations?.readOnlyHint, tool.name).toBe('boolean');
+      expect(typeof tool.annotations?.destructiveHint, tool.name).toBe('boolean');
+      expect(typeof tool.annotations?.openWorldHint, tool.name).toBe('boolean');
+    }
+  });
+
+  it('marks every tool read-only, non-destructive and closed-world', async () => {
+    const client = await connect(single);
+    const { tools } = await client.listTools();
+
+    for (const tool of tools) {
+      expect(tool.annotations, tool.name).toMatchObject({
+        readOnlyHint: true,
+        destructiveHint: false,
+        openWorldHint: false,
+      });
+    }
   });
 
   it('keeps the refinements out of the published schema of a refined tool', async () => {

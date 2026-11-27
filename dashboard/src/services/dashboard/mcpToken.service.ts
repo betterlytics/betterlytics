@@ -1,12 +1,40 @@
-'server-only';
+import 'server-only';
 
 import { createHash, randomBytes } from 'crypto';
+import type { DashboardRole } from '@prisma/client';
+import { getTranslations } from 'next-intl/server';
+import { UserException } from '@/lib/exceptions';
 import {
   createMcpToken,
-  findMcpTokensByDashboard,
-  deleteMcpToken,
+  deletePersonalMcpToken,
+  findDashboardMcpTokens,
+  findPersonalMcpTokens,
+  removeDashboardFromMcpToken,
+  replaceMcpTokenDashboards,
 } from '@/repositories/postgres/mcpToken.repository';
-import { MCP_TOKEN_LIFETIME_DAYS, McpTokenLifetime } from '@/entities/dashboard/mcpToken.entities';
+import { findUserMemberships } from '@/repositories/postgres/dashboard.repository';
+import {
+  assertPickedDashboardsAvailable,
+  grantableDashboards,
+  grantedDashboards,
+} from '@/services/auth/mcpAccess.service';
+import {
+  DashboardMcpToken,
+  MCP_TOKEN_LIFETIME_DAYS,
+  McpToken,
+  McpTokenLifetime,
+} from '@/entities/dashboard/mcpToken.entities';
+
+export type PersonalMcpToken = McpToken & {
+  // the picked dashboards the creator is still a member of, including ones with AI access off
+  dashboards: { id: string; domain: string; aiAccessEnabled: boolean }[];
+};
+
+export type PersonalMcpTokensOverview = {
+  tokens: PersonalMcpToken[];
+  // every dashboard the user can pick, for creating or editing a token
+  dashboards: { id: string; domain: string; role: DashboardRole; aiAccessEnabled: boolean }[];
+};
 
 function generateMcpToken(): string {
   return `btl_${randomBytes(16).toString('hex')}`;
@@ -23,25 +51,65 @@ export function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
 }
 
-export async function createMcpTokenForDashboard(
-  dashboardId: string,
-  name: string,
+async function tokenNotFound(): Promise<UserException> {
+  const t = await getTranslations('validation.mcpTokens');
+  return new UserException(t('notFound'));
+}
+
+export async function createPersonalMcpToken(
   userId: string,
+  name: string,
+  dashboardIds: string[],
   lifetime: McpTokenLifetime,
-) {
+): Promise<McpToken & { plainToken: string }> {
+  await assertPickedDashboardsAvailable(userId, { allDashboards: false, dashboardIds });
+
   const plainToken = generateMcpToken();
-  const tokenHash = hashToken(plainToken);
   const row = await createMcpToken(
-    { dashboardId, name, createdBy: userId, expiresAt: expiresAtFromLifetime(lifetime) },
-    tokenHash,
+    { name, createdBy: userId, dashboardIds, expiresAt: expiresAtFromLifetime(lifetime) },
+    hashToken(plainToken),
   );
   return { ...row, plainToken };
 }
 
-export async function getMcpTokensForDashboard(dashboardId: string) {
-  return await findMcpTokensByDashboard(dashboardId);
+export async function listPersonalMcpTokens(userId: string): Promise<PersonalMcpTokensOverview> {
+  const [records, memberships] = await Promise.all([findPersonalMcpTokens(userId), findUserMemberships(userId)]);
+
+  const tokens = records.map(({ dashboardIds, ...token }): PersonalMcpToken => ({
+    ...token,
+    dashboards: grantedDashboards({ allDashboards: false, dashboardIds }, memberships)
+      .map(({ dashboardId, domain, aiAccessEnabled }) => ({ id: dashboardId, domain, aiAccessEnabled }))
+      .sort((a, b) => a.domain.localeCompare(b.domain)),
+  }));
+
+  return { tokens, dashboards: grantableDashboards(memberships) };
 }
 
-export async function removeMcpToken(id: string, dashboardId: string) {
-  await deleteMcpToken(id, dashboardId);
+/** Takes effect on the token's next call; the token string doesn't change. */
+export async function updatePersonalMcpTokenDashboards(
+  userId: string,
+  tokenId: string,
+  dashboardIds: string[],
+): Promise<void> {
+  const token = (await findPersonalMcpTokens(userId)).find((record) => record.id === tokenId);
+  if (!token) throw await tokenNotFound();
+  await assertPickedDashboardsAvailable(
+    userId,
+    { allDashboards: false, dashboardIds },
+    { allDashboards: false, dashboardIds: token.dashboardIds },
+  );
+  if (!(await replaceMcpTokenDashboards(tokenId, userId, dashboardIds))) throw await tokenNotFound();
+}
+
+export async function revokePersonalMcpToken(userId: string, tokenId: string): Promise<void> {
+  if ((await deletePersonalMcpToken(tokenId, userId)) === 0) throw await tokenNotFound();
+}
+
+export async function getDashboardMcpTokens(dashboardId: string): Promise<DashboardMcpToken[]> {
+  return findDashboardMcpTokens(dashboardId);
+}
+
+/** Only this dashboard leaves the token; it keeps working on the creator's other picks. */
+export async function removeDashboardFromToken(dashboardId: string, tokenId: string): Promise<void> {
+  if ((await removeDashboardFromMcpToken(tokenId, dashboardId)) === 0) throw await tokenNotFound();
 }

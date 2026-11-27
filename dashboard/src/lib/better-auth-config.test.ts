@@ -23,6 +23,7 @@ import { deleteUserResetTokens, findResetTokenUserId } from '@/repositories/post
 import { getSignupAllowance } from '@/services/auth/signupGate.service';
 import { APIError, getSessionFromCtx } from 'better-auth/api';
 import { isMcpOAuthEnabled } from '@/mcp/auth/oauth';
+import { revokeAllMcpConnections } from '@/services/auth/mcpConnections.service';
 
 vi.mock('@/lib/env', () => ({
   env: {
@@ -57,6 +58,9 @@ vi.mock('@/repositories/postgres/resetToken.repository', () => ({
   RESET_TOKEN_PREFIX: 'reset-password:',
   findResetTokenUserId: vi.fn(),
   deleteUserResetTokens: vi.fn(),
+}));
+vi.mock('@/services/auth/mcpConnections.service', () => ({
+  revokeAllMcpConnections: vi.fn(),
 }));
 vi.mock('@/services/auth/signupGate.service', () => ({
   getSignupAllowance: vi.fn(),
@@ -716,6 +720,7 @@ describe('password reset (built-in endpoints)', () => {
     await auth.options.emailAndPassword!.onPasswordReset!({ user: RESET_USER });
 
     expect(deleteUserResetTokens).toHaveBeenCalledWith('user-1');
+    expect(revokeAllMcpConnections).toHaveBeenCalledWith('user-1');
     expect(enqueueEmail).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'password-changed',
@@ -762,6 +767,24 @@ describe('account update hook (password-changed notification)', () => {
     await runAccountUpdateHook();
 
     expect(enqueueEmail).not.toHaveBeenCalled();
+    expect(revokeAllMcpConnections).not.toHaveBeenCalled();
+  });
+
+  it("revokes the account's MCP connections after /change-password", async () => {
+    await runAccountUpdateHook('/change-password');
+
+    expect(revokeAllMcpConnections).toHaveBeenCalledWith('user-1');
+  });
+
+  it('still notifies when revoking the MCP connections fails', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(revokeAllMcpConnections).mockRejectedValueOnce(new Error('database down'));
+
+    await expect(runAccountUpdateHook('/change-password')).resolves.toBeUndefined();
+
+    expect(enqueueEmail).toHaveBeenCalledWith(expect.objectContaining({ type: 'password-changed' }));
+    expect(error).toHaveBeenCalledWith(expect.stringContaining('MCP connections'), expect.anything());
+    error.mockRestore();
   });
 
   it('logs instead of notifying when the request carries no session', async () => {

@@ -229,10 +229,11 @@ model Dashboard {
   statusPages StatusPage[]
   invitations DashboardInvitation[]
   emailReportHistory EmailReportHistory[]
-  mcpTokens McpToken[]
+  mcpTokens McpTokenDashboard[]
   integrations DashboardIntegration[]
   errorGroups ErrorGroup[]
   mcpGrants McpGrantDashboard[]
+  mcpGrantExclusions McpGrantExcludedDashboard[]
 
   @@index([createdAt])
 }
@@ -383,6 +384,9 @@ model DashboardSettings {
   // Alert Settings
   alertsEnabled Boolean @default(false)
   alertsThreshold Int @default(1000) // Threshold for traffic alerts
+
+  // AI access: off refuses every MCP call to the dashboard, without touching the grants that name it
+  aiAccessEnabled Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -708,20 +712,31 @@ model DashboardInvitation {
   @@index([status])
 }
 
+// A personal token acts as its creator: each call reads only the picked dashboards the creator is still a member of,
+// with their current role there.
 model McpToken {
-  id          String    @id @default(cuid())
-  tokenHash   String    @unique
-  name        String
-  dashboardId String
-  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
-  createdBy   String
-  user        User      @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  createdAt   DateTime  @default(now())
-  lastUsedAt  DateTime?
-  expiresAt   DateTime?
-  deletedAt   DateTime?
+  id         String              @id @default(cuid())
+  tokenHash  String              @unique
+  name       String
+  createdBy  String
+  user       User                @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  createdAt  DateTime            @default(now())
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  deletedAt  DateTime?
+  dashboards McpTokenDashboard[]
 
   @@index([tokenHash])
+  @@index([createdBy])
+}
+
+model McpTokenDashboard {
+  tokenId     String
+  token       McpToken  @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  dashboardId String
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+
+  @@id([tokenId, dashboardId])
   @@index([dashboardId])
 }
 
@@ -949,19 +964,31 @@ model OauthClientAssertion {
   expiresAt DateTime
 }
 
-// allDashboards covers every dashboard the user is a member of, including ones joined later; otherwise only the
-// dashboards in McpGrantDashboard.
+// allDashboards covers every dashboard the user is a member of, including ones joined later, except the ones an
+// owner or admin removed in McpGrantExcludedDashboard; otherwise only the dashboards in McpGrantDashboard.
 model McpGrant {
-  id            String              @id @default(cuid())
-  consentId     String              @unique
-  consent       OauthConsent        @relation(fields: [consentId], references: [id], onDelete: Cascade)
-  allDashboards Boolean
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  dashboards    McpGrantDashboard[]
+  id                 String                      @id @default(cuid())
+  consentId          String                      @unique
+  consent            OauthConsent                @relation(fields: [consentId], references: [id], onDelete: Cascade)
+  allDashboards      Boolean
+  lastUsedAt         DateTime?
+  createdAt          DateTime                    @default(now())
+  updatedAt          DateTime                    @updatedAt
+  dashboards         McpGrantDashboard[]
+  excludedDashboards McpGrantExcludedDashboard[]
 }
 
 model McpGrantDashboard {
+  grantId     String
+  grant       McpGrant  @relation(fields: [grantId], references: [id], onDelete: Cascade)
+  dashboardId String
+  dashboard   Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+
+  @@id([grantId, dashboardId])
+  @@index([dashboardId])
+}
+
+model McpGrantExcludedDashboard {
   grantId     String
   grant       McpGrant  @relation(fields: [grantId], references: [id], onDelete: Cascade)
   dashboardId String
