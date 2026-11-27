@@ -70,48 +70,68 @@ export function SnapshotHeatmapView({
     }
 
     frame.innerHTML = '';
-    const player = new rrwebPlayer({
-      target: frame,
-      props: {
-        events: slice,
-        autoPlay: false,
-        showController: false,
-        width: size.width,
-        height: size.height,
-        maxScale: 1,
-        mouseTail: false,
-        skipInactive: false,
-        pauseAnimation: false,
-        insertStyleRules: [SETTLE_ANIMATIONS, RESERVE_SCROLLBAR],
-      },
-    });
-    // Pausing just past the last event applies all of them; events at the pause time itself wait
-    player.goto(slice[slice.length - 1].timestamp - slice[0].timestamp + 1, false);
-    const replayer = player.getReplayer();
-    replayer.enableInteract();
+    let player: rrwebPlayer | undefined;
+    const destroy = () => {
+      try {
+        player?.pause();
+      } catch {}
+      (player as unknown as { $destroy?: () => void } | undefined)?.$destroy?.();
+      frame.innerHTML = '';
+    };
+
+    // Snapshots come from visitors' browsers and capture uploads, so one rrweb can't rebuild
+    // makes this background unusable instead of taking down the page
+    let replayer: ReturnType<rrwebPlayer['getReplayer']>;
+    try {
+      player = new rrwebPlayer({
+        target: frame,
+        props: {
+          events: slice,
+          autoPlay: false,
+          showController: false,
+          width: size.width,
+          height: size.height,
+          maxScale: 1,
+          mouseTail: false,
+          skipInactive: false,
+          pauseAnimation: false,
+          insertStyleRules: [SETTLE_ANIMATIONS, RESERVE_SCROLLBAR],
+        },
+      });
+      // Pausing just past the last event applies all of them; events at the pause time itself wait
+      player.goto(slice[slice.length - 1].timestamp - slice[0].timestamp + 1, false);
+      replayer = player.getReplayer();
+      replayer.enableInteract();
+    } catch (error) {
+      console.error('[heatmaps] snapshot could not be rebuilt:', error);
+      destroy();
+      callbacks.current.onUnusable();
+      return;
+    }
+    const activePlayer = player;
 
     let cancelled = false;
     void (async () => {
       await settled(replayer.iframe.contentDocument);
       if (cancelled) return;
       await fitLayoutWidth(replayer.iframe, viewportWidth, HEATMAP_DEVICE_WINDOW_RANGES[device], () =>
-        player.triggerResize(),
+        activePlayer.triggerResize(),
       );
       const doc = replayer.iframe.contentDocument;
       if (cancelled || !doc?.documentElement) return;
       // The player restores the visitor's scroll; the heatmap opens at the top of the page
       doc.defaultView?.scrollTo(0, 0);
       setLayout(doc);
-    })();
+    })().catch((error) => {
+      if (cancelled) return;
+      console.error('[heatmaps] snapshot layout failed:', error);
+      callbacks.current.onUnusable();
+    });
 
     return () => {
       cancelled = true;
       setLayout(null);
-      try {
-        player.pause();
-      } catch {}
-      (player as unknown as { $destroy?: () => void }).$destroy?.();
-      frame.innerHTML = '';
+      destroy();
     };
   }, [events, snapshotMs, device, viewportWidth, size]);
 
