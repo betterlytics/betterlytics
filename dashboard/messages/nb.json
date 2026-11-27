@@ -2918,7 +2918,7 @@
         "rules": "Regler",
         "members": "Medlemmer",
         "reports": "E-postrapporter",
-        "mcp": "AI-tilgang",
+        "mcp": "MCP",
         "integrations": "Integrasjoner",
         "dangerZone": "Faresone"
       }
@@ -4401,6 +4401,7 @@
         "allDashboards": "Alle dashbord",
         "allDashboardsExcept": "Alle unntatt {count, plural, one {# dashbord} other {# dashbord}}",
         "removedDashboards": "Fjernet av eiere eller administratorer: {domains}",
+        "aiAccessOffDashboards": "AI-tilgang slått av: {domains}",
         "noDashboards": "Ingen dashbord",
         "moreDashboards": "+{count} til",
         "connected": "Tilkoblet {date}",
@@ -5237,8 +5238,7 @@
       "expires": "Utløper {date}",
       "expired": "Utløpt {date}",
       "neverExpires": "Utløper aldri",
-      "remove": "Fjern fra dette dashbordet",
-      "removeAria": "Fjern {name} fra dette dashbordet"
+      "remove": "Fjern fra dette dashbordet"
     },
     "removeDialog": {
       "title": "Fjerne {name} fra dette dashbordet?",

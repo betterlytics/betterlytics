@@ -1,8 +1,15 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 import {
   removeDashboardFromMcpConnectionAction,
@@ -18,6 +25,9 @@ type AccessItem = {
   kind: 'connection' | 'token';
   id: string;
   name: string;
+  // a connection's client: self-registered ones name themselves, so they are marked and show their host
+  verified?: boolean;
+  host?: string | null;
   member: string;
   // connected or created
   since: Date | null;
@@ -35,6 +45,7 @@ interface McpAccessListProps {
 /** Members' OAuth connections and personal tokens that can read this dashboard, for owners and admins to cut off. */
 export function McpAccessList({ dashboardId, connections, tokens }: McpAccessListProps) {
   const t = useTranslations('mcp');
+  const tAccess = useTranslations('components.userSettings.aiAccess');
   const locale = useLocale();
   const [isPending, startTransition] = useTransition();
   // kept after closing, so the dialog keeps its name while it fades out
@@ -46,6 +57,8 @@ export function McpAccessList({ dashboardId, connections, tokens }: McpAccessLis
       kind: 'connection',
       id: connection.consentId,
       name: connection.name,
+      verified: connection.verified,
+      host: connection.host,
       member: connection.member.name || connection.member.email,
       since: connection.connectedAt,
       lastUsedAt: connection.lastUsedAt,
@@ -87,10 +100,7 @@ export function McpAccessList({ dashboardId, connections, tokens }: McpAccessLis
     <>
       <div className='divide-border divide-y rounded-md border'>
         {items.map((item) => (
-          <div
-            key={`${item.kind}:${item.id}`}
-            className='flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between'
-          >
+          <div key={`${item.kind}:${item.id}`} className='flex items-center gap-3 px-4 py-3'>
             <div className='min-w-0 flex-1'>
               <div className='flex min-w-0 items-center gap-2'>
                 <p className='truncate text-sm font-medium' title={item.name}>
@@ -99,7 +109,17 @@ export function McpAccessList({ dashboardId, connections, tokens }: McpAccessLis
                 <Badge variant='outline' className='text-muted-foreground shrink-0'>
                   {t(`access.kind.${item.kind}`)}
                 </Badge>
+                {item.verified === false && (
+                  <Badge variant='outline' className='text-muted-foreground shrink-0'>
+                    {tAccess('unverified')}
+                  </Badge>
+                )}
               </div>
+              {item.host && (
+                <p className='text-muted-foreground truncate font-mono text-xs' title={item.host}>
+                  {item.host}
+                </p>
+              )}
               <p className='text-muted-foreground truncate text-xs'>{t('access.member', { name: item.member })}</p>
               <p className='text-muted-foreground flex flex-wrap gap-x-3 text-xs'>
                 {item.since && (
@@ -119,19 +139,30 @@ export function McpAccessList({ dashboardId, connections, tokens }: McpAccessLis
                 )}
               </p>
             </div>
-            <Button
-              variant='outline'
-              size='sm'
-              className='text-destructive hover:text-destructive shrink-0 cursor-pointer self-start sm:self-auto'
-              onClick={() => {
-                setRemoving(item);
-                setIsRemoveOpen(true);
-              }}
-              disabled={isPending}
-              aria-label={t('access.removeAria', { name: item.name })}
-            >
-              {t('access.remove')}
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  className='size-8 shrink-0 cursor-pointer'
+                  disabled={isPending}
+                  aria-label={tAccess('actions', { name: item.name })}
+                >
+                  <MoreHorizontal className='size-4' />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end'>
+                <DropdownMenuItem
+                  className='text-destructive focus:text-destructive cursor-pointer'
+                  onClick={() => {
+                    setRemoving(item);
+                    setIsRemoveOpen(true);
+                  }}
+                >
+                  {t('access.remove')}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         ))}
       </div>

@@ -19,8 +19,10 @@ import {
 import { DestructiveActionDialog } from '@/components/dialogs';
 import ExternalLink from '@/components/ExternalLink';
 import UserSettingsSection from '@/components/userSettings/shared/UserSettingsSection';
+import DashboardsSummary from '@/components/userSettings/aiAccess/DashboardsSummary';
 import EditConnectionDashboardsDialog from '@/components/userSettings/aiAccess/EditConnectionDashboardsDialog';
 import PersonalMcpTokensSection from '@/components/userSettings/aiAccess/PersonalMcpTokensSection';
+import { MCP_SETUP_DOCS_URL } from '@/constants/mcp';
 import {
   listMcpConnectionsAction,
   revokeMcpConnectionAction,
@@ -30,7 +32,6 @@ import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironme
 import type { McpConnection, McpConnectionsOverview } from '@/services/auth/mcpConnections.service';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 
-const MCP_SETUP_DOCS_URL = 'https://betterlytics.io/docs/dashboard/mcp';
 const MCP_CONNECTIONS_QUERY_KEY = ['mcpConnections'] as const;
 
 interface UserAiAccessSettingsProps {
@@ -202,31 +203,16 @@ function ConnectionRow({ connection, disabled, onEdit, onRevoke }: ConnectionRow
   const formatDate = (date: Date) =>
     formatLocalDateTime(date, locale, { year: 'numeric', month: 'short', day: 'numeric' }) ?? '';
 
-  const domains = connection.dashboards.map((dashboard) => dashboard.domain);
-  const more = connection.allDashboards ? 0 : domains.length - 1;
-  const excluded = connection.excludedDashboards.map((dashboard) => dashboard.domain);
-  // the first name truncates, the count after it doesn't, so the cell never hides how many there are
-  const dashboardsLabel = (
-    <div
-      className='flex min-w-0 gap-1'
-      title={
-        connection.allDashboards
-          ? excluded.length > 0
-            ? t('removedDashboards', { domains: excluded.join(', ') })
-            : undefined
-          : domains.join(', ')
+  const dashboards = (
+    <DashboardsSummary
+      dashboards={connection.dashboards}
+      allDashboardsExcept={
+        connection.allDashboards ? connection.excludedDashboards.map((dashboard) => dashboard.domain) : undefined
       }
-    >
-      <span className='truncate'>
-        {connection.allDashboards
-          ? excluded.length > 0
-            ? t('allDashboardsExcept', { count: excluded.length })
-            : t('allDashboards')
-          : (domains[0] ?? t('noDashboards'))}
-      </span>
-      {more > 0 && <span className='shrink-0'>{t('moreDashboards', { count: more })}</span>}
-    </div>
+    />
   );
+  const scopes = connection.scopes.map((scope) => t(`scopes.${scope}`)).join(', ');
+  const connected = connection.connectedAt && t('connected', { date: formatDate(connection.connectedAt) });
 
   return (
     <TableRow>
@@ -247,17 +233,17 @@ function ConnectionRow({ connection, disabled, onEdit, onRevoke }: ConnectionRow
           </p>
         )}
         <div className='text-muted-foreground text-xs lg:hidden'>
-          {dashboardsLabel}
+          {dashboards}
+          <p className='truncate'>{scopes}</p>
           <p className='truncate'>
             {connection.lastUsedAt ? t('lastUsed', { date: formatDate(connection.lastUsedAt) }) : t('neverUsed')}
           </p>
+          {connected && <p className='truncate'>{connected}</p>}
         </div>
       </TableCell>
       <TableCell className='hidden py-3 lg:table-cell'>
-        {dashboardsLabel}
-        <p className='text-muted-foreground truncate text-xs'>
-          {connection.scopes.map((scope) => t(`scopes.${scope}`)).join(', ')}
-        </p>
+        {dashboards}
+        <p className='text-muted-foreground truncate text-xs'>{scopes}</p>
       </TableCell>
       <TableCell className='hidden py-3 lg:table-cell'>
         {connection.lastUsedAt ? (
@@ -265,11 +251,7 @@ function ConnectionRow({ connection, disabled, onEdit, onRevoke }: ConnectionRow
         ) : (
           <p className='text-muted-foreground truncate'>{t('neverUsed')}</p>
         )}
-        {connection.connectedAt && (
-          <p className='text-muted-foreground truncate text-xs'>
-            {t('connected', { date: formatDate(connection.connectedAt) })}
-          </p>
-        )}
+        {connected && <p className='text-muted-foreground truncate text-xs'>{connected}</p>}
       </TableCell>
       <TableCell className='py-3'>
         <DropdownMenu>

@@ -145,7 +145,7 @@ Expired tokens stop authenticating and remain in the list so you can spot and de
 
 ## Dashboard AI Access
 
-Every dashboard has an **AI access** page under **Dashboard > Settings > AI access**, with the Server URL and an **Allow AI agent access** switch. Every member can see the switch; only owners and admins can change it.
+Every dashboard has an **MCP** page under **Dashboard > Settings > MCP**, with the Server URL and an **Allow AI agent access** switch. Every member can see the switch; only owners and admins can change it.
 
 - **Off:** no agent or token can read the dashboard. It's left out of `list_dashboards`, calls to it return an error, and members can't pick it for a new agent or token. Agents and tokens keep their other dashboards.
 - **On again:** agents and tokens can read the dashboard again from their next request, without reconnecting.

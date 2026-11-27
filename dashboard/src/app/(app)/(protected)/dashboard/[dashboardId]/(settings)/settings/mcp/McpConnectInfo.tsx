@@ -8,8 +8,7 @@ import { Label } from '@/components/ui/label';
 import { CopyButton } from '@/components/CopyButton';
 import ExternalLink from '@/components/ExternalLink';
 import UserSettingsDialog from '@/components/userSettings/UserSettingsDialog';
-
-const MCP_SETUP_DOCS_URL = 'https://betterlytics.io/docs/dashboard/mcp';
+import { MCP_SETUP_DOCS_URL } from '@/constants/mcp';
 
 interface McpConnectInfoProps {
   endpointUrl: string;

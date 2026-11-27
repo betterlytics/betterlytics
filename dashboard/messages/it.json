@@ -2918,7 +2918,7 @@
         "rules": "Regole",
         "members": "Membri",
         "reports": "Report Email",
-        "mcp": "Accesso AI",
+        "mcp": "MCP",
         "integrations": "Integrazioni",
         "dangerZone": "Zona pericolosa"
       }
@@ -4401,6 +4401,7 @@
         "allDashboards": "Tutte le dashboard",
         "allDashboardsExcept": "Tutte tranne {count, plural, one {# dashboard} other {# dashboard}}",
         "removedDashboards": "Rimosse da proprietari o amministratori: {domains}",
+        "aiAccessOffDashboards": "Accesso AI disattivato: {domains}",
         "noDashboards": "Nessuna dashboard",
         "moreDashboards": "+{count} altre",
         "connected": "Collegato il {date}",
@@ -5237,8 +5238,7 @@
       "expires": "Scade il {date}",
       "expired": "Scaduto il {date}",
       "neverExpires": "Non scade mai",
-      "remove": "Rimuovi da questa dashboard",
-      "removeAria": "Rimuovi {name} da questa dashboard"
+      "remove": "Rimuovi da questa dashboard"
     },
     "removeDialog": {
       "title": "Rimuovere {name} da questa dashboard?",

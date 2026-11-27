@@ -19,7 +19,9 @@ import { DestructiveActionDialog } from '@/components/dialogs';
 import ExternalLink from '@/components/ExternalLink';
 import UserSettingsSection from '@/components/userSettings/shared/UserSettingsSection';
 import CreateMcpTokenDialog from '@/components/userSettings/aiAccess/CreateMcpTokenDialog';
+import DashboardsSummary from '@/components/userSettings/aiAccess/DashboardsSummary';
 import EditConnectionDashboardsDialog from '@/components/userSettings/aiAccess/EditConnectionDashboardsDialog';
+import { MCP_SETUP_DOCS_URL } from '@/constants/mcp';
 import {
   listPersonalMcpTokensAction,
   revokePersonalMcpTokenAction,
@@ -28,7 +30,6 @@ import {
 import type { PersonalMcpToken, PersonalMcpTokensOverview } from '@/services/dashboard/mcpToken.service';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 
-const MCP_SETUP_DOCS_URL = 'https://betterlytics.io/docs/dashboard/mcp';
 const MCP_TOKENS_QUERY_KEY = ['personalMcpTokens'] as const;
 
 interface PersonalMcpTokensSectionProps {
@@ -204,15 +205,7 @@ function TokenRow({ token, disabled, onEdit, onDelete }: TokenRowProps) {
   const formatDate = (date: Date) =>
     formatLocalDateTime(date, locale, { year: 'numeric', month: 'short', day: 'numeric' }) ?? '';
 
-  const domains = token.dashboards.map((dashboard) => dashboard.domain);
-  const more = domains.length - 1;
-  // the first name truncates, the count after it doesn't, so the cell never hides how many there are
-  const dashboardsLabel = (
-    <div className='flex min-w-0 gap-1' title={domains.join(', ')}>
-      <span className='truncate'>{domains[0] ?? tAccess('noDashboards')}</span>
-      {more > 0 && <span className='shrink-0'>{tAccess('moreDashboards', { count: more })}</span>}
-    </div>
-  );
+  const dashboards = <DashboardsSummary dashboards={token.dashboards} />;
 
   const expired = token.expiresAt !== null && token.expiresAt < new Date();
   const expiry = (
@@ -237,7 +230,8 @@ function TokenRow({ token, disabled, onEdit, onDelete }: TokenRowProps) {
           {t('created', { date: formatDate(token.createdAt) })}
         </p>
         <div className='text-muted-foreground text-xs lg:hidden'>
-          {dashboardsLabel}
+          {dashboards}
+          <p className='truncate'>{tAccess('scopes.readAnalytics')}</p>
           <p className='truncate'>
             {token.lastUsedAt ? t('lastUsed', { date: formatDate(token.lastUsedAt) }) : t('neverUsed')}
           </p>
@@ -245,7 +239,7 @@ function TokenRow({ token, disabled, onEdit, onDelete }: TokenRowProps) {
         </div>
       </TableCell>
       <TableCell className='hidden py-3 lg:table-cell'>
-        {dashboardsLabel}
+        {dashboards}
         <p className='text-muted-foreground truncate text-xs'>{tAccess('scopes.readAnalytics')}</p>
       </TableCell>
       <TableCell className='hidden py-3 lg:table-cell'>

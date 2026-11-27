@@ -28,8 +28,8 @@ import {
   McpTokenLifetimeSchema,
 } from '@/entities/dashboard/mcpToken.entities';
 import type { PersonalMcpTokensOverview } from '@/services/dashboard/mcpToken.service';
+import { MCP_SETUP_DOCS_URL } from '@/constants/mcp';
 
-const MCP_SETUP_DOCS_URL = 'https://betterlytics.io/docs/dashboard/mcp';
 const MAX_TOKEN_NAME_LENGTH = 100;
 const COPY_BUTTON_CLASSES =
   'text-muted-foreground hover:text-foreground hover:bg-muted flex size-8 flex-none cursor-pointer items-center justify-center rounded-md transition-colors';

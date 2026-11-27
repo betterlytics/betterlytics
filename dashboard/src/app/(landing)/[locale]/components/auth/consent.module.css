@@ -443,6 +443,11 @@
     border: 1px solid var(--color-rule-22);
     border-radius: 7px;
     background: var(--field);
+
+    @media (width < 40rem) {
+      display: flex;
+      width: 100%;
+    }
   }
   .segmented label {
     position: relative;
@@ -456,6 +461,11 @@
     transition:
       background-color 0.15s var(--ease-out-expo),
       color 0.15s var(--ease-out-expo);
+
+    @media (width < 40rem) {
+      flex: 1;
+      text-align: center;
+    }
   }
   .segmented label:has(:checked) {
     background: rgb(235 232 230 / 0.1);

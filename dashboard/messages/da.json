@@ -2918,7 +2918,7 @@
         "rules": "Regler",
         "members": "Medlemmer",
         "reports": "E-mail-rapporter",
-        "mcp": "AI-adgang",
+        "mcp": "MCP",
         "integrations": "Integrationer",
         "dangerZone": "Farezone"
       }
@@ -4401,6 +4401,7 @@
         "allDashboards": "Alle dashboards",
         "allDashboardsExcept": "Alle undtagen {count, plural, one {# dashboard} other {# dashboards}}",
         "removedDashboards": "Fjernet af ejere eller administratorer: {domains}",
+        "aiAccessOffDashboards": "AI-adgang slået fra: {domains}",
         "noDashboards": "Ingen dashboards",
         "moreDashboards": "+{count} mere",
         "connected": "Forbundet {date}",
@@ -5237,8 +5238,7 @@
       "expires": "Udløber {date}",
       "expired": "Udløb {date}",
       "neverExpires": "Udløber aldrig",
-      "remove": "Fjern fra dette dashboard",
-      "removeAria": "Fjern {name} fra dette dashboard"
+      "remove": "Fjern fra dette dashboard"
     },
     "removeDialog": {
       "title": "Fjern {name} fra dette dashboard?",

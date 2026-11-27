@@ -19,9 +19,9 @@ export type McpContext = {
 
 export const DASHBOARD_NOT_FOUND = 'Dashboard not found';
 export const AI_ACCESS_DISABLED =
-  "AI access to this dashboard is turned off by the dashboard's owners or admins, so no agent or token can read it. One of them can turn it back on under the dashboard's Settings > AI access.";
+  "AI access to this dashboard is turned off by the dashboard's owners or admins, so no agent or token can read it. One of them can turn it back on under the dashboard's Settings > MCP.";
 export const AI_ACCESS_DISABLED_ALL =
-  "AI access is turned off by their owners or admins on every dashboard this connection can read. One of them can turn it back on under the dashboard's Settings > AI access.";
+  "AI access is turned off by their owners or admins on every dashboard this connection can read. One of them can turn it back on under the dashboard's Settings > MCP.";
 export const DASHBOARD_ID_REQUIRED =
   'This connection can read several dashboards, so pass dashboardId. Call list_dashboards to see their ids.';
 
