@@ -58,6 +58,7 @@ beforeEach(() => {
   mocks.findUserById.mockResolvedValue({ id: 'user-1', deletedAt: null, disabledAt: null });
   mocks.findUserMemberships.mockResolvedValue(MEMBERSHIPS);
   mocks.touchMcpGrantLastUsed.mockResolvedValue(undefined);
+  mocks.updateMcpTokenLastUsed.mockResolvedValue(undefined);
 });
 
 describe('grantedDashboards', () => {
@@ -231,6 +232,17 @@ describe('resolveTokenMcpContext', () => {
     });
     expect(mocks.findUserMemberships).toHaveBeenCalledWith('user-1');
     expect(mocks.updateMcpTokenLastUsed).toHaveBeenCalledWith('token-1');
+  });
+
+  it('still authorizes the call when recording the use fails', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    mocks.updateMcpTokenLastUsed.mockRejectedValue(new Error('database down'));
+
+    expect(await resolveTokenMcpContext(TOKEN)).toEqual({
+      credentialId: 'mcp-token:token-1',
+      dashboards: [A],
+      aiAccessDisabledDashboardIds: [],
+    });
   });
 
   it("follows the creator's role on the next call", async () => {

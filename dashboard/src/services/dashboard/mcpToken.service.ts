@@ -27,7 +27,7 @@ import {
 
 export type PersonalMcpToken = McpToken & {
   // the picked dashboards the creator is still a member of, including ones with AI access off
-  dashboards: { id: string; domain: string }[];
+  dashboards: { id: string; domain: string; aiAccessEnabled: boolean }[];
 };
 
 export type PersonalMcpTokensOverview = {
@@ -78,7 +78,7 @@ export async function listPersonalMcpTokens(userId: string): Promise<PersonalMcp
   const tokens = records.map(({ dashboardIds, ...token }): PersonalMcpToken => ({
     ...token,
     dashboards: grantedDashboards({ allDashboards: false, dashboardIds }, memberships)
-      .map(({ dashboardId, domain }) => ({ id: dashboardId, domain }))
+      .map(({ dashboardId, domain, aiAccessEnabled }) => ({ id: dashboardId, domain, aiAccessEnabled }))
       .sort((a, b) => a.domain.localeCompare(b.domain)),
   }));
 

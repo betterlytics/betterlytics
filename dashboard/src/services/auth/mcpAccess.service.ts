@@ -18,12 +18,15 @@ type Grant = { allDashboards: boolean; dashboardIds: string[]; excludedDashboard
  * owner or admin removed. Includes dashboards whose AI access is off, which the grant keeps for when it is back on.
  */
 export function grantedDashboards(grant: Grant | null, memberships: DashboardMembership[]): DashboardMembership[] {
-  if (!grant) return [];
-  const picked = new Set(grant.dashboardIds);
-  const excluded = new Set(grant.excludedDashboardIds ?? []);
-  return memberships.filter((membership) =>
-    grant.allDashboards ? !excluded.has(membership.dashboardId) : picked.has(membership.dashboardId),
-  );
+  return memberships.filter((membership) => grantCovers(grant, membership.dashboardId));
+}
+
+/** Picked, or under All dashboards and not removed by an owner or admin. Membership and AI access aren't checked. */
+export function grantCovers(grant: Grant | null, dashboardId: string): boolean {
+  if (!grant) return false;
+  return grant.allDashboards
+    ? !(grant.excludedDashboardIds ?? []).includes(dashboardId)
+    : grant.dashboardIds.includes(dashboardId);
 }
 
 /** What a call may read: the granted dashboards with AI access on. The others are named only to refuse them. */
@@ -102,10 +105,11 @@ export async function resolveOAuthMcpContext(
  * a token whose creator is deleted or disabled.
  */
 export async function resolveTokenMcpContext(token: McpTokenCredential): Promise<McpContext> {
-  const [memberships] = await Promise.all([
-    findUserMemberships(token.createdBy),
-    updateMcpTokenLastUsed(token.id),
-  ]);
+  // not awaited, like a connection's: a failed write doesn't fail the call
+  updateMcpTokenLastUsed(token.id).catch((error) => {
+    console.error('Failed to record MCP token use:', { tokenId: token.id, error });
+  });
+  const memberships = await findUserMemberships(token.createdBy);
 
   return mcpContext(
     `mcp-token:${token.id}`,

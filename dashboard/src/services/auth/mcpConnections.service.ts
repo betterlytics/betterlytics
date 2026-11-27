@@ -19,6 +19,7 @@ import {
 import {
   assertPickedDashboardsAvailable,
   grantableDashboards,
+  grantCovers,
   grantedDashboards,
   selectionKeepingExclusions,
 } from '@/services/auth/mcpAccess.service';
@@ -36,7 +37,7 @@ export type McpConnection = {
   scopes: McpScopeLabel[];
   allDashboards: boolean;
   // the granted dashboards the user is still a member of, including ones with AI access off
-  dashboards: { id: string; domain: string }[];
+  dashboards: { id: string; domain: string; aiAccessEnabled: boolean }[];
   // under All dashboards, the user's dashboards owners or admins removed from the connection
   excludedDashboards: { id: string; domain: string }[];
   connectedAt: Date | null;
@@ -53,6 +54,8 @@ export type McpConnectionsOverview = {
 export type DashboardMcpConnection = {
   consentId: string;
   name: string;
+  host: string | null;
+  verified: boolean;
   member: { name: string | null; email: string };
   connectedAt: Date | null;
   lastUsedAt: Date | null;
@@ -95,7 +98,7 @@ export async function listMcpConnections(userId: string): Promise<McpConnections
       scopes: [...new Set(record.scopes.filter(hasScopeLabel).map((scope) => SCOPE_LABELS[scope]))],
       allDashboards: record.grant?.allDashboards ?? false,
       dashboards: grantedDashboards(record.grant, memberships)
-        .map(({ dashboardId, domain }) => ({ id: dashboardId, domain }))
+        .map(({ dashboardId, domain, aiAccessEnabled }) => ({ id: dashboardId, domain, aiAccessEnabled }))
         .sort((a, b) => a.domain.localeCompare(b.domain)),
       excludedDashboards: record.grant?.allDashboards
         ? memberships
@@ -132,13 +135,16 @@ export async function updateMcpConnectionDashboards(
 
 export async function getDashboardMcpConnections(dashboardId: string): Promise<DashboardMcpConnection[]> {
   const records = await findDashboardMcpConnections(dashboardId);
-  return records.map((record) => ({
-    consentId: record.consentId,
-    name: clientName(record.client).name,
-    member: record.member,
-    connectedAt: record.connectedAt,
-    lastUsedAt: record.lastUsedAt,
-  }));
+  return records
+    .filter((record) => grantCovers(record.grant, dashboardId))
+    .map((record) => ({
+      consentId: record.consentId,
+      ...clientName(record.client),
+      verified: record.client.discovered,
+      member: record.member,
+      connectedAt: record.connectedAt,
+      lastUsedAt: record.lastUsedAt,
+    }));
 }
 
 /**

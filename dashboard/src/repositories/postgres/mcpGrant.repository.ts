@@ -141,9 +141,9 @@ export async function findMcpConnections(userId: string): Promise<McpConnectionR
 }
 
 /**
- * The OAuth connections that can read the dashboard: the latest consent per member and client, as calls are checked
- * against, whose grant picks the dashboard or covers it under All dashboards without excluding it. The member is
- * enabled and still a member of the dashboard. Only the link to this dashboard is read, never the member's others.
+ * The OAuth connections of the dashboard's enabled members: the latest consent per member and client, as calls are
+ * checked against. Only the grant's links to this dashboard are read, never the member's others; whether it covers
+ * the dashboard is the service's call (`grantCovers`).
  */
 export async function findDashboardMcpConnections(dashboardId: string): Promise<DashboardMcpConnectionRecord[]> {
   const consents = await prisma.oauthConsent.findMany({
@@ -176,12 +176,6 @@ export async function findDashboardMcpConnections(dashboardId: string): Promise<
     if (seen.has(key)) return [];
     seen.add(key);
 
-    const grant = consent.grant;
-    const covers = grant?.allDashboards
-      ? grant.excludedDashboards.length === 0
-      : (grant?.dashboards.length ?? 0) > 0;
-    if (!covers) return [];
-
     return DashboardMcpConnectionRecordSchema.parse({
       consentId: consent.id,
       client: {
@@ -192,7 +186,8 @@ export async function findDashboardMcpConnections(dashboardId: string): Promise<
       },
       member: consent.user,
       connectedAt: consent.updatedAt ?? consent.createdAt,
-      lastUsedAt: grant?.lastUsedAt ?? null,
+      lastUsedAt: consent.grant?.lastUsedAt ?? null,
+      grant: consent.grant && grantRecord(consent.grant),
     });
   });
 }

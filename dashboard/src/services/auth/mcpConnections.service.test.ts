@@ -94,8 +94,8 @@ describe('listMcpConnections', () => {
         scopes: ['readAnalytics'],
         allDashboards: true,
         dashboards: [
-          { id: 'dash-a', domain: 'a.example.com' },
-          { id: 'dash-b', domain: 'b.example.com' },
+          { id: 'dash-a', domain: 'a.example.com', aiAccessEnabled: true },
+          { id: 'dash-b', domain: 'b.example.com', aiAccessEnabled: true },
         ],
         excludedDashboards: [],
         connectedAt: CONNECTED,
@@ -308,15 +308,24 @@ describe('dashboards owners or admins removed from an All dashboards connection'
 });
 
 describe('getDashboardMcpConnections', () => {
+  const record = (
+    consentId: string,
+    grant: { allDashboards: boolean; dashboardIds: string[]; excludedDashboardIds: string[] } | null,
+  ) => ({
+    consentId,
+    client: { clientId: 'https://claude.ai/cimd', name: null, redirectUris: [], discovered: true },
+    member: { name: 'Ada', email: 'ada@example.com' },
+    connectedAt: null,
+    lastUsedAt: null,
+    grant,
+  });
+
   it("names each connection by its client and shows only its member and this dashboard's link", async () => {
     const connectedAt = new Date('2026-11-20T10:00:00Z');
     mocks.findDashboardMcpConnections.mockResolvedValue([
       {
-        consentId: 'consent-1',
-        client: { clientId: 'https://claude.ai/cimd', name: null, redirectUris: [], discovered: true },
-        member: { name: 'Ada', email: 'ada@example.com' },
+        ...record('consent-1', { allDashboards: false, dashboardIds: ['dash-1'], excludedDashboardIds: [] }),
         connectedAt,
-        lastUsedAt: null,
       },
     ]);
 
@@ -324,12 +333,47 @@ describe('getDashboardMcpConnections', () => {
       {
         consentId: 'consent-1',
         name: 'claude.ai',
+        host: 'claude.ai',
+        verified: true,
         member: { name: 'Ada', email: 'ada@example.com' },
         connectedAt,
         lastUsedAt: null,
       },
     ]);
     expect(mocks.findDashboardMcpConnections).toHaveBeenCalledWith('dash-1');
+  });
+
+  it('marks a self-registered client unverified, with its redirect host', async () => {
+    mocks.findDashboardMcpConnections.mockResolvedValue([
+      {
+        ...record('consent-1', { allDashboards: true, dashboardIds: [], excludedDashboardIds: [] }),
+        client: {
+          clientId: 'dcr-1',
+          name: 'Claude Code',
+          redirectUris: ['http://127.0.0.1:5000/cb'],
+          discovered: false,
+        },
+      },
+    ]);
+
+    expect(await getDashboardMcpConnections('dash-1')).toMatchObject([
+      { name: 'Claude Code', host: '127.0.0.1:5000', verified: false },
+    ]);
+  });
+
+  it('lists connections that pick the dashboard or cover it under All dashboards without excluding it', async () => {
+    mocks.findDashboardMcpConnections.mockResolvedValue([
+      record('picked', { allDashboards: false, dashboardIds: ['dash-1'], excludedDashboardIds: [] }),
+      record('all', { allDashboards: true, dashboardIds: [], excludedDashboardIds: [] }),
+      record('excluded', { allDashboards: true, dashboardIds: [], excludedDashboardIds: ['dash-1'] }),
+      record('other-dashboards', { allDashboards: false, dashboardIds: [], excludedDashboardIds: [] }),
+      record('no-grant', null),
+    ]);
+
+    expect((await getDashboardMcpConnections('dash-1')).map((connection) => connection.consentId)).toEqual([
+      'picked',
+      'all',
+    ]);
   });
 });
 

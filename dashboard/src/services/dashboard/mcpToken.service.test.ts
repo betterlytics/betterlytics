@@ -113,8 +113,8 @@ describe('listPersonalMcpTokens', () => {
         {
           ...CREATED,
           dashboards: [
-            { id: 'dash-a', domain: 'a.example.com' },
-            { id: 'dash-b', domain: 'b.example.com' },
+            { id: 'dash-a', domain: 'a.example.com', aiAccessEnabled: true },
+            { id: 'dash-b', domain: 'b.example.com', aiAccessEnabled: true },
           ],
         },
       ],

@@ -67,6 +67,8 @@ export const DashboardMcpConnectionRecordSchema = z.object({
   }),
   connectedAt: z.date().nullable(),
   lastUsedAt: z.date().nullable(),
+  // with only its links to this dashboard
+  grant: McpConsentGrantSchema.shape.grant,
 });
 
 export type DashboardMembership = z.infer<typeof DashboardMembershipSchema>;

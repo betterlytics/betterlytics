@@ -144,18 +144,23 @@ describe('findDashboardMcpConnections', () => {
     },
   });
 
-  it('lists connections that pick the dashboard or cover it under All dashboards without excluding it', async () => {
+  it("returns each grant with only its links to this dashboard, and the member's name", async () => {
     prismaMock.oauthConsent.findMany.mockResolvedValue([
       consent('picked', 'user-1', 'client-a', { allDashboards: false, picked: true }),
-      consent('all', 'user-2', 'client-a', { allDashboards: true }),
-      consent('excluded', 'user-3', 'client-a', { allDashboards: true, excluded: true }),
-      consent('other-dashboards', 'user-4', 'client-a', { allDashboards: false }),
-      consent('no-grant', 'user-5', 'client-a', null),
+      consent('excluded', 'user-2', 'client-a', { allDashboards: true, excluded: true }),
+      consent('no-grant', 'user-3', 'client-a', null),
     ]);
 
     const connections = await findDashboardMcpConnections('dash-1');
 
-    expect(connections.map((connection) => connection.consentId)).toEqual(['picked', 'all']);
+    expect(connections.map(({ consentId, grant }) => ({ consentId, grant }))).toEqual([
+      { consentId: 'picked', grant: { allDashboards: false, dashboardIds: ['dash-1'], excludedDashboardIds: [] } },
+      {
+        consentId: 'excluded',
+        grant: { allDashboards: true, dashboardIds: [], excludedDashboardIds: ['dash-1'] },
+      },
+      { consentId: 'no-grant', grant: null },
+    ]);
     expect(connections[0]!.member).toEqual({ name: null, email: 'user-1@example.com' });
   });
 
@@ -165,7 +170,9 @@ describe('findDashboardMcpConnections', () => {
       consent('older', 'user-1', 'client-a', { allDashboards: true }),
     ]);
 
-    expect(await findDashboardMcpConnections('dash-1')).toEqual([]);
+    expect((await findDashboardMcpConnections('dash-1')).map((connection) => connection.consentId)).toEqual([
+      'latest',
+    ]);
     expect(prismaMock.oauthConsent.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: {
