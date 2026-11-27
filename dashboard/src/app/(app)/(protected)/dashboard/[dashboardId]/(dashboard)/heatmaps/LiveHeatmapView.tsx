@@ -83,7 +83,8 @@ export function LiveHeatmapView({ pageUrl, pagePath, width, viewportHeight, anch
         if (parsed.success) setFound(new Map(parsed.data.map(({ selector, elements }) => [selector, elements])));
         return;
       }
-      if (data?.type !== 'betterlytics:preview' || typeof data.height !== 'number') return;
+      if (data?.type !== 'betterlytics:preview' || typeof data.height !== 'number' || !Number.isFinite(data.height))
+        return;
       // A redirect, to a login page say, shows another page than the one the clicks are on
       if (typeof data.path !== 'string' || !matchesPagePath(pagePath, data.path)) {
         callbacks.current.onUnusable();
