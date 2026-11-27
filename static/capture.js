@@ -414,7 +414,8 @@
       return fetch(endpoint + "?" + query, {
         method: "POST",
         credentials: "omit",
-        headers: { Authorization: "Bearer " + capture.token },
+        // Not Authorization: a cross-origin preflight's "*" never allows that header
+        headers: { "X-Capture-Token": capture.token },
         body: encoded.bytes,
       }).then(
         function (res) {

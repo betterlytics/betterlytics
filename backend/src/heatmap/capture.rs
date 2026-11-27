@@ -14,7 +14,7 @@ use std::sync::Arc;
 use axum::{
     Json,
     extract::{Query, State, rejection::{BytesRejection, QueryRejection}},
-    http::{HeaderMap, StatusCode, header},
+    http::{HeaderMap, StatusCode},
     response::{IntoResponse, Response},
 };
 use bytes::Bytes;
@@ -40,6 +40,10 @@ pub const BODY_LIMIT_BYTES: usize = MAX_UPLOAD_BYTES + 1;
 const MAX_UNPACKED_BYTES: u64 = 40 * 1024 * 1024;
 /// Fits "bhc_", a site id at the ingestion limit of 100 characters, a dot and the secret
 const MAX_TOKEN_CHARS: usize = 256;
+
+/// Not Authorization: the upload is cross-origin, and a preflight's `Access-Control-Allow-Headers: *`
+/// never covers Authorization, so spec-following browsers would refuse it
+const CAPTURE_TOKEN_HEADER: &str = "x-capture-token";
 const MAX_PAGE_URL_CHARS: usize = 2048;
 const KEPT_PER_PAGE_AND_DEVICE: i64 = 10;
 /// Outside the replay `site/` prefix, so the documented replay expiry rule never matches
@@ -199,7 +203,7 @@ async fn store_capture(
     query: Result<Query<CaptureParams>, QueryRejection>,
     body: Result<Bytes, BytesRejection>,
 ) -> Result<String, Refusal> {
-    let token = bearer_token(headers).ok_or_else(Refusal::link_invalid)?;
+    let token = capture_token(headers).ok_or_else(Refusal::link_invalid)?;
     let link = find_link(&ctx.pool, &hash_token(token)).await?.ok_or_else(Refusal::link_invalid)?;
 
     let Query(params) = query.map_err(|_| Refusal::new(Reason::Invalid, "Invalid capture parameters."))?;
@@ -296,9 +300,8 @@ fn too_large() -> Refusal {
     Refusal::new(Reason::TooLarge, "This page is too large to capture (over 10 MB compressed or 40 MB unpacked).")
 }
 
-fn bearer_token(headers: &HeaderMap) -> Option<&str> {
-    let value = headers.get(header::AUTHORIZATION)?.to_str().ok()?;
-    let token = value.strip_prefix("Bearer ")?.trim();
+fn capture_token(headers: &HeaderMap) -> Option<&str> {
+    let token = headers.get(CAPTURE_TOKEN_HEADER)?.to_str().ok()?.trim();
     (!token.is_empty() && token.len() <= MAX_TOKEN_CHARS).then_some(token)
 }
 
@@ -518,18 +521,21 @@ mod tests {
     }
 
     #[test]
-    fn bearer_token_is_required_and_bounded() {
+    fn capture_token_is_required_and_bounded() {
         let mut headers = HeaderMap::new();
-        assert_eq!(bearer_token(&headers), None);
-        headers.insert(header::AUTHORIZATION, "Bearer abc".parse().unwrap());
-        assert_eq!(bearer_token(&headers), Some("abc"));
-        headers.insert(header::AUTHORIZATION, "Basic abc".parse().unwrap());
-        assert_eq!(bearer_token(&headers), None);
+        assert_eq!(capture_token(&headers), None);
+        headers.insert(CAPTURE_TOKEN_HEADER, "abc".parse().unwrap());
+        assert_eq!(capture_token(&headers), Some("abc"));
+        headers.insert(CAPTURE_TOKEN_HEADER, " ".parse().unwrap());
+        assert_eq!(capture_token(&headers), None);
         let long_site_token = format!("bhc_{}.{}", "a".repeat(100), "b".repeat(43));
-        headers.insert(header::AUTHORIZATION, format!("Bearer {}", long_site_token).parse().unwrap());
-        assert_eq!(bearer_token(&headers), Some(long_site_token.as_str()));
-        headers.insert(header::AUTHORIZATION, format!("Bearer {}", "a".repeat(MAX_TOKEN_CHARS + 1)).parse().unwrap());
-        assert_eq!(bearer_token(&headers), None);
+        headers.insert(CAPTURE_TOKEN_HEADER, long_site_token.parse().unwrap());
+        assert_eq!(capture_token(&headers), Some(long_site_token.as_str()));
+        headers.insert(CAPTURE_TOKEN_HEADER, "a".repeat(MAX_TOKEN_CHARS + 1).parse().unwrap());
+        assert_eq!(capture_token(&headers), None);
+        let mut authorization_only = HeaderMap::new();
+        authorization_only.insert(axum::http::header::AUTHORIZATION, "Bearer abc".parse().unwrap());
+        assert_eq!(capture_token(&authorization_only), None);
     }
 
     #[test]
