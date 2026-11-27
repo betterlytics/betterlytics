@@ -102,7 +102,8 @@ export function McpAccessList({ dashboardId, connections, tokens }: McpAccessLis
         {items.map((item) => (
           <div key={`${item.kind}:${item.id}`} className='flex items-center gap-3 px-4 py-3'>
             <div className='min-w-0 flex-1'>
-              <div className='flex min-w-0 items-center gap-2'>
+              {/* the badges wrap below a name that doesn't fit beside them, so short names never truncate */}
+              <div className='flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1'>
                 <p className='truncate text-sm font-medium' title={item.name}>
                   {item.name}
                 </p>
