@@ -261,11 +261,14 @@ impl Database {
 
     /// A plain insert: async_insert would buffer a snapshot of up to 40 MB in the server's queue
     pub async fn insert_heatmap_capture(&self, row: HeatmapCaptureRow) -> Result<()> {
-        let mut insert = self.clickhouse.inner().insert::<HeatmapCaptureRow>("analytics.heatmap_captures")?;
+        // The write streams up to 40 MB while the upload holds its capture link's row lock, so a
+        // stalled server has to time out there too, not only at the end
+        let timeout = Some(Duration::from_secs(HEATMAP_CAPTURE_TIMEOUT_SECS));
+        let mut insert = self.clickhouse.inner()
+            .insert::<HeatmapCaptureRow>("analytics.heatmap_captures")?
+            .with_timeouts(timeout, timeout);
         insert.write(&row).await?;
-        tokio::time::timeout(Duration::from_secs(HEATMAP_CAPTURE_TIMEOUT_SECS), insert.end())
-            .await
-            .map_err(|_| anyhow::anyhow!("heatmap capture insert timed out"))??;
+        insert.end().await?;
         Ok(())
     }
 
